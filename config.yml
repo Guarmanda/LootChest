@@ -1,0 +1,15 @@
+#Here are some options about particles
+Particles:
+  default_particle: FLAME
+  #10 of these particles spawn at the same time
+  number: 10
+  #They respawn all 5 ticks by default
+  respawn_ticks: 5
+  #The radius of spawning
+  radius: 0.3
+  #The speed of particles. A low speed is more smooth and good-looking. A speed of 1 is just insane.
+  speed: 0.05
+#time is in minutes
+default_reset_time: 10
+#each item has a percentage of chance to spawn in a chest
+default_item_chance: 100

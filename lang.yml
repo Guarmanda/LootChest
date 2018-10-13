@@ -1,0 +1,42 @@
+noPermission: "&c You don't have permission [Permission]"
+notAChest: "&cYou're not looking a chest"
+chestIsEmpy: "&cThat chest is empty"
+chestDeleted: "&aThe chest [Chest] &awas deleted"
+chestSuccefulySaved: "&aThe chest [Chest] was succefuly created!"
+chestDoesntExist: "&cThe chest [Chest] &cdoesn't exist!"
+chestAlreadyExist: "&cThe chest [Chest] &calready exists!"
+succesfulyRespawnedChest: "&aThe chest [Chest] &awas respawned!"
+AllChestsReloaded: "&aAll chests were succesfuly reloaded!"
+editedParticle: "&aEdited particle of chest [Chest]!"
+hologram_edited: "&aEdited hologram of chest [Chest]!"
+Menu:
+  particles:
+    name: "&aChoose a particle for that chest!"
+  main:
+    respawnTime: "&aRespawn time editing"
+    content: "&aChest content editing"
+    chances: "&aItems chances editing"
+    name: "&aMain editing menu"
+    particles: "&aParticle choosing"
+  chances:
+    name: "&aItem chances of chest [Chest]"
+    lore: "&aLeft click to up percentage, Right click to down it"
+  items:
+    name: "&aItems in chest [Chest]"
+  time:
+    name: "&aTemps de respawn"
+    minutes: "&aMinutes"
+    hours: "&aHours"
+    days: "&aDays"
+help:
+  line1: "&a -- Help for LootChest plugin --"
+  line2: "&a(by Black_Eyes (alias Guarmanda), idea by Ender_Griefeur99)"
+  line3: "&a/lc create <name> &b: Creates a chest and opens creating menu"
+  line4: "&a/lc edit <name> &b: Open editing menu"
+  line5: "&a/lc help &b: Guess it"
+  line6: "&a/lc respawn <name> &b: respawn a chest"
+  line7: "&a/lc respawnall &b: respawn all chests"
+  line8: "&a/lc remove <name> &b: removes the given chest"
+  line9: "&a/lc setholo <name> <text> &b: set hologram of given chest"
+ 
+ 

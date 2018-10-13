@@ -1,0 +1,9 @@
+name: LootChest
+main: fr.black_eyes.lootchest.Main
+version: 1.0
+description: >
+             Plugin for Regenerating Chests
+commands:
+  lootchest:
+    description: Main Command
+    aliases: lc
