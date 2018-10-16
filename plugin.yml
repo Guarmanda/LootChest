@@ -1,6 +1,7 @@
 name: LootChest
 main: fr.black_eyes.lootchest.Main
 version: 1.0
+api-version: 1.13
 description: >
              Plugin for Regenerating Chests
 commands:

@@ -6,25 +6,27 @@ chestSuccefulySaved: "&aThe chest [Chest] was succefuly created!"
 chestDoesntExist: "&cThe chest [Chest] &cdoesn't exist!"
 chestAlreadyExist: "&cThe chest [Chest] &calready exists!"
 succesfulyRespawnedChest: "&aThe chest [Chest] &awas respawned!"
-AllChestsReloaded: "&aAll chests were succesfuly reloaded!"
+AllChestsReloaded: "&aAll chests were respawned!"
 editedParticle: "&aEdited particle of chest [Chest]!"
 hologram_edited: "&aEdited hologram of chest [Chest]!"
+PluginReloaded: "&aConfig file, lang, and chest data were reloaded"
+ListCommand: "&aList of all chests: [List]"
 Menu:
   particles:
-    name: "&aChoose a particle for that chest!"
+    name: "&1Choose a chest particle!"
   main:
-    respawnTime: "&aRespawn time editing"
-    content: "&aChest content editing"
-    chances: "&aItems chances editing"
-    name: "&aMain editing menu"
-    particles: "&aParticle choosing"
+    respawnTime: "&1Respawn time editing"
+    content: "&1Chest content editing"
+    chances: "&1Items chances editing"
+    name: "&1Main editing menu"
+    particles: "&1Particle choosing"
   chances:
-    name: "&aItem chances of chest [Chest]"
+    name: "&1Item chances of chest [Chest]"
     lore: "&aLeft click to up percentage, Right click to down it"
   items:
-    name: "&aItems in chest [Chest]"
+    name: "&1Items in chest [Chest]"
   time:
-    name: "&aTemps de respawn"
+    name: "&1Temps de respawn"
     minutes: "&aMinutes"
     hours: "&aHours"
     days: "&aDays"
@@ -38,5 +40,7 @@ help:
   line7: "&a/lc respawnall &b: respawn all chests"
   line8: "&a/lc remove <name> &b: removes the given chest"
   line9: "&a/lc setholo <name> <text> &b: set hologram of given chest"
+  line10: "&a/lc reload &b: reloads the plugin"
+  line11: "&a/lc list &b: list all chests"
  
  

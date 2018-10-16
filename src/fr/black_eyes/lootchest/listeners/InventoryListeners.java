@@ -107,18 +107,20 @@ public class InventoryListeners implements Listener {
         	return;
         }
         final Player player =(Player)e.getWhoClicked();
+        if(!Lootchest.editinv.containsKey(player)) {
+        	return;
+        }
         //particles menu
         if (e.getInventory().getName().equals(Utils.getMsg("Menu.particles.name", "[Chest]", Lootchest.editinv.get(player)))) {
         	e.setCancelled(true);
         	String particules[] = {"EXPLOSION_HUGE", "EXPLOSION_LARGE", "EXPLOSION_NORMAL", "FIREWORKS_SPARK", "WATER_BUBBLE", "SUSPENDED", "TOWN_AURA", "CRIT", "CRIT_MAGIC", "SMOKE_NORMAL", "SMOKE_LARGE", "SPELL_MOB", "SPELL_MOB_AMBIENT", "SPELL", "SPELL_INSTANT", "SPELL_WITCH", "NOTE", "PORTAL", "ENCHANTMENT_TABLE", "FLAME", "LAVA", "FOOTSTEP", "WATER_SPLASH", "WATER_WAKE", "CLOUD", "REDSTONE", "SNOWBALL", "DRIP_WATER", "DRIP_LAVA", "SNOW_SHOVEL", "SLIME", "HEART", "VILLAGER_ANGRY", "VILLAGER_HAPPY", "BARRIER"};
         	Main.getInstance().getData().set("chests." + Lootchest.editinv.get(player) + ".particle", particules[e.getSlot()]);
-        	Particle particules1[] = {Particle.EXPLOSION_HUGE, Particle.EXPLOSION_LARGE, Particle.EXPLOSION_NORMAL, Particle.FIREWORKS_SPARK, Particle.WATER_BUBBLE, Particle.SUSPENDED, Particle.TOWN_AURA, Particle.CRIT, Particle.CRIT_MAGIC, Particle.SMOKE_NORMAL, Particle.SMOKE_LARGE, Particle.SPELL_MOB, Particle.SPELL_MOB_AMBIENT, Particle.SPELL, Particle.SPELL_INSTANT, Particle.SPELL_WITCH, Particle.NOTE, Particle.PORTAL, Particle.ENCHANTMENT_TABLE, Particle.FLAME, Particle.LAVA, Particle.FOOTSTEP, Particle.WATER_SPLASH, Particle.WATER_WAKE, Particle.CLOUD, Particle.REDSTONE, Particle.SNOWBALL, Particle.DRIP_WATER, Particle.DRIP_LAVA, Particle.SNOW_SHOVEL, Particle.SLIME, Particle.HEART, Particle.VILLAGER_ANGRY, Particle.VILLAGER_HAPPY, Particle.BARRIER};
         	Location loc = (Location)Main.getInstance().getData().get("chests." + Lootchest.editinv.get(player) + ".location");
         	final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
     		loc2.setX(loc.getX()+0.5);
     		loc2.setY(loc.getY()+0.5);
     		loc2.setZ(loc.getZ()+0.5);
-        	for(Particle part : particules1) {
+        	for(Particle part : Main.particules) {
     			if((""+part).contains(particules[e.getSlot()])) 
     				Main.part.put(loc2, part);
     		}
@@ -137,8 +139,10 @@ public class InventoryListeners implements Listener {
         	String chest = Lootchest.editinv.get(player);
         	switch(e.getSlot()) {
         		case 11:
-        			player.closeInventory();
-        			Utils.particleInv(player, chest);
+        			if(Main.getInstance().getConfig().getBoolean("Particles.enable")) {
+        				player.closeInventory();
+        				Utils.particleInv(player, chest);
+        			}
         			break;
         		case 13:
         			player.closeInventory();

@@ -58,8 +58,10 @@ public class DeleteListener implements Listener  {
     		String keys = Utils.isLootChest(openInvs.get(p));
     		if(!keys.equals(" ")) {
     			Location loc = openInvs.get(p);
-    			loc.getBlock().setType(Material.AIR);
-    			Utils.deleteholo(loc);
+    			if(Main.getInstance().getConfig().getBoolean("RemoveEmptyChests")) {
+    				loc.getBlock().setType(Material.AIR);
+    				Utils.deleteholo(loc);
+    			}
     			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
     	    	loc2.setX(loc.getX()+0.5);
     	    	loc2.setY(loc.getY()+0.5);

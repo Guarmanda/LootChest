@@ -1,5 +1,6 @@
 package fr.black_eyes.lootchest.commands;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -9,6 +10,7 @@ import org.bukkit.block.Chest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
@@ -87,7 +89,7 @@ public class Lootchest implements CommandExecutor  {
 					}
 					break;
 				default:
-					for(int i=1; i<=9;i++) {
+					for(int i=1; i<=11;i++) {
 						Utils.msg(player, "help.line"+i, "", "");
 					}
 					
@@ -104,23 +106,52 @@ public class Lootchest implements CommandExecutor  {
 					}
 					Utils.msg(player, "AllChestsReloaded", " ", " ");
 				}
+				else if(args[0].equalsIgnoreCase("reload")) {
+					if (!player.hasPermission("lootchest.reload") && !player.hasPermission("lootchest.admin")) {
+						Utils.msg(player, "noPermission", "[Permission]", "lootchest.reload");
+						return false;
+					}
+					try {
+						Main.getInstance().getConfig().load(Main.getInstance().getConfigF());
+						Main.getInstance().getData().load(Main.getInstance().getDataF());
+						Main.getInstance().getLang().load(Main.getInstance().getLangF());
+					} catch (IOException | InvalidConfigurationException e) {
+						e.printStackTrace();
+					
+					}
+	            	for(String keys : Main.getInstance().getData().getConfigurationSection("chests").getKeys(false)) {
+            			Utils.restoreChest(keys);
+	            	}
+					Utils.msg(player, "PluginReloaded", " ", " ");
+				}
+				else if(args[0].equalsIgnoreCase("list")) {
+					if (!player.hasPermission("lootchest.list") && !player.hasPermission("lootchest.admin")) {
+						Utils.msg(player, "noPermission", "[Permission]", "lootchest.list");
+						return false;
+					}
+					final StringBuilder bc = new StringBuilder();
+					for(String keys : Main.getInstance().getData().getConfigurationSection("chests").getKeys(false)) {
+						bc.append(" " + String.valueOf(keys));
+					}
+					Utils.msg(player, "ListCommand", "[List]", bc.toString());
+				}
 				else {
-					for(int i=1; i<=9;i++) {
+					for(int i=1; i<=11;i++) {
 						Utils.msg(player, "help.line"+i, "", "");
 					}
 				}
 			}
-			else if(args.length > 3) {
-				if(args[0].equalsIgnoreCase("setholo")) {
+			else if(args.length >= 3) {
+				if(args[0].equalsIgnoreCase("setholo") && Main.getInstance().getConfig().getBoolean("UseHologram")) {
 					final StringBuilder bc = new StringBuilder();
 					bc.append(String.valueOf(args[2]));
-					if(args.length > 4) {
+					if(args.length > 3) {
 						for (int i = 3; i<args.length; i++) {
 							bc.append(" " + String.valueOf(args[i]));
 						}
                     }
 					if (!player.hasPermission("lootchest.setholo") && !player.hasPermission("lootchest.admin")) {
-						Utils.msg(player, "noPermission", "[Permission]", "lootchest.respawnall");
+						Utils.msg(player, "noPermission", "[Permission]", "lootchest.setholo");
 						return false;
 					}
 					else if (!Main.getInstance().getData().isSet("chests." + args[1] + ".time")){
@@ -133,13 +164,13 @@ public class Lootchest implements CommandExecutor  {
 					}
 				}
 				else {
-					for(int i=1; i<=9;i++) {
+					for(int i=1; i<=11;i++) {
 						Utils.msg(player, "help.line"+i, "", "");
 					}
 				}
 			}
 			else {
-				for(int i=1; i<=9;i++) {
+				for(int i=1; i<=11;i++) {
 					Utils.msg(player, "help.line"+i, "", "");
 				}
 			}

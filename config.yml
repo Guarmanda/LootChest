@@ -1,5 +1,7 @@
 #Here are some options about particles
 Particles:
+  #if you disable this, no matter what you but below^^
+  enable: true
   default_particle: FLAME
   #10 of these particles spawn at the same time
   number: 10
@@ -13,3 +15,9 @@ Particles:
 default_reset_time: 10
 #each item has a percentage of chance to spawn in a chest
 default_item_chance: 100
+#I think you know what it is:
+UseHologram: true
+#remove the chests if the player empty them (they still respawn and everything)
+RemoveEmptyChests: true
+
+

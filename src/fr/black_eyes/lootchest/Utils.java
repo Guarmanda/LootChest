@@ -94,34 +94,64 @@ public class Utils implements Listener {
 	//se sert du data.yml pour set le coffre et remplir son inventaire, créer l'holo en fonction du nom 
 	public static void restoreChest(String name) {
 		final Location loc = (Location) Main.getInstance().getData().get("chests." + name + ".location");
+		//si le coffre est vide, IL MEURT MOUAHAHA
 		if(loc.getBlock().getType().equals(Material.CHEST)) {
-			if(!isEmpty(((Chest) loc.getBlock().getState()).getInventory())) {
-				deleteholo(loc);
-				makeHolo(loc, name);
+			if(Utils.isEmpty(((Chest) loc.getBlock().getState()).getInventory()) && Main.getInstance().getConfig().getBoolean("RemoveEmptyChests")) {
+				Utils.deleteholo(loc);
+				loc.getBlock().setType(Material.AIR);
+				final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
+				loc2.setX(loc.getX()+0.5);
+				loc2.setY(loc.getY()+0.5);
+				loc2.setZ(loc.getZ()+0.5);
+				Main.part.remove(loc2);
 				return;
 			}
 		}
-		makeHolo(loc, name);
-		loc.getBlock().setType(Material.CHEST);
-		for(String keys : Main.getInstance().getData().getConfigurationSection("chests." + name + ".inventory").getKeys(false)) {
-			ItemStack item = Main.getInstance().getData().getItemStack("chests." + name + ".inventory." + keys);
-			int slot = Integer.parseInt(keys);
-			int percent = ThreadLocalRandom.current().nextInt(0, 100 + 1);
-			if(percent <= Main.getInstance().getData().getInt("chests." + name + ".chance." + keys)){
-				((Chest) loc.getBlock().getState()).getInventory().setItem(slot, item);
+		
+		
+		long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime();
+		long minutes = Main.getInstance().getData().getLong("chests." + name + ".time")*60*1000;
+		long tempsenregistre = Main.getInstance().getData().getLong("chests." + name + ".lastreset");
+		if(tempsactuel - tempsenregistre > minutes) {
+			loc.getBlock().setType(Material.CHEST);
+			for(String keys : Main.getInstance().getData().getConfigurationSection("chests." + name + ".inventory").getKeys(false)) {
+				ItemStack item = Main.getInstance().getData().getItemStack("chests." + name + ".inventory." + keys);
+				int slot = Integer.parseInt(keys);
+				int percent = ThreadLocalRandom.current().nextInt(0, 100 + 1);
+				if(percent <= Main.getInstance().getData().getInt("chests." + name + ".chance." + keys)){
+					((Chest) loc.getBlock().getState()).getInventory().setItem(slot, item);
+				}
+			}
+			if(Main.getInstance().getConfig().getBoolean("UseHologram")){
+				deleteholo(loc);
+				makeHolo(loc, name);
+			}
+			else {
+				deleteholo(loc);
 			}
 		}
-		final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-		loc2.setX(loc.getX()+0.5);
-		loc2.setY(loc.getY()+0.5);
-		loc2.setZ(loc.getZ()+0.5);
-		Particle particules[] = {Particle.EXPLOSION_HUGE, Particle.EXPLOSION_LARGE, Particle.EXPLOSION_NORMAL, Particle.FIREWORKS_SPARK, Particle.WATER_BUBBLE, Particle.SUSPENDED, Particle.TOWN_AURA, Particle.CRIT, Particle.CRIT_MAGIC, Particle.SMOKE_NORMAL, Particle.SMOKE_LARGE, Particle.SPELL_MOB, Particle.SPELL_MOB_AMBIENT, Particle.SPELL, Particle.SPELL_INSTANT, Particle.SPELL_WITCH, Particle.NOTE, Particle.PORTAL, Particle.ENCHANTMENT_TABLE, Particle.FLAME, Particle.LAVA, Particle.FOOTSTEP, Particle.WATER_SPLASH, Particle.WATER_WAKE, Particle.CLOUD, Particle.REDSTONE, Particle.SNOWBALL, Particle.DRIP_WATER, Particle.DRIP_LAVA, Particle.SNOW_SHOVEL, Particle.SLIME, Particle.HEART, Particle.VILLAGER_ANGRY, Particle.VILLAGER_HAPPY, Particle.BARRIER};
-		for(Particle part : particules) {
-			if((""+part).contains(Main.getInstance().getData().getString("chests." + name + ".particle")))
-				Main.part.put(loc2, part);
-		}
+			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
+			loc2.setX(loc.getX()+0.5);
+			loc2.setY(loc.getY()+0.5);
+			loc2.setZ(loc.getZ()+0.5);
+			if(loc.getBlock().getType().equals(Material.CHEST)) {
+				for(Particle part : Main.particules) {
+					if((""+part).contains(Main.getInstance().getData().getString("chests." + name + ".particle"))) {
+						if (Main.getInstance().getConfig().getBoolean("Particles.enable")) {
+							Main.part.put(loc2, part);
+						}
+					}
+				}
+				if(Main.getInstance().getConfig().getBoolean("UseHologram")){
+					deleteholo(loc);
+					makeHolo(loc, name);
+				}
+				else {
+					deleteholo(loc);
+				}
+			}
+		
 	}
-	
 	
 	public static boolean isEmpty(Inventory inv) {
 	     for (ItemStack item : inv.getContents() ) {
@@ -240,9 +270,11 @@ public class Utils implements Listener {
 	
 	public static void mainInv(Player p, String name) {
         final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.main.name", " ", " "));
-        inv.setItem(11, getItem(Material.EYE_OF_ENDER, getMsg("Menu.main.particles", " ", " ")));
+        if(Main.getInstance().getConfig().getBoolean("Particles.enable")) {
+        	inv.setItem(11, getItem(Main.ender_eye, getMsg("Menu.main.particles", " ", " ")));
+        }
         inv.setItem(13, getItem(Material.CHEST, getMsg("Menu.main.content", " ", " ")));
-        inv.setItem(15, getItem(Material.WATCH, getMsg("Menu.main.respawnTime", " ", " ")));
+        inv.setItem(15, getItem(Main.watch, getMsg("Menu.main.respawnTime", " ", " ")));
         inv.setItem(22, getItem(Material.DIAMOND, getMsg("Menu.main.chances", " ", " ")));
         new BukkitRunnable() {       
             @Override
@@ -261,10 +293,10 @@ public class Utils implements Listener {
         inv.setItem(0, getItem(Material.TNT, "Huge Explosion"));
         inv.setItem(1, getItem(Material.TNT, "Large Explosion"));
         inv.setItem(2, getItem(Material.TNT, "Normal Explosion"));
-        inv.setItem(3, getItem(Material.FIREWORK, "Fireworks Sparks"));
+        inv.setItem(3, getItem(Main.firework, "Fireworks Sparks"));
         inv.setItem(4, getItem(Material.PRISMARINE_CRYSTALS, "Bubble Pop"));
         inv.setItem(5, getItem(Material.STONE, "Suspended"));
-        inv.setItem(6, getItem(Material.MYCEL, "Town Aura"));
+        inv.setItem(6, getItem(Main.mycelium, "Town Aura"));
         inv.setItem(7, getItem(Material.IRON_SWORD, "Crit"));
         inv.setItem(8, getItem(Material.DIAMOND_SWORD, "Magic Crit"));
         inv.setItem(9, getItem(Material.FURNACE, "Normal Smoke"));
@@ -275,8 +307,8 @@ public class Utils implements Listener {
         inv.setItem(14, getItem(Material.ENCHANTED_BOOK, "Instant Spell"));
         inv.setItem(15, getItem(Material.ENCHANTED_BOOK, "Witch Spell"));
         inv.setItem(16, getItem(Material.NOTE_BLOCK, "Note"));
-        inv.setItem(17, getItem(Material.ENDER_PORTAL_FRAME, "Portal"));
-        inv.setItem(18, getItem(Material.ENCHANTMENT_TABLE , "Enchantment Table"));
+        inv.setItem(17, getItem(Main.ender_portal_frame, "Portal"));
+        inv.setItem(18, getItem(Main.enchant_table , "Enchantment Table"));
         inv.setItem(19, getItem(Material.BLAZE_POWDER, "Flame"));
         inv.setItem(20, getItem(Material.LAVA_BUCKET, "Lava"));
         inv.setItem(21, getItem(Material.STONE, "Footstep"));
@@ -284,12 +316,12 @@ public class Utils implements Listener {
         inv.setItem(23, getItem(Material.WATER_BUCKET, "Water Wake"));
         inv.setItem(24, getItem(Material.QUARTZ, "Cloud"));
         inv.setItem(25, getItem(Material.REDSTONE, "Redstone"));
-        inv.setItem(26, getItem(Material.SNOW_BALL, "Snowball"));
+        inv.setItem(26, getItem(Main.snowball, "Snowball"));
         inv.setItem(27, getItem(Material.WATER_BUCKET, "Drip Water"));
         inv.setItem(28, getItem(Material.LAVA_BUCKET, "Drip Lava"));
-        inv.setItem(29, getItem(Material.IRON_SPADE, "Snow Shovel"));
+        inv.setItem(29, getItem(Main.iron_shovel, "Snow Shovel"));
         inv.setItem(30, getItem(Material.SLIME_BALL, "Slime"));
-        inv.setItem(31, getItem(Material.RED_ROSE, "Heart"));
+        inv.setItem(31, getItem(Main.red_rose, "Heart"));
         inv.setItem(32, getItem(Material.REDSTONE_BLOCK, "Angry Villager"));
         inv.setItem(33, getItem(Material.EMERALD, "Happy Villager"));
         inv.setItem(34, getItem(Material.BARRIER, "Barrier"));
