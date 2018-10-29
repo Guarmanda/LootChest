@@ -7,13 +7,11 @@ import java.util.HashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-
 import fr.black_eyes.lootchest.commands.Lootchest;
 import fr.black_eyes.lootchest.listeners.DeleteListener;
 import fr.black_eyes.lootchest.listeners.InventoryListeners;
@@ -28,8 +26,8 @@ import fr.black_eyes.lootchest.listeners.InventoryListeners;
 
 public class Main extends JavaPlugin{
 	
-	
-	public static HashMap<Location, Particle> part = new HashMap<Location, Particle>();
+	public static Object particules[] = new Object[35];
+	public static HashMap<Location, Object> part = new HashMap<Location, Object>();
 	private File dataFile;
 	private FileConfiguration data;
 	private File configFile;
@@ -37,7 +35,6 @@ public class Main extends JavaPlugin{
 	private File langFile;
 	private FileConfiguration lang;
 	private static Main instance;
-	public static Particle particules[] = {Particle.EXPLOSION_HUGE, Particle.EXPLOSION_LARGE, Particle.EXPLOSION_NORMAL, Particle.FIREWORKS_SPARK, Particle.WATER_BUBBLE, Particle.SUSPENDED, Particle.TOWN_AURA, Particle.CRIT, Particle.CRIT_MAGIC, Particle.SMOKE_NORMAL, Particle.SMOKE_LARGE, Particle.SPELL_MOB, Particle.SPELL_MOB_AMBIENT, Particle.SPELL, Particle.SPELL_INSTANT, Particle.SPELL_WITCH, Particle.NOTE, Particle.PORTAL, Particle.ENCHANTMENT_TABLE, Particle.FLAME, Particle.LAVA, Particle.LAVA, Particle.WATER_SPLASH, Particle.WATER_WAKE, Particle.CLOUD, Particle.REDSTONE, Particle.SNOWBALL, Particle.DRIP_WATER, Particle.DRIP_LAVA, Particle.SNOW_SHOVEL, Particle.SLIME, Particle.HEART, Particle.VILLAGER_ANGRY, Particle.VILLAGER_HAPPY, Particle.BARRIER};;
 	public static Material ender_eye;
 	public static Material watch;
 	public static Material mycelium;
@@ -53,7 +50,7 @@ public class Main extends JavaPlugin{
 			Main.getInstance().getConfig().save(Main.getInstance().getConfigF());
 			Main.getInstance().getData().save(Main.getInstance().getDataF());
 			Main.getInstance().getLang().save(Main.getInstance().getLangF());
-		} catch (IOException e) {
+		} catch (IOException | IllegalArgumentException e) {
 			e.printStackTrace();
 		
 		}	
@@ -66,7 +63,10 @@ public class Main extends JavaPlugin{
 		this.getServer().getPluginManager().registerEvents(new InventoryListeners(), this);
         this.getCommand("lootchest").setExecutor(new Lootchest());
         super.onEnable();
-        initFiles();
+        if(!initFiles()) {
+        	getLogger().info("§cThe data file couldn't be initialised, This is, in most cases, due to bad chest locations. Please, remove the chests wich are in unexisting worlds");
+        	return;
+        }
         setConfig("Particles.enable", true);
         setConfig("UseHologram", true);
         setConfig("RemoveEmptyChests", true);
@@ -74,66 +74,72 @@ public class Main extends JavaPlugin{
         setLang("ListCommand", "&aList of all chests: [List]");
         setLang("help.line10", "&a/lc reload &b: reloads the plugin");
         setLang("help.line11", "&a/lc list &b: list all chests");
-        if(Bukkit.getVersion().contains("1.13")){
-        
-        	particules[21] = Particle.END_ROD;
-        	ender_eye = Material.ENDER_EYE;
-        	watch = Material.CLOCK;
-        	mycelium = Material.MYCELIUM;
-        	firework = Material.FIREWORK_ROCKET;
-        	ender_portal_frame = Material.END_PORTAL_FRAME;
-        	snowball = Material.SNOWBALL;
-        	iron_shovel = Material.IRON_SHOVEL;
-        	red_rose = Material.ROSE_RED;
-        	enchant_table = Material.ENCHANTING_TABLE;
+        if(!Bukkit.getVersion().contains("1.8")) {
+    		initParticles();
         }
-        else if(Bukkit.getVersion().contains("1.8")) {
+        if(Bukkit.getVersion().contains("1.8")) {
         	getInstance().getConfig().set("Particles.enable", false);
-        	getLogger().info("1.8 detected: particles were disabled");
+        	getLogger().info("Spigot 1.8 detected: particles were disabled");
+        }
+        else if(Bukkit.getVersion().contains("1.13")){
+        	particules[21] = org.bukkit.Particle.END_ROD;
         }
         else {
-        	particules[21] = Particle.valueOf("FOOTSTEP");
-        	ender_eye = Material.valueOf("EYE_OF_ENDER");
-        	watch = Material.valueOf("WATCH");
-        	mycelium = Material.valueOf("MYCEL");
-        	firework = Material.valueOf("FIREWORK");
-        	ender_portal_frame = Material.valueOf("ENDER_PORTAL_FRAME");
-        	snowball = Material.valueOf("SNOW_BALL");
-        	iron_shovel = Material.valueOf("IRON_SPADE");
-        	red_rose = Material.valueOf("RED_ROSE");
-        	enchant_table = Material.valueOf("ENCHANTMENT_TABLE");
+        		particules[21] = org.bukkit.Particle.valueOf("FOOTSTEP");
+        }
+        ender_eye = Material.valueOf("EYE_OF_ENDER");
+        watch = Material.valueOf("WATCH");
+        mycelium = Material.valueOf("MYCEL");
+        firework = Material.valueOf("FIREWORK");
+        ender_portal_frame = Material.valueOf("ENDER_PORTAL_FRAME");
+        snowball = Material.valueOf("SNOW_BALL");
+        iron_shovel = Material.valueOf("IRON_SPADE");
+        red_rose = Material.valueOf("RED_ROSE");
+        enchant_table = Material.valueOf("ENCHANTMENT_TABLE");
+        //Transformation des anciennes positions pour éviter les erreurs de fichiers
+        for(String keys : getInstance().getData().getConfigurationSection("chests").getKeys(false)) {
+        	if(!getInstance().getData().isSet("chests." + keys + ".position")) {
+        		if(getInstance().getData().isSet("chests." + keys + ".location")) {
+        			final Location loc = (Location) Main.getInstance().getData().get("chests." + keys + ".location");
+        			Utils.setPosition(keys, loc);
+        			getInstance().getData().set("chests." + keys + ".location", null);
+        			getLogger().info("Updated location of chest " + keys +" to new location format to prevent errors when loading data file"); 
+        			try {
+        				getInstance().getData().save(Main.getInstance().getDataF());
+        				getInstance().getData().load(Main.getInstance().getDataF());
+        			} catch (IOException | InvalidConfigurationException e) {
+        				e.printStackTrace();
+        			}
+        		}
+        		else {
+        			Utils.deleteChest(keys);
+        		}
+        	}
         }
         //Initialisation des particules
-        
-        	for(String keys : getInstance().getData().getConfigurationSection("chests").getKeys(false)) {
-        		final Location loc2 = (Location) Main.getInstance().getData().get("chests." + keys + ".location");
-        		final Location loc = new Location(loc2.getWorld(), loc2.getX(), loc2.getY(), loc2.getZ());
-        		loc.setX(loc.getX()+0.5);
-        		loc.setY(loc.getY()+0.5);
-        		loc.setZ(loc.getZ()+0.5);
-        		for(Particle part : particules) {
-        			if((""+part).contains(Main.getInstance().getData().getString("chests." + keys + ".particle")))
-        				Main.part.put(loc, part);
-        		}  		
-        	}
-        
+        if(!Bukkit.getVersion().contains("1.8")) {    
         	//loop de tous les coffres tous les 1/4 de secondes pour faire spawn des particules
         	new BukkitRunnable() {
         		public void run() {
         			double radius = getConfig().getDouble("Particles.radius");
         			if (getInstance().getConfig().getBoolean("Particles.enable")) {
-        			for(Location keys : part.keySet()) {
-        				keys.getWorld().spawnParticle(part.get(keys), keys, getConfig().getInt("Particles.number"), radius, radius, radius, getConfig().getDouble("Particles.speed"));
-        			}
+        				for(Location keys : part.keySet()) {
+        				keys.getWorld().spawnParticle( (org.bukkit.Particle) part.get(keys), keys, getConfig().getInt("Particles.number"), radius, radius, radius, getConfig().getDouble("Particles.speed"));
+        				}
         			}
         		}
         	}.runTaskTimer(this, 0, getConfig().getInt("Particles.respawn_ticks"));
-        
+        }
         //check du respawn des coffres toutes les minutes
         new BukkitRunnable() {
             public void run() {
             	for(String keys : getInstance().getData().getConfigurationSection("chests").getKeys(false)) {
-            			Utils.restoreChest(keys);
+            		if(Utils.getPosition(keys).getWorld() != null) {
+            			Utils.restoreChest(keys, false);
+            		}
+            		else {
+            			getLogger().info("§cCouldn't load chest "+keys +" : the world " + getInstance().getData().getString("chests." + keys + ".position.world") + " is not loaded");
+            		}
             	}
             }
         }.runTaskTimer(this, 0, 600);
@@ -141,7 +147,7 @@ public class Main extends JavaPlugin{
 	public static Main getInstance() {
         return instance;
     }
-		
+	
 	public void setConfig(String path, Object value) {
 		if(this.getConfig().isSet(path))
 			return;
@@ -154,6 +160,8 @@ public class Main extends JavaPlugin{
 				e.printStackTrace();
 			}
 	}
+	
+	
 	public void setLang(String path, Object value) {
 		if(this.getLang().isSet(path))
 			return;
@@ -185,7 +193,7 @@ public class Main extends JavaPlugin{
 		return this.lang;
 	}
 	
-	private void initFiles() {
+	private boolean initFiles() {
 		//config
 	    configFile = new File(getDataFolder(), "config.yml");
 	    langFile = new File(getDataFolder(), "lang.yml");
@@ -221,8 +229,16 @@ public class Main extends JavaPlugin{
 	    data= new YamlConfiguration();
 	    try {
 	        data.load(dataFile);
-	    } catch (IOException | InvalidConfigurationException e) {
-	        e.printStackTrace();
+	    } catch ( Exception e) {
+	        return false;
 	    }
+		return true;
+	}
+	
+	private void initParticles() {
+		org.bukkit.Particle parti[] = {org.bukkit.Particle.EXPLOSION_HUGE, org.bukkit.Particle.EXPLOSION_LARGE, org.bukkit.Particle.EXPLOSION_NORMAL, org.bukkit.Particle.FIREWORKS_SPARK, org.bukkit.Particle.WATER_BUBBLE, org.bukkit.Particle.SUSPENDED, org.bukkit.Particle.TOWN_AURA, org.bukkit.Particle.CRIT, org.bukkit.Particle.CRIT_MAGIC, org.bukkit.Particle.SMOKE_NORMAL, org.bukkit.Particle.SMOKE_LARGE, org.bukkit.Particle.SPELL_MOB, org.bukkit.Particle.SPELL_MOB_AMBIENT, org.bukkit.Particle.SPELL, org.bukkit.Particle.SPELL_INSTANT, org.bukkit.Particle.SPELL_WITCH, org.bukkit.Particle.NOTE, org.bukkit.Particle.PORTAL, org.bukkit.Particle.ENCHANTMENT_TABLE, org.bukkit.Particle.FLAME, org.bukkit.Particle.LAVA, org.bukkit.Particle.LAVA, org.bukkit.Particle.WATER_SPLASH, org.bukkit.Particle.WATER_WAKE, org.bukkit.Particle.CLOUD, org.bukkit.Particle.REDSTONE, org.bukkit.Particle.SNOWBALL, org.bukkit.Particle.DRIP_WATER, org.bukkit.Particle.DRIP_LAVA, org.bukkit.Particle.SNOW_SHOVEL, org.bukkit.Particle.SLIME, org.bukkit.Particle.HEART, org.bukkit.Particle.VILLAGER_ANGRY, org.bukkit.Particle.VILLAGER_HAPPY, org.bukkit.Particle.BARRIER};
+		for(int i = 0; i<parti.length; i++) {
+			particules[i] = parti[i];
+		}
 	}
 }

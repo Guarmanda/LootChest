@@ -84,8 +84,10 @@ public class Lootchest implements CommandExecutor  {
 						Utils.msg(player, "chestDoesntExist", "[Chest]", args[1]);
 					}
 					else {
-						Utils.restoreChest(args[1]);
-						Utils.msg(player, "succesfulyRespawnedChest", "[Chest]", args[1]);
+						if(Utils.getPosition(args[1]).getWorld() != null) {
+							Utils.restoreChest(args[1], true);
+							Utils.msg(player, "succesfulyRespawnedChest", "[Chest]", args[1]);
+						}
 					}
 					break;
 				default:
@@ -102,7 +104,9 @@ public class Lootchest implements CommandExecutor  {
 						return false;
 					}
 					for(String keys : Main.getInstance().getData().getConfigurationSection("chests").getKeys(false)) {
-						Utils.restoreChest(keys);
+						if(Utils.getPosition(keys).getWorld() != null) {
+							Utils.restoreChest(keys, true);
+						}
 					}
 					Utils.msg(player, "AllChestsReloaded", " ", " ");
 				}
@@ -120,7 +124,9 @@ public class Lootchest implements CommandExecutor  {
 					
 					}
 	            	for(String keys : Main.getInstance().getData().getConfigurationSection("chests").getKeys(false)) {
-            			Utils.restoreChest(keys);
+	            		if(Utils.getPosition(keys).getWorld() != null) {
+	            			Utils.restoreChest(keys, false);
+	            		}
 	            	}
 					Utils.msg(player, "PluginReloaded", " ", " ");
 				}
@@ -160,7 +166,7 @@ public class Lootchest implements CommandExecutor  {
 					else {
 						Main.getInstance().getData().set("chests." + args[1] + ".holo", bc.toString());
 						Utils.msg(player, "hologram_edited", "[Chest]", args[1]);
-						Utils.restoreChest(args[1]);
+						Utils.restoreChest(args[1], false);
 					}
 				}
 				else {

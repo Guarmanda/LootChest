@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -49,7 +49,7 @@ public class Utils implements Listener {
 		}
 		Main.getInstance().getData().set("chests." + name + ".holo", name);
 		Main.getInstance().getData().set("chests." + name + ".time", Main.getInstance().getConfig().getInt("default_reset_time"));
-		Main.getInstance().getData().set("chests." + name + ".location", chest.getLocation());
+		setPosition(name, chest.getLocation());
 		Main.getInstance().getData().set("chests." + name + ".lastreset", new Timestamp(System.currentTimeMillis()).getTime());
 		Location loc = chest.getLocation();
 	    final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
@@ -65,14 +65,23 @@ public class Utils implements Listener {
 		}
 		((Chest) chest.getLocation().getBlock().getState()).getInventory().clear();
 		chest.getLocation().getBlock().setType(Material.AIR);
-		restoreChest(name);
+		restoreChest(name, true);
 	}
 	
 	public static void deleteChest(String name) {
-		final Location loc = (Location) Main.getInstance().getData().get("chests." + name + ".location");
-		Block chest = loc.getBlock();
-		if(chest.getType().equals(Material.CHEST)) {
-			((Chest) chest.getState()).getInventory().clear();
+		if(Main.getInstance().getData().isSet("chests." + name + ".position")) {
+			final Location loc = getPosition(name);
+			Block chest = loc.getBlock();
+			if(chest.getType().equals(Material.CHEST)) {
+				((Chest) chest.getState()).getInventory().clear();
+			}
+			chest.setType(Material.AIR);
+			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
+			loc2.setX(loc.getX()+0.5);
+			loc2.setY(loc.getY()+0.5);
+			loc2.setZ(loc.getZ()+0.5);
+			Main.part.remove(loc2);
+			deleteholo(chest.getLocation());
 		}
 		Main.getInstance().getData().set("chests." + name, null);
 		try {
@@ -81,19 +90,12 @@ public class Utils implements Listener {
 		} catch (IOException | InvalidConfigurationException e) {
 			e.printStackTrace();
 		}
-		chest.getLocation().getBlock().setType(Material.AIR);
-		final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-		loc2.setX(loc.getX()+0.5);
-		loc2.setY(loc.getY()+0.5);
-		loc2.setZ(loc.getZ()+0.5);
-		Main.part.remove(loc2);
-		deleteholo(chest.getLocation());
 		
 	}
 	
 	//se sert du data.yml pour set le coffre et remplir son inventaire, créer l'holo en fonction du nom 
-	public static void restoreChest(String name) {
-		final Location loc = (Location) Main.getInstance().getData().get("chests." + name + ".location");
+	public static void restoreChest(String name, Boolean force) {
+		final Location loc = getPosition(name);
 		//si le coffre est vide, IL MEURT MOUAHAHA
 		if(loc.getBlock().getType().equals(Material.CHEST)) {
 			if(Utils.isEmpty(((Chest) loc.getBlock().getState()).getInventory()) && Main.getInstance().getConfig().getBoolean("RemoveEmptyChests")) {
@@ -112,7 +114,7 @@ public class Utils implements Listener {
 		long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime();
 		long minutes = Main.getInstance().getData().getLong("chests." + name + ".time")*60*1000;
 		long tempsenregistre = Main.getInstance().getData().getLong("chests." + name + ".lastreset");
-		if(tempsactuel - tempsenregistre > minutes) {
+		if(tempsactuel - tempsenregistre > minutes || force == true) {
 			loc.getBlock().setType(Material.CHEST);
 			for(String keys : Main.getInstance().getData().getConfigurationSection("chests." + name + ".inventory").getKeys(false)) {
 				ItemStack item = Main.getInstance().getData().getItemStack("chests." + name + ".inventory." + keys);
@@ -135,10 +137,12 @@ public class Utils implements Listener {
 			loc2.setY(loc.getY()+0.5);
 			loc2.setZ(loc.getZ()+0.5);
 			if(loc.getBlock().getType().equals(Material.CHEST)) {
-				for(Particle part : Main.particules) {
-					if((""+part).contains(Main.getInstance().getData().getString("chests." + name + ".particle"))) {
-						if (Main.getInstance().getConfig().getBoolean("Particles.enable")) {
-							Main.part.put(loc2, part);
+				if(!Bukkit.getVersion().contains("1.8")) {
+					for(Object part : Main.particules) {
+						if((""+part).contains(Main.getInstance().getData().getString("chests." + name + ".particle"))) {
+							if (Main.getInstance().getConfig().getBoolean("Particles.enable")) {
+								Main.part.put(loc2, (org.bukkit.Particle) part);
+							}
 						}
 					}
 				}
@@ -148,6 +152,12 @@ public class Utils implements Listener {
 				}
 				else {
 					deleteholo(loc);
+				}
+			}
+			else {
+				deleteholo(loc);
+				if (!Bukkit.getVersion().contains("1.8")) {
+					Main.part.remove(loc2);
 				}
 			}
 		
@@ -164,7 +174,7 @@ public class Utils implements Listener {
 
 	public static String isLootChest(Location loc) {
 		for(String keys : Main.getInstance().getData().getConfigurationSection("chests").getKeys(false)) {
-			Location loc2 = (Location) Main.getInstance().getData().get("chests." + keys + ".location");
+			Location loc2 = getPosition(keys);
 			if(loc2.equals(loc)) {
 				return keys;
 			}
@@ -173,8 +183,26 @@ public class Utils implements Listener {
 	}
 	
 	
-	//Pour faire des hologrames au dessus des coffres
+	public static Location getPosition(String name) {
+		World world = Bukkit.getWorld(Main.getInstance().getData().getString("chests." + name + ".position.world"));
+		double x = Main.getInstance().getData().getDouble("chests." + name + ".position.x");
+		double y = Main.getInstance().getData().getDouble("chests." + name + ".position.y");
+		double z = Main.getInstance().getData().getDouble("chests." + name + ".position.z");
+		float pitch = (float) Main.getInstance().getData().getDouble("chests." + name + ".position.pitch");
+		float yaw = (float) Main.getInstance().getData().getDouble("chests." + name + ".position.yaw");
+		return new Location(world, x, y, z, pitch, yaw);
+	}
 	
+	public static void setPosition(String name, Location loc) {
+		Main.getInstance().getData().set("chests." + name + ".position.world", loc.getWorld().getName());
+		Main.getInstance().getData().set("chests." + name + ".position.x", loc.getX());
+		Main.getInstance().getData().set("chests." + name + ".position.y", loc.getY());
+		Main.getInstance().getData().set("chests." + name + ".position.z", loc.getZ());
+		Main.getInstance().getData().set("chests." + name + ".position.pitch", loc.getPitch());
+		Main.getInstance().getData().set("chests." + name + ".position.yaw", loc.getYaw());
+	}
+	
+	//Pour faire des hologrames au dessus des coffres
 	public static void deleteholo(Location loc) {
 		final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
 		loc2.setX(loc.getX()+0.5);
@@ -198,8 +226,11 @@ public class Utils implements Listener {
 
 		as.setGravity(false); //Make sure it doesn't fall
 		as.setCanPickupItems(false); //I'm not sure what happens if you leave this as it is, but you might as well disable it
-		as.setCustomName(Main.getInstance().getData().getString("chests." + text + ".holo").replace("&", "§")); //Set this to the text you want
-		as.setCustomNameVisible(true); //This makes the text appear no matter if your looking at the entity or not
+		String name = Main.getInstance().getData().getString("chests." + text + ".holo").replace("&", "§");
+		as.setCustomName(name); //Set this to the text you want
+		if(!(name.equals("\"\"") || name.equals("\" \"") || name.equals("null"))) {
+			as.setCustomNameVisible(true); //This makes the text appear no matter if your looking at the entity or not
+		}
 		as.setVisible(false); //Makes the ArmorStand invisible
 	 	as.setArms(false);
 	 	as.setBasePlate(false);
@@ -244,15 +275,50 @@ public class Utils implements Listener {
 	
 	public static void invTime(Player p, String name) {
 		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, Utils.getMsg("Menu.time.name", "[Chest]", name));
-        inv.setItem(16, getItem(Material.GOLD_NUGGET, getMsg("Menu.time.minutes", " ", " ")));
-        inv.setItem(15, getItem(Material.GOLD_NUGGET, getMsg("Menu.time.minutes", " ", " ")));
+		long temps = Main.getInstance().getData().getLong("chests." + name + ".time");
+		long jours = temps/3600;
+		long heures = temps/60 - jours*24;
+		long minutes = temps - heures*60 - jours*3600;
+		
+		if (jours/10 == 0) {
+			inv.setItem(9, getItem(Material.BARRIER, getMsg("Menu.time.days", " ", " ")));
+		} else {
+			inv.setItem(9, getItem(Material.GOLD_BLOCK, getMsg("Menu.time.days", " ", " ")));
+			inv.getItem(9).setAmount((int) (jours/10));
+		} if (jours/10*10 == jours) {
+			inv.setItem(10, getItem(Material.BARRIER, getMsg("Menu.time.days", " ", " ")));
+		}else {
+			inv.setItem(10, getItem(Material.GOLD_BLOCK, getMsg("Menu.time.days", " ", " ")));
+			inv.getItem(10).setAmount((int) (jours-jours/10*10));
+		}if (heures/10 == 0) {
+			inv.setItem(12, getItem(Material.BARRIER, getMsg("Menu.time.hours", " ", " ")));
+		}else {
+			inv.setItem(12, getItem(Material.GOLD_INGOT, getMsg("Menu.time.hours", " ", " ")));
+			inv.getItem(12).setAmount((int) (heures/10));
+		}if (heures/10*10 == heures) {
+			inv.setItem(13, getItem(Material.BARRIER, getMsg("Menu.time.hours", " ", " ")));
+		}else {
+			inv.setItem(13, getItem(Material.GOLD_INGOT, getMsg("Menu.time.hours", " ", " ")));
+			inv.getItem(13).setAmount((int) (heures-heures/10*10));
+		}if (minutes/10 == 0) {
+			inv.setItem(15, getItem(Material.BARRIER, getMsg("Menu.time.minutes", " ", " ")));
+		}else {
+			inv.setItem(15, getItem(Material.GOLD_NUGGET, getMsg("Menu.time.minutes", " ", " ")));
+			inv.getItem(15).setAmount((int) (minutes/10));
+		}if (minutes/10*10 == minutes) {
+			inv.setItem(16, getItem(Material.BARRIER, getMsg("Menu.time.minutes", " ", " ")));
+		}else {
+			inv.setItem(16, getItem(Material.GOLD_NUGGET, getMsg("Menu.time.minutes", " ", " ")));
+			inv.getItem(16).setAmount((int) (minutes-minutes/10*10));
+		}
         inv.setItem(14, getItem(Material.STICK, ""));
-        inv.setItem(13, getItem(Material.GOLD_INGOT, getMsg("Menu.time.hours", " ", " ")));
-        inv.setItem(12, getItem(Material.GOLD_INGOT, getMsg("Menu.time.hours", " ", " ")));
         inv.setItem(11, getItem(Material.STICK, ""));
-        inv.setItem(10, getItem(Material.GOLD_BLOCK, getMsg("Menu.time.days", " ", " ")));
-        inv.setItem(9, getItem(Material.GOLD_BLOCK, getMsg("Menu.time.days", " ", " ")));
 		Lootchest.editinv.put(p, name);
+		ItemStack sign = new ItemStack(Material.SIGN, 1);
+		ItemMeta meta = sign.getItemMeta(); 
+		meta.setDisplayName("Respawn time: " + jours+" days, " + heures + " hours, " + minutes + " minutes.");
+		sign.setItemMeta(meta);
+    	inv.setItem(22, sign);
 		p.openInventory(inv);
 	}
 	

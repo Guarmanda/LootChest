@@ -6,7 +6,6 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -79,6 +78,7 @@ public class InventoryListeners implements Listener {
 			Utils.mainInv(p, chest);
 			
         }
+        else return;
         try {
 			Main.getInstance().getData().save(Main.getInstance().getDataF());
 			Main.getInstance().getData().load(Main.getInstance().getDataF());
@@ -115,14 +115,16 @@ public class InventoryListeners implements Listener {
         	e.setCancelled(true);
         	String particules[] = {"EXPLOSION_HUGE", "EXPLOSION_LARGE", "EXPLOSION_NORMAL", "FIREWORKS_SPARK", "WATER_BUBBLE", "SUSPENDED", "TOWN_AURA", "CRIT", "CRIT_MAGIC", "SMOKE_NORMAL", "SMOKE_LARGE", "SPELL_MOB", "SPELL_MOB_AMBIENT", "SPELL", "SPELL_INSTANT", "SPELL_WITCH", "NOTE", "PORTAL", "ENCHANTMENT_TABLE", "FLAME", "LAVA", "FOOTSTEP", "WATER_SPLASH", "WATER_WAKE", "CLOUD", "REDSTONE", "SNOWBALL", "DRIP_WATER", "DRIP_LAVA", "SNOW_SHOVEL", "SLIME", "HEART", "VILLAGER_ANGRY", "VILLAGER_HAPPY", "BARRIER"};
         	Main.getInstance().getData().set("chests." + Lootchest.editinv.get(player) + ".particle", particules[e.getSlot()]);
-        	Location loc = (Location)Main.getInstance().getData().get("chests." + Lootchest.editinv.get(player) + ".location");
+        	Location loc = Utils.getPosition(Lootchest.editinv.get(player));
         	final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
     		loc2.setX(loc.getX()+0.5);
     		loc2.setY(loc.getY()+0.5);
     		loc2.setZ(loc.getZ()+0.5);
-        	for(Particle part : Main.particules) {
-    			if((""+part).contains(particules[e.getSlot()])) 
-    				Main.part.put(loc2, part);
+    		if(!Bukkit.getVersion().contains("1.8")) {
+    			for(Object part : Main.particules) {
+    				if((""+part).contains(particules[e.getSlot()])) 
+    					Main.part.put(loc2, (org.bukkit.Particle) part);
+    			}
     		}
     		try {
     			Main.getInstance().getData().save(Main.getInstance().getDataF());

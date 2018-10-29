@@ -3,7 +3,6 @@ package fr.black_eyes.lootchest.listeners;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.HashMap;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -17,7 +16,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
 
@@ -66,7 +64,9 @@ public class DeleteListener implements Listener  {
     	    	loc2.setX(loc.getX()+0.5);
     	    	loc2.setY(loc.getY()+0.5);
     	    	loc2.setZ(loc.getZ()+0.5);
-    			Main.part.remove(loc2);
+    	    	if(!Bukkit.getVersion().contains("1.8")) {
+    	    		Main.part.remove(loc2);
+    	    	}
     			Main.getInstance().getData().set("chests." + keys + ".lastreset", new Timestamp(System.currentTimeMillis()).getTime());
     			try {
     				Main.getInstance().getData().save(Main.getInstance().getDataF());
@@ -91,7 +91,9 @@ public class DeleteListener implements Listener  {
     	    	loc2.setX(loc.getX()+0.5);
     	    	loc2.setY(loc.getY()+0.5);
     	    	loc2.setZ(loc.getZ()+0.5);
-    			Main.part.remove(loc2);
+    	    	if(!Bukkit.getVersion().contains("1.8")) {
+    	    		Main.part.remove(loc2);
+    	    	}
     			Main.getInstance().getData().set("chests." + keys + ".lastreset", new Timestamp(System.currentTimeMillis()).getTime());
     			try {
     				Main.getInstance().getData().save(Main.getInstance().getDataF());
@@ -103,4 +105,6 @@ public class DeleteListener implements Listener  {
     		}
     	}
     }
+    
+
 }
