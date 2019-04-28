@@ -16,6 +16,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
+
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
 
@@ -50,16 +52,20 @@ public class DeleteListener implements Listener  {
     
     @EventHandler
     public void oncloseInventory(InventoryCloseEvent e) {
-    	
+    	Inventory inv = e.getInventory();
     	Player p = Bukkit.getPlayer(e.getPlayer().getName());
-    	if(Utils.isEmpty(e.getInventory()) && openInvs.containsKey(p)) {
+    	if((Utils.isEmpty(inv) || Main.getInstance().getConfig().getBoolean("RemoveChestAfterFirstOpenning")) && openInvs.containsKey(p)) {
     		String keys = Utils.isLootChest(openInvs.get(p));
     		if(!keys.equals(" ")) {
     			Location loc = openInvs.get(p);
-    			if(Main.getInstance().getConfig().getBoolean("RemoveEmptyChests")) {
+    			if(Main.getInstance().getConfig().getBoolean("RemoveEmptyChests") || Main.getInstance().getConfig().getBoolean("RemoveChestAfterFirstOpenning")) {
+    				inv.clear();
     				loc.getBlock().setType(Material.AIR);
-    				Utils.deleteholo(loc);
+    				if(Main.getInstance().getData().getInt("chests."+keys+".time")==0) {
+    					Utils.restoreChest(keys, true);
+    				}
     			}
+    			Utils.deleteholo(loc);
     			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
     	    	loc2.setX(loc.getX()+0.5);
     	    	loc2.setY(loc.getY()+0.5);
@@ -74,7 +80,7 @@ public class DeleteListener implements Listener  {
     			} catch (IOException | InvalidConfigurationException e1) {
     				e1.printStackTrace();
     			}
-    			return;
+
     		}
     	}
     	openInvs.remove(p);

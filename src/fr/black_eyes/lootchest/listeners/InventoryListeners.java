@@ -51,6 +51,10 @@ public class InventoryListeners implements Listener {
         else if (e.getInventory().getName().equals(Utils.getMsg("Menu.particles.name", "[Chest]", chest))) {
         	Utils.mainInv(p, chest);
         }
+        
+        else if (e.getInventory().getName().equals(Utils.getMsg("Menu.copy.name", "[Chest]", chest))) {
+        	Utils.mainInv(p, chest);
+        }
 
         else if (e.getInventory().getName().equals(Utils.getMsg("Menu.chances.name", "[Chest]", chest))) {
 			for(int i = 0 ; i < e.getInventory().getSize() ; i++) {
@@ -113,7 +117,10 @@ public class InventoryListeners implements Listener {
         //particles menu
         if (e.getInventory().getName().equals(Utils.getMsg("Menu.particles.name", "[Chest]", Lootchest.editinv.get(player)))) {
         	e.setCancelled(true);
-        	String particules[] = {"EXPLOSION_HUGE", "EXPLOSION_LARGE", "EXPLOSION_NORMAL", "FIREWORKS_SPARK", "WATER_BUBBLE", "SUSPENDED", "TOWN_AURA", "CRIT", "CRIT_MAGIC", "SMOKE_NORMAL", "SMOKE_LARGE", "SPELL_MOB", "SPELL_MOB_AMBIENT", "SPELL", "SPELL_INSTANT", "SPELL_WITCH", "NOTE", "PORTAL", "ENCHANTMENT_TABLE", "FLAME", "LAVA", "FOOTSTEP", "WATER_SPLASH", "WATER_WAKE", "CLOUD", "REDSTONE", "SNOWBALL", "DRIP_WATER", "DRIP_LAVA", "SNOW_SHOVEL", "SLIME", "HEART", "VILLAGER_ANGRY", "VILLAGER_HAPPY", "BARRIER"};
+    		String particules[] = {"EXPLOSION_HUGE", "EXPLOSION_LARGE", "EXPLOSION_NORMAL", "FIREWORKS_SPARK", "WATER_BUBBLE", "SUSPENDED", "TOWN_AURA", "CRIT", "CRIT_MAGIC", "SMOKE_NORMAL", "SMOKE_LARGE", "SPELL_MOB", "SPELL_MOB_AMBIENT", "SPELL", "SPELL_INSTANT", "SPELL_WITCH", "NOTE", "PORTAL", "ENCHANTMENT_TABLE", "FLAME", "LAVA", "LAVA", "WATER_SPLASH", "WATER_WAKE", "CLOUD", "REDSTONE", "SNOWBALL", "DRIP_WATER", "DRIP_LAVA", "SNOW_SHOVEL", "SLIME", "HEART", "VILLAGER_ANGRY", "VILLAGER_HAPPY", "BARRIER"};
+        	if(!Bukkit.getVersion().contains("1.13")) {
+        		particules[21] = "FOOTSTEP";
+        	}
         	Main.getInstance().getData().set("chests." + Lootchest.editinv.get(player) + ".particle", particules[e.getSlot()]);
         	Location loc = Utils.getPosition(Lootchest.editinv.get(player));
         	final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
@@ -135,11 +142,25 @@ public class InventoryListeners implements Listener {
     		Utils.msg(player, "editedParticle", "[Chest]", Lootchest.editinv.get(player));
         }
         
+        //copy menu
+        else if (e.getInventory().getName().equals(Utils.getMsg("Menu.copy.name", " ", " "))) {
+        	if (e.getCurrentItem().getType().equals(Material.AIR)) {return;}
+        	String copyChest = e.getCurrentItem().getItemMeta().getDisplayName().replace("§6", "");
+        	String chest = Lootchest.editinv.get(player);
+        	Utils.copychest(copyChest, chest);
+        	Player p = (Player)e.getViewers().get(0);
+        	p.closeInventory();
+        	p.sendMessage(Utils.getMsg("copiedChest", "[Chest1]", copyChest).replace("[Chest2]", chest));
+        }
         //main menu
         else if(e.getInventory().getName().equals(Utils.getMsg("Menu.main.name", "[chest]", Lootchest.editinv.get(player)))) {
         	e.setCancelled(true);
         	String chest = Lootchest.editinv.get(player);
         	switch(e.getSlot()) {
+        		case 4:
+        			player.closeInventory();
+        			Utils.invcopy(player, chest);
+        			break;
         		case 11:
         			if(Main.getInstance().getConfig().getBoolean("Particles.enable")) {
         				player.closeInventory();
@@ -184,6 +205,11 @@ public class InventoryListeners implements Listener {
         	e.setCancelled(true);
         	ItemStack item = e.getCurrentItem();
         	switch(e.getSlot()) {
+        	case 4:
+        		if(e.getClick() == ClickType.LEFT) {
+        			Main.getInstance().getData().set("chests."+ Lootchest.editinv.get(player)+"time", -1);
+        		}
+        		break;
     		case 9:
     			if(e.getClick() == ClickType.LEFT && item.getAmount() <3) {
     				if(!item.getType().equals(Material.BARRIER))

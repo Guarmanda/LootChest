@@ -11,21 +11,29 @@ editedParticle: "&aEdited particle of chest [Chest]!"
 hologram_edited: "&aEdited hologram of chest [Chest]!"
 PluginReloaded: "&aConfig file, lang, and chest data were reloaded"
 ListCommand: "&aList of all chests: [List]"
+copiedChest: "&6You copied the chest [Chest1] into the chest [Chest2]"
+changedPosition: "&6You set the location of chest &b[Chest] &6to your location"
+settime: "&6You successfully set the time of the chest &b[Chest]"
+
 Menu:
   particles:
     name: "&1Choose a chest particle!"
+  copy:
+    name: "&1Choose a chest to copy its settings"
   main:
     respawnTime: "&1Respawn time editing"
     content: "&1Chest content editing"
     chances: "&1Items chances editing"
     name: "&1Main editing menu"
     particles: "&1Particle choosing"
+    copychest: "&1Copy settings from anyther chest"
   chances:
     name: "&1Item chances of chest [Chest]"
     lore: "&aLeft click to up percentage, Right click to down it"
   items:
     name: "&1Items in chest [Chest]"
   time:
+    infinite: "&6Desactivates the respawn time"
     name: "&1Temps de respawn"
     minutes: "&aMinutes"
     hours: "&aHours"
@@ -42,5 +50,6 @@ help:
   line9: "&a/lc setholo <name> <text> &b: set hologram of given chest"
   line10: "&a/lc reload &b: reloads the plugin"
   line11: "&a/lc list &b: list all chests"
+  line12: "&a/lc setpos &b: edit the position of a chest"
  
  

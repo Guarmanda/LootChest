@@ -6,7 +6,6 @@ import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -35,15 +34,7 @@ public class Main extends JavaPlugin{
 	private File langFile;
 	private FileConfiguration lang;
 	private static Main instance;
-	public static Material ender_eye;
-	public static Material watch;
-	public static Material mycelium;
-	public static Material firework;
-	public static Material ender_portal_frame;
-	public static Material snowball;
-	public static Material iron_shovel;
-	public static Material red_rose;
-	public static Material enchant_table;
+
 	
 	public void onDisable() {
 		try {
@@ -62,6 +53,7 @@ public class Main extends JavaPlugin{
 		this.getServer().getPluginManager().registerEvents(new DeleteListener(), this);
 		this.getServer().getPluginManager().registerEvents(new InventoryListeners(), this);
         this.getCommand("lootchest").setExecutor(new Lootchest());
+        this.getCommand("lootchest").setTabCompleter(new Lootchest());
         super.onEnable();
         if(!initFiles()) {
         	getLogger().info("§cThe data file couldn't be initialised, This is, in most cases, due to bad chest locations. Please, remove the chests wich are in unexisting worlds");
@@ -70,10 +62,24 @@ public class Main extends JavaPlugin{
         setConfig("Particles.enable", true);
         setConfig("UseHologram", true);
         setConfig("RemoveEmptyChests", true);
+        setConfig("RemoveChestAfterFirstOpenning", false);
+        setConfig("respawn_notify.natural_respawn.enabled", true);
+        setConfig("respawn_notify.respawn_with_command.enabled", true);
+        setConfig("respawn_notify.respawn_all_with_command.enabled", true);
+        setConfig("respawn_notify.natural_respawn.message", "&6The chest &b[Chest] &6has just respawned at [x], [y], [z]!");
+        setConfig("respawn_notify.respawn_with_command.message", "&6The chest &b[Chest] &6has just respawned at [x], [y], [z]!");
+        setConfig("respawn_notify.respawn_all_with_command.message", "&6All chests where forced to respawn! Get them guys!");
         setLang("PluginReloaded", "&aConfig file, lang, and chest data were reloaded");
         setLang("ListCommand", "&aList of all chests: [List]");
         setLang("help.line10", "&a/lc reload &b: reloads the plugin");
         setLang("help.line11", "&a/lc list &b: list all chests");
+        setLang("Menu.main.copychest", "&1Copy settings from anyther chest");
+        setLang("Menu.copy.name", "&1Choose a chest to copy its settings");
+        setLang("copiedChest", "&6You copied the chest &b[Chest1] &6into the chest &b[Chest2]");
+        setLang("changedPosition", "&6You set the location of chest &b[Chest] &6to your location");
+        setLang("help.line12", "&a/lc setpos &b: edit the position of a chest");
+        setLang("settime", "&6You successfully set the time of the chest &b[Chest]");
+        setLang("Menu.time.infinite", "&6Desactivates the respawn time");
         if(!Bukkit.getVersion().contains("1.8")) {
     		initParticles();
         }
@@ -81,21 +87,11 @@ public class Main extends JavaPlugin{
         	getInstance().getConfig().set("Particles.enable", false);
         	getLogger().info("Spigot 1.8 detected: particles were disabled");
         }
-        else if(Bukkit.getVersion().contains("1.13")){
-        	particules[21] = org.bukkit.Particle.END_ROD;
+
+        else if (!Bukkit.getVersion().contains("1.13")) {
+        	particules[21] = org.bukkit.Particle.valueOf("FOOTSTEP");
         }
-        else {
-        		particules[21] = org.bukkit.Particle.valueOf("FOOTSTEP");
-        }
-        ender_eye = Material.valueOf("EYE_OF_ENDER");
-        watch = Material.valueOf("WATCH");
-        mycelium = Material.valueOf("MYCEL");
-        firework = Material.valueOf("FIREWORK");
-        ender_portal_frame = Material.valueOf("ENDER_PORTAL_FRAME");
-        snowball = Material.valueOf("SNOW_BALL");
-        iron_shovel = Material.valueOf("IRON_SPADE");
-        red_rose = Material.valueOf("RED_ROSE");
-        enchant_table = Material.valueOf("ENCHANTMENT_TABLE");
+
         //Transformation des anciennes positions pour éviter les erreurs de fichiers
         for(String keys : getInstance().getData().getConfigurationSection("chests").getKeys(false)) {
         	if(!getInstance().getData().isSet("chests." + keys + ".position")) {

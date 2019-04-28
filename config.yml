@@ -19,5 +19,19 @@ default_item_chance: 100
 UseHologram: true
 #remove the chests if the player empty them (they still respawn and everything)
 RemoveEmptyChests: true
+#removes the chest when a player closes it, even if there's still items in it
+RemoveChestAfterFirstOpenning: false
+
+#you can edit or disable all these broadcast messages
+respawn_notify:
+  natural_respawn:
+    enabled: true
+    message: "&6The chest &b[Chest] &6has just respawned at [x], [y], [z]!"
+  respawn_with_command:
+    enabled: true
+    message: "&6The chest &b[Chest] &6has just respawned at [x], [y], [z]!"
+  respawn_all_with_command:
+    enabled: true
+    message: "&6All chests where forced to respawn! Get them guys!" 
 
 
