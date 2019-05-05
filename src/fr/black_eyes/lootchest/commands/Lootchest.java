@@ -24,6 +24,7 @@ import fr.black_eyes.lootchest.Utils;
 public class Lootchest implements CommandExecutor, TabCompleter  {
 
 	public static HashMap<Player, String> editinv = new HashMap<Player, String>();
+	public static HashMap<Player, String> menuName = new HashMap<Player, String>();
 	
 	@Override
 	public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
@@ -53,6 +54,7 @@ public class Lootchest implements CommandExecutor, TabCompleter  {
 						Utils.saveChest(chest, args[1]);
 						Utils.msg(sender, "chestSuccefulySaved", "[Chest]", args[1]);
 						editinv.put(player, args[1]);
+						menuName.put(player, Utils.getMsg("Menu.main.name", "[Chest]", args[1]));
 						Utils.mainInv(player, args[1]);
 					}
 					break;
@@ -68,6 +70,7 @@ public class Lootchest implements CommandExecutor, TabCompleter  {
 					}
 					else {
 						editinv.put(player, args[1]);
+						menuName.put(player, Utils.getMsg("Menu.main.name", "[Chest]", args[1]));
 						Utils.mainInv(player, args[1]);
 					}
 					break;	
@@ -142,7 +145,7 @@ public class Lootchest implements CommandExecutor, TabCompleter  {
 					Utils.msg(sender, "AllChestsReloaded", " ", " ");
 				}
 				else if(args[0].equalsIgnoreCase("reload")) {
-					if (!sender.hasPermission("lootchest.reload") && !sender.hasPermission("lootchest.admin")) {
+					if (!sender.hasPermission("lootchest.reload") && !sender.hasPermission("lootchest.admin") ) {
 						Utils.msg(sender, "noPermission", "[Permission]", "lootchest.reload");
 						return false;
 					}
@@ -187,7 +190,7 @@ public class Lootchest implements CommandExecutor, TabCompleter  {
 							bc.append(" " + String.valueOf(args[i]));
 						}
                     }
-					if (!sender.hasPermission("lootchest.setholo") && !sender.hasPermission("lootchest.admin")) {
+					if (!sender.hasPermission("lootchest.setholo") && !sender.hasPermission("lootchest.admin") ) {
 						Utils.msg(sender, "noPermission", "[Permission]", "lootchest.setholo");
 						return false;
 					}
@@ -201,8 +204,8 @@ public class Lootchest implements CommandExecutor, TabCompleter  {
 					}
 				}
 				else if(args[0].equalsIgnoreCase("settime")) {
-					if (!sender.hasPermission("lootchest.settime") && !sender.hasPermission("lootchest.admin") || !(sender instanceof Player)) {
-						Utils.msg(sender, "noPermission", "[Permission]", "lootchest.remove");
+					if (!sender.hasPermission("lootchest.settime") && !sender.hasPermission("lootchest.admin")) {
+						Utils.msg(sender, "noPermission", "[Permission]", "lootchest.settiime");
 						return false;
 					}
 					else if (!Main.getInstance().getData().isSet("chests." + args[1] + ".time")){
@@ -212,8 +215,32 @@ public class Lootchest implements CommandExecutor, TabCompleter  {
 					Main.getInstance().getData().set("chests."+args[1]+".time", args[2]);
 					Utils.msg(sender, "settime", "[Chest]", args[1]);
 				}
+				
+				
+				else if(args[0].equalsIgnoreCase("give")) {
+					if (!sender.hasPermission("lootchest.give") && !sender.hasPermission("lootchest.admin")) {
+						Utils.msg(sender, "noPermission", "[Permission]", "lootchest.give");
+						return false;
+					}
+					Player arg1 = Bukkit.getPlayerExact(args[1]);
+					if (!Main.getInstance().getData().isSet("chests." + args[2] + ".time")){
+						Utils.msg(sender, "chestDoesntExist", "[Chest]", args[2]);
+					}
+					else if(arg1 == null) {
+						Utils.msg(sender, "playerIsNotOnline", "[Player]", args[1]);
+					}
+					else {
+						String msg = Utils.getMsg("giveto", "[Chest]", args[2]);
+						sender.sendMessage(msg.replace("[Player]", args[1]));
+						msg = Utils.getMsg("givefrom", "[Chest]", args[2]);
+						Bukkit.getServer().getPlayer(args[1]).sendMessage(msg.replace("[Player]", sender.getName()));
+						Utils.fillInventory(args[2], arg1.getInventory(), false, arg1);
+					}
+				}
+				
+				
 				else {
-					for(int i=1; i<=11;i++) {
+					for(int i=1; i<=14;i++) {
 						Utils.msg(sender, "help.line"+i, "", "");
 					}
 				}
@@ -221,7 +248,7 @@ public class Lootchest implements CommandExecutor, TabCompleter  {
 				
 			}
 			else {
-				for(int i=1; i<=11;i++) {
+				for(int i=1; i<=14;i++) {
 					Utils.msg(sender, "help.line"+i, "", "");
 				}
 			}
@@ -231,7 +258,7 @@ public class Lootchest implements CommandExecutor, TabCompleter  {
 
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String msg, String[] args) {
-		final String[] completions0 = { "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "reload", "list", "setpos"};
+		final String[] completions0 = { "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "reload", "list", "setpos", "give"};
 		final List<String> chests = new ArrayList<String>();
 		for(String g: Main.getInstance().getData().getConfigurationSection("chests").getKeys(false)){
 			chests.add(g);
