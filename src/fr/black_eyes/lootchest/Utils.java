@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
@@ -23,14 +24,17 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import fr.black_eyes.lootchest.Mat;
 import fr.black_eyes.lootchest.commands.Lootchest;
+import fr.black_eyes.lootchest.falleffect.FallingPackageEntity;
 
 public class Utils implements Listener {
 
@@ -178,82 +182,147 @@ public class Utils implements Listener {
 		}
 	}
 	
+	//gives a random number from -max to max
+	public static int randomInt(int max) {
+		return ThreadLocalRandom.current().nextInt(0-max, max+1);
+	}
+	
 	//se sert du data.yml pour set le coffre et remplir son inventaire, créer l'holo en fonction du nom 
 	//Taking informations from data.yml to restore a specific chest if it is time to do it, or if we force respawn. 
-	public static void restoreChest(String name, Boolean force) {
-		final Location loc = getPosition(name);
-		//si le coffre est vide, IL MEURT MOUAHAHA
+	public static boolean restoreChest(String name, Boolean force) {
+		Location loc = getPosition(name);
+		Location newloc = getPosition(name);
+		if(Main.getInstance().getData().isSet("chests."+name+".randomradius")) {
+			int random = Main.getInstance().getData().getInt("chests."+name+".randomradius");
+			Location randompos = getPosition(name);
+			randompos.setX(randomInt(random)+loc.getX());
+			randompos.setZ(randomInt(random)+loc.getZ());
+			randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos));
+			if(getRandomPosition(name) != null) {
+				loc = getRandomPosition(name);
+			}
+			newloc = randompos;
+			
+			
+		}
+		
+		//si le coffre est vide,  IL MEURT MOUAHAHA
 		Block block = loc.getBlock();
 		if(block.getType().equals(Material.CHEST)) {
 			if(isEmpty(((Chest)block.getState()).getInventory()) && Main.getInstance().getConfig().getBoolean("RemoveEmptyChests")) {
 				Utils.deleteholo(loc);
+				
 				block.setType(Material.AIR);
 				final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
 				loc2.setX(loc.getX()+0.5);
 				loc2.setY(loc.getY()+0.5);
 				loc2.setZ(loc.getZ()+0.5);
 				Main.part.remove(loc2);
-				return;
+				block.setType(Material.AIR);
+
+				
+
 			}
 		}
 
 		long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime();
 		long minutes = Main.getInstance().getData().getLong("chests." + name + ".time")*60*1000;
 		long tempsenregistre = Main.getInstance().getData().getLong("chests." + name + ".lastreset");
-		if(tempsactuel - tempsenregistre > minutes || force) {
+		if((tempsactuel - tempsenregistre > minutes && minutes>-1) || force) {
+			if(getRandomPosition(name)!=null && block.getType().equals(Material.CHEST)) {
+				Utils.deleteholo(loc);
+				((Chest) block.getState()).getInventory().clear();
+				block.setType(Material.AIR);
+				final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
+				loc2.setX(loc.getX()+0.5);
+				loc2.setY(loc.getY()+0.5);
+				loc2.setZ(loc.getZ()+0.5);
+				Main.part.remove(loc2);
+				
+			}
+			setRandomPosition(name, newloc);
 			if(!force && Main.getInstance().getConfig().getBoolean("respawn_notify.natural_respawn.enabled") ) {
 				String holo = Main.getInstance().getData().getString("chests." + name + ".holo");
-				Bukkit.broadcastMessage((((Main.getInstance().getConfig().getString("respawn_notify.natural_respawn.message").replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "§"));
+				Bukkit.broadcastMessage((((Main.getInstance().getConfig().getString("respawn_notify.natural_respawn.message").replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
 			}
-			block.setType(Material.CHEST);
-			Inventory inv = ((Chest) block.getState()).getInventory();
-			fillInventory(name, inv, true, null);
+			block = newloc.getBlock();
+			final Block newblock = block;
+			final Location theloc = newloc;
+			if(Main.getInstance().getConfig().getBoolean("Enable_fall_effect")) {
+				Location startloc = new Location(newloc.getWorld(), newloc.getX()+0.5, newloc.getY()+50, newloc.getZ()+0.5);
+				new FallingPackageEntity(startloc);
+	            Main.getInstance().getServer().getScheduler().runTaskLater((Plugin)Main.getInstance(), (Runnable)new Runnable() {
+	                @Override
+	                public void run() {
+	                	
+	                	spawnChest(name, tempsactuel, newblock, theloc);
+	                }
+	            }, 61L);
+				
+			}
+			else {
+				spawnChest(name, tempsactuel, newblock, theloc);
+			}
 			
 			if(Main.getInstance().getConfig().getBoolean("UseHologram")){
 				deleteholo(loc);
-				makeHolo(loc, name);
+				makeHolo(newloc, name);
 			}
 			else {
 				deleteholo(loc);
 			}
-			Main.getInstance().getData().set("chests." + name + ".lastreset", tempsactuel);
-			if(!Main.getInstance().getData().isSet("chests." + name + ".direction")) {
-				Main.getInstance().getData().set("chests." + name + ".direction", "north");
-			}
-			try {
-				Main.getInstance().getData().save(Main.getInstance().getDataF());
-				Main.getInstance().getData().load(Main.getInstance().getDataF());
-			} catch (IOException | InvalidConfigurationException e) {
-				e.printStackTrace();
-			}
-			String direction = Main.getInstance().getData().getString("chests." + name + ".direction");
-			BlockState state = loc.getBlock().getState();
-			if(direction.equalsIgnoreCase("east")){
-				state.setData(new org.bukkit.material.Chest(BlockFace.EAST));
-			}
-			if(direction.equalsIgnoreCase("north")){
-				state.setData(new org.bukkit.material.Chest(BlockFace.NORTH));
-			}			
-			if(direction.equalsIgnoreCase("south")){
-				state.setData(new org.bukkit.material.Chest(BlockFace.SOUTH));
-			}			
-			if(direction.equalsIgnoreCase("west")){
-				state.setData(new org.bukkit.material.Chest(BlockFace.WEST));
-			}
-			state.update();
+			
+
 		}
-		final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-		loc2.setX(loc.getX()+0.5);
-		loc2.setY(loc.getY()+0.5);
-		loc2.setZ(loc.getZ()+0.5);
-		if(loc.getBlock().getType().equals(Material.CHEST) && !Bukkit.getVersion().contains("1.8")) {
+
+		
+		return ((tempsactuel - tempsenregistre > minutes && minutes>=0) || force);
+	}
+	
+	
+	@SuppressWarnings("deprecation")
+	public static void spawnChest(String name, long tempsactuel, Block block, Location theloc) {
+		block.setType(Material.CHEST);
+		Inventory inv = ((Chest) block.getState()).getInventory();
+		fillInventory(name, inv, true, null);
+		Main.getInstance().getData().set("chests." + name + ".lastreset", tempsactuel);
+		if(!Main.getInstance().getData().isSet("chests." + name + ".direction")) {
+			Main.getInstance().getData().set("chests." + name + ".direction", "north");
+		}
+		try {
+			Main.getInstance().getData().save(Main.getInstance().getDataF());
+			Main.getInstance().getData().load(Main.getInstance().getDataF());
+		} catch (IOException | InvalidConfigurationException e) {
+			e.printStackTrace();
+		}
+		String direction = Main.getInstance().getData().getString("chests." + name + ".direction");
+		BlockState state = block.getState();
+		if(direction.equalsIgnoreCase("east")){
+			state.setData(new org.bukkit.material.Chest(BlockFace.EAST));
+		}
+		if(direction.equalsIgnoreCase("north")){
+			state.setData(new org.bukkit.material.Chest(BlockFace.NORTH));
+		}			
+		if(direction.equalsIgnoreCase("south")){
+			state.setData(new org.bukkit.material.Chest(BlockFace.SOUTH));
+		}			
+		if(direction.equalsIgnoreCase("west")){
+			state.setData(new org.bukkit.material.Chest(BlockFace.WEST));
+		}
+		state.update();
+		
+		final Location loc2 = new Location(theloc.getWorld(), theloc.getX(), theloc.getY(), theloc.getZ());
+		loc2.setX(theloc.getX()+0.5);
+		loc2.setY(theloc.getY()+0.5);
+		loc2.setZ(theloc.getZ()+0.5);
+		if(block.getType().equals(Material.CHEST) && !Bukkit.getVersion().contains("1.8")) {
 			for(Object part : Main.particules) {
 				if((""+part).contains(Main.getInstance().getData().getString("chests." + name + ".particle"))) {
 					Main.part.put(loc2, (org.bukkit.Particle) part);
 				}
 			}
-		}else {
-			deleteholo(loc);
+		}else if  (!block.getType().equals(Material.CHEST)){
+			deleteholo(theloc);
 			if (!Bukkit.getVersion().contains("1.8")) {
 				Main.part.remove(loc2);
 			}
@@ -274,6 +343,9 @@ public class Utils implements Listener {
 	public static String isLootChest(Location loc) {
 		for(String keys : Main.getInstance().getData().getConfigurationSection("chests").getKeys(false)) {
 			Location loc2 = getPosition(keys);
+			if(getRandomPosition(keys) != null) {
+				loc2 = getRandomPosition(keys);
+			}
 			if(loc2.equals(loc)) {
 				return keys;
 			}
@@ -283,6 +355,7 @@ public class Utils implements Listener {
 	
 	//geting chest position from data.yml
 	public static Location getPosition(String name) {
+
 		World world = Bukkit.getWorld(Main.getInstance().getData().getString("chests." + name + ".position.world"));
 		double x = Main.getInstance().getData().getDouble("chests." + name + ".position.x");
 		double y = Main.getInstance().getData().getDouble("chests." + name + ".position.y");
@@ -300,6 +373,28 @@ public class Utils implements Listener {
 		Main.getInstance().getData().set("chests." + name + ".position.z", loc.getZ());
 		Main.getInstance().getData().set("chests." + name + ".position.pitch", loc.getPitch());
 		Main.getInstance().getData().set("chests." + name + ".position.yaw", loc.getYaw());
+	}
+	
+	public static void setRandomPosition(String name, Location loc) {
+		Main.getInstance().getData().set("chests." + name + ".randomPosition.world", loc.getWorld().getName());
+		Main.getInstance().getData().set("chests." + name + ".randomPosition.x", loc.getX());
+		Main.getInstance().getData().set("chests." + name + ".randomPosition.y", loc.getY());
+		Main.getInstance().getData().set("chests." + name + ".randomPosition.z", loc.getZ());
+		Main.getInstance().getData().set("chests." + name + ".randomPosition.pitch", loc.getPitch());
+		Main.getInstance().getData().set("chests." + name + ".randomPosition.yaw", loc.getYaw());
+	}
+	
+	public static Location getRandomPosition(String name) {
+		if(!Main.getInstance().getData().isSet("chests." + name + ".randomPosition.x")) {
+			return null;
+		}
+		World world = Bukkit.getWorld(Main.getInstance().getData().getString("chests." + name + ".randomPosition.world"));
+		double x = Main.getInstance().getData().getDouble("chests." + name + ".randomPosition.x");
+		double y = Main.getInstance().getData().getDouble("chests." + name + ".randomPosition.y");
+		double z = Main.getInstance().getData().getDouble("chests." + name + ".randomPosition.z");
+		float pitch = (float) Main.getInstance().getData().getDouble("chests." + name + ".randomPosition.pitch");
+		float yaw = (float) Main.getInstance().getData().getDouble("chests." + name + ".randomPosition.yaw");
+		return new Location(world, x, y, z, pitch, yaw);
 	}
 	
 	//Pour suprimer un holograme
@@ -328,17 +423,17 @@ public class Utils implements Listener {
 		//the coordinates of a block are at the corner of the block
 		ArmorStand as = (ArmorStand) loc2.getWorld().spawnEntity(loc2, EntityType.ARMOR_STAND); //Spawn the ArmorStand
 
-		as.setGravity(false); //Make sure it doesn't fall
-		as.setCanPickupItems(false); //I'm not sure what happens if you leave this as it is, but you might as well disable it
 		String name = Main.getInstance().getData().getString("chests." + text + ".holo").replace("&", "§");
 		as.setCustomName(name); //Set this to the text you want
-		if(!(name.equals("\"\"") || name.equals("\" \"") || name.equals("null"))) {
+		if(!(name.equals("\"\"") || name.equals("\" \"") || name.equals("null") || name.equals("") || name.equals(" ") || name.equals("_"))) {
 			as.setCustomNameVisible(true); //This makes the text appear no matter if your looking at the entity or not
 		}
-		
+		else {
+			as.setCustomNameVisible(false); 
+		}
 		as.setGravity(false); //Make sure it doesn't fall
 		as.setCanPickupItems(false); //I'm not sure what happens if you leave this as it is, but you might as well disable it
-		as.setCustomNameVisible(true); //This makes the text appear no matter if your looking at the entity or not
+		//This makes the text appear no matter if your looking at the entity or not
 		as.setVisible(false); //Makes the ArmorStand invisible
 	 	as.setArms(false);
 	 	as.setBasePlate(false);
@@ -357,6 +452,16 @@ public class Utils implements Listener {
 	        }
 	}
 	
+	@EventHandler
+	public void invincible(EntityDamageEvent e)
+	{
+		if(e.getEntity() instanceof ArmorStand) {
+	        if(!((ArmorStand) e.getEntity()).isVisible())
+	        {
+	            e.setCancelled(true);
+	        }
+		}
+	}
 	
 	
 	
@@ -417,7 +522,7 @@ public class Utils implements Listener {
 		}else {
 			inv.setItem(15, getItem(Mat.GOLD_NUGGET, getMsg("Menu.time.minutes", " ", " ")));
 			inv.getItem(15).setAmount((int) (minutes/10));
-		}if (minutes/10*10 == minutes) {
+		}if (minutes/10*10 == minutes || minutes == -1) {
 			inv.setItem(16, getItem(Mat.BARRIER, getMsg("Menu.time.minutes", " ", " ")));
 		}else {
 			inv.setItem(16, getItem(Mat.GOLD_NUGGET, getMsg("Menu.time.minutes", " ", " ")));
@@ -428,7 +533,12 @@ public class Utils implements Listener {
 		Lootchest.editinv.put(p, name);
 		ItemStack sign = new ItemStack(Mat.SIGN, 1);
 		ItemMeta meta = sign.getItemMeta(); 
-		meta.setDisplayName("Respawn time: " + jours+" days, " + heures + " hours, " + minutes + " minutes.");
+		if(minutes != -1) {
+			meta.setDisplayName("Respawn time: " + jours+" days, " + heures + " hours, " + minutes + " minutes.");
+		}
+		else {
+			meta.setDisplayName("Respawn time: infinite");
+		}
 		sign.setItemMeta(meta);
     	inv.setItem(22, sign);
 		p.openInventory(inv);
@@ -445,18 +555,45 @@ public class Utils implements Listener {
 		p.openInventory(inv);
 	}
 	
-	public static void invcopy(Player p, String chest) {
+	public static void invcopy(Player p, String chest, int j) {
 		int i = 0;
+		int nbBoxes = 0;
 		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 54, getMsg("Menu.copy.name", " ", " "));
-		for(String keys : Main.getInstance().getData().getConfigurationSection("chests").getKeys(false)) {
-			if(!keys.equals(chest)) {
+		Set<String> boxes = Main.getInstance().getData().getConfigurationSection("chests").getKeys(false);
+		for(String keys : boxes) {
+
+			if(j== 2 && nbBoxes < 53) nbBoxes++;
+			else if(j> 2 && nbBoxes < (j*54-(2*(j-1)))-52) nbBoxes++;
+			//exempter le coffre actuel de la liste, et si il y a plus de 54 coffres, stopper i à 53 si on doit faire deux pages
+			
+			else if(!keys.equals(chest) && (i!=45 || j==1) && (i!=53 || (boxes.size() -1)<=(j*52+1) ) ){
 				String name = Main.getInstance().getData().getString("chests." + keys + ".holo").replace("&", "§");
 				String effect = Main.getInstance().getData().getString("chests." + keys + ".particle");
 				String world = getPosition(keys).getWorld().getName();
 				ItemStack item = getItemWithLore(Material.CHEST, "§6" +keys, "§bHologram: §6" + name + "||§bWorld: §6"+ world + "||§bEffect: §6" + effect);
 				inv.setItem(i++, item);
 			}
-		}
+			else if (!keys.equals(chest) && i==45) {
+				String name = getMsg("Menu.copy.page", "[Number]", j-1+"");
+				ItemStack item = getItem(Material.PAPER,  name );
+				inv.setItem(i++, item);
+				
+				String name2 = Main.getInstance().getData().getString("chests." + keys + ".holo").replace("&", "§");
+				String effect = Main.getInstance().getData().getString("chests." + keys + ".particle");
+				String world = getPosition(keys).getWorld().getName();
+				ItemStack item2 = getItemWithLore(Material.CHEST, "§6" +keys, "§bHologram: §6" + name2 + "||§bWorld: §6"+ world + "||§bEffect: §6" + effect);
+				inv.setItem(i++, item2);
+			}
+			else if (!keys.equals(chest) && i==53){
+				String name = getMsg("Menu.copy.page", "[Number]", (j+1)+"");
+
+				ItemStack item = getItem(Material.PAPER,  name );
+				inv.setItem(i, item);
+				break;
+
+			}
+		}			
+
 		p.openInventory(inv);
         Lootchest.editinv.put(p, chest);
 	}
@@ -511,16 +648,15 @@ public class Utils implements Listener {
         inv.setItem(22, getItem(Mat.WATER_BUCKET, "Water Splash"));
         inv.setItem(23, getItem(Mat.WATER_BUCKET, "Water Wake"));
         inv.setItem(24, getItem(Mat.QUARTZ, "Cloud"));
-        inv.setItem(25, getItem(Mat.REDSTONE, "Redstone"));
-        inv.setItem(26, getItem(Mat.SNOW_BALL, "Snowball"));
-        inv.setItem(27, getItem(Mat.WATER_BUCKET, "Drip Water"));
-        inv.setItem(28, getItem(Mat.LAVA_BUCKET, "Drip Lava"));
-        inv.setItem(29, getItem(Mat.IRON_SHOVEL, "Snow Shovel"));
-        inv.setItem(30, getItem(Mat.SLIME_BALL, "Slime"));
-        inv.setItem(31, getItem(Mat.ROSE_RED, "Heart"));
-        inv.setItem(32, getItem(Mat.REDSTONE_BLOCK, "Angry Villager"));
-        inv.setItem(33, getItem(Mat.EMERALD, "Happy Villager"));
-        inv.setItem(34, getItem(Mat.BARRIER, "Barrier"));
+        inv.setItem(25, getItem(Mat.SNOW_BALL, "Snowball"));
+        inv.setItem(26, getItem(Mat.WATER_BUCKET, "Drip Water"));
+        inv.setItem(27, getItem(Mat.LAVA_BUCKET, "Drip Lava"));
+        inv.setItem(28, getItem(Mat.IRON_SHOVEL, "Snow Shovel"));
+        inv.setItem(29, getItem(Mat.SLIME_BALL, "Slime"));
+        inv.setItem(30, getItem(Mat.ROSE_RED, "Heart"));
+        inv.setItem(31, getItem(Mat.REDSTONE_BLOCK, "Angry Villager"));
+        inv.setItem(32, getItem(Mat.EMERALD, "Happy Villager"));
+        inv.setItem(33, getItem(Mat.BARRIER, "Barrier"));
         p.openInventory(inv);
         Lootchest.editinv.put(p, name);
     }

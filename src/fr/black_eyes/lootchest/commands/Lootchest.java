@@ -114,6 +114,9 @@ public class Lootchest implements CommandExecutor, TabCompleter  {
 							Utils.msg(sender, "succesfulyRespawnedChest", "[Chest]", args[1]);
 							if(Main.getInstance().getConfig().getBoolean("respawn_notify.respawn_with_command.enabled") ) {
 								Block block = Utils.getPosition(args[1]).getBlock();
+								if(Main.getInstance().getData().isSet("chests."+args[1]+".randomradius")) {
+									block = Utils.getRandomPosition(args[1]).getBlock();
+								}
 								String holo = Main.getInstance().getData().getString("chests." + args[1] + ".holo");
 								Bukkit.broadcastMessage((((Main.getInstance().getConfig().getString("respawn_notify.respawn_with_command.message").replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "§"));
 							}
@@ -237,10 +240,24 @@ public class Lootchest implements CommandExecutor, TabCompleter  {
 						Utils.fillInventory(args[2], arg1.getInventory(), false, arg1);
 					}
 				}
+				else if(args[0].equalsIgnoreCase("randomspawn")) {
+					if (!sender.hasPermission("lootchest.randomspawn") && !sender.hasPermission("lootchest.admin")) {
+						Utils.msg(sender, "noPermission", "[Permission]", "lootchest.randomspawn");
+						return false;
+					}
+					else if (!Main.getInstance().getData().isSet("chests." + args[1] + ".time")){
+						Utils.msg(sender, "chestDoesntExist", "[Chest]", args[1]);
+					}
+					else if (Integer.parseInt(args[2]) >0) {
+						Main.getInstance().getData().set("chests."+args[1]+".randomradius", Integer.parseInt(args[2]));
+						Utils.msg(sender, "chestRadiusSet", "[Chest]", args[1]);
+						Utils.restoreChest(args[1], true);
+					}
+				}
 				
 				
 				else {
-					for(int i=1; i<=14;i++) {
+					for(int i=1; i<=15;i++) {
 						Utils.msg(sender, "help.line"+i, "", "");
 					}
 				}
@@ -248,7 +265,7 @@ public class Lootchest implements CommandExecutor, TabCompleter  {
 				
 			}
 			else {
-				for(int i=1; i<=14;i++) {
+				for(int i=1; i<=15;i++) {
 					Utils.msg(sender, "help.line"+i, "", "");
 				}
 			}
@@ -258,7 +275,7 @@ public class Lootchest implements CommandExecutor, TabCompleter  {
 
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String msg, String[] args) {
-		final String[] completions0 = { "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "reload", "list", "setpos", "give"};
+		final String[] completions0 = { "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "reload", "list", "setpos", "give", "randomspawn"};
 		final List<String> chests = new ArrayList<String>();
 		for(String g: Main.getInstance().getData().getConfigurationSection("chests").getKeys(false)){
 			chests.add(g);
@@ -268,7 +285,7 @@ public class Lootchest implements CommandExecutor, TabCompleter  {
 			return Arrays.asList(completions0);
 		}
 		else if(args.length ==2) {
-			if(args[0].equalsIgnoreCase("edit") || args[0].equalsIgnoreCase("respawn") || args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("setholo") || args[0].equalsIgnoreCase("setpos")) {
+			if(args[0].equalsIgnoreCase("randomspawn") || args[0].equalsIgnoreCase("edit") || args[0].equalsIgnoreCase("respawn") || args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("setholo") || args[0].equalsIgnoreCase("setpos")) {
 				return chests;
 			}
 		}

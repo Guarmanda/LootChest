@@ -25,7 +25,7 @@ import fr.black_eyes.lootchest.listeners.InventoryListeners;
 
 public class Main extends JavaPlugin{
 	
-	public static Object particules[] = new Object[35];
+	public static Object particules[] = new Object[34];
 	public static HashMap<Location, Object> part = new HashMap<Location, Object>();
 	private File dataFile;
 	private FileConfiguration data;
@@ -53,7 +53,7 @@ public class Main extends JavaPlugin{
         this.getCommand("lootchest").setTabCompleter(new Lootchest());
         super.onEnable();
         if(!initFiles()) {
-        	getLogger().info("§cThe data file couldn't be initialised, This is, in most cases, due to bad chest locations. Please, remove the chests wich are in unexisting worlds");
+        	getLogger().info("§cThe data file couldn't be initialised, the plugin will stop.");
         	return;
         }
         //In many versions, I add some text an config option. These lines are done to update config and language files without erasing options that are already set
@@ -68,6 +68,11 @@ public class Main extends JavaPlugin{
         setConfig("respawn_notify.natural_respawn.message", "&6The chest &b[Chest] &6has just respawned at [x], [y], [z]!");
         setConfig("respawn_notify.respawn_with_command.message", "&6The chest &b[Chest] &6has just respawned at [x], [y], [z]!");
         setConfig("respawn_notify.respawn_all_with_command.message", "&6All chests where forced to respawn! Get them guys!");
+        setConfig("PreventHopperPlacingUnderLootChest", true);
+        setConfig("check_for_respawn_in_ticks", 600);
+        setConfig("respawn_notify.respawn_all_in_one_check.enabled", true);
+        setConfig("respawn_notify.respawn_all_in_one_check.message", "&6All loot chests respawned");
+        setConfig("Enable_fall_effect", true);
         setLang("PluginReloaded", "&aConfig file, lang, and chest data were reloaded");
         setLang("PlayerIsNotOnline", "&cThe player [Player] is not online");
         setLang("givefrom", "&aYou were given the [Chest] chest by [Player]");
@@ -77,6 +82,7 @@ public class Main extends JavaPlugin{
         setLang("help.line11", "&a/lc list &b: list all chests");
         setLang("help.line13", "&a/lc give <player> <name> &b: gives the chest <name> to player <player>");
         setLang("help.line14", "&a/lc settime <name> &b: sets the respawn time of a chest in seconds");
+        setLang("help.line15", "&a/lc randomspawn <name> <radius> &b: make a chest respawn randomly in the specified radius");
         setLang("Menu.main.copychest", "&1Copy settings from anyther chest");
         setLang("Menu.copy.name", "&1Choose a chest to copy its settings");
         setLang("copiedChest", "&6You copied the chest &b[Chest1] &6into the chest &b[Chest2]");
@@ -84,6 +90,8 @@ public class Main extends JavaPlugin{
         setLang("help.line12", "&a/lc setpos &b: edit the position of a chest");
         setLang("settime", "&6You successfully set the time of the chest &b[Chest]");
         setLang("Menu.time.infinite", "&6Desactivates the respawn time");
+        setLang("chestRadiusSet", "&aYou defined a spawn radius for the chest [Chest]");
+        setLang("Menu.copy.page", "&2---> Page &b[Number]");
         
         //initialisation des matériaux dans toutes les verions du jeu
         //initializing materials in all game versions, to allow cross-version compatibility
@@ -106,26 +114,7 @@ public class Main extends JavaPlugin{
         	
         }
 
-        //Here is some useless code that was only needed because the chest locations are registered in another way in an older version
-        for(String keys : getInstance().getData().getConfigurationSection("chests").getKeys(false)) {
-        	if(!getInstance().getData().isSet("chests." + keys + ".position")) {
-        		if(getInstance().getData().isSet("chests." + keys + ".location")) {
-        			final Location loc = (Location) Main.getInstance().getData().get("chests." + keys + ".location");
-        			Utils.setPosition(keys, loc);
-        			getInstance().getData().set("chests." + keys + ".location", null);
-        			getLogger().info("Updated location of chest " + keys +" to new location format to prevent errors when loading data file"); 
-        			try {
-        				getInstance().getData().save(Main.getInstance().getDataF());
-        				getInstance().getData().load(Main.getInstance().getDataF());
-        			} catch (IOException | InvalidConfigurationException e) {
-        				e.printStackTrace();
-        			}
-        		}
-        		else {
-        			Utils.deleteChest(keys);
-        		}
-        	}
-        }
+
         //Initialisation des particules
         //Particle initialization
         if(!Bukkit.getVersion().contains("1.8")) {    
@@ -136,7 +125,11 @@ public class Main extends JavaPlugin{
         			double radius = getConfig().getDouble("Particles.radius");
         			if (getInstance().getConfig().getBoolean("Particles.enable")) {
         				for(Location keys : part.keySet()) {
-        				keys.getWorld().spawnParticle( (org.bukkit.Particle) part.get(keys), keys, getConfig().getInt("Particles.number"), radius, radius, radius, getConfig().getDouble("Particles.speed"));
+        					
+        					if((org.bukkit.Particle) part.get(keys) != org.bukkit.Particle.REDSTONE) {
+        						keys.getWorld().spawnParticle( (org.bukkit.Particle) part.get(keys), keys, getConfig().getInt("Particles.number"), radius, radius, radius, getConfig().getDouble("Particles.speed"));
+        					} 
+        					
         				}
         			}
         		}
@@ -146,16 +139,21 @@ public class Main extends JavaPlugin{
         //check of chest respawn all minutes
         new BukkitRunnable() {
             public void run() {
+            	boolean allchestrespawns = true;
+            	int numchest = 0;
             	for(String keys : getInstance().getData().getConfigurationSection("chests").getKeys(false)) {
+            		numchest++;
             		if(Utils.getPosition(keys).getWorld() != null) {
-            			Utils.restoreChest(keys, false);
+            			if (!Utils.restoreChest(keys, false)) allchestrespawns=false;
             		}
             		else {
             			getLogger().info("§cCouldn't load chest "+keys +" : the world " + getInstance().getData().getString("chests." + keys + ".position.world") + " is not loaded");
             		}
             	}
+            	if(numchest >1 && allchestrespawns && getConfig().getBoolean("respawn_notify.respawn_all_in_one_check.enabled")) Bukkit.broadcastMessage(getConfig().getString("respawn_notify.respawn_all_in_one_check.message").replace("&", "§"));
+
             }
-        }.runTaskTimer(this, 0, 600);
+        }.runTaskTimer(this, 0, getConfig().getInt("check_for_respawn_in_ticks"));
     }
 	public static Main getInstance() {
         return instance;
@@ -257,7 +255,7 @@ public class Main extends JavaPlugin{
 	
 	//particle initialozation
 	private void initParticles() {
-		org.bukkit.Particle parti[] = {org.bukkit.Particle.EXPLOSION_HUGE, org.bukkit.Particle.EXPLOSION_LARGE, org.bukkit.Particle.EXPLOSION_NORMAL, org.bukkit.Particle.FIREWORKS_SPARK, org.bukkit.Particle.WATER_BUBBLE, org.bukkit.Particle.SUSPENDED, org.bukkit.Particle.TOWN_AURA, org.bukkit.Particle.CRIT, org.bukkit.Particle.CRIT_MAGIC, org.bukkit.Particle.SMOKE_NORMAL, org.bukkit.Particle.SMOKE_LARGE, org.bukkit.Particle.SPELL_MOB, org.bukkit.Particle.SPELL_MOB_AMBIENT, org.bukkit.Particle.SPELL, org.bukkit.Particle.SPELL_INSTANT, org.bukkit.Particle.SPELL_WITCH, org.bukkit.Particle.NOTE, org.bukkit.Particle.PORTAL, org.bukkit.Particle.ENCHANTMENT_TABLE, org.bukkit.Particle.FLAME, org.bukkit.Particle.LAVA, org.bukkit.Particle.LAVA, org.bukkit.Particle.WATER_SPLASH, org.bukkit.Particle.WATER_WAKE, org.bukkit.Particle.CLOUD, org.bukkit.Particle.REDSTONE, org.bukkit.Particle.SNOWBALL, org.bukkit.Particle.DRIP_WATER, org.bukkit.Particle.DRIP_LAVA, org.bukkit.Particle.SNOW_SHOVEL, org.bukkit.Particle.SLIME, org.bukkit.Particle.HEART, org.bukkit.Particle.VILLAGER_ANGRY, org.bukkit.Particle.VILLAGER_HAPPY, org.bukkit.Particle.BARRIER};
+		org.bukkit.Particle parti[] = {org.bukkit.Particle.EXPLOSION_HUGE, org.bukkit.Particle.EXPLOSION_LARGE, org.bukkit.Particle.EXPLOSION_NORMAL, org.bukkit.Particle.FIREWORKS_SPARK, org.bukkit.Particle.WATER_BUBBLE, org.bukkit.Particle.SUSPENDED, org.bukkit.Particle.TOWN_AURA, org.bukkit.Particle.CRIT, org.bukkit.Particle.CRIT_MAGIC, org.bukkit.Particle.SMOKE_NORMAL, org.bukkit.Particle.SMOKE_LARGE, org.bukkit.Particle.SPELL_MOB, org.bukkit.Particle.SPELL_MOB_AMBIENT, org.bukkit.Particle.SPELL, org.bukkit.Particle.SPELL_INSTANT, org.bukkit.Particle.SPELL_WITCH, org.bukkit.Particle.NOTE, org.bukkit.Particle.PORTAL, org.bukkit.Particle.ENCHANTMENT_TABLE, org.bukkit.Particle.FLAME, org.bukkit.Particle.LAVA, org.bukkit.Particle.LAVA, org.bukkit.Particle.WATER_SPLASH, org.bukkit.Particle.WATER_WAKE, org.bukkit.Particle.CLOUD, org.bukkit.Particle.SNOWBALL, org.bukkit.Particle.DRIP_WATER, org.bukkit.Particle.DRIP_LAVA, org.bukkit.Particle.SNOW_SHOVEL, org.bukkit.Particle.SLIME, org.bukkit.Particle.HEART, org.bukkit.Particle.VILLAGER_ANGRY, org.bukkit.Particle.VILLAGER_HAPPY, org.bukkit.Particle.BARRIER};
 		for(int i = 0; i<parti.length; i++) {
 			particules[i] = parti[i];
 		}
