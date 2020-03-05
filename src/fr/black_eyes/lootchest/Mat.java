@@ -60,7 +60,7 @@ public final class Mat {
 			ENDER_EYE = Material.valueOf("ENDER_EYE");
 			TOTEM_OF_UNDYING = Material.valueOf("TOTEM_OF_UNDYING");
 		}
-		if(Bukkit.getVersion().contains("1.14")) {
+		if(Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15")) {
 			SIGN = Material.valueOf("OAK_SIGN");
 			FIREWORK = Material.valueOf("FIREWORK_ROCKET");
 			MYCELIUM = Material.valueOf("MYCELIUM");

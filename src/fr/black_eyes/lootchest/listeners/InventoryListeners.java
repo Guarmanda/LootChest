@@ -1,12 +1,11 @@
 package fr.black_eyes.lootchest.listeners;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,62 +16,66 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import fr.black_eyes.lootchest.Config;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
 import fr.black_eyes.lootchest.Utils;
-import fr.black_eyes.lootchest.commands.Lootchest;
+import fr.black_eyes.lootchest.commands.LootchestCommand;
 
-public class InventoryListeners implements Listener {
+public class InventoryListeners extends Utils implements Listener {
 	
-	
+
+	Config config = Main.getConfigFiles();
+	 FileConfiguration data = Main.getConfigFiles().getData();
+	 FileConfiguration lang = Main.getConfigFiles().getLang();
 	public static HashMap<Player, String> particles = new HashMap<Player, String>();
 	
 	//gère la modification des coffres
 	@EventHandler
     public void oncloseInventory(InventoryCloseEvent e) {
     	Player p = Bukkit.getPlayer(e.getPlayer().getName());
-    	if (!Lootchest.editinv.containsKey(p)) {
+    	if (!LootchestCommand.editinv.containsKey(p)) {
     		return;
     	}
-    	String chest = Lootchest.editinv.get(p);
-    	Lootchest.editinv.remove(p);
-        if (Lootchest.menuName.get(p).equals(Utils.getMsg("Menu.items.name", "[Chest]", chest))) {
-        	Main.getInstance().getData().set("chests." +chest+ ".inventory", null);
+    	String chest = LootchestCommand.editinv.get(p);
+    	LootchestCommand.editinv.remove(p);
+        if (LootchestCommand.menuName.get(p).equals(getMsg("Menu.items.name", "[Chest]", chest))) {
+        	data.set("chests." +chest+ ".inventory", null);
 			for(int i = 0 ; i < e.getInventory().getSize() ; i++) {
 				if(e.getInventory().getItem(i) != null) {
-					Main.getInstance().getData().set("chests." +chest + ".inventory." + i, e.getInventory().getItem(i));
-					if(!Main.getInstance().getData().isSet("chests." + chest + ".chance." + i)){
-						Main.getInstance().getData().set("chests." + chest + ".chance." + i, Main.getInstance().getConfig().getInt("default_item_chance"));
+					data.set("chests." +chest + ".inventory." + i, e.getInventory().getItem(i));
+					if(!data.isSet("chests." + chest + ".chance." + i)){
+						data.set("chests." + chest + ".chance." + i, Main.getInstance().getConfig().getInt("default_item_chance"));
 					}
 				}
 			}
-			Lootchest.menuName.put(p, Utils.getMsg("Menu.main.name", "[Chest]", chest));
-			Utils.mainInv(p, chest);
+			LootchestCommand.menuName.put(p, getMsg("Menu.main.name", "[Chest]", chest));
+			mainInv(p, chest);
         }
         
-        else if (Lootchest.menuName.get(p).equals(Utils.getMsg("Menu.particles.name", "[Chest]", chest))) {
-        	Lootchest.menuName.put(p, Utils.getMsg("Menu.main.name", "[Chest]", chest));
-        	Utils.mainInv(p, chest);
+        else if (LootchestCommand.menuName.get(p).equals(getMsg("Menu.particles.name", "[Chest]", chest))) {
+        	LootchestCommand.menuName.put(p, getMsg("Menu.main.name", "[Chest]", chest));
+        	mainInv(p, chest);
         }
         
-       /* else if (Lootchest.menuName.get(p).equals(Utils.getMsg("Menu.copy.name", "[Chest]", chest))) {
-        	Lootchest.menuName.put(p, Utils.getMsg("Menu.main.name", "[Chest]", chest));
-        	Utils.mainInv(p, chest);
+       /* else if (Lootchest.menuName.get(p).equals(getMsg("Menu.copy.name", "[Chest]", chest))) {
+        	Lootchest.menuName.put(p, getMsg("Menu.main.name", "[Chest]", chest));
+        	mainInv(p, chest);
         }*/
 
-        else if (Lootchest.menuName.get(p).equals(Utils.getMsg("Menu.chances.name", "[Chest]", chest))) {
+        else if (LootchestCommand.menuName.get(p).equals(getMsg("Menu.chances.name", "[Chest]", chest))) {
 			for(int i = 0 ; i < e.getInventory().getSize() ; i++) {
 				if(e.getInventory().getItem(i) != null) {
 					List<String> lore = e.getInventory().getItem(i).getItemMeta().getLore();
-					Main.getInstance().getData().set("chests." + chest + ".chance." + i, Integer.parseInt(lore.get(1).replace("%", "")));
+					data.set("chests." + chest + ".chance." + i, Integer.parseInt(lore.get(1).replace("%", "")));
 				}
 			}
-			Lootchest.menuName.put(p, Utils.getMsg("Menu.main.name", "[Chest]", chest));
-			Utils.mainInv(p, chest);
+			LootchestCommand.menuName.put(p, getMsg("Menu.main.name", "[Chest]", chest));
+			mainInv(p, chest);
         }
         
         
-        else if (Lootchest.menuName.get(p).equals(Utils.getMsg("Menu.time.name", "[Chest]", chest))) {
+        else if (LootchestCommand.menuName.get(p).equals(getMsg("Menu.time.name", "[Chest]", chest))) {
 			Inventory inv = e.getInventory();
 			int valeurs[] = {0,0,0,0,0,0,0,0};
 			for(int i=9; i<17; i++) {
@@ -83,21 +86,16 @@ public class InventoryListeners implements Listener {
 			int jours = Integer.parseInt(valeurs[0] + "" + valeurs[1]);
 			int heures = Integer.parseInt(valeurs[3] + "" + valeurs[4]);
 			int minutes = Integer.parseInt(valeurs[6] + "" + valeurs[7]);
-			Main.getInstance().getData().set("chests." + chest + ".time", jours*24*60 + heures*60 + minutes);
+			data.set("chests." + chest + ".time", jours*24*60 + heures*60 + minutes);
 			if(inv.getItem(22).getItemMeta().getDisplayName().equals("Respawn time: infinite")) {
-				Main.getInstance().getData().set("chests." + chest + ".time", -1);
+				data.set("chests." + chest + ".time", -1);
 			}
-			Lootchest.menuName.put(p, Utils.getMsg("Menu.main.name", "[Chest]", chest));
-			Utils.mainInv(p, chest);
+			LootchestCommand.menuName.put(p, getMsg("Menu.main.name", "[Chest]", chest));
+			mainInv(p, chest);
 			
         }
         else return;
-        try {
-			Main.getInstance().getData().save(Main.getInstance().getDataF());
-			Main.getInstance().getData().load(Main.getInstance().getDataF());
-		} catch (IOException | InvalidConfigurationException ex) {
-			ex.printStackTrace();
-		}
+        config.reloadData();
     }
 	
 	
@@ -116,22 +114,22 @@ public class InventoryListeners implements Listener {
         if (!(e.getWhoClicked() instanceof Player)) {
         	return;
         }
-        if (Main.getInstance().getData().getConfigurationSection("chests").getKeys(false).size() == 0) {  	
+        if (data.getConfigurationSection("chests").getKeys(false).size() == 0) {  	
         	return;
         }
         final Player player =(Player)e.getWhoClicked();
-        if(!Lootchest.editinv.containsKey(player)) {
+        if(!LootchestCommand.editinv.containsKey(player)) {
         	return;
         }
         //particles menu
-        if (Lootchest.menuName.get(player).equals(Utils.getMsg("Menu.particles.name", "[Chest]", Lootchest.editinv.get(player)))) {
+        if (LootchestCommand.menuName.get(player).equals(getMsg("Menu.particles.name", "[Chest]", LootchestCommand.editinv.get(player)))) {
         	e.setCancelled(true);
     		String particules[] = {"EXPLOSION_HUGE", "EXPLOSION_LARGE", "EXPLOSION_NORMAL", "FIREWORKS_SPARK", "WATER_BUBBLE", "SUSPENDED", "TOWN_AURA", "CRIT", "CRIT_MAGIC", "SMOKE_NORMAL", "SMOKE_LARGE", "SPELL_MOB", "SPELL_MOB_AMBIENT", "SPELL", "SPELL_INSTANT", "SPELL_WITCH", "NOTE", "PORTAL", "ENCHANTMENT_TABLE", "FLAME", "LAVA", "LAVA", "WATER_SPLASH", "WATER_WAKE", "CLOUD", "SNOWBALL", "DRIP_WATER", "DRIP_LAVA", "SNOW_SHOVEL", "SLIME", "HEART", "VILLAGER_ANGRY", "VILLAGER_HAPPY", "BARRIER"};
-        	if(!Bukkit.getVersion().contains("1.13")) {
+        	if(!Bukkit.getVersion().contains("1.13") && !Bukkit.getVersion().contains("1.14") && !Bukkit.getVersion().contains("1.15")) {
         		particules[21] = "FOOTSTEP";
         	}
-        	Main.getInstance().getData().set("chests." + Lootchest.editinv.get(player) + ".particle", particules[e.getSlot()]);
-        	Location loc = Utils.getPosition(Lootchest.editinv.get(player));
+        	data.set("chests." + LootchestCommand.editinv.get(player) + ".particle", particules[e.getSlot()]);
+        	Location loc = getPosition(LootchestCommand.editinv.get(player));
         	final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
     		loc2.setX(loc.getX()+0.5);
     		loc2.setY(loc.getY()+0.5);
@@ -142,66 +140,61 @@ public class InventoryListeners implements Listener {
     					Main.part.put(loc2, (org.bukkit.Particle) part);
     			}
     		}
-    		try {
-    			Main.getInstance().getData().save(Main.getInstance().getDataF());
-    			Main.getInstance().getData().load(Main.getInstance().getDataF());
-    		} catch (IOException | InvalidConfigurationException e1) {
-    			e1.printStackTrace();
-    		}
-    		Utils.msg(player, "editedParticle", "[Chest]", Lootchest.editinv.get(player));
+    		config.reloadData();
+    		msg(player, "editedParticle", "[Chest]", LootchestCommand.editinv.get(player));
         }
         
         //copy menu
-        else if (Lootchest.menuName.get(player).equals(Utils.getMsg("Menu.copy.name", " ", " "))) {
-        	String chest = Lootchest.editinv.get(player);
+        else if (LootchestCommand.menuName.get(player).equals(getMsg("Menu.copy.name", " ", " "))) {
+        	String chest = LootchestCommand.editinv.get(player);
         	if (e.getCurrentItem().getType().equals(Material.AIR)) {return;}
         	if (e.getCurrentItem().getType().equals(Material.PAPER)) {
         		int j = Integer.parseInt(org.bukkit.ChatColor.stripColor(e.getCurrentItem().getItemMeta().getDisplayName()).replaceAll("\\D+",""));
         		player.closeInventory();
-        		Utils.invcopy(player, chest,j);
+        		invcopy(player, chest,j);
         		return;
         	}
         	String copyChest = e.getCurrentItem().getItemMeta().getDisplayName().replace("§6", "");
         	
-        	Utils.copychest(copyChest, chest);
+        	copychest(copyChest, chest);
         	player.closeInventory();
-        	player.sendMessage(Utils.getMsg("copiedChest", "[Chest1]", copyChest).replace("[Chest2]", chest));
+        	player.sendMessage(getMsg("copiedChest", "[Chest1]", copyChest).replace("[Chest2]", chest));
         }
         //main menu
-        else if(Lootchest.menuName.get(player).equals(Utils.getMsg("Menu.main.name", "[chest]", Lootchest.editinv.get(player)))) {
+        else if(LootchestCommand.menuName.get(player).equals(getMsg("Menu.main.name", "[chest]", LootchestCommand.editinv.get(player)))) {
         	e.setCancelled(true);
-        	String chest = Lootchest.editinv.get(player);
+        	String chest = LootchestCommand.editinv.get(player);
         	switch(e.getSlot()) {
         		case 4:
         			player.closeInventory();
-    				Lootchest.menuName.put(player, Utils.getMsg("Menu.copy.name", "[Chest]", chest));
-        			Utils.invcopy(player, chest, 1);
+    				LootchestCommand.menuName.put(player, getMsg("Menu.copy.name", "[Chest]", chest));
+        			invcopy(player, chest, 1);
         			break;
         		case 11:
         			if(Main.getInstance().getConfig().getBoolean("Particles.enable")) {
         				player.closeInventory();
-        				Lootchest.menuName.put(player, Utils.getMsg("Menu.particles.name", "[Chest]", chest));
-        				Utils.particleInv(player, chest);
+        				LootchestCommand.menuName.put(player, getMsg("Menu.particles.name", "[Chest]", chest));
+        				particleInv(player, chest);
         			}
         			break;
         		case 13:
         			player.closeInventory();
-    				Lootchest.menuName.put(player, Utils.getMsg("Menu.items.name", "[Chest]", chest));
-        			Utils.invEdit(player, chest);
+    				LootchestCommand.menuName.put(player, getMsg("Menu.items.name", "[Chest]", chest));
+        			invEdit(player, chest);
         			break;
         		case 15:
         			player.closeInventory();
-    				Lootchest.menuName.put(player, Utils.getMsg("Menu.time.name", "[Chest]", chest));
-        			Utils.invTime(player, chest);
+    				LootchestCommand.menuName.put(player, getMsg("Menu.time.name", "[Chest]", chest));
+        			invTime(player, chest);
         			break;	
         		case 22:
         			player.closeInventory();
-    				Lootchest.menuName.put(player, Utils.getMsg("Menu.chances.name", "[Chest]", chest));
-        			Utils.invChances(player, chest);
+    				LootchestCommand.menuName.put(player, getMsg("Menu.chances.name", "[Chest]", chest));
+        			invChances(player, chest);
         			break;			
         	}
         }
-        else if(Lootchest.menuName.get(player).equals(Utils.getMsg("Menu.chances.name", "[Chest]", Lootchest.editinv.get(player)))) {
+        else if(LootchestCommand.menuName.get(player).equals(getMsg("Menu.chances.name", "[Chest]", LootchestCommand.editinv.get(player)))) {
         	e.setCancelled(true);
         	ItemStack item = e.getCurrentItem();
         	ItemMeta meta = item.getItemMeta();
@@ -223,13 +216,13 @@ public class InventoryListeners implements Listener {
 	        	}
         	}
         }
-        else if(Lootchest.menuName.get(player).equals(Utils.getMsg("Menu.time.name", "[Chest]", Lootchest.editinv.get(player)))) {
+        else if(LootchestCommand.menuName.get(player).equals(getMsg("Menu.time.name", "[Chest]", LootchestCommand.editinv.get(player)))) {
         	e.setCancelled(true);
         	ItemStack item = e.getCurrentItem();
         	switch(e.getSlot()) {
         	case 4:
         		if(e.getClick() == ClickType.LEFT) {
-        			Main.getInstance().getData().set("chests."+ Lootchest.editinv.get(player)+".time", -1);
+        			data.set("chests."+ LootchestCommand.editinv.get(player)+".time", -1);
         			e.getInventory().setItem(9, new ItemStack(Material.BARRIER));
         			e.getInventory().setItem(10, new ItemStack(Material.BARRIER));
         			e.getInventory().setItem(12, new ItemStack(Material.BARRIER));
@@ -335,7 +328,7 @@ public class InventoryListeners implements Listener {
 			int minutes = Integer.parseInt(valeurs[6] + "" + valeurs[7]);
 			ItemStack sign = new ItemStack(Mat.SIGN, 1);
 			ItemMeta meta = sign.getItemMeta(); 
-			if(Main.getInstance().getData().getInt("chests."+ Lootchest.editinv.get(player)+".time") != -1) {
+			if(data.getInt("chests."+ LootchestCommand.editinv.get(player)+".time") != -1) {
 				meta.setDisplayName("Respawn time: " + jours+" days, " + heures + " hours, " + minutes + " minutes.");
 			}
 			else {

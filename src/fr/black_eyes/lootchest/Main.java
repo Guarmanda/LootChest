@@ -1,19 +1,16 @@
 package fr.black_eyes.lootchest;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import fr.black_eyes.lootchest.commands.Lootchest;
+import fr.black_eyes.lootchest.commands.LootchestCommand;
 import fr.black_eyes.lootchest.listeners.DeleteListener;
 import fr.black_eyes.lootchest.listeners.InventoryListeners;
+import fr.black_eyes.lootchest.Utils;
 
 
 
@@ -23,75 +20,78 @@ import fr.black_eyes.lootchest.listeners.InventoryListeners;
 
 
 
-public class Main extends JavaPlugin{
+public class Main extends JavaPlugin {
 	
 	public static Object particules[] = new Object[34];
 	public static HashMap<Location, Object> part = new HashMap<Location, Object>();
-	private File dataFile;
-	private FileConfiguration data;
-	private File configFile;
-	private FileConfiguration config;
-	private File langFile;
-	private FileConfiguration lang;
 	private static Main instance;
+	private static Config config;
+	private static Utils utils;
 	
 	public void onDisable() {
-		try {
-			Main.getInstance().getData().save(Main.getInstance().getDataF());
-		} catch (IOException | IllegalArgumentException e) {
-			e.printStackTrace();
 		
-		}	
+		config.saveData();	
 	}
 	
 	public void onEnable() {
 		instance = this;
-		this.getServer().getPluginManager().registerEvents(new Utils(), this);
-		this.getServer().getPluginManager().registerEvents(new DeleteListener(), this);
-		this.getServer().getPluginManager().registerEvents(new InventoryListeners(), this);
-        this.getCommand("lootchest").setExecutor(new Lootchest());
-        this.getCommand("lootchest").setTabCompleter(new Lootchest());
-        super.onEnable();
-        if(!initFiles()) {
+		config = new Config();
+		utils = new Utils();
+		if(!config.initFiles()) {
         	getLogger().info("§cThe data file couldn't be initialised, the plugin will stop.");
         	return;
         }
+
+		this.getServer().getPluginManager().registerEvents(new Utils(), this);
+		this.getServer().getPluginManager().registerEvents(new DeleteListener(), this);
+		this.getServer().getPluginManager().registerEvents(new InventoryListeners(), this);
+        this.getCommand("lootchest").setExecutor(new LootchestCommand());
+        this.getCommand("lootchest").setTabCompleter(new LootchestCommand());
+        super.onEnable();
+        
         //In many versions, I add some text an config option. These lines are done to update config and language files without erasing options that are already set
-        setConfig("Particles.enable", true);
-        setConfig("Hologram_distance_to_chest", 1);
-        setConfig("UseHologram", true);
-        setConfig("RemoveEmptyChests", true);
-        setConfig("RemoveChestAfterFirstOpenning", false);
-        setConfig("respawn_notify.natural_respawn.enabled", true);
-        setConfig("respawn_notify.respawn_with_command.enabled", true);
-        setConfig("respawn_notify.respawn_all_with_command.enabled", true);
-        setConfig("respawn_notify.natural_respawn.message", "&6The chest &b[Chest] &6has just respawned at [x], [y], [z]!");
-        setConfig("respawn_notify.respawn_with_command.message", "&6The chest &b[Chest] &6has just respawned at [x], [y], [z]!");
-        setConfig("respawn_notify.respawn_all_with_command.message", "&6All chests where forced to respawn! Get them guys!");
-        setConfig("PreventHopperPlacingUnderLootChest", true);
-        setConfig("check_for_respawn_in_ticks", 600);
-        setConfig("respawn_notify.respawn_all_in_one_check.enabled", true);
-        setConfig("respawn_notify.respawn_all_in_one_check.message", "&6All loot chests respawned");
-        setConfig("Enable_fall_effect", true);
-        setLang("PluginReloaded", "&aConfig file, lang, and chest data were reloaded");
-        setLang("PlayerIsNotOnline", "&cThe player [Player] is not online");
-        setLang("givefrom", "&aYou were given the [Chest] chest by [Player]");
-        setLang("giveto", "&aYou gave the chest [Chest] to player [Player]");
-        setLang("ListCommand", "&aList of all chests: [List]");
-        setLang("help.line10", "&a/lc reload &b: reloads the plugin");
-        setLang("help.line11", "&a/lc list &b: list all chests");
-        setLang("help.line13", "&a/lc give <player> <name> &b: gives the chest <name> to player <player>");
-        setLang("help.line14", "&a/lc settime <name> &b: sets the respawn time of a chest in seconds");
-        setLang("help.line15", "&a/lc randomspawn <name> <radius> &b: make a chest respawn randomly in the specified radius");
-        setLang("Menu.main.copychest", "&1Copy settings from anyther chest");
-        setLang("Menu.copy.name", "&1Choose a chest to copy its settings");
-        setLang("copiedChest", "&6You copied the chest &b[Chest1] &6into the chest &b[Chest2]");
-        setLang("changedPosition", "&6You set the location of chest &b[Chest] &6to your location");
-        setLang("help.line12", "&a/lc setpos &b: edit the position of a chest");
-        setLang("settime", "&6You successfully set the time of the chest &b[Chest]");
-        setLang("Menu.time.infinite", "&6Desactivates the respawn time");
-        setLang("chestRadiusSet", "&aYou defined a spawn radius for the chest [Chest]");
-        setLang("Menu.copy.page", "&2---> Page &b[Number]");
+        config.setConfig("Particles.enable", true);
+        config.setConfig("Hologram_distance_to_chest", 1);
+        config.setConfig("UseHologram", true);
+        config.setConfig("RemoveEmptyChests", true);
+        config.setConfig("RemoveChestAfterFirstOpenning", false);
+        config.setConfig("respawn_notify.natural_respawn.enabled", true);
+        config.setConfig("respawn_notify.respawn_with_command.enabled", true);
+        config.setConfig("respawn_notify.respawn_all_with_command.enabled", true);
+        config.setConfig("respawn_notify.natural_respawn.message", "&6The chest &b[Chest] &6has just respawned at [x], [y], [z]!");
+        config.setConfig("respawn_notify.respawn_with_command.message", "&6The chest &b[Chest] &6has just respawned at [x], [y], [z]!");
+        config.setConfig("respawn_notify.respawn_all_with_command.message", "&6All chests where forced to respawn! Get them guys!");
+        config.setConfig("PreventHopperPlacingUnderLootChest", true);
+        config.setConfig("check_for_respawn_in_ticks", 600);
+        config.setConfig("respawn_notify.respawn_all_in_one_check.enabled", true);
+        config.setConfig("respawn_notify.respawn_all_in_one_check.message", "&6All loot chests respawned");
+        config.setConfig("Enable_fall_effect", true);
+        config.setConfig("check_for_respawn_in_ticks", null);
+        config.setConfig("Fall_Effect_Height", 50);
+        config.setLang("PluginReloaded", "&aConfig file, lang, and chest data were reloaded");
+        config.setLang("PlayerIsNotOnline", "&cThe player [Player] is not online");
+        config.setLang("givefrom", "&aYou were given the [Chest] chest by [Player]");
+        config.setLang("giveto", "&aYou gave the chest [Chest] to player [Player]");
+        config.setLang("ListCommand", "&aList of all chests: [List]");
+        config.setLang("help.line10", "&a/lc reload &b: reloads the plugin");
+        config.setLang("help.line11", "&a/lc list &b: list all chests");
+        config.setLang("help.line13", "&a/lc give <player> <name> &b: gives the chest <name> to player <player>");
+        config.setLang("help.line14", "&a/lc settime <name> &b: sets the respawn time of a chest in seconds");
+        config.setLang("help.line15", "&a/lc randomspawn <name> <radius> &b: make a chest respawn randomly in the specified radius");
+        config.setLang("Menu.main.copychest", "&1Copy settings from anyther chest");
+        config.setLang("Menu.copy.name", "&1Choose a chest to copy its settings");
+        config.setLang("copiedChest", "&6You copied the chest &b[Chest1] &6into the chest &b[Chest2]");
+        config.setLang("changedPosition", "&6You set the location of chest &b[Chest] &6to your location");
+        config.setLang("help.line12", "&a/lc setpos &b: edit the position of a chest");
+        config.setLang("settime", "&6You successfully set the time of the chest &b[Chest]");
+        config.setLang("Menu.time.infinite", "&6Desactivates the respawn time");
+        config.setLang("chestRadiusSet", "&aYou defined a spawn radius for the chest [Chest]");
+        config.setLang("Menu.copy.page", "&2---> Page &b[Number]");
+        config.setLang("teleportedToChest", "&aYou were teleported to chest [Chest]");
+        config.setLang("help.line16", "&a/lc tp <name> &b: teleports you to a chest");
+        config.setLang("help.line17","&a/lc togglefall <name> &b: enable/disable the fall effect for a chest");
+        config.setLang("enabledFallEffect", "&aYou enabled fall effect for chest &b[Chest]");
+        config.setLang("disabledFallEffect", "&cYou disabled fall effect for chest &b[Chest]");
         
         //initialisation des matériaux dans toutes les verions du jeu
         //initializing materials in all game versions, to allow cross-version compatibility
@@ -102,12 +102,12 @@ public class Main extends JavaPlugin{
     		initParticles();
         }
         if(Bukkit.getVersion().contains("1.8")) {
-        	getInstance().getConfig().set("Particles.enable", false);
+        	config.getConfig().set("Particles.enable", false);
         	getLogger().info("Spigot 1.8 detected: particles were disabled");
         }
         
         //One particle was created in 1.13 so that other versions won't have it. Let's remove it if you're not in 1.13
-        else if (!Bukkit.getVersion().contains("1.13") && !Bukkit.getVersion().contains("1.14")) {
+        else if (!Bukkit.getVersion().contains("1.13") && !Bukkit.getVersion().contains("1.14") && !Bukkit.getVersion().contains("1.15")) {
         	particules[21] = org.bukkit.Particle.valueOf("FOOTSTEP");
         }
         else if(Bukkit.getVersion().contains("1.14")) {
@@ -122,12 +122,12 @@ public class Main extends JavaPlugin{
         	//loop of all chests every 1/4 (editable in config) of seconds to spawn particles 
         	new BukkitRunnable() {
         		public void run() {
-        			double radius = getConfig().getDouble("Particles.radius");
-        			if (getInstance().getConfig().getBoolean("Particles.enable")) {
+        			double radius = config.getConfig().getDouble("Particles.radius");
+        			if (config.getConfig().getBoolean("Particles.enable")) {
         				for(Location keys : part.keySet()) {
         					
         					if((org.bukkit.Particle) part.get(keys) != org.bukkit.Particle.REDSTONE) {
-        						keys.getWorld().spawnParticle( (org.bukkit.Particle) part.get(keys), keys, getConfig().getInt("Particles.number"), radius, radius, radius, getConfig().getDouble("Particles.speed"));
+        						keys.getWorld().spawnParticle( (org.bukkit.Particle) part.get(keys), keys, config.getConfig().getInt("Particles.number"), radius, radius, radius, config.getConfig().getDouble("Particles.speed"));
         					} 
         					
         				}
@@ -135,123 +135,46 @@ public class Main extends JavaPlugin{
         		}
         	}.runTaskTimer(this, 0, getConfig().getInt("Particles.respawn_ticks"));
         }
-        //check du respawn des coffres toutes les minutes
-        //check of chest respawn all minutes
-        new BukkitRunnable() {
-            public void run() {
-            	boolean allchestrespawns = true;
-            	int numchest = 0;
-            	for(String keys : getInstance().getData().getConfigurationSection("chests").getKeys(false)) {
-            		numchest++;
-            		if(Utils.getPosition(keys).getWorld() != null) {
-            			if (!Utils.restoreChest(keys, false)) allchestrespawns=false;
-            		}
-            		else {
-            			getLogger().info("§cCouldn't load chest "+keys +" : the world " + getInstance().getData().getString("chests." + keys + ".position.world") + " is not loaded");
-            		}
-            	}
-            	if(numchest >1 && allchestrespawns && getConfig().getBoolean("respawn_notify.respawn_all_in_one_check.enabled")) Bukkit.broadcastMessage(getConfig().getString("respawn_notify.respawn_all_in_one_check.message").replace("&", "§"));
 
-            }
-        }.runTaskTimer(this, 0, getConfig().getInt("check_for_respawn_in_ticks"));
+        
+    	boolean allchestrespawns = true;
+    	int numchest = 0;	
+    	for(String keys : config.getData().getConfigurationSection("chests").getKeys(false)) {
+    		numchest++;
+    		if(utils.getPosition(keys).getWorld() != null) {
+    			//if the chest didn't respawn at startup, we start its timer
+    			if (!utils.restoreChest(keys, false)) {
+    				allchestrespawns=false;
+    				utils.sheduleRespawn(keys);
+    			}
+    			utils.reactivateEffects(keys);
+    		}
+    		else {
+    			getLogger().info("§cCouldn't load chest "+keys +" : the world " + config.getData().getString("chests." + keys + ".position.world") + " is not loaded");
+    		}
+    	}
+    	if(numchest >1 && allchestrespawns && config.getConfig().getBoolean("respawn_notify.respawn_all_in_one_check.enabled")) 
+    		Bukkit.broadcastMessage(config.getConfig().getString("respawn_notify.respawn_all_in_one_check.message").replace("&", "§"));
+
+            
     }
+	
 	public static Main getInstance() {
         return instance;
     }
+	public static Config getConfigFiles() {
+        return config;
+    }
 	
-	
-	//function to update config on new version
-	public void setConfig(String path, Object value) {
-		if(this.getConfig().isSet(path))
-			return;
-		else
-			getInstance().getConfig().set(path, value);
-			try {
-				Main.getInstance().getConfig().save(Main.getInstance().getConfigF());
-				Main.getInstance().getConfig().load(Main.getInstance().getConfigF());
-			} catch (IOException | InvalidConfigurationException e) {
-				e.printStackTrace();
-			}
-	}
-	
-	//function to edit lang file on new version
-	public void setLang(String path, Object value) {
-		if(this.getLang().isSet(path))
-			return;
-		else
-			getInstance().getLang().set(path, value);
-			try {
-				Main.getInstance().getLang().save(Main.getInstance().getLangF());
-				Main.getInstance().getLang().load(Main.getInstance().getLangF());
-			} catch (IOException | InvalidConfigurationException e) {
-				e.printStackTrace();
-			}
-	}
-	
-	
-	
-	
-	//file initializations
-	public File getDataF() {
-		return this.dataFile;
-	}
-	public File getConfigF() {
-		return this.configFile;
-	}
-	public File getLangF() {
-		return this.langFile;
-	}
 	public FileConfiguration getData() {
-		return this.data;
-	}
-	public FileConfiguration getConfig() {
-		return this.config;
-	}
-	public FileConfiguration getLang() {
-		return this.lang;
+		return config.getData();
+		
 	}
 	
-	private boolean initFiles() {
-		//config
-	    configFile = new File(getDataFolder(), "config.yml");
-	    langFile = new File(getDataFolder(), "lang.yml");
-	    dataFile = new File(getDataFolder(), "data.yml");
-	    if (!configFile.exists()) {
-	        configFile.getParentFile().mkdirs();
-	        saveResource("config.yml", false);
-	    }
-	    config= new YamlConfiguration();
-	    try {
-	        config.load(configFile);
-	    } catch (IOException | InvalidConfigurationException e) {
-	        e.printStackTrace();
-	    }
-	    
-	    //lang
-	    if (!langFile.exists()) {
-	        langFile.getParentFile().mkdirs();
-	        saveResource("lang.yml", false);
-	    }
-	    lang= new YamlConfiguration();
-	    try {
-	        lang.load(langFile);
-	    } catch (IOException | InvalidConfigurationException e) {
-	        e.printStackTrace();
-	    }
-	   
-	    //data
-	    if (!dataFile.exists()) {
-	        dataFile.getParentFile().mkdirs();
-	        saveResource("data.yml", false);
-	    }
-	    data= new YamlConfiguration();
-	    try {
-	        data.load(dataFile);
-	    } catch ( Exception e) {
-	        return false;
-	    }
-		return true;
-	}
+	
+	
+	
+
 	
 	//particle initialozation
 	private void initParticles() {

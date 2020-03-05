@@ -7,26 +7,35 @@ chestDoesntExist: "&cThe chest [Chest] &cdoesn't exist!"
 chestAlreadyExist: "&cThe chest [Chest] &calready exists!"
 succesfulyRespawnedChest: "&aThe chest [Chest] &awas respawned!"
 AllChestsReloaded: "&aAll chests were respawned!"
-editedParticle: "&aEdited particle of chest [Chest]!"
-hologram_edited: "&aEdited hologram of chest [Chest]!"
+editedParticle: "&aEdited particle of chest &b[Chest]!"
+hologram_edited: "&aEdited hologram of chest &b[Chest]!"
 PluginReloaded: "&aConfig file, lang, and chest data were reloaded"
 ListCommand: "&aList of all chests: [List]"
-copiedChest: "&6You copied the chest [Chest1] into the chest [Chest2]"
+copiedChest: "&6You copied the chest &b[Chest1] &6into the chest &b[Chest2]"
 changedPosition: "&6You set the location of chest &b[Chest] &6to your location"
 settime: "&6You successfully set the time of the chest &b[Chest]"
+PlayerIsNotOnline: "&cThe player [Player] is not online"
+givefrom: "&aYou were given the &b[Chest] &achest by &b[Player]"
+giveto: "&aYou gave the chest &b[Chest] &ato player &b[Player]"
+chestRadiusSet: "&aYou defined a spawn radius for the chest &b[Chest]"
+teleportedToChest: "&aYou were teleported to chest &b[Chest]"
+enabledFallEffect: "&aYou enabled fall effect for chest &b[Chest]"
+disabledFallEffect: "&cYou disabled fall effect for chest &b[Chest]"
+
 
 Menu:
   particles:
     name: "&1Choose a chest particle!"
   copy:
     name: "&1Choose a chest to copy its settings"
+    page: "&2---> Page &b[Number]"
   main:
     respawnTime: "&1Respawn time editing"
     content: "&1Chest content editing"
     chances: "&1Items chances editing"
     name: "&1Main editing menu"
     particles: "&1Particle choosing"
-    copychest: "&1Copy settings from anyther chest"
+    copychest: "&1Copy settings from another chest"
   chances:
     name: "&1Item chances of chest [Chest]"
     lore: "&aLeft click to up percentage, Right click to down it"
@@ -40,7 +49,7 @@ Menu:
     days: "&aDays"
 help:
   line1: "&a -- Help for LootChest plugin --"
-  line2: "&a(by Black_Eyes (alias Guarmanda), idea by Ender_Griefeur99)"
+  line2: "&a(developped by Black_Eyes, idea of Ender_Griefeur99)"
   line3: "&a/lc create <name> &b: Creates a chest and opens creating menu"
   line4: "&a/lc edit <name> &b: Open editing menu"
   line5: "&a/lc help &b: Guess it"
@@ -51,5 +60,10 @@ help:
   line10: "&a/lc reload &b: reloads the plugin"
   line11: "&a/lc list &b: list all chests"
   line12: "&a/lc setpos &b: edit the position of a chest"
+  line13: "&a/lc give <player> <name> &b: gives the chest <name> to player <player>"
+  line14: "&a/lc settime <name> &b: sets the respawn time of a chest in seconds"
+  line15: "&a/lc randomspawn <name> <radius> &b: make a chest respawn randomly in the specified radius"
+  line16: "&a/lc tp <name> &b: teleports you to a chest"
+  line17: "&a/lc togglefall <name> &b: enable/disable the fall effect for a chest"
  
  
