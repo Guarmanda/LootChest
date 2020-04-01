@@ -29,6 +29,7 @@ public class Config {
 	public void reloadConfig() {
 		try {
 			config.load(getConfigF());
+			data.save(getDataF());
 			data.load(getDataF());
 			lang.load(getLangF());
 		} catch (IOException | InvalidConfigurationException e) {

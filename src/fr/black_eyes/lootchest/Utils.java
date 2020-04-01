@@ -110,15 +110,21 @@ public class Utils implements Listener {
 	//fonction pour changer la position d'un coffre
 	//function to change a chest location
 	public void changepos(String name, Location loc3) {
-		final Location loc = getPosition(name);
-		Block chest = loc.getBlock();
-		deleteholo(loc);
-		chest.setType(Material.AIR);
-		final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-		loc2.setX(loc.getX()+0.5);
-		loc2.setY(loc.getY()+0.5);
-		loc2.setZ(loc.getZ()+0.5);
-		Main.part.remove(loc2);
+		Location loc = getPosition(name);
+		if(getRandomPosition(name) != null) {
+			loc = getRandomPosition(name);
+		}
+		if(loc.getWorld() != null) {
+			Block chest = loc.getBlock();
+			deleteholo(loc);
+			((Chest) chest.getLocation().getBlock().getState()).getInventory().clear();
+			chest.setType(Material.AIR);
+			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
+			loc2.setX(loc.getX()+0.5);
+			loc2.setY(loc.getY()+0.5);
+			loc2.setZ(loc.getZ()+0.5);
+			Main.part.remove(loc2);
+		}
 		setPosition(name, loc3.getBlock().getLocation());
 		restoreChest(name, true);
 	}
@@ -127,7 +133,10 @@ public class Utils implements Listener {
 	//supprimes un coffre
 	public void deleteChest(String name) {
 		if(config.getData().isSet("chests." + name + ".position")) {
-			final Location loc = getPosition(name);
+			Location loc = getPosition(name);
+			if(getRandomPosition(name) != null) {
+				loc = getRandomPosition(name);
+			}
 			Block chest = loc.getBlock();
 			if(chest.getType().equals(Material.CHEST)) {
 				((Chest) chest.getState()).getInventory().clear();
@@ -223,8 +232,16 @@ public class Utils implements Listener {
 	//se sert du config.getData().yml pour set le coffre et remplir son inventaire, créer l'holo en fonction du nom 
 	//Taking informations from config.getData().yml to restore a specific chest if it is time to do it, or if we force respawn. 
 	public boolean restoreChest(String name, Boolean force) {
+		if(Bukkit.getWorld(config.getData().getString("chests." + name + ".position.world")) == null) {
+			Bukkit.getLogger().info("§cThe world " + config.getData().getString("chests." + name + ".position.world") + " is not loaded, can't respawn chest " + name);
+		}
 		if(!config.getData().isSet("chests." + name + ".fall")) {
-			config.getData().set("chests." + name + ".fall", true);
+			if(config.getData().isSet("chests." + name + ".time")) {
+				config.getData().set("chests." + name + ".fall", true);
+			}else {
+				config.getData().set("chests." + name, null);
+				config.reloadData();
+			}
 		}
 		Location loc = getPosition(name);
 		Location newloc = getPosition(name);
@@ -283,7 +300,14 @@ public class Utils implements Listener {
 			setRandomPosition(name, newloc);
 			if(!force && Main.getInstance().getConfig().getBoolean("respawn_notify.natural_respawn.enabled") ) {
 				String holo = config.getData().getString("chests." + name + ".holo");
-				Bukkit.broadcastMessage((((Main.getInstance().getConfig().getString("respawn_notify.natural_respawn.message").replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
+				if(!Main.getInstance().getConfig().getBoolean("respawn_notify.per_world_message")) {
+					Bukkit.broadcastMessage((((Main.getInstance().getConfig().getString("respawn_notify.natural_respawn.message").replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
+			
+				}else {
+					for(Player p : loc.getWorld().getPlayers()){
+						p.sendMessage((((Main.getInstance().getConfig().getString("respawn_notify.natural_respawn.message").replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
+					}
+				}
 			}
 			block = newloc.getBlock();
 			final Block newblock = block;
@@ -400,6 +424,10 @@ public class Utils implements Listener {
 	
 	//geting chest position from config.getData().yml
 	public  Location getPosition(String name) {
+		if (config.getData().getString("chests." + name + ".position.world") == null) {
+			instance.getLogger().info("§cThe plugin couldn't get the world of chest §6" + name +"§c. This won't prevent the plugin to work, but the plugin may throw other errors because of that.");
+			return null;
+		}
 		World world = Bukkit.getWorld(config.getData().getString("chests." + name + ".position.world"));
 		double x = config.getData().getDouble("chests." + name + ".position.x");
 		double y = config.getData().getDouble("chests." + name + ".position.y");
@@ -605,7 +633,11 @@ public class Utils implements Listener {
 		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 54, getMsg("Menu.copy.name", " ", " "));
 		Set<String> boxes = config.getData().getConfigurationSection("chests").getKeys(false);
 		for(String keys : boxes) {
-
+			if(getPosition(keys).getWorld() == null) {
+				boxes.remove(keys);
+			}
+		}
+		for(String keys : boxes) {
 			if(j== 2 && nbBoxes < 53) nbBoxes++;
 			else if(j> 2 && nbBoxes < (j*54-(2*(j-1)))-52) nbBoxes++;
 			//exempter le coffre actuel de la liste, et si il y a plus de 54 coffres, stopper i à 53 si on doit faire deux pages
@@ -613,7 +645,13 @@ public class Utils implements Listener {
 			else if(!keys.equals(chest) && (i!=45 || j==1) && (i!=53 || (boxes.size() -1)<=(j*52+1) ) ){
 				String name = config.getData().getString("chests." + keys + ".holo").replace("&", "§");
 				String effect = config.getData().getString("chests." + keys + ".particle");
-				String world = getPosition(keys).getWorld().getName();
+				String world;
+				if(getPosition(keys).getWorld() == null) {
+					world = "Unloaded world";
+				}
+				else {
+					world = getPosition(keys).getWorld().getName();
+				}
 				ItemStack item = getItemWithLore(Material.CHEST, "§6" +keys, "§bHologram: §6" + name + "||§bWorld: §6"+ world + "||§bEffect: §6" + effect);
 				inv.setItem(i++, item);
 			}
@@ -751,6 +789,12 @@ public class Utils implements Listener {
 		return direction;
 		
 	}
+	
+	public static boolean checkDeprec() {
+		return (Bukkit.getVersion().contains("1.8") || Bukkit.getVersion().contains("1.7"));
+	}
+	
+
 	
 	
 }

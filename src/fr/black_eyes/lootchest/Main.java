@@ -1,22 +1,21 @@
 package fr.black_eyes.lootchest;
 
 import java.util.HashMap;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+
 import fr.black_eyes.lootchest.commands.LootchestCommand;
 import fr.black_eyes.lootchest.listeners.DeleteListener;
 import fr.black_eyes.lootchest.listeners.InventoryListeners;
+
 import fr.black_eyes.lootchest.Utils;
 
 
 
 
-//Faire commande de reload
-//initialiser menu temps
 
 
 
@@ -33,15 +32,19 @@ public class Main extends JavaPlugin {
 		config.saveData();	
 	}
 	
+    
+	
 	public void onEnable() {
 		instance = this;
 		config = new Config();
 		utils = new Utils();
+		
+		
 		if(!config.initFiles()) {
         	getLogger().info("§cThe data file couldn't be initialised, the plugin will stop.");
         	return;
         }
-
+		
 		this.getServer().getPluginManager().registerEvents(new Utils(), this);
 		this.getServer().getPluginManager().registerEvents(new DeleteListener(), this);
 		this.getServer().getPluginManager().registerEvents(new InventoryListeners(), this);
@@ -50,6 +53,7 @@ public class Main extends JavaPlugin {
         super.onEnable();
         
         //In many versions, I add some text an config option. These lines are done to update config and language files without erasing options that are already set
+        config.setConfig("CheckForUpdates", true);
         config.setConfig("Particles.enable", true);
         config.setConfig("Hologram_distance_to_chest", 1);
         config.setConfig("UseHologram", true);
@@ -68,6 +72,8 @@ public class Main extends JavaPlugin {
         config.setConfig("Enable_fall_effect", true);
         config.setConfig("check_for_respawn_in_ticks", null);
         config.setConfig("Fall_Effect_Height", 50);
+        config.setConfig("respawn_notify.per_world_message", true);
+        config.setConfig("respawn_notify.message_on_chest_take", true);
         config.setLang("PluginReloaded", "&aConfig file, lang, and chest data were reloaded");
         config.setLang("PlayerIsNotOnline", "&cThe player [Player] is not online");
         config.setLang("givefrom", "&aYou were given the [Chest] chest by [Player]");
@@ -92,16 +98,20 @@ public class Main extends JavaPlugin {
         config.setLang("help.line17","&a/lc togglefall <name> &b: enable/disable the fall effect for a chest");
         config.setLang("enabledFallEffect", "&aYou enabled fall effect for chest &b[Chest]");
         config.setLang("disabledFallEffect", "&cYou disabled fall effect for chest &b[Chest]");
-        
+        config.setLang("playerTookChest", "&6Oh no! &b[Player] &6found the chest &b[Chest] &6and took everything in it!");
+        config.setLang("disabledChestRadius", "&cYou disabled random spawn for chest [Chest]");
+        if(config.getConfig().getBoolean("CheckForUpdates")) {
+        	Updater.checkversion();
+        }
         //initialisation des matériaux dans toutes les verions du jeu
         //initializing materials in all game versions, to allow cross-version compatibility
         Mat.init_materials();
         
         //1.8 version uses a totally different particle system. It would need many more time to make it working.
-        if(!Bukkit.getVersion().contains("1.8")) {
+        if(!Utils.checkDeprec()) {
     		initParticles();
         }
-        if(Bukkit.getVersion().contains("1.8")) {
+        if(Utils.checkDeprec()) {
         	config.getConfig().set("Particles.enable", false);
         	getLogger().info("Spigot 1.8 detected: particles were disabled");
         }
@@ -117,7 +127,7 @@ public class Main extends JavaPlugin {
 
         //Initialisation des particules
         //Particle initialization
-        if(!Bukkit.getVersion().contains("1.8")) {    
+        if(!Utils.checkDeprec()) {    
         	//loop de tous les coffres tous les 1/4 (modifiable dans la config) de secondes pour faire spawn des particules
         	//loop of all chests every 1/4 (editable in config) of seconds to spawn particles 
         	new BukkitRunnable() {
@@ -141,7 +151,11 @@ public class Main extends JavaPlugin {
     	int numchest = 0;	
     	for(String keys : config.getData().getConfigurationSection("chests").getKeys(false)) {
     		numchest++;
-    		if(utils.getPosition(keys).getWorld() != null) {
+    		if(!config.getData().isSet("chests." + keys + ".time") ) {
+    			config.getData().set("chests." + keys, null);
+				config.reloadData();
+    		}
+    		else if(Bukkit.getWorld(config.getData().getString("chests." + keys + ".position.world")) != null) {
     			//if the chest didn't respawn at startup, we start its timer
     			if (!utils.restoreChest(keys, false)) {
     				allchestrespawns=false;

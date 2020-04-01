@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
@@ -16,7 +16,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-
 import fr.black_eyes.lootchest.Config;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
@@ -42,6 +41,11 @@ public class LootchestCommand extends Utils implements CommandExecutor, TabCompl
 					if (!hasPerm(sender, "create")) {
 						return false;
 					}
+					else if(!(sender instanceof Player)) {
+						sender.sendMessage("§cPlease, run this command in-game");
+						return false;
+					}
+					
 					Set<Material> transparent = null;
 					Block chest = player.getTargetBlock(transparent, 10);
 					if (chest.getType() != Material.CHEST) {
@@ -65,6 +69,10 @@ public class LootchestCommand extends Utils implements CommandExecutor, TabCompl
 					
 				case "edit":
 					if (!hasPerm(sender, "edit")) {
+						return false;
+					}
+					else if(!(sender instanceof Player)) {
+						sender.sendMessage("§cPlease, run this command in-game");
 						return false;
 					}
 					else if (!data.isSet("chests." + args[1] + ".time")){
@@ -94,12 +102,12 @@ public class LootchestCommand extends Utils implements CommandExecutor, TabCompl
 						return false;
 					}
 					boolean fall = data.getBoolean("chests." + args[1] +".fall");
-					if(!fall) {
+					if(fall) {
 						data.set("chests." + args[1] + ".fall", false);
-						msg(sender, "enabledFallEffect", "[Chest]", args[1]);
+						msg(sender, "disabledFallEffect", "[Chest]", args[1]);
 					} else {
 						data.set("chests." + args[1] + ".fall", true);
-						msg(sender, "disabledFallEffect", "[Chest]", args[1]);
+						msg(sender, "enabledFallEffect", "[Chest]", args[1]);
 					}
 					break;
 				case "setpos":
@@ -122,7 +130,11 @@ public class LootchestCommand extends Utils implements CommandExecutor, TabCompl
 						msg(sender, "chestDoesntExist", "[Chest]", args[1]);
 						return false;
 					}
-					player.teleport(getPosition(args[1]));
+					Location loc = getPosition(args[1]);
+					if(getRandomPosition(args[1]) != null) {
+						loc = getRandomPosition(args[1]);
+					}
+					player.teleport(loc);
 					msg(sender, "teleportedToChest", "[Chest]", args[1]);
 					break;
 					
@@ -144,14 +156,21 @@ public class LootchestCommand extends Utils implements CommandExecutor, TabCompl
 									block = getRandomPosition(args[1]).getBlock();
 								}
 								String holo = data.getString("chests." + args[1] + ".holo");
-								Bukkit.broadcastMessage((((Main.getInstance().getConfig().getString("respawn_notify.respawn_with_command.message").replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "§"));
+								if(!Main.getInstance().getConfig().getBoolean("respawn_notify.per_world_message")) {
+									Bukkit.broadcastMessage((((Main.getInstance().getConfig().getString("respawn_notify.respawn_with_command.message").replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "§"));							
+								}else {
+									for(Player p : block.getWorld().getPlayers()){
+										p.sendMessage((((Main.getInstance().getConfig().getString("respawn_notify.respawn_with_command.message").replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "§"));							
+										
+									}
+								}
 							}
 						}
 					}
 					break;
 				
 				default:
-					displayhelp(player);
+					displayhelp(sender);
 					
 				}
 			}
@@ -194,7 +213,7 @@ public class LootchestCommand extends Utils implements CommandExecutor, TabCompl
 					msg(sender, "ListCommand", "[List]", bc.toString());
 				}
 				else {
-					displayhelp(player);
+					displayhelp(sender);
 				}
 			}
 			else if(args.length >= 3) {
@@ -263,23 +282,30 @@ public class LootchestCommand extends Utils implements CommandExecutor, TabCompl
 						msg(sender, "chestRadiusSet", "[Chest]", args[1]);
 						restoreChest(args[1], true);
 					}
+					else if(Integer.parseInt(args[2]) == 0) {
+						
+						msg(sender, "disabledChestRadius", "[Chest]", args[1]);
+						restoreChest(args[1], true);
+						data.set("chests."+args[1]+".randomradius", null);
+						data.set("chests."+args[1]+".randomPosition", null);
+					}
 				}
 				
 				
 				else {
-					displayhelp(player);
+					displayhelp(sender);
 				}
 				
 				
 			}
 			else {
-				displayhelp(player);
+				displayhelp(sender);
 			}
 		
 		return false;
 	}
 	
-	public void displayhelp(Player p) {
+	public void displayhelp(CommandSender p) {
 		for(int i=1; i<=17;i++) {
 			msg(p, "help.line"+i, "", "");
 		}

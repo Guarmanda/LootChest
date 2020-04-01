@@ -36,18 +36,8 @@ public class DeleteListener extends Utils implements Listener  {
 	
 	
 	
-    /*public void executeRespawn(String key) {
-    	data.set("chests." + key + ".lastreset", new Timestamp(System.currentTimeMillis()).getTime());
-		config.reloadData();
-		long minutes = data.getLong("chests." + key + ".time")*60*20;
-		new BukkitRunnable() {       
-            @Override
-            public void run() {
-            	restoreChest(key, false);
-            }                
-        }.runTaskLater(Main.getInstance(), minutes+1L);
-    }*/
-	
+
+
     @EventHandler
     public void clickblock(PlayerInteractEvent e) {
         Player p = e.getPlayer();
@@ -81,6 +71,17 @@ public class DeleteListener extends Utils implements Listener  {
     				if(data.getInt("chests."+keys+".time")==0) {
     					restoreChest(keys, false);
     				}
+    			}
+    			if(Main.getInstance().getConfig().getBoolean("respawn_notify.message_on_chest_take")){
+	    			String msg = Main.getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys).replace("&", "§");
+	    			if(!Main.getInstance().getConfig().getBoolean("respawn_notify.per_world_message")) {
+						Bukkit.broadcastMessage(msg);							
+					}else {
+						for(Player pl : p.getWorld().getPlayers()){
+							pl.sendMessage(msg);							
+							
+						}
+					}
     			}
     			deleteholo(loc);
     			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
