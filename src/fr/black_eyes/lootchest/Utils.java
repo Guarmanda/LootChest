@@ -16,14 +16,9 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.ArmorStand;
+
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -34,7 +29,7 @@ import fr.black_eyes.lootchest.Mat;
 import fr.black_eyes.lootchest.commands.LootchestCommand;
 import fr.black_eyes.lootchest.falleffect.FallingPackageEntity;
 
-public class Utils implements Listener {
+public class Utils  {
 	Main instance = Main.getInstance();
 	Config config = Main.getConfigFiles();
 
@@ -60,6 +55,9 @@ public class Utils implements Listener {
 		String effect = config.getData().getString("chests." + chest1 + ".particle");
 		int time = config.getData().getInt("chests." + chest1 + ".time");
 		boolean fall =  config.getData().getBoolean("chests." + chest1 + ".fall");
+		boolean respawn_cmd =  config.getData().getBoolean("chests." + chest1 + ".respawn_cmd");
+		boolean respawn_natural =  config.getData().getBoolean("chests." + chest1 + ".respawn_natural");
+		boolean take_msg =  config.getData().getBoolean("chests." + chest1 + ".take_message");
 		config.getData().set("chests." + chest2 + ".inventory", null);
 		for(String keys : config.getData().getConfigurationSection("chests." + chest1 + ".inventory").getKeys(false)) {
 			ItemStack item = config.getData().getItemStack("chests." + chest1 + ".inventory." + keys);
@@ -71,10 +69,32 @@ public class Utils implements Listener {
 		config.getData().set("chests." + chest2 + ".particle", effect);
 		config.getData().set("chests." + chest2 + ".time", time);
 		config.getData().set("chests." + chest2 + ".fall", fall);
+		config.getData().set("chests." + chest2 + ".respawn_cmd", respawn_cmd);
+		config.getData().set("chests." + chest2 + ".respawn_natural", respawn_natural);
+		config.getData().set("chests." + chest2 + ".take_message", take_msg);
 		Main.getConfigFiles().reloadData();
 		restoreChest(chest2, true);
 	}
 	
+	/*public void loadChest(String chest1) {
+		
+		Location loc = getPosition(chest1);
+		Location randomLoc = getRandomPosition(chest1);
+		if(config.getData().isSet("chests."+chest1+".randomradius")) {
+			int random = config.getData().getInt("chests."+chest1+".randomradius");
+		}
+		String holo = config.getData().getString("chests." + chest1 + ".holo");
+		String effect = config.getData().getString("chests." + chest1 + ".particle");
+		int time = config.getData().getInt("chests." + chest1 + ".time");
+		boolean fall =  config.getData().getBoolean("chests." + chest1 + ".fall");
+		LootChest lc = new LootChest(chest1);
+		final Inventory inv = Bukkit.createInventory(null, 27);
+		for(String keys : config.getData().getConfigurationSection("chests." + chest1 + ".inventory").getKeys(false)) {
+			inv.setItem(Integer.parseInt(keys), config.getData().getItemStack("chests." + chest1 + ".inventory." + keys));
+			int chance = config.getData().getInt("chests." + chest1 + ".chance." + keys);
+		}
+		
+	}*/
 	
 	//créer le coffe et enregistrer les infos
 	//chest creation and registering
@@ -83,15 +103,18 @@ public class Utils implements Listener {
 		for(int i = 0 ; i < inv.getSize() ; i++) {
 			if(inv.getItem(i) != null) {
 				config.getData().set("chests." + name + ".inventory." + i, inv.getItem(i));
-				config.getData().set("chests." + name + ".chance." + i, Main.getInstance().getConfig().getInt("default_item_chance"));
+				config.getData().set("chests." + name + ".chance." + i, config.getConfig().getInt("default_item_chance"));
 			}
 		}
 		
-		config.getData().set("chests." + name + ".fall", true);
+		config.getData().set("chests." + name + ".fall", config.getConfig().getBoolean("Enable_fall_effect"));
+		config.getData().set("chests." + name + ".respawn_cmd", config.getConfig().getBoolean("respawn_notify.respawn_with_command.enabled"));
+		config.getData().set("chests." + name + ".respawn_natural", config.getConfig().getBoolean("respawn_notify.natural_respawn.enabled"));
+		config.getData().set("chests." + name + ".take_message", config.getConfig().getBoolean("respawn_notify.message_on_chest_take"));
 		String direction = getDirection(chest);
 		config.getData().set("chests." + name + ".direction", direction);
 		config.getData().set("chests." + name + ".holo", name);
-		config.getData().set("chests." + name + ".time", Main.getInstance().getConfig().getInt("default_reset_time"));
+		config.getData().set("chests." + name + ".time", config.getConfig().getInt("default_reset_time"));
 		setPosition(name, chest.getLocation());
 		config.getData().set("chests." + name + ".lastreset", new Timestamp(System.currentTimeMillis()).getTime());
 		Location loc = chest.getLocation();
@@ -99,7 +122,7 @@ public class Utils implements Listener {
 	   	loc2.setX(loc.getX()+0.5);
 	    loc2.setY(loc.getY()+0.5);
 	    loc2.setZ(loc.getZ()+0.5);
-	   	config.getData().set("chests." +name+ ".particle", Main.getInstance().getConfig().getString("Particles.default_particle"));
+	   	config.getData().set("chests." +name+ ".particle", config.getConfig().getString("Particles.default_particle"));
 	   	config.reloadData();
 		((Chest) chest.getLocation().getBlock().getState()).getInventory().clear();
 		chest.getLocation().getBlock().setType(Material.AIR);
@@ -114,7 +137,7 @@ public class Utils implements Listener {
 		if(getRandomPosition(name) != null) {
 			loc = getRandomPosition(name);
 		}
-		if(loc.getWorld() != null) {
+		if(loc.getWorld() != null && loc.getBlock().getType() == Material.CHEST) {
 			Block chest = loc.getBlock();
 			deleteholo(loc);
 			((Chest) chest.getLocation().getBlock().getState()).getInventory().clear();
@@ -214,11 +237,9 @@ public class Utils implements Listener {
 		loc2.setX(loc.getX()+0.5);
 		loc2.setY(loc.getY()+0.5);
 		loc2.setZ(loc.getZ()+0.5);
-		if(!Bukkit.getVersion().contains("1.8")) {
-			for(Object part : Main.particules) {
-				if((""+part).contains(config.getData().getString("chests." + name + ".particle"))) {
-					Main.part.put(loc2, (org.bukkit.Particle) part);
-				}
+		for(Object part : Main.particules) {
+			if((""+part).contains(config.getData().getString("chests." + name + ".particle"))) {
+				Main.part.put(loc2, part);
 			}
 		}
 		
@@ -232,19 +253,41 @@ public class Utils implements Listener {
 	//se sert du config.getData().yml pour set le coffre et remplir son inventaire, créer l'holo en fonction du nom 
 	//Taking informations from config.getData().yml to restore a specific chest if it is time to do it, or if we force respawn. 
 	public boolean restoreChest(String name, Boolean force) {
-		if(Bukkit.getWorld(config.getData().getString("chests." + name + ".position.world")) == null) {
-			Bukkit.getLogger().info("§cThe world " + config.getData().getString("chests." + name + ".position.world") + " is not loaded, can't respawn chest " + name);
+		if(config.getData().getString("chests." + name + ".position.world") != null) {
+			if(Bukkit.getWorld(config.getData().getString("chests." + name + ".position.world")) == null) {
+				Bukkit.getLogger().info("§cThe world " + config.getData().getString("chests." + name + ".position.world") + " is not loaded, can't respawn chest " + name);
+				return false;
+			}
 		}
 		if(!config.getData().isSet("chests." + name + ".fall")) {
 			if(config.getData().isSet("chests." + name + ".time")) {
-				config.getData().set("chests." + name + ".fall", true);
+				config.getData().set("chests." + name + ".fall", config.getConfig().getBoolean("Enable_fall_effect"));
+				config.reloadData();
 			}else {
 				config.getData().set("chests." + name, null);
 				config.reloadData();
 			}
 		}
+		if(!config.getData().isSet("chests." + name + ".respawn_natural")) {
+			if(config.getData().isSet("chests." + name + ".time")) {
+				config.getData().set("chests." + name + ".respawn_natural",config.getConfig().getBoolean("respawn_notify.natural_respawn.enabled"));
+				config.reloadData();
+			}
+		}
+		if(!config.getData().isSet("chests." + name + ".respawn_cmd")) {
+			if(config.getData().isSet("chests." + name + ".time")) {
+				config.getData().set("chests." + name + ".respawn_cmd", config.getConfig().getBoolean("respawn_notify.respawn_with_command.enabled"));
+				config.reloadData();
+			}
+		}
+		if(!config.getData().isSet("chests." + name + ".take_message")) {
+			if(config.getData().isSet("chests." + name + ".time")) {
+				config.getData().set("chests." + name + ".take_message",  config.getConfig().getBoolean("respawn_notify.message_on_chest_take"));
+				config.reloadData();
+			}
+		}
 		Location loc = getPosition(name);
-		Location newloc = getPosition(name);
+		Location newloc = loc;
 		if(config.getData().isSet("chests."+name+".randomradius")) {
 			int random = config.getData().getInt("chests."+name+".randomradius");
 			Location randompos = getPosition(name);
@@ -258,10 +301,11 @@ public class Utils implements Listener {
 				loc = getRandomPosition(name);
 			}
 			newloc = randompos;
+
 			
 			
 		}
-		Block block = loc.getBlock();
+		final Block block = loc.getBlock();
 		/* théoriquement, ce genre de chose est détecté à la fermeture du coffre
 		//si le coffre est vide,  IL MEURT MOUAHAHA
 		
@@ -282,23 +326,31 @@ public class Utils implements Listener {
 			}
 		}
 		*/
+		final Location loc3 = loc;
+		final Location newloc2 = newloc;
 		long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime();
 		long minutes = config.getData().getLong("chests." + name + ".time")*60*1000;
 		long tempsenregistre = config.getData().getLong("chests." + name + ".lastreset");
 		if((tempsactuel - tempsenregistre > minutes && minutes>-1) || force) {
-			if(getRandomPosition(name)!=null && block.getType().equals(Material.CHEST)) {
-				deleteholo(loc);
-				((Chest) block.getState()).getInventory().clear();
-				block.setType(Material.AIR);
-				final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-				loc2.setX(loc.getX()+0.5);
-				loc2.setY(loc.getY()+0.5);
-				loc2.setZ(loc.getZ()+0.5);
-				Main.part.remove(loc2);
-				
-			}
+			int height = Main.getInstance().getConfig().getInt("Fall_Effect_Height");
+            Main.getInstance().getServer().getScheduler().runTaskLater((Plugin)Main.getInstance(), (Runnable)new Runnable() {
+                @Override
+                public void run() {
+        			if(config.getData().isSet("chests."+name+".randomradius") && loc3 != newloc2) {
+        				deleteholo(loc3);
+        				((Chest) block.getState()).getInventory().clear();
+        				block.setType(Material.AIR);
+        				final Location loc2 = new Location(loc3.getWorld(), loc3.getX(), loc3.getY(), loc3.getZ());
+        				loc2.setX(loc3.getX()+0.5);
+        				loc2.setY(loc3.getY()+0.5);
+        				loc2.setZ(loc3.getZ()+0.5);
+        				Main.part.remove(loc2);
+        				
+        			}
+                }
+            }, height * (61L / 50));
 			setRandomPosition(name, newloc);
-			if(!force && Main.getInstance().getConfig().getBoolean("respawn_notify.natural_respawn.enabled") ) {
+			if(!force && config.getData().getBoolean("chests." + name + ".respawn_natural") ) {
 				String holo = config.getData().getString("chests." + name + ".holo");
 				if(!Main.getInstance().getConfig().getBoolean("respawn_notify.per_world_message")) {
 					Bukkit.broadcastMessage((((Main.getInstance().getConfig().getString("respawn_notify.natural_respawn.message").replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
@@ -309,13 +361,13 @@ public class Utils implements Listener {
 					}
 				}
 			}
-			block = newloc.getBlock();
-			final Block newblock = block;
+			final Block newblock = newloc.getBlock();
 			final Location theloc = newloc;
-			if(Main.getInstance().getConfig().getBoolean("Enable_fall_effect") && config.getData().getBoolean("chests." + name + ".fall")) {
-				int height = Main.getInstance().getConfig().getInt("Fall_Effect_Height");
+			if(config.getData().getBoolean("chests." + name + ".fall")) {
+				
 				Location startloc = new Location(newloc.getWorld(), newloc.getX()+0.5, newloc.getY()+height, newloc.getZ()+0.5);
-				if(startloc.getChunk().isLoaded()) {
+				if(startloc.getWorld().isChunkLoaded(startloc.getBlockX()/16, startloc.getBlockZ()/16)) {
+
 					new FallingPackageEntity(startloc);
 				}
 	            Main.getInstance().getServer().getScheduler().runTaskLater((Plugin)Main.getInstance(), (Runnable)new Runnable() {
@@ -377,24 +429,22 @@ public class Utils implements Listener {
 		loc2.setX(theloc.getX()+0.5);
 		loc2.setY(theloc.getY()+0.5);
 		loc2.setZ(theloc.getZ()+0.5);
-		if(block.getType().equals(Material.CHEST) && !Bukkit.getVersion().contains("1.8")) {
+		if(block.getType().equals(Material.CHEST) ) {
 			for(Object part : Main.particules) {
 				if((""+part).contains(config.getData().getString("chests." + name + ".particle"))) {
-					Main.part.put(loc2, (org.bukkit.Particle) part);
+					Main.part.put(loc2, part);
 				}
 			}
 		}else if  (!block.getType().equals(Material.CHEST)){
 			deleteholo(theloc);
-			if (!Bukkit.getVersion().contains("1.8")) {
-				Main.part.remove(loc2);
-			}
+			Main.part.remove(loc2);
 		}
 		if(Main.getInstance().getConfig().getBoolean("UseHologram")){
 			deleteholo(theloc);
 			makeHolo(theloc, name);
 		}
 		config.getData().set("chests." + name + ".lastreset", tempsactuel);
-		config.saveData();
+		config.reloadData();
 		sheduleRespawn(name);
 	}
 	
@@ -472,14 +522,16 @@ public class Utils implements Listener {
 	//Pour suprimer un holograme
 	//To delete hologram
 	public  void deleteholo(Location loc) {
-		final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-		loc2.setX(loc.getX()+0.5);
-		loc2.setY(loc.getY()+Main.getInstance().getConfig().getInt("Hologram_distance_to_chest"));
-		loc2.setZ(loc.getZ()+0.5);
-		//the coordinates of a block are at the corner of the block
-		for(Entity ent : loc2.getChunk().getEntities()) {
-			if(ent instanceof ArmorStand && ent.getLocation().distance(loc2) <1.1) {
-				ent.remove();
+		if(!org.bukkit.Bukkit.getVersion().contains("1.7")){
+			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
+			loc2.setX(loc.getX()+0.5);
+			loc2.setY(loc.getY()+Main.getInstance().getConfig().getInt("Hologram_distance_to_chest"));
+			loc2.setZ(loc.getZ()+0.5);
+			//the coordinates of a block are at the corner of the block
+			for(Entity ent : loc2.getChunk().getEntities()) {
+				if(ent instanceof org.bukkit.entity.ArmorStand && ent.getLocation().distance(loc2) <1.1) {
+					ent.remove();
+				}
 			}
 		}
 	}
@@ -488,53 +540,35 @@ public class Utils implements Listener {
 	//To do holograms near chests
 	//the below function was created using some spigot forums code with some modifications
 	public  void makeHolo(Location loc, String text) {
-		final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-		loc2.setX(loc.getX()+0.5);
-		loc2.setY(loc.getY()+Main.getInstance().getConfig().getInt("Hologram_distance_to_chest"));
-		loc2.setZ(loc.getZ()+0.5);
-		//the coordinates of a block are at the corner of the block
-		ArmorStand as = (ArmorStand) loc2.getWorld().spawnEntity(loc2, EntityType.ARMOR_STAND); //Spawn the ArmorStand
-
-		String name = config.getData().getString("chests." + text + ".holo").replace("&", "§");
-		as.setCustomName(name); //Set this to the text you want
-		if(!(name.equals("\"\"") || name.equals("\" \"") || name.equals("null") || name.equals("") || name.equals(" ") || name.equals("_") || name.equals("none"))) {
-			as.setCustomNameVisible(true); //This makes the text appear no matter if your looking at the entity or not
+		if(!org.bukkit.Bukkit.getVersion().contains("1.7")){
+			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
+			loc2.setX(loc.getX()+0.5);
+			loc2.setY(loc.getY()+Main.getInstance().getConfig().getInt("Hologram_distance_to_chest"));
+			loc2.setZ(loc.getZ()+0.5);
+			//the coordinates of a block are at the corner of the block
+			org.bukkit.entity.ArmorStand as = (org.bukkit.entity.ArmorStand) loc2.getWorld().spawnEntity(loc2, org.bukkit.entity.EntityType.ARMOR_STAND); //Spawn the ArmorStand
+	
+			String name = config.getData().getString("chests." + text + ".holo").replace("&", "§");
+			as.setCustomName(name); //Set this to the text you want
+			if(!(name.equals("\"\"") || name.equals("\" \"") || name.equals("null") || name.equals("") || name.equals(" ") || name.equals("_") || name.equals("none"))) {
+				as.setCustomNameVisible(true); //This makes the text appear no matter if your looking at the entity or not
+			}
+			else {
+				as.setCustomNameVisible(false); 
+			}
+			as.setGravity(false); //Make sure it doesn't fall
+			as.setCanPickupItems(false); //I'm not sure what happens if you leave this as it is, but you might as well disable it
+			//This makes the text appear no matter if your looking at the entity or not
+			as.setVisible(false); //Makes the ArmorStand invisible
+		 	as.setArms(false);
+		 	as.setBasePlate(false);
+		 	as.setSmall(true);
+		 	as.setMarker(true);
 		}
-		else {
-			as.setCustomNameVisible(false); 
-		}
-		as.setGravity(false); //Make sure it doesn't fall
-		as.setCanPickupItems(false); //I'm not sure what happens if you leave this as it is, but you might as well disable it
-		//This makes the text appear no matter if your looking at the entity or not
-		as.setVisible(false); //Makes the ArmorStand invisible
-	 	as.setArms(false);
-	 	as.setBasePlate(false);
-	 	as.setSmall(true);
-	 	as.setMarker(true);
 
 	}	
 	
-	//if an armorstand isn't visible, let's cancel all manipulations on it
-	@EventHandler
-	public void manipulate(PlayerArmorStandManipulateEvent e)
-	{
-	        if(!e.getRightClicked().isVisible())
-	        {
-	            e.setCancelled(true);
-	        }
-	}
-	
-	@EventHandler
-	public void invincible(EntityDamageEvent e)
-	{
-		if(e.getEntity() instanceof ArmorStand) {
-	        if(!((ArmorStand) e.getEntity()).isVisible())
-	        {
-	            e.setCancelled(true);
-	        }
-		}
-	}
-	
+
 	
 	
 	
@@ -682,14 +716,18 @@ public class Utils implements Listener {
 	
 	
 	public  void mainInv(Player p, String name) {
-        final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.main.name", " ", " "));
+        final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 36, getMsg("Menu.main.name", " ", " "));
         inv.setItem(4, getItem(Mat.ENDER_CHEST, getMsg("Menu.main.copychest", " ", " ")));
-        if(Main.getInstance().getConfig().getBoolean("Particles.enable")) {
+        if(config.getConfig().getBoolean("Particles.enable")) {
         	inv.setItem(11, getItem(Mat.ENDER_EYE, getMsg("Menu.main.particles", " ", " ")));
         }
         inv.setItem(13, getItem(Mat.CHEST, getMsg("Menu.main.content", " ", " ")));
         inv.setItem(15, getItem(Mat.CLOCK, getMsg("Menu.main.respawnTime", " ", " ")));
         inv.setItem(22, getItem(Mat.DIAMOND, getMsg("Menu.main.chances", " ", " ")));
+        inv.setItem(28, getEnabled("fall", name));
+        inv.setItem(30, getEnabled("respawn_cmd", name));
+        inv.setItem(32, getEnabled("respawn_natural", name));
+        inv.setItem(34, getEnabled("take_message", name));
         
         new BukkitRunnable() {       
             @Override
@@ -700,7 +738,30 @@ public class Utils implements Listener {
         }.runTaskLater(Main.getInstance(), 2);
     }
 	
+	ItemStack getEnabled(String path, String name){
+		if(config.getData().getBoolean("chests." + name +  "." + path)) {
+			return getItem(Mat.EMERALD_BLOCK, getMsg("Menu.main.disable_" + path, " ", " "));
+		}else {
+			return getItem(Mat.REDSTONE_BLOCK, getMsg("Menu.main.enable_" + path, " ", " "));
+		}
+	}
 	
+	
+	public ItemStack switchState(String path, String name){
+		if(!config.getData().getBoolean("chests." + name +  "." + path)) {
+			config.getData().set("chests." + name +  "." + path, true);
+			config.reloadData();
+
+			return getItem(Mat.EMERALD_BLOCK, getMsg("Menu.main.disable_" + path, " ", " "));
+		}else {
+			config.getData().set("chests." + name + "." + path, false);
+			config.reloadData();
+
+			return getItem(Mat.REDSTONE_BLOCK, getMsg("Menu.main.enable_" + path, " ", " "));
+		}
+	}
+	
+
 	
 	// /!\ Certains items ne sont pas les mêmes selont que l'on est en 1.12 ou 1.13, à vérifier pour particules
 	public  void particleInv(Player p, String name) {
@@ -790,9 +851,7 @@ public class Utils implements Listener {
 		
 	}
 	
-	public static boolean checkDeprec() {
-		return (Bukkit.getVersion().contains("1.8") || Bukkit.getVersion().contains("1.7"));
-	}
+
 	
 
 	

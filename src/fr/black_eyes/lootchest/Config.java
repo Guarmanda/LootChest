@@ -82,7 +82,7 @@ public class Config {
 	private File getConfigF() {
 		return configFile;
 	}
-	private File getLangF() {
+	public File getLangF() {
 		return langFile;
 	}
 	public FileConfiguration getData() {

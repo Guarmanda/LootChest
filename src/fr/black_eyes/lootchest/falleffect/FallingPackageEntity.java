@@ -2,13 +2,17 @@ package fr.black_eyes.lootchest.falleffect;
 
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.Plugin;
+
+import static org.inventivetalent.reflection.minecraft.Minecraft.Version.v1_12_R1;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
-
 import org.bukkit.util.Vector;
+import org.inventivetalent.particle.ParticleEffect;
+import org.inventivetalent.reflection.minecraft.Minecraft;
 
 import fr.black_eyes.lootchest.Main;
 
@@ -50,7 +54,12 @@ public class FallingPackageEntity extends PackageEntity {
 		else if (this.world.getBlockAt(LocationUtils.offset(this.blocky.getLocation(), 0.0, -1.0, 0.0)).getType() == Material.AIR) {
             ++this.counter;
             if(!Bukkit.getVersion().contains("1.8")) {
-            	this.world.spawnParticle(org.bukkit.Particle.SMOKE_NORMAL, this.blocky.getLocation(), 50, 0.1, 0.1, 0.1, 0.1);
+				if(Minecraft.VERSION.newerThan(v1_12_R1)) {
+		           	this.world.spawnParticle(org.bukkit.Particle.SMOKE_NORMAL, this.blocky.getLocation(), 50, 0.1, 0.1, 0.1, 0.1);
+				}				
+				else{
+				 ParticleEffect.SMOKE_NORMAL.send(this.blocky.getLocation().getWorld().getPlayers(), this.blocky.getLocation(), 0.1, 0.1, 0.1, 0.1, 50, 100);			
+				}
             }
             if (this.blocky.isDead()) {
                 final Location oldLoc = this.blocky.getLocation();

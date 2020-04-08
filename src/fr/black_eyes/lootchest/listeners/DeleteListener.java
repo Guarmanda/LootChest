@@ -72,8 +72,8 @@ public class DeleteListener extends Utils implements Listener  {
     					restoreChest(keys, false);
     				}
     			}
-    			if(Main.getInstance().getConfig().getBoolean("respawn_notify.message_on_chest_take")){
-	    			String msg = Main.getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys).replace("&", "§");
+    			if(config.getData().getBoolean("chests." + keys + ".take_message")){
+	    			String msg = Main.getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", config.getData().getString("chests." + keys + ".holo")).replace("&", "§");
 	    			if(!Main.getInstance().getConfig().getBoolean("respawn_notify.per_world_message")) {
 						Bukkit.broadcastMessage(msg);							
 					}else {
@@ -88,10 +88,11 @@ public class DeleteListener extends Utils implements Listener  {
     	    	loc2.setX(loc.getX()+0.5);
     	    	loc2.setY(loc.getY()+0.5);
     	    	loc2.setZ(loc.getZ()+0.5);
-    	    	if(!Bukkit.getVersion().contains("1.8")) {
+
     	    		Main.part.remove(loc2);
-    	    	}
-    	    	//executeRespawn(keys);
+
+
+
     		}
     	}
     	openInvs.remove(p);
@@ -108,9 +109,9 @@ public class DeleteListener extends Utils implements Listener  {
     	    	loc2.setX(loc.getX()+0.5);
     	    	loc2.setY(loc.getY()+0.5);
     	    	loc2.setZ(loc.getZ()+0.5);
-    	    	if(!Bukkit.getVersion().contains("1.8")) {
+ 
     	    		Main.part.remove(loc2);
-    	    	}
+
     	    	//executeRespawn(keys);
     			return;
     		}
@@ -129,9 +130,9 @@ public class DeleteListener extends Utils implements Listener  {
         	    	loc2.setX(loc.getX()+0.5);
         	    	loc2.setY(loc.getY()+0.5);
         	    	loc2.setZ(loc.getZ()+0.5);
-        	    	if(!Bukkit.getVersion().contains("1.8")) {
+    
         	    		Main.part.remove(loc2);
-        	    	}
+        	    	
         			//executeRespawn(keys);
         			
         			return;
@@ -173,12 +174,14 @@ public class DeleteListener extends Utils implements Listener  {
     
     @EventHandler
     public void hopperPistonGrab(BlockPistonRetractEvent e) {
-    	for(Block block : e.getBlocks()) {
-    		if(block.getType() == Material.HOPPER) {
-    			if(Main.getConfigFiles().getConfig().getBoolean("PreventHopperPlacingUnderLootChest")) {
-    				e.setCancelled(true);
-    			}    			
-    		}
+    	if(!org.bukkit.Bukkit.getVersion().contains("1.7")){
+	    	for(Block block : e.getBlocks()) {
+	    		if(block.getType() == Material.HOPPER) {
+	    			if(Main.getConfigFiles().getConfig().getBoolean("PreventHopperPlacingUnderLootChest")) {
+	    				e.setCancelled(true);
+	    			}    			
+	    		}
+	    	}
     	}
     }
 

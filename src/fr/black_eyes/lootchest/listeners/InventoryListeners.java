@@ -10,12 +10,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import fr.black_eyes.lootchest.Config;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
@@ -79,7 +79,7 @@ public class InventoryListeners extends Utils implements Listener {
 			Inventory inv = e.getInventory();
 			int valeurs[] = {0,0,0,0,0,0,0,0};
 			for(int i=9; i<17; i++) {
-				if(!inv.getItem(i).getType().equals(Material.BARRIER)&& !inv.getItem(i).getType().equals(Material.STICK)) {
+				if(!inv.getItem(i).getType().equals(Mat.BARRIER)&& !inv.getItem(i).getType().equals(Material.STICK)) {
 					valeurs[i-9] = inv.getItem(i).getAmount();
 				}
 			}
@@ -96,6 +96,7 @@ public class InventoryListeners extends Utils implements Listener {
         }
         else return;
         config.reloadData();
+        restoreChest(chest, true);
     }
 	
 	
@@ -134,12 +135,11 @@ public class InventoryListeners extends Utils implements Listener {
     		loc2.setX(loc.getX()+0.5);
     		loc2.setY(loc.getY()+0.5);
     		loc2.setZ(loc.getZ()+0.5);
-    		if(!Bukkit.getVersion().contains("1.8")) {
-    			for(Object part : Main.particules) {
-    				if((""+part).contains(particules[e.getSlot()])) 
-    					Main.part.put(loc2, (org.bukkit.Particle) part);
-    			}
-    		}
+			for(Object part : Main.particules) {
+				if((""+part).contains(particules[e.getSlot()])) 
+					Main.part.put(loc2, part);
+			}
+    		
     		config.reloadData();
     		msg(player, "editedParticle", "[Chest]", LootchestCommand.editinv.get(player));
         }
@@ -191,9 +191,22 @@ public class InventoryListeners extends Utils implements Listener {
         			player.closeInventory();
     				LootchestCommand.menuName.put(player, getMsg("Menu.chances.name", "[Chest]", chest));
         			invChances(player, chest);
-        			break;			
+        			break;
+        		case 28:
+        			e.getInventory().setItem(28, switchState("fall", chest));
+        			break;
+        		case 30:
+        			e.getInventory().setItem(30, switchState("respawn_cmd", chest));
+        			break;
+        		case 32:
+        			e.getInventory().setItem(32, switchState("respawn_natural", chest));
+        			break;
+        		case 34:	
+        			e.getInventory().setItem(34, switchState("take_message", chest));
+        			break;
         	}
         }
+  
         else if(LootchestCommand.menuName.get(player).equals(getMsg("Menu.chances.name", "[Chest]", LootchestCommand.editinv.get(player)))) {
         	e.setCancelled(true);
         	ItemStack item = e.getCurrentItem();
@@ -202,7 +215,16 @@ public class InventoryListeners extends Utils implements Listener {
 	        	if(meta.hasLore()) {
 	        		List<String> lore = meta.getLore();
 	        		Integer chance = Integer.parseInt(lore.get(1).replaceAll("%", ""));
-	        			if(e.getClick() == ClickType.LEFT && chance <100) {
+	        			if(e.getAction() == InventoryAction.PICKUP_HALF && chance >50) {
+	        				chance-= 50;
+	        			}
+	        			else if(e.getClick() == ClickType.SHIFT_LEFT && chance <91) {
+	        				chance+= 10;
+	        			}
+		        		else if(e.getClick() == ClickType.SHIFT_RIGHT && chance >10) {
+	        				chance-= 10;
+	        			}
+		        		else if(e.getClick() == ClickType.LEFT && chance <100) {
 	        				chance++;
 	        			}
 	        			else if(e.getClick() == ClickType.RIGHT && chance >1) {
@@ -223,94 +245,94 @@ public class InventoryListeners extends Utils implements Listener {
         	case 4:
         		if(e.getClick() == ClickType.LEFT) {
         			data.set("chests."+ LootchestCommand.editinv.get(player)+".time", -1);
-        			e.getInventory().setItem(9, new ItemStack(Material.BARRIER));
-        			e.getInventory().setItem(10, new ItemStack(Material.BARRIER));
-        			e.getInventory().setItem(12, new ItemStack(Material.BARRIER));
-        			e.getInventory().setItem(13, new ItemStack(Material.BARRIER));
-        			e.getInventory().setItem(15, new ItemStack(Material.BARRIER));
-        			e.getInventory().setItem(16, new ItemStack(Material.BARRIER));
+        			e.getInventory().setItem(9, new ItemStack(Mat.BARRIER));
+        			e.getInventory().setItem(10, new ItemStack(Mat.BARRIER));
+        			e.getInventory().setItem(12, new ItemStack(Mat.BARRIER));
+        			e.getInventory().setItem(13, new ItemStack(Mat.BARRIER));
+        			e.getInventory().setItem(15, new ItemStack(Mat.BARRIER));
+        			e.getInventory().setItem(16, new ItemStack(Mat.BARRIER));
         		}
         		break;
     		case 9:
     			if(e.getClick() == ClickType.LEFT && item.getAmount() <3) {
-    				if(!item.getType().equals(Material.BARRIER))
+    				if(!item.getType().equals(Mat.BARRIER))
     					item.setAmount(item.getAmount()+1);
     				else
     					item.setType(Material.GOLD_BLOCK);
     			}
     			else if(e.getClick() == ClickType.RIGHT && item.getAmount() > 0) {
     				if(item.getAmount()-1 == 0)
-    					item.setType(Material.BARRIER);
+    					item.setType(Mat.BARRIER);
     				else
     					item.setAmount(item.getAmount()-1);
     			}
     			break;
     		case 10:
     			if(e.getClick() == ClickType.LEFT && item.getAmount() <9  && Integer.parseInt(e.getInventory().getItem(9).getAmount() +""+ item.getAmount() ) +1 <= 30) {
-    				if(!item.getType().equals(Material.BARRIER))
+    				if(!item.getType().equals(Mat.BARRIER))
     					item.setAmount(item.getAmount()+1);
     				else
     					item.setType(Material.GOLD_BLOCK);
     			}
     			else if(e.getClick() == ClickType.RIGHT && item.getAmount() > 0) {
     				if(item.getAmount()-1 == 0)
-    					item.setType(Material.BARRIER);
+    					item.setType(Mat.BARRIER);
     				else
     					item.setAmount(item.getAmount()-1);
     			}
     			break;
     		case 12:
     			if(e.getClick() == ClickType.LEFT && item.getAmount() <2) {
-    				if(!item.getType().equals(Material.BARRIER))
+    				if(!item.getType().equals(Mat.BARRIER))
     					item.setAmount(item.getAmount()+1);
     				else
     					item.setType(Material.GOLD_INGOT);
     			}
     			else if(e.getClick() == ClickType.RIGHT && item.getAmount() > 0) {
     				if(item.getAmount()-1 == 0)
-    					item.setType(Material.BARRIER);
+    					item.setType(Mat.BARRIER);
     				else
     					item.setAmount(item.getAmount()-1);
     			}
     			break;	
     		case 13:
     			if(e.getClick() == ClickType.LEFT && item.getAmount() <9 && Integer.parseInt(e.getInventory().getItem(12).getAmount()+""+item.getAmount() )+1  <=24) {
-    				if(!item.getType().equals(Material.BARRIER))
+    				if(!item.getType().equals(Mat.BARRIER))
     					item.setAmount(item.getAmount()+1);
     				else
     					item.setType(Material.GOLD_INGOT);
     			}
     			else if(e.getClick() == ClickType.RIGHT && item.getAmount() > 0) {
     				if(item.getAmount()-1 == 0)
-    					item.setType(Material.BARRIER);
+    					item.setType(Mat.BARRIER);
     				else
     					item.setAmount(item.getAmount()-1);
     			}
     			break;	
     		case 15:
     			if(e.getClick() == ClickType.LEFT && item.getAmount() <6) {
-    				if(!item.getType().equals(Material.BARRIER))
+    				if(!item.getType().equals(Mat.BARRIER))
     					item.setAmount(item.getAmount()+1);
     				else
     					item.setType(Material.GOLD_NUGGET);
     			}
     			else if(e.getClick() == ClickType.RIGHT && item.getAmount() > 0) {
     				if(item.getAmount()-1 == 0)
-    					item.setType(Material.BARRIER);
+    					item.setType(Mat.BARRIER);
     				else
     					item.setAmount(item.getAmount()-1);
     			}
     			break;	
     		case 16:
     			if(e.getClick() == ClickType.LEFT && item.getAmount() <9 && Integer.parseInt(e.getInventory().getItem(15).getAmount()+""+item.getAmount() ) +1 <=60) {
-    				if(!item.getType().equals(Material.BARRIER))
+    				if(!item.getType().equals(Mat.BARRIER))
     					item.setAmount(item.getAmount()+1);
     				else
     					item.setType(Material.GOLD_NUGGET);
     			}
     			else if(e.getClick() == ClickType.RIGHT && item.getAmount() > 0) {
     				if(item.getAmount()-1 <1)
-    					item.setType(Material.BARRIER);
+    					item.setType(Mat.BARRIER);
     				else
     				item.setAmount(item.getAmount()-1);
     			}
@@ -319,7 +341,7 @@ public class InventoryListeners extends Utils implements Listener {
         	Inventory inv = e.getInventory();
         	int valeurs[] = {0,0,0,0,0,0,0,0};
 			for(int i=9; i<17; i++) {
-				if(!inv.getItem(i).getType().equals(Material.BARRIER)&& !inv.getItem(i).getType().equals(Material.STICK)) {
+				if(!inv.getItem(i).getType().equals(Mat.BARRIER)&& !inv.getItem(i).getType().equals(Material.STICK)) {
 					valeurs[i-9] = inv.getItem(i).getAmount();
 				}
 			}
