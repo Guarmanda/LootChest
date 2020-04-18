@@ -2,13 +2,8 @@ package fr.black_eyes.lootchest;
 
 import static org.inventivetalent.reflection.minecraft.Minecraft.Version.*;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-
 import org.bukkit.Location;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -32,13 +27,13 @@ public class Main extends JavaPlugin {
 	//public ArrayList<LootChest> lc = new ArrayList<LootChest>();
 	public static Object particules[] = new Object[34];
 	public static HashMap<Location, Object> part = new HashMap<Location, Object>();
+	public static HashMap<String, Lootchest> LootChest = new HashMap<String, Lootchest>();
 	private static Main instance;
 	private static Config config;
 	private static Utils utils;
 	
 	public void onDisable() {
-		
-		config.saveData();	
+		utils.updateData();
 	}
 	
     
@@ -50,7 +45,7 @@ public class Main extends JavaPlugin {
 		
 		
 		if(!config.initFiles()) {
-        	getLogger().info("§cThe data file couldn't be initialised, the plugin will stop.");
+        	getLogger().info("Â§cThe data file couldn't be initialised, the plugin will stop.");
         	return;
         }
 		if(!org.bukkit.Bukkit.getVersion().contains("1.7")){
@@ -63,75 +58,20 @@ public class Main extends JavaPlugin {
         super.onEnable();
         
         //In many versions, I add some text an config option. These lines are done to update config and language files without erasing options that are already set
-        config.setConfig("CheckForUpdates", true);
-        config.setConfig("Particles.enable", true);
-        config.setConfig("Hologram_distance_to_chest", 1);
-        config.setConfig("UseHologram", true);
-        config.setConfig("RemoveEmptyChests", true);
-        config.setConfig("RemoveChestAfterFirstOpenning", false);
-        config.setConfig("respawn_notify.natural_respawn.enabled", true);
-        config.setConfig("respawn_notify.respawn_with_command.enabled", true);
-        config.setConfig("respawn_notify.respawn_all_with_command.enabled", true);
-        config.setConfig("respawn_notify.natural_respawn.message", "&6The chest &b[Chest] &6has just respawned at [x], [y], [z]!");
-        config.setConfig("respawn_notify.respawn_with_command.message", "&6The chest &b[Chest] &6has just respawned at [x], [y], [z]!");
-        config.setConfig("respawn_notify.respawn_all_with_command.message", "&6All chests where forced to respawn! Get them guys!");
-        config.setConfig("PreventHopperPlacingUnderLootChest", true);
-        config.setConfig("check_for_respawn_in_ticks", 600);
-        config.setConfig("respawn_notify.respawn_all_in_one_check.enabled", true);
-        config.setConfig("respawn_notify.respawn_all_in_one_check.message", "&6All loot chests respawned");
-        config.setConfig("Enable_fall_effect", true);
-        config.setConfig("check_for_respawn_in_ticks", null);
-        config.setConfig("Fall_Effect_Height", 50);
-        config.setConfig("respawn_notify.per_world_message", true);
-        config.setConfig("respawn_notify.message_on_chest_take", true);
-        config.setLang("PluginReloaded", "&aConfig file, lang, and chest data were reloaded");
-        config.setLang("PlayerIsNotOnline", "&cThe player [Player] is not online");
-        config.setLang("givefrom", "&aYou were given the [Chest] chest by [Player]");
-        config.setLang("giveto", "&aYou gave the chest [Chest] to player [Player]");
-        config.setLang("ListCommand", "&aList of all chests: [List]");
-        config.setLang("Menu.main.copychest", "&1Copy settings from anyther chest");
-        config.setLang("Menu.copy.name", "&1Choose a chest to copy its settings");
-        config.setLang("copiedChest", "&6You copied the chest &b[Chest1] &6into the chest &b[Chest2]");
-        config.setLang("changedPosition", "&6You set the location of chest &b[Chest] &6to your location");
-        config.setLang("settime", "&6You successfully set the time of the chest &b[Chest]");
-        config.setLang("Menu.time.infinite", "&6Desactivates the respawn time");
-        config.setLang("chestRadiusSet", "&aYou defined a spawn radius for the chest [Chest]");
-        config.setLang("Menu.copy.page", "&2---> Page &b[Number]");
-        config.setLang("teleportedToChest", "&aYou were teleported to chest [Chest]");
-        config.setLang("enabledFallEffect", "&aYou enabled fall effect for chest &b[Chest]");
-        config.setLang("disabledFallEffect", "&cYou disabled fall effect for chest &b[Chest]");
-        config.setLang("playerTookChest", "&6Oh no! &b[Player] &6found the chest &b[Chest] &6and took everything in it!");
-        config.setLang("disabledChestRadius", "&cYou disabled random spawn for chest [Chest]");
-        config.setLang("Menu.main.disable_fall", "&aFall effect is enabled. Click to &cDISABLE &ait");
-		config.setLang("Menu.main.disable_respawn_natural", "&aNatural-respawn message is enabled. Click to &cDISABLE &ait");
-		config.setLang("Menu.main.disable_respawn_cmd", "&aCommand-respawn message is enabled. Click to &cDISABLE &ait");
-		config.setLang("Menu.main.disable_take_message", "&aMessage on chest take is enabled. Click to &cDISABLE &ait");
-		config.setLang("Menu.main.enable_fall", "&cFall effect is disabled. Click to &aENABLE &cit");
-		config.setLang("Menu.main.enable_respawn_natural", "&cNatural-respawn message is disabled. Click to &aENABLE &cit");
-		config.setLang("Menu.main.enable_respawn_cmd", "&cCommand-respawn message is disabled. Click to &aENABLE &cit");
-		config.setLang("Menu.main.enable_take_message",  "&cMessage on chest take is disabled. Click to &aENABLE &cit"  );
-		if(config.getLang().isSet("help.line1")) {
-			List<String> tab = new ArrayList<String>();
-				for(int i=1; i<=17;i++) {
-					if(config.getLang().getString("help.line"+i) != null) 
-						tab.add(config.getLang().getString("help.line"+i));
-				}
-				config.getLang().set("help", tab);
-				try {
-					config.getLang().save(config.getLangF());
-					config.getLang().load(config.getLangF());
-				} catch (IOException | InvalidConfigurationException e) {
-					e.printStackTrace();
-				}	
-		}
+        /*
+
+        config.setConfig("Fall_Effect_Block", "NOTE_BLOCK");
+        config.setLang("PluginReloaded", "&aConfig file, lang, and chest data were reloaded");*/
+
+
         if(config.getConfig().getBoolean("CheckForUpdates")) {
         	Updater.checkversion();
         }
-        //initialisation des matériaux dans toutes les verions du jeu
+        //initialisation des matÃ©riaux dans toutes les verions du jeu
         //initializing materials in all game versions, to allow cross-version compatibility
         Mat.init_materials();
         
-        //1.8 version uses a totally different particle system. It would need many more time to make it working.
+
     		initParticles();
         
         //One particle was created in 1.13 so that other versions won't have it. Let's remove it if you're not in 1.13
@@ -173,30 +113,28 @@ public class Main extends JavaPlugin {
     	}.runTaskTimer(this, 0, getConfig().getInt("Particles.respawn_ticks"));
         
 
-        
-    	boolean allchestrespawns = true;
-    	int numchest = 0;	
-    	for(String keys : config.getData().getConfigurationSection("chests").getKeys(false)) {
-    		numchest++;
-    		if(!config.getData().isSet("chests." + keys + ".time") ) {
+		for(String keys : config.getData().getConfigurationSection("chests").getKeys(false)) {
+			if(org.bukkit.Bukkit.getWorld(config.getData().getString("chests." + keys + ".position.world")) != null) {
+					LootChest.put(keys, new Lootchest(keys));
+			}
+			else {
+    			getLogger().info("Â§cCouldn't load chest "+keys +" : the world " + config.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
+			}
+    	}
+    	for(Lootchest lc : LootChest.values()) {
+    		/*if(!config.getData().isSet("chests." + keys + ".time") ) {
     			config.getData().set("chests." + keys, null);
 				config.reloadData();
-    		}
-    		else if(org.bukkit.Bukkit.getWorld(config.getData().getString("chests." + keys + ".position.world")) != null) {
-    			//if the chest didn't respawn at startup, we start its timer
-    			if (!utils.restoreChest(keys, false)) {
-    				allchestrespawns=false;
-    				utils.sheduleRespawn(keys);
-    			}
-    			utils.reactivateEffects(keys);
-    		}
-    		else {
-    			getLogger().info("§cCouldn't load chest "+keys +" : the world " + config.getData().getString("chests." + keys + ".position.world") + " is not loaded");
-    		}
-    	}
-    	if(numchest >1 && allchestrespawns && config.getConfig().getBoolean("respawn_notify.respawn_all_in_one_check.enabled")) 
-    		org.bukkit.Bukkit.broadcastMessage(config.getConfig().getString("respawn_notify.respawn_all_in_one_check.message").replace("&", "§"));
+    		}*/
+    		if (!utils.restoreChest(lc, false)) {
+				utils.sheduleRespawn(lc);
+			}
+			utils.reactivateEffects(lc);
+	}
+    		
 
+    	
+  
             
     }
 	
@@ -221,11 +159,10 @@ public class Main extends JavaPlugin {
 	private void initParticles() {
 		Object parti[];
 		if(Minecraft.VERSION.newerThan(v1_12_R1)) {
-			org.bukkit.Particle partic[] = {org.bukkit.Particle.EXPLOSION_HUGE, org.bukkit.Particle.EXPLOSION_LARGE, org.bukkit.Particle.EXPLOSION_NORMAL, org.bukkit.Particle.FIREWORKS_SPARK, org.bukkit.Particle.WATER_BUBBLE, org.bukkit.Particle.SUSPENDED, org.bukkit.Particle.TOWN_AURA, org.bukkit.Particle.CRIT, org.bukkit.Particle.CRIT_MAGIC, org.bukkit.Particle.SMOKE_NORMAL, org.bukkit.Particle.SMOKE_LARGE, org.bukkit.Particle.SPELL_MOB, org.bukkit.Particle.SPELL_MOB_AMBIENT, org.bukkit.Particle.SPELL, org.bukkit.Particle.SPELL_INSTANT, org.bukkit.Particle.SPELL_WITCH, org.bukkit.Particle.NOTE, org.bukkit.Particle.PORTAL, org.bukkit.Particle.ENCHANTMENT_TABLE, org.bukkit.Particle.FLAME, org.bukkit.Particle.LAVA, org.bukkit.Particle.LAVA, org.bukkit.Particle.WATER_SPLASH, org.bukkit.Particle.WATER_WAKE, org.bukkit.Particle.CLOUD, org.bukkit.Particle.SNOWBALL, org.bukkit.Particle.DRIP_WATER, org.bukkit.Particle.DRIP_LAVA, org.bukkit.Particle.SNOW_SHOVEL, org.bukkit.Particle.SLIME, org.bukkit.Particle.HEART, org.bukkit.Particle.VILLAGER_ANGRY, org.bukkit.Particle.VILLAGER_HAPPY, org.bukkit.Particle.BARRIER};
-			parti = partic;
+			parti = new org.bukkit.Particle[] {org.bukkit.Particle.EXPLOSION_HUGE, org.bukkit.Particle.EXPLOSION_LARGE, org.bukkit.Particle.EXPLOSION_NORMAL, org.bukkit.Particle.FIREWORKS_SPARK, org.bukkit.Particle.WATER_BUBBLE, org.bukkit.Particle.SUSPENDED, org.bukkit.Particle.TOWN_AURA, org.bukkit.Particle.CRIT, org.bukkit.Particle.CRIT_MAGIC, org.bukkit.Particle.SMOKE_NORMAL, org.bukkit.Particle.SMOKE_LARGE, org.bukkit.Particle.SPELL_MOB, org.bukkit.Particle.SPELL_MOB_AMBIENT, org.bukkit.Particle.SPELL, org.bukkit.Particle.SPELL_INSTANT, org.bukkit.Particle.SPELL_WITCH, org.bukkit.Particle.NOTE, org.bukkit.Particle.PORTAL, org.bukkit.Particle.ENCHANTMENT_TABLE, org.bukkit.Particle.FLAME, org.bukkit.Particle.LAVA, org.bukkit.Particle.LAVA, org.bukkit.Particle.WATER_SPLASH, org.bukkit.Particle.WATER_WAKE, org.bukkit.Particle.CLOUD, org.bukkit.Particle.SNOWBALL, org.bukkit.Particle.DRIP_WATER, org.bukkit.Particle.DRIP_LAVA, org.bukkit.Particle.SNOW_SHOVEL, org.bukkit.Particle.SLIME, org.bukkit.Particle.HEART, org.bukkit.Particle.VILLAGER_ANGRY, org.bukkit.Particle.VILLAGER_HAPPY, org.bukkit.Particle.BARRIER};
+
 		}else {
-			ParticleEffect[] partic = {ParticleEffect.EXPLOSION_HUGE, ParticleEffect.EXPLOSION_LARGE, ParticleEffect.EXPLOSION_NORMAL, ParticleEffect.FIREWORKS_SPARK, ParticleEffect.WATER_BUBBLE, ParticleEffect.SUSPENDED, ParticleEffect.TOWN_AURA, ParticleEffect.CRIT, ParticleEffect.CRIT_MAGIC, ParticleEffect.SMOKE_NORMAL, ParticleEffect.SMOKE_LARGE, ParticleEffect.SPELL_MOB, ParticleEffect.SPELL_MOB_AMBIENT, ParticleEffect.SPELL, ParticleEffect.SPELL_INSTANT, ParticleEffect.SPELL_WITCH, ParticleEffect.NOTE, ParticleEffect.PORTAL, ParticleEffect.ENCHANTMENT_TABLE, ParticleEffect.FLAME, ParticleEffect.LAVA, ParticleEffect.LAVA, ParticleEffect.WATER_SPLASH, ParticleEffect.WATER_WAKE, ParticleEffect.CLOUD, ParticleEffect.SNOWBALL, ParticleEffect.DRIP_WATER, ParticleEffect.DRIP_LAVA, ParticleEffect.SNOW_SHOVEL, ParticleEffect.SLIME, ParticleEffect.HEART, ParticleEffect.VILLAGER_ANGRY, ParticleEffect.VILLAGER_HAPPY, ParticleEffect.BARRIER};
-			parti = partic;
+			parti = new ParticleEffect[] {ParticleEffect.EXPLOSION_HUGE, ParticleEffect.EXPLOSION_LARGE, ParticleEffect.EXPLOSION_NORMAL, ParticleEffect.FIREWORKS_SPARK, ParticleEffect.WATER_BUBBLE, ParticleEffect.SUSPENDED, ParticleEffect.TOWN_AURA, ParticleEffect.CRIT, ParticleEffect.CRIT_MAGIC, ParticleEffect.SMOKE_NORMAL, ParticleEffect.SMOKE_LARGE, ParticleEffect.SPELL_MOB, ParticleEffect.SPELL_MOB_AMBIENT, ParticleEffect.SPELL, ParticleEffect.SPELL_INSTANT, ParticleEffect.SPELL_WITCH, ParticleEffect.NOTE, ParticleEffect.PORTAL, ParticleEffect.ENCHANTMENT_TABLE, ParticleEffect.FLAME, ParticleEffect.LAVA, ParticleEffect.LAVA, ParticleEffect.WATER_SPLASH, ParticleEffect.WATER_WAKE, ParticleEffect.CLOUD, ParticleEffect.SNOWBALL, ParticleEffect.DRIP_WATER, ParticleEffect.DRIP_LAVA, ParticleEffect.SNOW_SHOVEL, ParticleEffect.SLIME, ParticleEffect.HEART, ParticleEffect.VILLAGER_ANGRY, ParticleEffect.VILLAGER_HAPPY, ParticleEffect.BARRIER};
 		}
 		for(int i = 0; i<parti.length; i++) {
 			particules[i] = parti[i];

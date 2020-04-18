@@ -14,6 +14,7 @@ import org.bukkit.util.Vector;
 import org.inventivetalent.particle.ParticleEffect;
 import org.inventivetalent.reflection.minecraft.Minecraft;
 
+import fr.black_eyes.lootchest.Config;
 import fr.black_eyes.lootchest.Main;
 
 
@@ -23,6 +24,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 
 public class FallingPackageEntity extends PackageEntity {
+	Main instance = Main.getInstance();
+	Config config = Main.getConfigFiles();
     World world;
     Location startLoc;
     Material material;
@@ -32,7 +35,7 @@ public class FallingPackageEntity extends PackageEntity {
         this.blocky = null;
         this.startLoc = this.applyOffset(loc);
         this.world = loc.getWorld();
-        this.material = Material.NOTE_BLOCK;
+        this.material = Material.valueOf(config.getConfig().getString("Fall_Effect_Block"));
         this.summon();
     }
     

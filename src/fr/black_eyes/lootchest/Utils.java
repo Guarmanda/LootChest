@@ -23,7 +23,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import fr.black_eyes.lootchest.Mat;
 import fr.black_eyes.lootchest.commands.LootchestCommand;
@@ -32,7 +31,7 @@ import fr.black_eyes.lootchest.falleffect.FallingPackageEntity;
 public class Utils  {
 	Main instance = Main.getInstance();
 	Config config = Main.getConfigFiles();
-
+	long timing;
 	
 	//message functions that automatically get a message from config.getLang()uage file
 	public void msg(CommandSender p, String path, String replacer, String replacement) {
@@ -40,104 +39,43 @@ public class Utils  {
 	}
 	
 	public String getMsg(String path, String replacer, String replacement) {
-		return config.getLang().getString(path).replace(replacer, replacement).replace("&", "§");
+		return config.getLang().getString(path).replace(replacer, replacement).replace("&", "Â§");
 	}
 	
 	
 	//function to copy a chest
 	//fonction pour copier un coffre
-	public void copychest(String chest1, String chest2) {
-		if(config.getData().isSet("chests."+chest1+".randomradius")) {
-			int random = config.getData().getInt("chests."+chest1+".randomradius");
-			config.getData().set("chests." + chest2 + ".randomradius", random);
-		}
-		String holo = config.getData().getString("chests." + chest1 + ".holo");
-		String effect = config.getData().getString("chests." + chest1 + ".particle");
-		int time = config.getData().getInt("chests." + chest1 + ".time");
-		boolean fall =  config.getData().getBoolean("chests." + chest1 + ".fall");
-		boolean respawn_cmd =  config.getData().getBoolean("chests." + chest1 + ".respawn_cmd");
-		boolean respawn_natural =  config.getData().getBoolean("chests." + chest1 + ".respawn_natural");
-		boolean take_msg =  config.getData().getBoolean("chests." + chest1 + ".take_message");
-		config.getData().set("chests." + chest2 + ".inventory", null);
-		for(String keys : config.getData().getConfigurationSection("chests." + chest1 + ".inventory").getKeys(false)) {
-			ItemStack item = config.getData().getItemStack("chests." + chest1 + ".inventory." + keys);
-			int chance = config.getData().getInt("chests." + chest1 + ".chance." + keys);
-			config.getData().set("chests." + chest2 + ".inventory." + keys, item);
-			config.getData().set("chests." + chest2 + ".chance." + keys, chance);
-		}
-		config.getData().set("chests." + chest2 + ".holo", holo);
-		config.getData().set("chests." + chest2 + ".particle", effect);
-		config.getData().set("chests." + chest2 + ".time", time);
-		config.getData().set("chests." + chest2 + ".fall", fall);
-		config.getData().set("chests." + chest2 + ".respawn_cmd", respawn_cmd);
-		config.getData().set("chests." + chest2 + ".respawn_natural", respawn_natural);
-		config.getData().set("chests." + chest2 + ".take_message", take_msg);
+	public void copychest(Lootchest chest1, Lootchest chest2) {
+		chest2.holo = chest1.holo;
+		chest2.chances = chest1.chances.clone();
+		chest2.direction = chest1.direction;
+		chest2.fall = chest1.fall;
+		chest2.inv.setContents(chest2.inv.getContents());
+		chest2.time = chest1.time;
+		chest2.particle = chest1.particle;
+		chest2.respawn_cmd = chest1.respawn_cmd;
+		chest2.respawn_natural = chest1.respawn_natural;
+		chest2.globalLoc = chest1.globalLoc.clone();
+		chest2.randomLoc = chest1.randomLoc.clone();
+		chest2.take_msg = chest1.take_msg;
+		chest2.radius = chest1.radius;
+		
 		Main.getConfigFiles().reloadData();
 		restoreChest(chest2, true);
 	}
 	
-	/*public void loadChest(String chest1) {
-		
-		Location loc = getPosition(chest1);
-		Location randomLoc = getRandomPosition(chest1);
-		if(config.getData().isSet("chests."+chest1+".randomradius")) {
-			int random = config.getData().getInt("chests."+chest1+".randomradius");
-		}
-		String holo = config.getData().getString("chests." + chest1 + ".holo");
-		String effect = config.getData().getString("chests." + chest1 + ".particle");
-		int time = config.getData().getInt("chests." + chest1 + ".time");
-		boolean fall =  config.getData().getBoolean("chests." + chest1 + ".fall");
-		LootChest lc = new LootChest(chest1);
-		final Inventory inv = Bukkit.createInventory(null, 27);
-		for(String keys : config.getData().getConfigurationSection("chests." + chest1 + ".inventory").getKeys(false)) {
-			inv.setItem(Integer.parseInt(keys), config.getData().getItemStack("chests." + chest1 + ".inventory." + keys));
-			int chance = config.getData().getInt("chests." + chest1 + ".chance." + keys);
-		}
-		
-	}*/
+
 	
-	//créer le coffe et enregistrer les infos
+	//crÂ§er le coffe et enregistrer les infos
 	//chest creation and registering
-	public void saveChest(Block chest, String name) {
-		Inventory inv = ((Chest) chest.getState()).getInventory();
-		for(int i = 0 ; i < inv.getSize() ; i++) {
-			if(inv.getItem(i) != null) {
-				config.getData().set("chests." + name + ".inventory." + i, inv.getItem(i));
-				config.getData().set("chests." + name + ".chance." + i, config.getConfig().getInt("default_item_chance"));
-			}
-		}
-		
-		config.getData().set("chests." + name + ".fall", config.getConfig().getBoolean("Enable_fall_effect"));
-		config.getData().set("chests." + name + ".respawn_cmd", config.getConfig().getBoolean("respawn_notify.respawn_with_command.enabled"));
-		config.getData().set("chests." + name + ".respawn_natural", config.getConfig().getBoolean("respawn_notify.natural_respawn.enabled"));
-		config.getData().set("chests." + name + ".take_message", config.getConfig().getBoolean("respawn_notify.message_on_chest_take"));
-		String direction = getDirection(chest);
-		config.getData().set("chests." + name + ".direction", direction);
-		config.getData().set("chests." + name + ".holo", name);
-		config.getData().set("chests." + name + ".time", config.getConfig().getInt("default_reset_time"));
-		setPosition(name, chest.getLocation());
-		config.getData().set("chests." + name + ".lastreset", new Timestamp(System.currentTimeMillis()).getTime());
-		Location loc = chest.getLocation();
-	    final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-	   	loc2.setX(loc.getX()+0.5);
-	    loc2.setY(loc.getY()+0.5);
-	    loc2.setZ(loc.getZ()+0.5);
-	   	config.getData().set("chests." +name+ ".particle", config.getConfig().getString("Particles.default_particle"));
-	   	config.reloadData();
-		((Chest) chest.getLocation().getBlock().getState()).getInventory().clear();
-		chest.getLocation().getBlock().setType(Material.AIR);
-		restoreChest(name, true);
-	}
+
 	
 	
 	//fonction pour changer la position d'un coffre
 	//function to change a chest location
-	public void changepos(String name, Location loc3) {
-		Location loc = getPosition(name);
-		if(getRandomPosition(name) != null) {
-			loc = getRandomPosition(name);
-		}
-		if(loc.getWorld() != null && loc.getBlock().getType() == Material.CHEST) {
+	public void changepos(Lootchest name, Location loc3) {
+		Location loc = name.getActualLocation();
+		if(Bukkit.getWorld(name.world) != null && loc.getBlock().getType() == Material.CHEST) {
 			Block chest = loc.getBlock();
 			deleteholo(loc);
 			((Chest) chest.getLocation().getBlock().getState()).getInventory().clear();
@@ -148,97 +86,91 @@ public class Utils  {
 			loc2.setZ(loc.getZ()+0.5);
 			Main.part.remove(loc2);
 		}
-		setPosition(name, loc3.getBlock().getLocation());
+		name.world = loc3.getWorld().getName();
+		name.globalLoc = loc3;
 		restoreChest(name, true);
 	}
 	
 	//deletes a chest
 	//supprimes un coffre
-	public void deleteChest(String name) {
-		if(config.getData().isSet("chests." + name + ".position")) {
-			Location loc = getPosition(name);
-			if(getRandomPosition(name) != null) {
-				loc = getRandomPosition(name);
-			}
-			Block chest = loc.getBlock();
-			if(chest.getType().equals(Material.CHEST)) {
-				((Chest) chest.getState()).getInventory().clear();
-			}
-			chest.setType(Material.AIR);
-			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-			loc2.setX(loc.getX()+0.5);
-			loc2.setY(loc.getY()+0.5);
-			loc2.setZ(loc.getZ()+0.5);
-			Main.part.remove(loc2);
-			deleteholo(chest.getLocation());
+	public void deleteChest(Lootchest lc) {
+		Location loc = lc.globalLoc;
+		if(lc.randomLoc != null) {
+			loc = lc.randomLoc;
 		}
-		config.getData().set("chests." + name, null);
-		config.reloadData();
+		Block chest = loc.getBlock();
+		if(chest.getType().equals(Material.CHEST)) {
+			((Chest) chest.getState()).getInventory().clear();
+		}
+		chest.setType(Material.AIR);
+		final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
+		loc2.setX(loc.getX()+0.5);
+		loc2.setY(loc.getY()+0.5);
+		loc2.setZ(loc.getZ()+0.5);
+		Main.part.remove(loc2);
+		deleteholo(chest.getLocation());
+		Main.LootChest.remove(lc.name);
 		
 	}
 	
-	public void sheduleRespawn(String key) {
+	public void sheduleRespawn(Lootchest lc) {
+
 		long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime();
-		long minutes = config.getData().getLong("chests." + key + ".time");
-		long tempsenregistre = config.getData().getLong("chests." + key + ".lastreset");
+		long minutes = lc.time;
+		long tempsenregistre = lc.lastreset;
 		
 		if( minutes<1) {
 			return;
 		}
+		//Bukkit.getLogger().info("spawning of "+ key + " in "+ (minutes*60-((tempsactuel - tempsenregistre)/1000)) +"seconds");
 		//Main.getInstance().getLogger().info("Sheduler launched for chest " + key + " : " + (minutes*60-((tempsactuel - tempsenregistre)/1000)) + " seconds");
 		new BukkitRunnable() {       
             @Override
             public void run() {
-            	restoreChest(key, false);
+            	restoreChest(lc, false);
             }                
-        }.runTaskLater(Main.getInstance(), (minutes*60-((tempsactuel - tempsenregistre)/1000))*20+1L);
+        }.runTaskLater(Main.getInstance(), (minutes*60-((tempsactuel - tempsenregistre)/1000))*20);
     }
 	
 	//to fill a chest or give chest to player
-	public void fillInventory(String name, Inventory inv, boolean clear, Player p) {
+	public void fillInventory(Lootchest name, Inventory inv, boolean clear, Player p) {
 		if(clear) {
 			inv.clear();
 		}
-		for(String keys : config.getData().getConfigurationSection("chests." + name + ".inventory").getKeys(false)) {
-			ItemStack item = config.getData().getItemStack("chests." + name + ".inventory." + keys);
-			int slot = Integer.parseInt(keys);
-			int percent = ThreadLocalRandom.current().nextInt(0, 100 + 1);
-			if(percent <= config.getData().getInt("chests." + name + ".chance." + keys)){
-				if(slot > 26) {
-					Bukkit.getLogger().warning("An item in chest '" + name + "' is placed in the "+ slot +"th slot! There's only 26 slot in a simple chest");
+		if(p!=null) {
+			for(ItemStack keys : name.inv.getContents()) {
+				if(keys == null || keys.getType().equals(Material.AIR)) {
+					
 				}
-				else if(inv.getItem(slot) == null || inv.getItem(slot).getType() == Material.AIR) {
-					inv.setItem(slot, item);
-				}
-				else if(p!=null && p.getInventory().firstEmpty() == -1) {
-					p.getWorld().dropItem(p.getLocation(), item);
-				}
-				else {
-					inv.addItem(item);
+				else if(p.getInventory().firstEmpty() != -1) {
+					inv.addItem(keys);
+				}else {
+					p.getWorld().dropItem(p.getLocation(), keys);
 				}
 			}
 		}
+		else {
+			for(int i=0; i<=26; i++) {
+				inv.setItem(i, name.inv.getItem(i));
+			}
+		}
+		
 	}
 	
 	
-	void reactivateEffects(String name) {
-		Location loc = getPosition(name);
-		if(getRandomPosition(name) != null) {
-			loc = getRandomPosition(name);
-		}
+	void reactivateEffects(Lootchest lc) {
+		Location loc = lc.getActualLocation();
 		if(!loc.getBlock().getType().equals(Material.CHEST)) {
 			return;
 		}
 		if(Main.getInstance().getConfig().getBoolean("UseHologram")){
 			deleteholo(loc);
-			makeHolo(loc, name);
+			makeHolo(loc, lc);
 		}
 		final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-		loc2.setX(loc.getX()+0.5);
-		loc2.setY(loc.getY()+0.5);
-		loc2.setZ(loc.getZ()+0.5);
+		loc2.add(0.5,0.5,0.5);
 		for(Object part : Main.particules) {
-			if((""+part).contains(config.getData().getString("chests." + name + ".particle"))) {
+			if((""+part).contains(lc.particle)) {
 				Main.part.put(loc2, part);
 			}
 		}
@@ -250,137 +182,106 @@ public class Utils  {
 		return ThreadLocalRandom.current().nextInt(0-max, max+1);
 	}
 	
-	//se sert du config.getData().yml pour set le coffre et remplir son inventaire, créer l'holo en fonction du nom 
+	//se sert du config.getData().yml pour set le coffre et remplir son inventaire, crÂ§er l'holo en fonction du nom 
 	//Taking informations from config.getData().yml to restore a specific chest if it is time to do it, or if we force respawn. 
-	public boolean restoreChest(String name, Boolean force) {
-		if(config.getData().getString("chests." + name + ".position.world") != null) {
-			if(Bukkit.getWorld(config.getData().getString("chests." + name + ".position.world")) == null) {
-				Bukkit.getLogger().info("§cThe world " + config.getData().getString("chests." + name + ".position.world") + " is not loaded, can't respawn chest " + name);
-				return false;
-			}
+	public boolean restoreChest(Lootchest lc, Boolean force) {
+
+		Integer num = config.getConfig().getInt("Minimum_Number_Of_Players_For_Natural_Spawning");
+		int players = 0;
+		if(org.bukkit.Bukkit.getVersion().contains("1.7")) {
+			players = org.bukkit.Bukkit.getOnlinePlayers().toArray().length;
+		}else {
+			players = org.bukkit.Bukkit.getOnlinePlayers().size();
 		}
-		if(!config.getData().isSet("chests." + name + ".fall")) {
-			if(config.getData().isSet("chests." + name + ".time")) {
-				config.getData().set("chests." + name + ".fall", config.getConfig().getBoolean("Enable_fall_effect"));
-				config.reloadData();
-			}else {
-				config.getData().set("chests." + name, null);
-				config.reloadData();
-			}
+		//Main.getInstance().getLogger().info("respawn function of "+ name + " (1)");
+
+		if(Bukkit.getWorld(lc.world) == null) {
+			Bukkit.getLogger().info("Â§cThe world " + lc.world + " is not loaded, can't respawn chest " + lc);
+			return false;
 		}
-		if(!config.getData().isSet("chests." + name + ".respawn_natural")) {
-			if(config.getData().isSet("chests." + name + ".time")) {
-				config.getData().set("chests." + name + ".respawn_natural",config.getConfig().getBoolean("respawn_notify.natural_respawn.enabled"));
-				config.reloadData();
-			}
-		}
-		if(!config.getData().isSet("chests." + name + ".respawn_cmd")) {
-			if(config.getData().isSet("chests." + name + ".time")) {
-				config.getData().set("chests." + name + ".respawn_cmd", config.getConfig().getBoolean("respawn_notify.respawn_with_command.enabled"));
-				config.reloadData();
-			}
-		}
-		if(!config.getData().isSet("chests." + name + ".take_message")) {
-			if(config.getData().isSet("chests." + name + ".time")) {
-				config.getData().set("chests." + name + ".take_message",  config.getConfig().getBoolean("respawn_notify.message_on_chest_take"));
-				config.reloadData();
-			}
-		}
-		Location loc = getPosition(name);
+		
+		//Main.getInstance().getLogger().info("respawn function of "+ name + " (2)");
+
+		Location loc = lc.globalLoc.clone();
 		Location newloc = loc;
-		if(config.getData().isSet("chests."+name+".randomradius")) {
-			int random = config.getData().getInt("chests."+name+".randomradius");
-			Location randompos = getPosition(name);
+		if(lc.radius != 0) {
+			int random = lc.radius;
+			Location randompos = lc.globalLoc.clone();
+
 			randompos.setX(randomInt(random)+loc.getX());
 			randompos.setZ(randomInt(random)+loc.getZ());
 			randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos));
 			if (Bukkit.getVersion().contains("1.15")) {
 				randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos)+1);
 			}
-			if(getRandomPosition(name) != null) {
-				loc = getRandomPosition(name);
+
+			if(lc.radius !=0) {
+				loc = lc.randomLoc.clone();
 			}
+
 			newloc = randompos;
+
 
 			
 			
 		}
 		final Block block = loc.getBlock();
-		/* théoriquement, ce genre de chose est détecté à la fermeture du coffre
-		//si le coffre est vide,  IL MEURT MOUAHAHA
 		
-		if(block.getType().equals(Material.CHEST)) {
-			if(isEmpty(((Chest)block.getState()).getInventory()) && Main.getInstance().getConfig().getBoolean("RemoveEmptyChests")) {
-				deleteholo(loc);
-				
-				block.setType(Material.AIR);
-				final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-				loc2.setX(loc.getX()+0.5);
-				loc2.setY(loc.getY()+0.5);
-				loc2.setZ(loc.getZ()+0.5);
-				Main.part.remove(loc2);
-				block.setType(Material.AIR);
+		//Bukkit.getLogger().info("respawn function of "+ name + " (3)");
+		final Location loc3 = loc.clone();
 
-				
-
-			}
-		}
-		*/
-		final Location loc3 = loc;
-		final Location newloc2 = newloc;
 		long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime();
-		long minutes = config.getData().getLong("chests." + name + ".time")*60*1000;
-		long tempsenregistre = config.getData().getLong("chests." + name + ".lastreset");
+		long minutes = lc.time*60*1000;
+		long tempsenregistre = lc.lastreset;
+
 		if((tempsactuel - tempsenregistre > minutes && minutes>-1) || force) {
 			int height = Main.getInstance().getConfig().getInt("Fall_Effect_Height");
-            Main.getInstance().getServer().getScheduler().runTaskLater((Plugin)Main.getInstance(), (Runnable)new Runnable() {
-                @Override
-                public void run() {
-        			if(config.getData().isSet("chests."+name+".randomradius") && loc3 != newloc2) {
-        				deleteholo(loc3);
-        				((Chest) block.getState()).getInventory().clear();
-        				block.setType(Material.AIR);
-        				final Location loc2 = new Location(loc3.getWorld(), loc3.getX(), loc3.getY(), loc3.getZ());
-        				loc2.setX(loc3.getX()+0.5);
-        				loc2.setY(loc3.getY()+0.5);
-        				loc2.setZ(loc3.getZ()+0.5);
-        				Main.part.remove(loc2);
-        				
-        			}
-                }
-            }, height * (61L / 50));
-			setRandomPosition(name, newloc);
-			if(!force && config.getData().getBoolean("chests." + name + ".respawn_natural") ) {
-				String holo = config.getData().getString("chests." + name + ".holo");
+			if(lc.radius!=0 && loc3 != newloc && block.getType().equals( Material.CHEST)) {
+				deleteholo(loc3);
+				((Chest) block.getState()).getInventory().clear();
+				block.setType(Material.AIR);
+				loc3.add(0.5,0.5,0.5);
+				Main.part.remove(loc3);
+				
+			}
+			if(lc.radius != 0) {
+				lc.randomLoc = newloc;
+			}
+           // Bukkit.getLogger().info("respawn function of "+ name + " (4)");
+			
+			if(!force && lc.respawn_natural && num <= players ) {
+				String holo = lc.holo;
 				if(!Main.getInstance().getConfig().getBoolean("respawn_notify.per_world_message")) {
-					Bukkit.broadcastMessage((((Main.getInstance().getConfig().getString("respawn_notify.natural_respawn.message").replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
+					Bukkit.broadcastMessage((((Main.getInstance().getConfig().getString("respawn_notify.natural_respawn.message").replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "Â§"));
 			
 				}else {
 					for(Player p : loc.getWorld().getPlayers()){
-						p.sendMessage((((Main.getInstance().getConfig().getString("respawn_notify.natural_respawn.message").replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
+						p.sendMessage((((Main.getInstance().getConfig().getString("respawn_notify.natural_respawn.message").replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "Â§"));
 					}
 				}
 			}
+
 			final Block newblock = newloc.getBlock();
 			final Location theloc = newloc;
-			if(config.getData().getBoolean("chests." + name + ".fall")) {
+			//Bukkit.getLogger().info("respawn function of "+ name);
+			if(lc.fall&& (num <= players || force) ) {
 				
 				Location startloc = new Location(newloc.getWorld(), newloc.getX()+0.5, newloc.getY()+height, newloc.getZ()+0.5);
 				if(startloc.getWorld().isChunkLoaded(startloc.getBlockX()/16, startloc.getBlockZ()/16)) {
 
 					new FallingPackageEntity(startloc);
+
+		                	
+		                	spawnChest(lc, newblock, theloc, force);
+
+				}else {
+					spawnChest(lc, newblock, theloc, force);
 				}
-	            Main.getInstance().getServer().getScheduler().runTaskLater((Plugin)Main.getInstance(), (Runnable)new Runnable() {
-	                @Override
-	                public void run() {
-	                	
-	                	spawnChest(name, tempsactuel, newblock, theloc);
-	                }
-	            }, height * (61L / 50));
+
 				
 			}
 			else {
-				spawnChest(name, tempsactuel, newblock, theloc);
+				spawnChest(lc, newblock, theloc, force);
 			}
 			
 			if(!Main.getInstance().getConfig().getBoolean("UseHologram")){
@@ -391,60 +292,67 @@ public class Utils  {
 			
 
 		}
-		/*else {
-			sheduleRespawn(name);
-		}*/
+		else {
+			//Main.getInstance().getLogger().info("time: "+ ((new Timestamp(System.currentTimeMillis())).getTime() - tempsenregistre) + " ; defined time: "+ minutes);
+			//sheduleRespawn(name);
+		}
 		
 		return ((tempsactuel - tempsenregistre > minutes && minutes>=0) || force);
 	}
 	
 	
 	@SuppressWarnings("deprecation")
-	public  void spawnChest(String name, long tempsactuel, Block block, Location theloc) {
+	public  void spawnChest(Lootchest name, Block block, Location theloc, Boolean force) {
+		Integer num = config.getConfig().getInt("Minimum_Number_Of_Players_For_Natural_Spawning");
+		int players = 0;
+		if(org.bukkit.Bukkit.getVersion().contains("1.7")) {
+			players = org.bukkit.Bukkit.getOnlinePlayers().toArray().length;
+		}else {
+			players = org.bukkit.Bukkit.getOnlinePlayers().size();
+		}
 		block.setType(Material.CHEST);
+		if(num <= players || force) {
+			Inventory inv = ((Chest) block.getState()).getInventory();
+			fillInventory(name, inv, true, null);
 
-		Inventory inv = ((Chest) block.getState()).getInventory();
-		fillInventory(name, inv, true, null);
-		if(!config.getData().isSet("chests." + name + ".direction")) {
-			config.getData().set("chests." + name + ".direction", "north");
-			config.reloadData();
-		}
-		String direction = config.getData().getString("chests." + name + ".direction");
-		BlockState state = block.getState();
-		if(direction.equalsIgnoreCase("east")){
-			state.setData(new org.bukkit.material.Chest(BlockFace.EAST));
-		}
-		if(direction.equalsIgnoreCase("north")){
-			state.setData(new org.bukkit.material.Chest(BlockFace.NORTH));
-		}			
-		if(direction.equalsIgnoreCase("south")){
-			state.setData(new org.bukkit.material.Chest(BlockFace.SOUTH));
-		}			
-		if(direction.equalsIgnoreCase("west")){
-			state.setData(new org.bukkit.material.Chest(BlockFace.WEST));
-		}
-		state.update();
-		
-		final Location loc2 = new Location(theloc.getWorld(), theloc.getX(), theloc.getY(), theloc.getZ());
-		loc2.setX(theloc.getX()+0.5);
-		loc2.setY(theloc.getY()+0.5);
-		loc2.setZ(theloc.getZ()+0.5);
-		if(block.getType().equals(Material.CHEST) ) {
-			for(Object part : Main.particules) {
-				if((""+part).contains(config.getData().getString("chests." + name + ".particle"))) {
-					Main.part.put(loc2, part);
-				}
+			String direction = name.direction;
+			BlockState state = block.getState();
+			if(direction.equalsIgnoreCase("east")){
+				state.setData(new org.bukkit.material.Chest(BlockFace.EAST));
 			}
-		}else if  (!block.getType().equals(Material.CHEST)){
-			deleteholo(theloc);
-			Main.part.remove(loc2);
+			if(direction.equalsIgnoreCase("north")){
+				state.setData(new org.bukkit.material.Chest(BlockFace.NORTH));
+			}			
+			if(direction.equalsIgnoreCase("south")){
+				state.setData(new org.bukkit.material.Chest(BlockFace.SOUTH));
+			}			
+			if(direction.equalsIgnoreCase("west")){
+				state.setData(new org.bukkit.material.Chest(BlockFace.WEST));
+			}
+			state.update();
+			
+			final Location loc2 = name.getActualLocation();
+			loc2.add(0.5,0.5,0.5);
+			if(block.getType().equals(Material.CHEST) ) {
+				for(Object part : Main.particules) {
+					if((""+part).contains(name.particle)) {
+						Main.part.put(loc2, part);
+					}
+				}
+			}else if  (!block.getType().equals(Material.CHEST)){
+				deleteholo(theloc);
+				Main.part.remove(loc2);
+			}
+			if(Main.getInstance().getConfig().getBoolean("UseHologram")){
+				deleteholo(theloc);
+				makeHolo(theloc, name);
+			}
 		}
-		if(Main.getInstance().getConfig().getBoolean("UseHologram")){
-			deleteholo(theloc);
-			makeHolo(theloc, name);
-		}
-		config.getData().set("chests." + name + ".lastreset", tempsactuel);
-		config.reloadData();
+		long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime();
+		name.lastreset = tempsactuel;
+		//config.reloadData();
+		//Main.getInstance().getLogger().info("Shedule respawn of chest "+ name);
+
 		sheduleRespawn(name);
 	}
 	
@@ -459,23 +367,20 @@ public class Utils  {
 	}
 
 	//check if a chest is a lootchest by looking all lootchests locations
-	public  String isLootChest(Location loc) {
-		for(String keys : config.getData().getConfigurationSection("chests").getKeys(false)) {
-			Location loc2 = getPosition(keys);
-			if(getRandomPosition(keys) != null) {
-				loc2 = getRandomPosition(keys);
-			}
+	public  Lootchest isLootChest(Location loc) {
+		for(Lootchest keys : Main.LootChest.values()) {
+			Location loc2 = keys.getActualLocation();
 			if(loc2.equals(loc)) {
 				return keys;
 			}
 		}
-		return " ";
+		return null;
 	}
 	
 	//geting chest position from config.getData().yml
 	public  Location getPosition(String name) {
 		if (config.getData().getString("chests." + name + ".position.world") == null) {
-			instance.getLogger().info("§cThe plugin couldn't get the world of chest §6" + name +"§c. This won't prevent the plugin to work, but the plugin may throw other errors because of that.");
+			instance.getLogger().info("Â§cThe plugin couldn't get the world of chest Â§6" + name +"Â§c. This won't prevent the plugin to work, but the plugin may throw other errors because of that.");
 			return null;
 		}
 		World world = Bukkit.getWorld(config.getData().getString("chests." + name + ".position.world"));
@@ -506,6 +411,18 @@ public class Utils  {
 		config.getData().set("chests." + name + ".randomPosition.yaw", loc.getYaw());
 	}
 	
+	public void updateData() {
+		for(Lootchest lc : Main.LootChest.values()) {
+			lc.saveInConfig();
+		}
+		config.saveData();
+	}
+	
+	public void updateData(Lootchest lc) {
+		lc.saveInConfig();
+		config.saveData();
+	}
+	
 	public  Location getRandomPosition(String name) {
 		if(!config.getData().isSet("chests." + name + ".randomPosition.x")) {
 			return null;
@@ -524,9 +441,7 @@ public class Utils  {
 	public  void deleteholo(Location loc) {
 		if(!org.bukkit.Bukkit.getVersion().contains("1.7")){
 			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-			loc2.setX(loc.getX()+0.5);
-			loc2.setY(loc.getY()+Main.getInstance().getConfig().getInt("Hologram_distance_to_chest"));
-			loc2.setZ(loc.getZ()+0.5);
+			loc2.add(0.5, Main.getInstance().getConfig().getInt("Hologram_distance_to_chest"), 0.5);
 			//the coordinates of a block are at the corner of the block
 			for(Entity ent : loc2.getChunk().getEntities()) {
 				if(ent instanceof org.bukkit.entity.ArmorStand && ent.getLocation().distance(loc2) <1.1) {
@@ -539,16 +454,14 @@ public class Utils  {
 	//Pour faire des hologrames au dessus des coffres
 	//To do holograms near chests
 	//the below function was created using some spigot forums code with some modifications
-	public  void makeHolo(Location loc, String text) {
+	public  void makeHolo(Location loc, Lootchest lc) {
 		if(!org.bukkit.Bukkit.getVersion().contains("1.7")){
 			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-			loc2.setX(loc.getX()+0.5);
-			loc2.setY(loc.getY()+Main.getInstance().getConfig().getInt("Hologram_distance_to_chest"));
-			loc2.setZ(loc.getZ()+0.5);
+			loc2.add(0.5, Main.getInstance().getConfig().getInt("Hologram_distance_to_chest"), 0.5);
 			//the coordinates of a block are at the corner of the block
 			org.bukkit.entity.ArmorStand as = (org.bukkit.entity.ArmorStand) loc2.getWorld().spawnEntity(loc2, org.bukkit.entity.EntityType.ARMOR_STAND); //Spawn the ArmorStand
 	
-			String name = config.getData().getString("chests." + text + ".holo").replace("&", "§");
+			String name = lc.holo.replace("&", "Â§");
 			as.setCustomName(name); //Set this to the text you want
 			if(!(name.equals("\"\"") || name.equals("\" \"") || name.equals("null") || name.equals("") || name.equals(" ") || name.equals("_") || name.equals("none"))) {
 				as.setCustomNameVisible(true); //This makes the text appear no matter if your looking at the entity or not
@@ -564,6 +477,7 @@ public class Utils  {
 		 	as.setBasePlate(false);
 		 	as.setSmall(true);
 		 	as.setMarker(true);
+
 		}
 
 	}	
@@ -574,29 +488,31 @@ public class Utils  {
 	
 	
 	//Inventaires
-	public  void invChances(Player p, String name) {
-		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.chances.name", "[Chest]", name));
-		for(String keys : config.getData().getConfigurationSection("chests." + name + ".inventory").getKeys(false)) {
-			ItemStack item = config.getData().getItemStack("chests." + name + ".inventory." + keys);
-			List<String> lore = new ArrayList<String>();
-			lore.add(getMsg("Menu.chances.lore", "[Chest]", name));
-			lore.add(config.getData().getString("chests." + name + ".chance." + keys) + "%");
-			ItemMeta im = item.getItemMeta();
-			im.setLore(lore);
-			ItemStack item2 = new ItemStack(item.getType(), item.getAmount());
-			item2.setItemMeta(im);
-			int slot = Integer.parseInt(keys);
-			inv.setItem(slot, item2);
+	public  void invChances(Player p, Lootchest name) {
+		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.chances.name", "[Chest]", name.name));
+		for(int i = 0; i < inv.getSize(); i++) {
+			ItemStack item = inv.getItem(i);
+			if(item.getType() != Material.AIR) {
+				List<String> lore = new ArrayList<String>();
+				lore.add(getMsg("Menu.chances.lore", "[Chest]", name.name));
+				lore.add(name.chances[i]+ "%");
+				ItemMeta im = item.getItemMeta();
+				im.setLore(lore);
+				ItemStack item2 = new ItemStack(item.getType(), item.getAmount());
+				item2.setItemMeta(im);
+				
+				inv.setItem(i, item2);
+			}
 		}
-		LootchestCommand.editinv.put(p, name);
+		LootchestCommand.editinv.put(p, name.name);
 		p.openInventory(inv);
 	}
 	
-	public  void invTime(Player p, String name) {
-		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.time.name", "[Chest]", name));
+	public  void invTime(Player p, Lootchest name) {
+		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.time.name", "[Chest]", name.name));
 		inv.setItem(4, getItem(Mat.TOTEM_OF_UNDYING, getMsg("Menu.time.infinite", " ", " ")));
 		
-		long temps = config.getData().getLong("chests." + name + ".time");
+		long temps = name.getTime();
 		long jours = temps/3600;
 		long heures = temps/60 - jours*24;
 		long minutes = temps - heures*60 - jours*3600;
@@ -636,7 +552,7 @@ public class Utils  {
 		}
         inv.setItem(14, getItem(Mat.STICK, ""));
         inv.setItem(11, getItem(Mat.STICK, ""));
-		LootchestCommand.editinv.put(p, name);
+		LootchestCommand.editinv.put(p, name.name);
 		ItemStack sign = new ItemStack(Mat.SIGN, 1);
 		ItemMeta meta = sign.getItemMeta(); 
 		if(minutes != -1) {
@@ -650,57 +566,55 @@ public class Utils  {
 		p.openInventory(inv);
 	}
 	
-	public  void invEdit(Player p, String name) {
-		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.items.name", "[Chest]", name));
-		for(String keys : config.getData().getConfigurationSection("chests." + name + ".inventory").getKeys(false)) {
-			ItemStack item = config.getData().getItemStack("chests." + name + ".inventory." + keys);
-			int slot = Integer.parseInt(keys);
-			inv.setItem(slot, item);
-		}
-		LootchestCommand.editinv.put(p, name);
+	public  void invEdit(Player p, Lootchest name) {
+		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.items.name", "[Chest]", name.name));
+		inv.setContents(name.inv.getContents());;
+		LootchestCommand.editinv.put(p, name.name);
 		p.openInventory(inv);
 	}
 	
-	public  void invcopy(Player p, String chest, int j) {
+	public  void invcopy(Player p, Lootchest chest, int j) {
 		int i = 0;
 		int nbBoxes = 0;
 		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 54, getMsg("Menu.copy.name", " ", " "));
-		Set<String> boxes = config.getData().getConfigurationSection("chests").getKeys(false);
-		for(String keys : boxes) {
-			if(getPosition(keys).getWorld() == null) {
-				boxes.remove(keys);
-			}
-		}
+		Set<String> boxes = Main.LootChest.keySet();
+
 		for(String keys : boxes) {
 			if(j== 2 && nbBoxes < 53) nbBoxes++;
 			else if(j> 2 && nbBoxes < (j*54-(2*(j-1)))-52) nbBoxes++;
-			//exempter le coffre actuel de la liste, et si il y a plus de 54 coffres, stopper i à 53 si on doit faire deux pages
+			//exempter le coffre actuel de la liste, et si il y a plus de 54 coffres, stopper i Ã  53 si on doit faire deux pages
 			
-			else if(!keys.equals(chest) && (i!=45 || j==1) && (i!=53 || (boxes.size() -1)<=(j*52+1) ) ){
-				String name = config.getData().getString("chests." + keys + ".holo").replace("&", "§");
+			else if(!keys.equals(chest.name) && (i!=45 || j==1) && (i!=53 || (boxes.size() -1)<=(j*52+1) ) ){
+				String name = Main.LootChest.get(keys).holo.replace("&", "Â§");
 				String effect = config.getData().getString("chests." + keys + ".particle");
 				String world;
-				if(getPosition(keys).getWorld() == null) {
+				if(Bukkit.getWorld(Main.LootChest.get(keys).world) == null) {
 					world = "Unloaded world";
 				}
 				else {
-					world = getPosition(keys).getWorld().getName();
+					world = Bukkit.getWorld(Main.LootChest.get(keys).world).getName();
 				}
-				ItemStack item = getItemWithLore(Material.CHEST, "§6" +keys, "§bHologram: §6" + name + "||§bWorld: §6"+ world + "||§bEffect: §6" + effect);
+				ItemStack item = getItemWithLore(Material.CHEST, "Â§6" +keys, "Â§bHologram: Â§6" + name + "||Â§bWorld: Â§6"+ world + "||Â§bEffect: Â§6" + effect);
 				inv.setItem(i++, item);
 			}
-			else if (!keys.equals(chest) && i==45) {
+			else if (!keys.equals(chest.name) && i==45) {
 				String name = getMsg("Menu.copy.page", "[Number]", j-1+"");
 				ItemStack item = getItem(Material.PAPER,  name );
 				inv.setItem(i++, item);
-				
-				String name2 = config.getData().getString("chests." + keys + ".holo").replace("&", "§");
-				String effect = config.getData().getString("chests." + keys + ".particle");
-				String world = getPosition(keys).getWorld().getName();
-				ItemStack item2 = getItemWithLore(Material.CHEST, "§6" +keys, "§bHologram: §6" + name2 + "||§bWorld: §6"+ world + "||§bEffect: §6" + effect);
+				String world;
+				if(Bukkit.getWorld(Main.LootChest.get(keys).world) == null) {
+					world = "Unloaded world";
+				}
+				else {
+					world = Bukkit.getWorld(Main.LootChest.get(keys).world).getName();
+				}
+				String name2 = Main.LootChest.get(keys).holo.replace("&", "Â§");
+				String effect = Main.LootChest.get(keys).particle;
+
+				ItemStack item2 = getItemWithLore(Material.CHEST, "Â§6" +keys, "Â§bHologram: Â§6" + name2 + "||Â§bWorld: Â§6"+ world + "||Â§bEffect: Â§6" + effect);
 				inv.setItem(i++, item2);
 			}
-			else if (!keys.equals(chest) && i==53){
+			else if (!keys.equals(chest.name) && i==53){
 				String name = getMsg("Menu.copy.page", "[Number]", (j+1)+"");
 
 				ItemStack item = getItem(Material.PAPER,  name );
@@ -711,7 +625,7 @@ public class Utils  {
 		}			
 
 		p.openInventory(inv);
-        LootchestCommand.editinv.put(p, chest);
+        LootchestCommand.editinv.put(p, chest.name);
 	}
 	
 	
@@ -763,7 +677,7 @@ public class Utils  {
 	
 
 	
-	// /!\ Certains items ne sont pas les mêmes selont que l'on est en 1.12 ou 1.13, à vérifier pour particules
+	// /!\ Certains items ne sont pas les mÂ§mes selont que l'on est en 1.12 ou 1.13, Â§ vÂ§rifier pour particules
 	public  void particleInv(Player p, String name) {
         final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 54, getMsg("Menu.particles.name", " ", " "));
         inv.setItem(0, getItem(Mat.TNT, "Huge Explosion"));

@@ -1,11 +1,8 @@
 package fr.black_eyes.lootchest;
 
 
-import static org.inventivetalent.reflection.minecraft.Minecraft.Version.*;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.inventivetalent.reflection.minecraft.Minecraft;
 
 
 public final class Mat {
@@ -45,7 +42,7 @@ public final class Mat {
 			BARRIER = Material.valueOf("WOOL");
 			PRISMARINE = Material.valueOf("ENDER_PEARL");
 		}
-		if(Minecraft.VERSION.olderThan(v1_13_R1)) {
+		if(Bukkit.getVersion().contains("1.7") ||Bukkit.getVersion().contains("1.8") || Bukkit.getVersion().contains("1.9") || Bukkit.getVersion().contains("1.10")|| Bukkit.getVersion().contains("1.11") || Bukkit.getVersion().contains("1.12")) {
 			SIGN = Material.valueOf("SIGN");
 			FIREWORK = Material.valueOf("FIREWORK");
 			MYCELIUM = Material.valueOf("MYCEL");
@@ -58,8 +55,8 @@ public final class Mat {
 			ENDER_EYE = Material.valueOf("EYE_OF_ENDER");
 			TOTEM_OF_UNDYING = Material.valueOf("STONE");
 		}
-		if(Bukkit.getVersion().contains("1.13") || Bukkit.getVersion().contains("1.4") || Bukkit.getVersion().contains("1.15")) {
-			if(Minecraft.VERSION.newerThan(v1_13_R2)){
+		if(Bukkit.getVersion().contains("1.13") || Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15")) {
+			if(Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15")){
 				SIGN = Material.valueOf("OAK_SIGN");
 			}
 			else {

@@ -20,6 +20,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 
 import fr.black_eyes.lootchest.Config;
+import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
 
@@ -28,10 +29,9 @@ import fr.black_eyes.lootchest.Utils;
 public class DeleteListener extends Utils implements Listener  {
 	
 	Config config = Main.getConfigFiles();
-	 FileConfiguration data = Main.getConfigFiles().getData();
 	 FileConfiguration lang = Main.getConfigFiles().getLang();
 	public static HashMap<Player, Location> openInvs = new HashMap<Player, Location>();
-	//gère la destruction d'un coffre au niveau des hologrames
+	//gÂ§re la destruction d'un coffre au niveau des hologrames
 	
 	
 	
@@ -62,18 +62,18 @@ public class DeleteListener extends Utils implements Listener  {
     	Inventory inv = e.getInventory();
     	Player p = Bukkit.getPlayer(e.getPlayer().getName());
     	if((isEmpty(inv) || config.getConfig().getBoolean("RemoveChestAfterFirstOpenning")) && openInvs.containsKey(p)) {
-    		String keys = isLootChest(openInvs.get(p));
-    		if(!keys.equals(" ")) {
+    		Lootchest keys = isLootChest(openInvs.get(p));
+    		if(!keys.equals(null)) {
     			Location loc = openInvs.get(p);
     			if((config.getConfig().getBoolean("RemoveEmptyChests") && isEmpty(inv)) || config.getConfig().getBoolean("RemoveChestAfterFirstOpenning")) {
     				inv.clear();
     				loc.getBlock().setType(Material.AIR);
-    				if(data.getInt("chests."+keys+".time")==0) {
+    				if(keys.getTime()==0) {
     					restoreChest(keys, false);
     				}
     			}
-    			if(config.getData().getBoolean("chests." + keys + ".take_message")){
-	    			String msg = Main.getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", config.getData().getString("chests." + keys + ".holo")).replace("&", "§");
+    			if(keys.getTakeMessage()){
+	    			String msg = Main.getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "Â§");
 	    			if(!Main.getInstance().getConfig().getBoolean("respawn_notify.per_world_message")) {
 						Bukkit.broadcastMessage(msg);							
 					}else {
@@ -101,8 +101,12 @@ public class DeleteListener extends Utils implements Listener  {
     @EventHandler
     public void onchestbreak(BlockBreakEvent e) {
     	if(e.getBlock().getType().equals(Material.CHEST)) {
-    		String keys = isLootChest(e.getBlock().getLocation());
-    		if(!keys.equals(" ")) {
+	    	if(e.isCancelled()) {
+	    		return;
+	    	}
+    		Lootchest keys = isLootChest(e.getBlock().getLocation());
+
+    		if(!keys.equals(null)) {
     			Location loc = e.getBlock().getLocation();
     			deleteholo(loc);
     	        final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
@@ -120,10 +124,15 @@ public class DeleteListener extends Utils implements Listener  {
     
     @EventHandler
     public void chestexploded(EntityExplodeEvent e) {
+
     	for(Block chest : e.blockList()) {
     		if(chest.getType().equals(Material.CHEST)) {
-    			String keys = isLootChest(chest.getLocation());
-        		if(!keys.equals(" ")) {
+
+    	    	if(e.isCancelled()) {
+    	    		return;
+    	    	}
+    			Lootchest keys = isLootChest(chest.getLocation());
+        		if(!keys.equals(null)) {
         			Location loc = chest.getLocation();
         			deleteholo(loc);
         	        final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
@@ -151,7 +160,7 @@ public class DeleteListener extends Utils implements Listener  {
 
     	if(block.getType() == Material.HOPPER) {
     		for(Block blockabove : blocksabove) {
-	    		if(!isLootChest(blockabove.getLocation()).equals(" ")) {
+	    		if(!isLootChest(blockabove.getLocation()).equals(null)) {
 	    			if(config.getConfig().getBoolean("PreventHopperPlacingUnderLootChest")) {
 	    				e.setCancelled(true);
 	    			}

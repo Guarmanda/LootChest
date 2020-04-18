@@ -66,10 +66,10 @@ public class Updater {
 				lastver = versionInfos.get("name").getAsString();
 	        }
 			if (!lastver.equals(installedVersion)) {
-			    log.info( "§aA new version " + lastver + " was found on Spigot (your version: " + installedVersion + "). Please update me! <3 - Link: " + lastverDownloadUrl);
+			    log.info( "Â§aA new version " + lastver + " was found on Spigot (your version: " + installedVersion + "). Please update me! <3 - Link: " + lastverDownloadUrl);
 			}
 			else {
-				log.info("§aThe plugin seems up to date.");
+				log.info("Â§aThe plugin seems up to date.");
 			}
 	    } catch (Exception ex) {
 	        log.info("Failed to check for a update on spigot.");

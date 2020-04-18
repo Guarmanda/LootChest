@@ -14,7 +14,7 @@ public class Config {
 	private FileConfiguration config;
 	private File langFile;
 	private FileConfiguration lang;
-	
+	public Boolean PER_WORLD_MESSAGE;
 	
 	public void saveData() {
 		try {
@@ -29,6 +29,7 @@ public class Config {
 	public void reloadConfig() {
 		try {
 			config.load(getConfigF());
+
 			data.save(getDataF());
 			data.load(getDataF());
 			lang.load(getLangF());
@@ -94,6 +95,9 @@ public class Config {
 	public FileConfiguration getLang() {
 		return lang;
 	}
+	
+	
+
 	
 	public boolean initFiles() {
 		//config

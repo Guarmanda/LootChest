@@ -1,7 +1,6 @@
 package fr.black_eyes.lootchest.commands;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import org.bukkit.Bukkit;
@@ -15,34 +14,98 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.util.BlockIterator;
-
 import fr.black_eyes.lootchest.Config;
+import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
 
 
 public class LootchestCommand extends Utils implements CommandExecutor, TabCompleter  {
-
+    public static int dc;
 	public static  HashMap<org.bukkit.entity.Player, String> editinv = new HashMap<org.bukkit.entity.Player, String>();
 	public static HashMap<org.bukkit.entity.Player, String> menuName = new HashMap<org.bukkit.entity.Player, String>();
 	Config config = Main.getConfigFiles();
 	 FileConfiguration data = Main.getConfigFiles().getData();
 	 FileConfiguration lang = Main.getConfigFiles().getLang();
+	 
+	 
+/*public Vector perp(Vector onto, Vector u) {
+	return u.clone().subtract(proj(onto, u));
+}
+
+public Vector proj(Vector onto, Vector u) {
+    return onto.clone().multiply(onto.dot(u) / onto.lengthSquared());
+}
+
+public void drawInPlane(Player p) {
+
+	    // We will use these for drawing our parametric curve on the plane:
+	double twopi = 2 * Math.PI;
+	double times = 1 * twopi;
+	double division = twopi / 100;
+	//This is how far away we want the plane's origin to be:
+	double radius = 2;
+	
+	Location c = p.getEyeLocation();
+	Vector nv = c.getDirection().normalize();
+	double nx = radius * nv.getX() + c.getX();
+	double ny = radius * nv.getY() + c.getY();
+	double nz = radius * nv.getZ() + c.getZ();
+	Vector ya = perp(nv, new Vector(0, 1, 0)).normalize();
+	Vector xa = ya.getCrossProduct(nv).normalize();
+	nv.multiply(-1);
+	for (double theta = 0; theta < 50; theta += division) {
+		double angle = 2 * Math.PI * theta/50;
+		 double ax = Math.cos(angle) * radius;
+	     double az = Math.sin(angle) * radius;
+	    // Coordinates with respect to our basis
+	    double xb = ax; //calculate x coordinate
+	    double yb = az; //calculate y coordinate
+	    double zb = 0;
+	    double xi = xa.getX() * xb + ya.getX() * yb + nv.getX() * zb;
+	    double yi = xa.getY() * xb + ya.getY() * yb + nv.getY() * zb;
+	    double zi = xa.getZ() * xb + ya.getZ() * yb + nv.getZ() * zb;
+	 // Translate the coordinates in front of the player
+	    double x = xi + nx;
+	    double y = yi + ny;
+	    double z = zi + nz;
+	
+	    // Spawn your particle
+	        p.spawnParticle(Particle.VILLAGER_HAPPY, new Location(c.getWorld(), x, y, z), 1, 0, 0, 0, 0);
+	       
+	}
+
+}*/
+	 
+	 
+	 
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
 			org.bukkit.entity.Player player= null;
 			if(sender instanceof org.bukkit.entity.Player) {
 				player = (org.bukkit.entity.Player)sender;
 			}
+			Lootchest lc = null;
+			if (!hasPerm(sender, args[0])) {
+				return false;
+			}
+			if (args.length>1 && !Main.LootChest.containsKey(args[1]) && !args[0].equalsIgnoreCase("create")){
+				msg(sender, "chestDoesntExist", "[Chest]", args[1]);
+				return false;
+			}else if(args.length>1 && !args[0].equalsIgnoreCase("create")){
+				lc = Main.LootChest.get(args[1]);
+			}
 			if(args.length ==2) {
+				
 				switch(args[0]) {
+				//case "circle":
 
+
+					//drawInPlane(player);
 				case "create":
-					if (!hasPerm(sender, "create")) {
-						return false;
-					}
-					else if(!(sender instanceof org.bukkit.entity.Player)) {
-						sender.sendMessage("§cPlease, run this command in-game");
+					if(!(sender instanceof org.bukkit.entity.Player)) {
+						sender.sendMessage("Â§cPlease, run this command in-game");
 						return false;
 					}
 					Block chest;
@@ -66,12 +129,14 @@ public class LootchestCommand extends Utils implements CommandExecutor, TabCompl
 					else if (isEmpty(((Chest) chest.getState()).getInventory())) {
 						msg(sender, "chestIsEmpy", " ", " ");
 					}
-					else if (data.isSet("chests." + args[1] + ".time")){
+					else if (Main.LootChest.containsKey(args[1])){
 						msg(sender, "chestAlreadyExist", "[Chest]", args[1]);
 					}
 					else {
-						saveChest(chest, args[1]);
+						Main.LootChest.put(args[1], new Lootchest(chest, args[1]));
+
 						msg(sender, "chestSuccefulySaved", "[Chest]", args[1]);
+						updateData(Main.LootChest.get(args[1]));
 						editinv.put(player, args[1]);
 						menuName.put(player, getMsg("Menu.main.name", "[Chest]", args[1]));
 						mainInv(player, args[1]);
@@ -80,15 +145,9 @@ public class LootchestCommand extends Utils implements CommandExecutor, TabCompl
 					
 					
 				case "edit":
-					if (!hasPerm(sender, "edit")) {
+					if(!(sender instanceof org.bukkit.entity.Player)) {
+						sender.sendMessage("Â§cPlease, run this command in-game");
 						return false;
-					}
-					else if(!(sender instanceof org.bukkit.entity.Player)) {
-						sender.sendMessage("§cPlease, run this command in-game");
-						return false;
-					}
-					else if (!data.isSet("chests." + args[1] + ".time")){
-						msg(sender, "chestDoesntExist", "[Chest]", args[1]);
 					}
 					else {
 						editinv.put(player, args[1]);
@@ -98,85 +157,53 @@ public class LootchestCommand extends Utils implements CommandExecutor, TabCompl
 					break;	
 					
 				case "remove":
-					if (!hasPerm(sender, "remove")) {
-						return false;
-					}
-					if (!data.isSet("chests." + args[1] + ".time")){
-						msg(sender, "chestDoesntExist", "[Chest]", args[1]);
-						return false;
-					}
-					deleteChest(args[1]);
+					data.set("chests."+ lc.getName(), null);
+					config.saveData();
+					deleteChest(lc);
 					msg(sender, "chestDeleted", "[Chest]", args[1]);
 					break;
 				case "togglefall":
-					if (!hasPerm(sender, "togglefall")) {
-						return false;
-					}
-					boolean fall = data.getBoolean("chests." + args[1] +".fall");
+					boolean fall = lc.getFall();
 					if(fall) {
-						data.set("chests." + args[1] + ".fall", false);
+						lc.setFallEffect(false);
 						msg(sender, "disabledFallEffect", "[Chest]", args[1]);
 					} else {
-						data.set("chests." + args[1] + ".fall", true);
+						lc.setFallEffect(true);
 						msg(sender, "enabledFallEffect", "[Chest]", args[1]);
 					}
+					updateData(lc);
 					break;
 				case "setpos":
-					if (!hasPerm(sender, "setpos")) {
-						return false;
-					}
-					else if (!data.isSet("chests." + args[1] + ".time")){
-						msg(sender, "chestDoesntExist", "[Chest]", args[1]);
-						return false;
-					}
-					changepos(args[1], player.getLocation());
+					changepos(lc, player.getLocation().getBlock().getLocation());
+					updateData(lc);
 					msg(sender, "changedPosition", "[Chest]", args[1]);
 					break;
 				case "tp":
-					if (!hasPerm(sender, "tp")) {
-						return false;
-					}
-					else if (!data.isSet("chests." + args[1] + ".time")){
-						msg(sender, "chestDoesntExist", "[Chest]", args[1]);
-						return false;
-					}
-					Location loc = getPosition(args[1]);
-					if(getRandomPosition(args[1]) != null) {
-						loc = getRandomPosition(args[1]);
-					}
+					Location loc = lc.getActualLocation();
 					player.teleport(loc);
 					msg(sender, "teleportedToChest", "[Chest]", args[1]);
 					break;
 					
 					
 				case "respawn":
-					if (!hasPerm(sender, "respawn")) {
-						return false;
-					}
-					else if (!data.isSet("chests." + args[1] + ".time")){
-						msg(sender, "chestDoesntExist", "[Chest]", args[1]);
-					}
-					else {
-						if(getPosition(args[1]).getWorld() != null) {
-							restoreChest(args[1], true);
-							msg(sender, "succesfulyRespawnedChest", "[Chest]", args[1]);
-							if(config.getData().getBoolean("chests." + args[1] + ".respawn_cmd") ) {
-								Block block = getPosition(args[1]).getBlock();
-								if(data.isSet("chests."+args[1]+".randomradius")) {
-									block = getRandomPosition(args[1]).getBlock();
-								}
-								String holo = data.getString("chests." + args[1] + ".holo");
-								if(!config.getConfig().getBoolean("respawn_notify.per_world_message")) {
-									Bukkit.broadcastMessage((((Main.getInstance().getConfig().getString("respawn_notify.respawn_with_command.message").replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "§"));							
-								}else {
-									for(org.bukkit.entity.Player p : block.getWorld().getPlayers()){
-										p.sendMessage((((config.getConfig().getString("respawn_notify.respawn_with_command.message").replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "§"));							
-										
-									}
+
+					if(Bukkit.getWorld(lc.getWorld()) != null) {
+						restoreChest(lc, true);
+						msg(sender, "succesfulyRespawnedChest", "[Chest]", args[1]);
+						if(lc.getRespawnCMD()) {
+							Block block = lc.getActualLocation().getBlock();
+							String holo = lc.getHolo();
+							if(!config.getConfig().getBoolean("respawn_notify.per_world_message")) {
+								Bukkit.broadcastMessage((((Main.getInstance().getConfig().getString("respawn_notify.respawn_with_command.message").replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "Â§"));							
+							}else {
+								for(org.bukkit.entity.Player p : block.getWorld().getPlayers()){
+									p.sendMessage((((config.getConfig().getString("respawn_notify.respawn_with_command.message").replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "Â§"));							
+									
 								}
 							}
 						}
 					}
+					
 					break;
 				
 				default:
@@ -185,39 +212,44 @@ public class LootchestCommand extends Utils implements CommandExecutor, TabCompl
 				}
 			}
 			else if(args.length == 1) {
-
 				if(args[0].equalsIgnoreCase("respawnall")) {
-					if (!hasPerm(sender, "respawnall")) {
-						return false;
-					}
-					for(String keys : data.getConfigurationSection("chests").getKeys(false)) {
-						if(getPosition(keys).getWorld() != null) {
-							restoreChest(keys, true);
+					for(Lootchest keys : Main.LootChest.values()) {
+						if(Bukkit.getWorld(keys.getWorld()) != null) {
+							Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), new Runnable() {
+								@Override
+								public void run() {
+
+								Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), new Runnable() {
+								@Override
+								public void run() {
+									restoreChest(keys, true);
+								}
+								}, 0L);
+								}
+
+								}, 20L);
+							
+
+							
 						}
 					}
 					if(Main.getInstance().getConfig().getBoolean("respawn_notify.respawn_all_with_command.enabled") ) {
-						Bukkit.broadcastMessage(Main.getInstance().getConfig().getString("respawn_notify.respawn_all_with_command.message").replaceAll("&", "§"));
+						Bukkit.broadcastMessage(Main.getInstance().getConfig().getString("respawn_notify.respawn_all_with_command.message").replaceAll("&", "Â§"));
 					}
 					msg(sender, "AllChestsReloaded", " ", " ");
 				}
 				else if(args[0].equalsIgnoreCase("reload")) {
-					if (!hasPerm(sender, "reload")) {
-						return false;
-					}
 					config.reloadConfig();
-	            	for(String keys : data.getConfigurationSection("chests").getKeys(false)) {
-	            		if(getPosition(keys).getWorld() != null) {
+	            	for(Lootchest keys : Main.LootChest.values()) {
+	            		if(Bukkit.getWorld(keys.getWorld()) != null) {
 	            			restoreChest(keys, false);
 	            		}
 	            	}
 					msg(sender, "PluginReloaded", " ", " ");
 				}
 				else if(args[0].equalsIgnoreCase("list")) {
-					if (!hasPerm(sender, "list")) {
-						return false;
-					}
 					final StringBuilder bc = new StringBuilder();
-					for(String keys : data.getConfigurationSection("chests").getKeys(false)) {
+					for(String keys : Main.LootChest.keySet()) {
 						bc.append(" " + String.valueOf(keys));
 					}
 					msg(sender, "ListCommand", "[List]", bc.toString());
@@ -234,74 +266,46 @@ public class LootchestCommand extends Utils implements CommandExecutor, TabCompl
 						for (int i = 3; i<args.length; i++) {
 							bc.append(" " + String.valueOf(args[i]));
 						}
+						
                     }
-					if (!hasPerm(sender, "setholo")) {
-						return false;
-					}
-					else if (!data.isSet("chests." + args[1] + ".time")){
-						msg(sender, "chestDoesntExist", "[Chest]", args[1]);
-					}
-					else {
-						data.set("chests." + args[1] + ".holo", bc.toString());
-						msg(sender, "hologram_edited", "[Chest]", args[1]);
-						restoreChest(args[1], false);
-					}
+					lc.setHolo(bc.toString());
+					updateData(lc);
+					msg(sender, "hologram_edited", "[Chest]", args[1]);
+					restoreChest(lc, false);
+					
 				}
 				else if(args[0].equalsIgnoreCase("settime")) {
-					if (!hasPerm(sender, "settime")) {
-						return false;
-					}
-					else if (!data.isSet("chests." + args[1] + ".time")){
-						msg(sender, "chestDoesntExist", "[Chest]", args[1]);
-						return false;
-					}
-					data.set("chests."+args[1]+".time", args[2]);
-					config.reloadData();
-					restoreChest(args[1], true);
+					lc.setTime(Integer.parseInt(args[2]));
+					updateData(lc);
+					restoreChest(lc, true);
 					msg(sender, "settime", "[Chest]", args[1]);
 				}
 				
 				
 				else if(args[0].equalsIgnoreCase("give")) {
-					org.bukkit.entity.Player arg1 = Bukkit.getPlayerExact(args[1]);
-					if (!hasPerm(sender, "give")) {
-						return false;
-					}
-					
-					else if (!data.isSet("chests." + args[2] + ".time")){
-						msg(sender, "chestDoesntExist", "[Chest]", args[2]);
-					}
-					else if(arg1 == null) {
-						msg(sender, "PlayerIsNotOnline", "[Player]", args[1]);
+					org.bukkit.entity.Player arg2 = Bukkit.getPlayerExact(args[2]);
+					if(arg2 == null) {
+						msg(sender, "PlayerIsNotOnline", "[Player]", args[2]);
 					}
 					else {
-						String msg = getMsg("giveto", "[Chest]", args[2]);
-						sender.sendMessage(msg.replace("[Player]", args[1]));
-						msg = getMsg("givefrom", "[Chest]", args[2]);
-						Bukkit.getServer().getPlayer(args[1]).sendMessage(msg.replace("[Player]", sender.getName()));
-						fillInventory(args[2], arg1.getInventory(), false, arg1);
+						String msg = getMsg("giveto", "[Chest]", args[1]);
+						sender.sendMessage(msg.replace("[Player]", args[2]));
+						msg = getMsg("givefrom", "[Chest]", args[1]);
+						Bukkit.getServer().getPlayer(args[2]).sendMessage(msg.replace("[Player]", sender.getName()));
+						fillInventory(lc, arg2.getInventory(), false, arg2);
 					}
 				}
 				else if(args[0].equalsIgnoreCase("randomspawn")) {
-					if (!hasPerm(sender, "randomspawn")) {
-						return false;
+					lc.setRadius(Integer.parseInt(args[2]));
+					msg(sender, "chestRadiusSet", "[Chest]", args[1]);
+					restoreChest(lc, true);
+					if(Integer.parseInt(args[2]) == 0) {
+						lc.setRandomLocation(null);
 					}
-					else if (!data.isSet("chests." + args[1] + ".time")){
-						msg(sender, "chestDoesntExist", "[Chest]", args[1]);
-					}
-					else if (Integer.parseInt(args[2]) >0) {
-						data.set("chests."+args[1]+".randomradius", Integer.parseInt(args[2]));
-						msg(sender, "chestRadiusSet", "[Chest]", args[1]);
-
-						restoreChest(args[1], true);
-					}
-					else if(Integer.parseInt(args[2]) == 0) {
+					updateData(lc);
 						
-						msg(sender, "disabledChestRadius", "[Chest]", args[1]);
-						restoreChest(args[1], true);
-						data.set("chests."+args[1]+".randomradius", null);
-						data.set("chests."+args[1]+".randomPosition", null);
-					}
+					
+
 				}
 				
 				
@@ -321,7 +325,7 @@ public class LootchestCommand extends Utils implements CommandExecutor, TabCompl
 	public void displayhelp(CommandSender p) {
 		List<String> help = config.getLang().getStringList("help");
 		for(int i=0; i<help.size();i++) {
-			p.sendMessage(help.get(i).replace("&", "§"));
+			p.sendMessage(help.get(i).replace("&", "Â§"));
 		}
 	}
 
@@ -335,14 +339,19 @@ public class LootchestCommand extends Utils implements CommandExecutor, TabCompl
 	
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String msg, String[] args) {
-		final String[] completions0 = { "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "reload", "list", "setpos", "give", "randomspawn", "tp", "settime"};
+		final String[] completions0 = { "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "reload", "list", "setpos", "give", "randomspawn", "tp", "settime","togglefall"};
 		final List<String> chests = new ArrayList<String>();
 		for(String g: data.getConfigurationSection("chests").getKeys(false)){
 			chests.add(g);
 			
 		}
+		/*completion improved by alessevan*/
 		if(args.length == 1){
-			return Arrays.asList(completions0);
+		    final List<String> completions = new ArrayList<>();
+		    for(final String string : completions0){
+		        if(string.toLowerCase().startsWith(args[0].toLowerCase())) completions.add(string);
+		    }
+		    return completions;
 		}
 		else if(args.length ==2) {
 			if(args[0].equalsIgnoreCase("randomspawn") || args[0].equalsIgnoreCase("edit") || args[0].equalsIgnoreCase("respawn") || args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("setholo") || args[0].equalsIgnoreCase("setpos")|| args[0].equalsIgnoreCase("tp") || args[0].equalsIgnoreCase("give")|| args[0].equalsIgnoreCase("settime") || args[0].equalsIgnoreCase("togglefall") ) {
