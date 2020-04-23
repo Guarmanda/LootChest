@@ -16,8 +16,10 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.plugin.Plugin;
 
 import fr.black_eyes.lootchest.Config;
 import fr.black_eyes.lootchest.Lootchest;
@@ -51,10 +53,29 @@ public class DeleteListener extends Utils implements Listener  {
                     }
                     else {
                     	openInvs.put(p, b.getLocation());
+
                     }
                     
                 }
         }
+    }
+    
+    @EventHandler
+    public void openInventory(InventoryOpenEvent e) {
+    	Player p = (Player) e.getPlayer();
+    	if(openInvs.containsKey(p)) {
+    		Lootchest keys = isLootChest(openInvs.get(p));
+    		if(keys != null) {
+                Main.getInstance().getServer().getScheduler().runTaskLater((Plugin)Main.getInstance(), (Runnable)new Runnable() {
+                    @Override
+                    public void run() {
+                    	
+                        
+                    }
+                },  20L);
+    			
+    		}
+    	}
     }
     
     @EventHandler
@@ -63,7 +84,7 @@ public class DeleteListener extends Utils implements Listener  {
     	Player p = Bukkit.getPlayer(e.getPlayer().getName());
     	if((isEmpty(inv) || config.getConfig().getBoolean("RemoveChestAfterFirstOpenning")) && openInvs.containsKey(p)) {
     		Lootchest keys = isLootChest(openInvs.get(p));
-    		if(!keys.equals(null)) {
+    		if(keys != null) {
     			Location loc = openInvs.get(p);
     			if((config.getConfig().getBoolean("RemoveEmptyChests") && isEmpty(inv)) || config.getConfig().getBoolean("RemoveChestAfterFirstOpenning")) {
     				inv.clear();
@@ -106,7 +127,7 @@ public class DeleteListener extends Utils implements Listener  {
 	    	}
     		Lootchest keys = isLootChest(e.getBlock().getLocation());
 
-    		if(!keys.equals(null)) {
+    		if(keys!=null) {
     			Location loc = e.getBlock().getLocation();
     			deleteholo(loc);
     	        final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
@@ -132,7 +153,7 @@ public class DeleteListener extends Utils implements Listener  {
     	    		return;
     	    	}
     			Lootchest keys = isLootChest(chest.getLocation());
-        		if(!keys.equals(null)) {
+        		if(keys != null) {
         			Location loc = chest.getLocation();
         			deleteholo(loc);
         	        final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
@@ -160,7 +181,7 @@ public class DeleteListener extends Utils implements Listener  {
 
     	if(block.getType() == Material.HOPPER) {
     		for(Block blockabove : blocksabove) {
-	    		if(!isLootChest(blockabove.getLocation()).equals(null)) {
+	    		if(isLootChest(blockabove.getLocation()) != null) {
 	    			if(config.getConfig().getBoolean("PreventHopperPlacingUnderLootChest")) {
 	    				e.setCancelled(true);
 	    			}

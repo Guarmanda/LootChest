@@ -29,6 +29,7 @@ public class Lootchest extends Utils {
 	
 	/*Function used in Main / reload for chest loading */
 	Lootchest(String naming) {
+
 		name = naming;
 		Integer[] chancesInit = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 		chances = chancesInit;
@@ -56,13 +57,17 @@ public class Lootchest extends Utils {
 		take_msg =  config.getData().getBoolean("chests." + naming + ".take_message");
 		world = config.getData().getString("chests." + naming + ".position.world");
 		direction = config.getData().getString("chests." + naming + ".direction");
+		lastreset = config.getData().getLong("chests." + name + ".lastreset");
 	}
 	
 	
 	/*Function used for /lc create */
 	public Lootchest(Block chest, String naming){
+
 		name = naming;
 		inv = Bukkit.createInventory(null, 27);
+		Integer[] chancesInit = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+		chances = chancesInit;
 		Inventory inve = ((Chest) chest.getState()).getInventory();
 		for(int i = 0 ; i < inve.getSize() ; i++) {
 			if(inve.getItem(i) != null) {
@@ -84,11 +89,12 @@ public class Lootchest extends Utils {
 	   	world = chest.getWorld().getName();
 		((Chest) chest.getLocation().getBlock().getState()).getInventory().clear();
 		chest.getLocation().getBlock().setType(Material.AIR);
-		restoreChest(Main.LootChest.get(name), true);
+		
 	}
 	
 	/*Function used at defined time in config and at plugin stop for saving chests */
 	void saveInConfig(){
+
 			config.getData().set("chests." + name + ".inventory", null);
 			for(int i = 0 ; i < inv.getSize() ; i++) {
 				if(inv.getItem(i) != null && inv.getItem(i).getType() != Material.AIR) {
@@ -102,7 +108,7 @@ public class Lootchest extends Utils {
 			config.getData().set("chests." + name + ".take_message", take_msg);
 			
 			config.getData().set("chests." + name + ".direction", direction);
-			config.getData().set("chests." + name + ".holo", name);
+			config.getData().set("chests." + name + ".holo", holo);
 			config.getData().set("chests." + name + ".time", time);
 			setPosition(name, globalLoc);
 			config.getData().set("chests." + name + ".lastreset", lastreset);
@@ -116,7 +122,7 @@ public class Lootchest extends Utils {
 	
 	public String getName() {				return name;		}
 	public Location getPosition() {			return globalLoc.clone();	}
-	public Location getRandomPosition() {	return randomLoc.clone();	}
+	public Location getRandomPosition() {	return (randomLoc!=null)?randomLoc.clone():null;	}
 	public long getLastReset() {			return lastreset;	}
 	public String getHolo() {				return holo;		}
 	public String getParticle() {			return particle;	}

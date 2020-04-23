@@ -59,8 +59,7 @@ public class Utils  {
 		chest2.randomLoc = chest1.randomLoc.clone();
 		chest2.take_msg = chest1.take_msg;
 		chest2.radius = chest1.radius;
-		
-		Main.getConfigFiles().reloadData();
+		updateData(chest2);
 		restoreChest(chest2, true);
 	}
 	
@@ -129,36 +128,37 @@ public class Utils  {
             public void run() {
             	restoreChest(lc, false);
             }                
-        }.runTaskLater(Main.getInstance(), (minutes*60-((tempsactuel - tempsenregistre)/1000))*20);
+        }.runTaskLater(Main.getInstance(), (minutes*60-((tempsactuel - tempsenregistre)/1000))*20+5*20);
     }
 	
 	//to fill a chest or give chest to player
-	public void fillInventory(Lootchest name, Inventory inv, boolean clear, Player p) {
-		if(clear) {
-			inv.clear();
-		}
-		if(p!=null) {
-			for(ItemStack keys : name.inv.getContents()) {
-				if(keys == null || keys.getType().equals(Material.AIR)) {
-					
-				}
-				else if(p.getInventory().firstEmpty() != -1) {
-					inv.addItem(keys);
-				}else {
-					p.getWorld().dropItem(p.getLocation(), keys);
-				}
-			}
-		}
-		else {
-			for(int i=0; i<=26; i++) {
-				inv.setItem(i, name.inv.getItem(i));
-			}
-		}
-		
-	}
+    public void fillInventory(Lootchest name, final Inventory inv, final boolean clear, final Player p) {
+        if (clear) {
+            inv.clear();
+        }
+        for (int i=0; i<26; i++){
+        	if(name.inv.getItem(i) != null && !name.inv.getItem(i).getType().equals(Material.AIR)) {
+	            final ItemStack item = name.inv.getItem(i);
+	            final int slot = i;
+	            final int percent = ThreadLocalRandom.current().nextInt(0, 101);
+	            if (percent <= name.chances[i]) {
+	            	
+	                if (inv.getItem(slot) == null || inv.getItem(slot).getType() == Material.AIR) {
+	                    inv.setItem(slot, item);
+	                }
+	                else if (p != null && p.getInventory().firstEmpty() == -1) {
+	                    p.getWorld().dropItem(p.getLocation(), item);
+	                }
+	                else {
+	                    inv.addItem(new ItemStack[] { item });
+	                }
+	            }
+        	}
+        }
+    }
 	
 	
-	void reactivateEffects(Lootchest lc) {
+	public void reactivateEffects(Lootchest lc) {
 		Location loc = lc.getActualLocation();
 		if(!loc.getBlock().getType().equals(Material.CHEST)) {
 			return;
@@ -215,7 +215,7 @@ public class Utils  {
 				randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos)+1);
 			}
 
-			if(lc.radius !=0) {
+			if(lc.radius !=0 && lc.randomLoc != null) {
 				loc = lc.randomLoc.clone();
 			}
 
@@ -235,7 +235,7 @@ public class Utils  {
 		long tempsenregistre = lc.lastreset;
 
 		if((tempsactuel - tempsenregistre > minutes && minutes>-1) || force) {
-			int height = Main.getInstance().getConfig().getInt("Fall_Effect_Height");
+			int height = Main.getInstance().getConfig().getInt("Fall_Effect.Height");
 			if(lc.radius!=0 && loc3 != newloc && block.getType().equals( Material.CHEST)) {
 				deleteholo(loc3);
 				((Chest) block.getState()).getInventory().clear();
@@ -252,8 +252,10 @@ public class Utils  {
 			if(!force && lc.respawn_natural && num <= players ) {
 				String holo = lc.holo;
 				if(!Main.getInstance().getConfig().getBoolean("respawn_notify.per_world_message")) {
-					Bukkit.broadcastMessage((((Main.getInstance().getConfig().getString("respawn_notify.natural_respawn.message").replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
-			
+					for(Player p : Bukkit.getOnlinePlayers()) {
+						p.sendMessage((((Main.getInstance().getConfig().getString("respawn_notify.natural_respawn.message").replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
+					}
+						
 				}else {
 					for(Player p : loc.getWorld().getPlayers()){
 						p.sendMessage((((Main.getInstance().getConfig().getString("respawn_notify.natural_respawn.message").replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
@@ -267,9 +269,10 @@ public class Utils  {
 			if(lc.fall&& (num <= players || force) ) {
 				
 				Location startloc = new Location(newloc.getWorld(), newloc.getX()+0.5, newloc.getY()+height, newloc.getZ()+0.5);
-				if(startloc.getWorld().isChunkLoaded(startloc.getBlockX()/16, startloc.getBlockZ()/16)) {
+				Boolean loaded = startloc.getWorld().isChunkLoaded(startloc.getBlockX()/16, startloc.getBlockZ()/16) ;
+				if(loaded || config.getConfig().getBoolean("Fall_Effect.Let_Block_Above_Chest_After_Fall")) {
 
-					new FallingPackageEntity(startloc);
+					new FallingPackageEntity(startloc, loaded, theloc);
 
 		                	
 		                	spawnChest(lc, newblock, theloc, force);
@@ -294,7 +297,7 @@ public class Utils  {
 		}
 		else {
 			//Main.getInstance().getLogger().info("time: "+ ((new Timestamp(System.currentTimeMillis())).getTime() - tempsenregistre) + " ; defined time: "+ minutes);
-			//sheduleRespawn(name);
+			sheduleRespawn(lc);
 		}
 		
 		return ((tempsactuel - tempsenregistre > minutes && minutes>=0) || force);
@@ -368,6 +371,7 @@ public class Utils  {
 
 	//check if a chest is a lootchest by looking all lootchests locations
 	public  Lootchest isLootChest(Location loc) {
+		
 		for(Lootchest keys : Main.LootChest.values()) {
 			Location loc2 = keys.getActualLocation();
 			if(loc2.equals(loc)) {
@@ -441,11 +445,16 @@ public class Utils  {
 	public  void deleteholo(Location loc) {
 		if(!org.bukkit.Bukkit.getVersion().contains("1.7")){
 			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
+			for(Entity ent : loc2.getChunk().getEntities()) {
+				if(ent instanceof org.bukkit.entity.ArmorStand && ent.getLocation().distance((loc2.clone()).add(0,1,0)) < 1) {
+					if(!(( org.bukkit.entity.ArmorStand) ent).isVisible()) ent.remove();
+				}
+			}
 			loc2.add(0.5, Main.getInstance().getConfig().getInt("Hologram_distance_to_chest"), 0.5);
 			//the coordinates of a block are at the corner of the block
 			for(Entity ent : loc2.getChunk().getEntities()) {
-				if(ent instanceof org.bukkit.entity.ArmorStand && ent.getLocation().distance(loc2) <1.1) {
-					ent.remove();
+				if(ent instanceof org.bukkit.entity.ArmorStand && ent.getLocation().distance(loc2) <1) {
+					if(!(( org.bukkit.entity.ArmorStand) ent).isVisible()) ent.remove();
 				}
 			}
 		}
@@ -490,9 +499,9 @@ public class Utils  {
 	//Inventaires
 	public  void invChances(Player p, Lootchest name) {
 		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.chances.name", "[Chest]", name.name));
-		for(int i = 0; i < inv.getSize(); i++) {
-			ItemStack item = inv.getItem(i);
-			if(item.getType() != Material.AIR) {
+		for(int i = 0; i < name.inv.getSize(); i++) {
+			if(name.inv.getItem(i) != null && name.inv.getItem(i).getType()!= Material.AIR) {
+				ItemStack item = name.inv.getItem(i).clone();
 				List<String> lore = new ArrayList<String>();
 				lore.add(getMsg("Menu.chances.lore", "[Chest]", name.name));
 				lore.add(name.chances[i]+ "%");

@@ -48,12 +48,28 @@ public class Config {
 		}
 	}
 	
+	public void saveConfig() {
+		try {
+			config.save(getConfigF());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	public void saveLang() {
+		try {
+			lang.save(getLangF());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	//function to update config on new version
 	public void setConfig(String path, Object value) {
 		if(this.getConfig().isSet(path))
 			return;
 		else
 			getConfig().set(path, value);
+			Main.logInfo("Added config option '"+path+"' in config.yml");
 			try {
 				getConfig().save(getConfigF());
 				getConfig().load(getConfigF());
@@ -68,6 +84,7 @@ public class Config {
 			return;
 		else
 			getLang().set(path, value);
+			Main.logInfo("Added message '"+path+"' in lang.yml");
 			try {
 				getLang().save(getLangF());
 				getLang().load(getLangF());

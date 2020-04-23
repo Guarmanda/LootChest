@@ -13,6 +13,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.util.BlockIterator;
 import fr.black_eyes.lootchest.Config;
 import fr.black_eyes.lootchest.Lootchest;
@@ -87,7 +88,7 @@ public void drawInPlane(Player p) {
 				player = (org.bukkit.entity.Player)sender;
 			}
 			Lootchest lc = null;
-			if (!hasPerm(sender, args[0])) {
+			if (args.length > 0 && !hasPerm(sender, args[0])) {
 				return false;
 			}
 			if (args.length>1 && !Main.LootChest.containsKey(args[1]) && !args[0].equalsIgnoreCase("create")){
@@ -99,7 +100,6 @@ public void drawInPlane(Player p) {
 			if(args.length ==2) {
 				
 				switch(args[0]) {
-				//case "circle":
 
 
 					//drawInPlane(player);
@@ -134,7 +134,7 @@ public void drawInPlane(Player p) {
 					}
 					else {
 						Main.LootChest.put(args[1], new Lootchest(chest, args[1]));
-
+						restoreChest(Main.LootChest.get(args[1]), true);
 						msg(sender, "chestSuccefulySaved", "[Chest]", args[1]);
 						updateData(Main.LootChest.get(args[1]));
 						editinv.put(player, args[1]);
@@ -194,11 +194,14 @@ public void drawInPlane(Player p) {
 							Block block = lc.getActualLocation().getBlock();
 							String holo = lc.getHolo();
 							if(!config.getConfig().getBoolean("respawn_notify.per_world_message")) {
-								Bukkit.broadcastMessage((((Main.getInstance().getConfig().getString("respawn_notify.respawn_with_command.message").replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "§"));							
+								for(Player p : Bukkit.getOnlinePlayers()) {
+									p.sendMessage((((Main.getInstance().getConfig().getString("respawn_notify.respawn_with_command.message").replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "§"));							
+								}
+								
 							}else {
 								for(org.bukkit.entity.Player p : block.getWorld().getPlayers()){
 									p.sendMessage((((config.getConfig().getString("respawn_notify.respawn_with_command.message").replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "§"));							
-									
+								
 								}
 							}
 						}
@@ -212,39 +215,65 @@ public void drawInPlane(Player p) {
 				}
 			}
 			else if(args.length == 1) {
-				if(args[0].equalsIgnoreCase("respawnall")) {
-					for(Lootchest keys : Main.LootChest.values()) {
-						if(Bukkit.getWorld(keys.getWorld()) != null) {
-							Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), new Runnable() {
-								@Override
-								public void run() {
-
-								Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), new Runnable() {
-								@Override
-								public void run() {
-									restoreChest(keys, true);
-								}
-								}, 0L);
-								}
-
-								}, 20L);
-							
-
-							
-						}
+				if(args[0].equalsIgnoreCase("getname")) {
+					if(!(sender instanceof org.bukkit.entity.Player)) {
+						sender.sendMessage("§cPlease, run this command in-game");
+						return false;
 					}
+					Block chest;
+					BlockIterator iter = new BlockIterator(player, 10);
+				    Block lastBlock = iter.next();
+				    while (iter.hasNext()) {
+				        lastBlock = iter.next();
+				        if (lastBlock.getType() == Material.AIR) {
+				            continue;
+				        }
+				        break;
+				    }
+				    chest = lastBlock;
+				    Lootchest l = isLootChest(chest.getLocation());
+				    
+					if (chest.getType() != Material.CHEST || l == null) {
+						msg(sender, "notAChest", " ", " ");
+					}
+					else if (l!=null){
+						msg(sender, "commandGetName", "[Chest]", l.getName());
+					}
+				}
+				else if(args[0].equalsIgnoreCase("respawnall")) {
+					for (final Lootchest l : Main.LootChest.values()) {
+			            Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
+			                    Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
+			                            restoreChest(l, true) ;
+
+			                    }, 0L);
+			            }, 5L);
+			        }
 					if(Main.getInstance().getConfig().getBoolean("respawn_notify.respawn_all_with_command.enabled") ) {
-						Bukkit.broadcastMessage(Main.getInstance().getConfig().getString("respawn_notify.respawn_all_with_command.message").replaceAll("&", "§"));
+						for(Player p : Bukkit.getOnlinePlayers()) {
+							p.sendMessage(Main.getInstance().getConfig().getString("respawn_notify.respawn_all_with_command.message").replaceAll("&", "§"));
+					
+						}
 					}
 					msg(sender, "AllChestsReloaded", " ", " ");
 				}
 				else if(args[0].equalsIgnoreCase("reload")) {
+					updateData();
 					config.reloadConfig();
-	            	for(Lootchest keys : Main.LootChest.values()) {
-	            		if(Bukkit.getWorld(keys.getWorld()) != null) {
-	            			restoreChest(keys, false);
-	            		}
-	            	}
+					Main.part.clear();
+					for (final Lootchest l : Main.LootChest.values()) {
+						if(Bukkit.getWorld(l.getWorld()) != null) {
+				            Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
+				                    Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
+	        							if (!restoreChest(l, false)) {
+	        								sheduleRespawn(l);
+	        							}
+	        							reactivateEffects(l);
+	
+				                    }, 0L);
+				            }, 5L);
+						}
+					}
 					msg(sender, "PluginReloaded", " ", " ");
 				}
 				else if(args[0].equalsIgnoreCase("list")) {
@@ -297,11 +326,35 @@ public void drawInPlane(Player p) {
 				}
 				else if(args[0].equalsIgnoreCase("randomspawn")) {
 					lc.setRadius(Integer.parseInt(args[2]));
-					msg(sender, "chestRadiusSet", "[Chest]", args[1]);
-					restoreChest(lc, true);
+					if(Integer.parseInt(args[2]) != 0) {
+						msg(sender, "chestRadiusSet", "[Chest]", args[1]);
+					}
+					
+					Location loc;
+					if(lc.getRandomPosition()!=null) {
+						loc = lc.getRandomPosition();
+						if(loc.getBlock().getType().equals(Material.CHEST)) {
+							deleteholo(loc);
+							((Chest) loc.getBlock().getState()).getInventory().clear();
+							loc.getBlock().setType(Material.AIR);
+							loc.add(0.5,0.5,0.5);
+							Main.part.remove(loc);
+						}
+					}
+					loc = lc.getPosition();
+					if(loc.getBlock().getType().equals(Material.CHEST)) {
+						deleteholo(loc);
+						((Chest) loc.getBlock().getState()).getInventory().clear();
+						loc.getBlock().setType(Material.AIR);
+						loc.add(0.5,0.5,0.5);
+						Main.part.remove(loc);
+					}
 					if(Integer.parseInt(args[2]) == 0) {
 						lc.setRandomLocation(null);
+						msg(sender, "disabledChestRadius", "[Chest]", args[1]);
 					}
+					restoreChest(lc, true);
+					
 					updateData(lc);
 						
 					
@@ -339,7 +392,7 @@ public void drawInPlane(Player p) {
 	
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String msg, String[] args) {
-		final String[] completions0 = { "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "reload", "list", "setpos", "give", "randomspawn", "tp", "settime","togglefall"};
+		final String[] completions0 = { "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "reload", "list", "setpos", "give", "randomspawn", "tp", "settime","togglefall", "getname"};
 		final List<String> chests = new ArrayList<String>();
 		for(String g: data.getConfigurationSection("chests").getKeys(false)){
 			chests.add(g);

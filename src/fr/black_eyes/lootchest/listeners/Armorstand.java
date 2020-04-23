@@ -26,4 +26,16 @@ public class Armorstand implements Listener {
 		}
 	}
 	
+/*	@EventHandler
+	public void invincible(PlayerInteractEvent e)
+	{
+		PotionEffect pe = new PotionEffect(PotionEffectType.LEVITATION, 20, 5);
+		if(e.getAction() == Action.LEFT_CLICK_AIR) {
+			e.getPlayer().addPotionEffect(pe);
+		}
+		else if(e.getAction() == Action.RIGHT_CLICK_AIR) {
+			e.getPlayer().removePotionEffect(PotionEffectType.LEVITATION);
+		}
+	}*/
+	
 }
