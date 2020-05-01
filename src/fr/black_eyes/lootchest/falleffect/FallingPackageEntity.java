@@ -133,13 +133,13 @@ public class FallingPackageEntity extends PackageEntity {
         		}
                 
             }
-            if (this.counter % 5 == 0 && (((Entity) this.blocky).getLocation().getY() - target.getY()) >3 && fireworks ) {
+            if (this.counter % 5 == 0 && (   (((Entity) this.blocky).getLocation().getY() - target.getY()) >3 || counter > 100) && fireworks ) {
                 this.summonUpdateFireworks();
             }
             if((((Entity) this.blocky).getLocation().getY() - target.getY()) <1) {
             	if(!this.armorstand || this.armorstand && !this.letAlive) this.remove();
             }
-            else {
+            else if(counter < 100){
             	this.retick();
             }
         }

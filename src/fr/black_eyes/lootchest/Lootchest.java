@@ -28,8 +28,7 @@ public class Lootchest extends Utils {
 	
 	
 	/*Function used in Main / reload for chest loading */
-	Lootchest(String naming) {
-
+	public Lootchest(String naming) {
 		name = naming;
 		Integer[] chancesInit = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 		chances = chancesInit;
@@ -130,6 +129,7 @@ public class Lootchest extends Utils {
 	public Boolean getFall() {				return fall;		}
 	public String getWorld() {				return world;		}
 	public Boolean getRespawnCMD() {		return respawn_cmd;	}
+	public Boolean getRespawnNatural() {		return respawn_natural;	}
 	public Boolean getTakeMessage() {		return take_msg;	}
 	public Location getActualLocation() {
 		return (radius!=0)?randomLoc.clone():globalLoc.clone();
@@ -143,6 +143,9 @@ public class Lootchest extends Utils {
 	public void setGlobalLocation(Location loc) {	globalLoc = loc;	}
 	public void setRandomLocation(Location loc) {	randomLoc = loc;	}
 	public void setFallEffect(Boolean falle) {		fall = falle;		} 
+	public void setRespawnCMD(Boolean falle) {		respawn_cmd = falle;} 
+	public void setRespawnNatural(Boolean falle) {	respawn_natural = falle;} 
+	public void setTakeMessage(Boolean falle) {		take_msg = falle;	} 
 	public void setTime(int timing) {				time = timing;		}
 	public void setRadius(int timing) {				radius = timing;	}
 	public void setInventory(Inventory inve) {

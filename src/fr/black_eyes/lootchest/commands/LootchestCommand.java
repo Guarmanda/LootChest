@@ -18,10 +18,10 @@ import org.bukkit.util.BlockIterator;
 import fr.black_eyes.lootchest.Config;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
-import fr.black_eyes.lootchest.Utils;
+import fr.black_eyes.lootchest.Menu;
 
 
-public class LootchestCommand extends Utils implements CommandExecutor, TabCompleter  {
+public class LootchestCommand extends Menu implements CommandExecutor, TabCompleter  {
     public static int dc;
 	public static  HashMap<org.bukkit.entity.Player, String> editinv = new HashMap<org.bukkit.entity.Player, String>();
 	public static HashMap<org.bukkit.entity.Player, String> menuName = new HashMap<org.bukkit.entity.Player, String>();
@@ -118,8 +118,10 @@ public void drawInPlane(Player p) {
 				        lastBlock = iter.next();
 
 				        if (lastBlock.getType() == Material.AIR) {
+				        	
 				            continue;
 				        }
+
 				        break;
 				    }
 				    chest = lastBlock;
@@ -261,6 +263,15 @@ public void drawInPlane(Player p) {
 					updateData();
 					config.reloadConfig();
 					Main.part.clear();
+					Main.LootChest.clear();
+					for(String keys : config.getData().getConfigurationSection("chests").getKeys(false)) {
+						if(org.bukkit.Bukkit.getWorld(config.getData().getString("chests." + keys + ".position.world")) != null) {
+								Main.LootChest.put(keys, new Lootchest(keys));
+						}
+						else {
+			    			Main.getInstance().getLogger().info("§cCouldn't load chest "+keys +" : the world " + config.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
+						}
+			    	}
 					for (final Lootchest l : Main.LootChest.values()) {
 						if(Bukkit.getWorld(l.getWorld()) != null) {
 				            Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {

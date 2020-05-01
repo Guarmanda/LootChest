@@ -20,10 +20,10 @@ import fr.black_eyes.lootchest.Config;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
-import fr.black_eyes.lootchest.Utils;
+import fr.black_eyes.lootchest.Menu;
 import fr.black_eyes.lootchest.commands.LootchestCommand;
 
-public class InventoryListeners extends Utils implements Listener {
+public class InventoryListeners extends Menu implements Listener {
 	
 
 	Config config = Main.getConfigFiles();
@@ -32,6 +32,15 @@ public class InventoryListeners extends Utils implements Listener {
 	public static HashMap<Player, String> particles = new HashMap<Player, String>();
 	
 	//gère la modification des coffres
+	int getLoreLine(List<String> lore) {
+		for(int i =0; i<lore.size(); i++) {
+			if(lore.get(i).contains("%")) {
+				return i;
+			}
+		}
+		return 1;
+	}
+	
 	@EventHandler
     public void oncloseInventory(InventoryCloseEvent e) {
     	Player p = Bukkit.getPlayer(e.getPlayer().getName());
@@ -64,7 +73,7 @@ public class InventoryListeners extends Utils implements Listener {
 			for(int i = 0 ; i < e.getInventory().getSize() ; i++) {
 				if(e.getInventory().getItem(i) != null) {
 					List<String> lore = e.getInventory().getItem(i).getItemMeta().getLore();
-					 lc.setChance(i, Integer.parseInt(lore.get(1).replace("%", "")));
+					 lc.setChance(i, Integer.parseInt(lore.get(getLoreLine(lore)).replace("%", "")));
 				}
 			}
 			updateData(lc);
@@ -129,11 +138,16 @@ public class InventoryListeners extends Utils implements Listener {
         	if(!Bukkit.getVersion().contains("1.13") && !Bukkit.getVersion().contains("1.14") && !Bukkit.getVersion().contains("1.15")) {
         		particules[21] = "FOOTSTEP";
         	}
-        	lc.setParticle(particules[e.getSlot()]);
+        	if(e.getSlot()<33) {
+        		lc.setParticle(particules[e.getSlot()]);
+        	}
+        	else {
+        		lc.setParticle("Disabled");
+        	}
         	Location loc = lc.getActualLocation();
         	loc.add(0.5,0.5,0.5);
 			for(Object part : Main.particules) {
-				if((""+part).contains(particules[e.getSlot()])) 
+				if(e.getSlot() < 33 && (""+part).contains(particules[e.getSlot()])) 
 					Main.part.put(loc, part);
 			}
 			updateData(lc);
@@ -191,20 +205,45 @@ public class InventoryListeners extends Utils implements Listener {
         			invChances(player, lc);
         			break;
         		case 28:
-        			e.getInventory().setItem(28, switchState("fall", chest));
+        			if(lc.getFall()) {
+        				lc.setFallEffect(false);
+        			}else {
+        				lc.setFallEffect(true);
+        			}
+        			e.getInventory().setItem(28, getEnabled("fall", lc.getFall()));
+        			updateData(lc);
         			break;
         		case 30:
-        			e.getInventory().setItem(30, switchState("respawn_cmd", chest));
+        			if(lc.getRespawnCMD()) {
+        				lc.setRespawnCMD(false);
+        			}
+        			else {
+        				lc.setRespawnCMD(true);
+        			}
+        			e.getInventory().setItem(30, getEnabled("respawn_cmd", lc.getRespawnCMD()));
+        			updateData(lc);
         			break;
         		case 32:
-        			e.getInventory().setItem(32, switchState("respawn_natural", chest));
+        			if(lc.getRespawnNatural()) {
+        				lc.setRespawnNatural(false);
+        			}else {
+        				lc.setRespawnNatural(true);
+        			}
+        			e.getInventory().setItem(32, getEnabled("respawn_natural",lc.getRespawnNatural()));
+        			updateData(lc);
         			break;
-        		case 34:	
-        			e.getInventory().setItem(34, switchState("take_message", chest));
+        		case 34:
+        			if(lc.getTakeMessage()) {
+        				lc.setTakeMessage(false);
+        			}else {
+        				lc.setTakeMessage(true);
+        			}
+        			e.getInventory().setItem(34, getEnabled("take_message", lc.getTakeMessage()));
+        			updateData(lc);
         			break;
         	}
         }
-  
+        
         else if(LootchestCommand.menuName.get(player).equals(getMsg("Menu.chances.name", "[Chest]", LootchestCommand.editinv.get(player)))) {
         	e.setCancelled(true);
         	ItemStack item = e.getCurrentItem();
@@ -212,7 +251,7 @@ public class InventoryListeners extends Utils implements Listener {
         	if(item.getType() != null && item.getType() != Material.AIR) {
 	        	if(meta.hasLore()) {
 	        		List<String> lore = meta.getLore();
-	        		Integer chance = Integer.parseInt(lore.get(1).replaceAll("%", ""));
+	        		Integer chance = Integer.parseInt(lore.get(getLoreLine(lore)).replaceAll("%", ""));
 	        			if(e.getAction() == InventoryAction.PICKUP_HALF && chance >50) {
 	        				chance-= 50;
 	        			}
@@ -229,7 +268,7 @@ public class InventoryListeners extends Utils implements Listener {
 	        				chance--;
 	        			}
 	        			
-	        			lore.set(1, chance + "%");
+	        			lore.set(getLoreLine(lore), chance + "%");
 	        			meta.setLore(lore);
 	        			item.setItemMeta(meta);
 	        		

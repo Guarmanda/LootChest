@@ -1,10 +1,6 @@
 package fr.black_eyes.lootchest;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
@@ -20,12 +16,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
-import fr.black_eyes.lootchest.Mat;
-import fr.black_eyes.lootchest.commands.LootchestCommand;
 import fr.black_eyes.lootchest.falleffect.FallingPackageEntity;
 
 public class Utils  {
@@ -46,6 +38,7 @@ public class Utils  {
 	//function to copy a chest
 	//fonction pour copier un coffre
 	public void copychest(Lootchest chest1, Lootchest chest2) {
+		
 		chest2.holo = chest1.holo;
 		chest2.chances = chest1.chances.clone();
 		chest2.direction = chest1.direction;
@@ -55,8 +48,6 @@ public class Utils  {
 		chest2.particle = chest1.particle;
 		chest2.respawn_cmd = chest1.respawn_cmd;
 		chest2.respawn_natural = chest1.respawn_natural;
-		chest2.globalLoc = chest1.globalLoc.clone();
-		chest2.randomLoc = chest1.randomLoc.clone();
 		chest2.take_msg = chest1.take_msg;
 		chest2.radius = chest1.radius;
 		updateData(chest2);
@@ -185,7 +176,9 @@ public class Utils  {
 	//se sert du config.getData().yml pour set le coffre et remplir son inventaire, cr§er l'holo en fonction du nom 
 	//Taking informations from config.getData().yml to restore a specific chest if it is time to do it, or if we force respawn. 
 	public boolean restoreChest(Lootchest lc, Boolean force) {
-
+		if(!Main.LootChest.containsValue(lc)) {
+			return false;
+		}
 		Integer num = config.getConfig().getInt("Minimum_Number_Of_Players_For_Natural_Spawning");
 		int players = 0;
 		if(org.bukkit.Bukkit.getVersion().contains("1.7")) {
@@ -196,7 +189,7 @@ public class Utils  {
 		//Main.getInstance().getLogger().info("respawn function of "+ name + " (1)");
 
 		if(Bukkit.getWorld(lc.world) == null) {
-			Bukkit.getLogger().info("§cThe world " + lc.world + " is not loaded, can't respawn chest " + lc);
+			Bukkit.getLogger().info("§cThe world " + lc.world + " is not loaded, can't respawn chest " + lc.name);
 			return false;
 		}
 		
@@ -214,8 +207,28 @@ public class Utils  {
 			if (Bukkit.getVersion().contains("1.15")) {
 				randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos)+1);
 			}
+			if(config.getConfig().getBoolean("Prevent_Chest_Spawn_In_Protected_Places")) {
+				int counter = 0;
+				while(counter<50 && ProtectedRegions.isProtected(randompos)) {
+					randompos.setX(randomInt(random)+loc.getX());
+					randompos.setZ(randomInt(random)+loc.getZ());
+					randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos));
+					if (Bukkit.getVersion().contains("1.15")) {
+						randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos)+1);
+					}
+					counter++;
+				}
+				if(counter == 50) {
+					Bukkit.getLogger().info("§cThe chest " + lc.name + " didn't found an unprotected location, so that it can't respawn! " );
+					long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime();
+					lc.lastreset = tempsactuel;
+					sheduleRespawn(lc);
+					return false;
+				}
+				
+			}
 
-			if(lc.radius !=0 && lc.randomLoc != null) {
+			if(lc.randomLoc != null) {
 				loc = lc.randomLoc.clone();
 			}
 
@@ -263,13 +276,14 @@ public class Utils  {
 				}
 			}
 
-			final Block newblock = newloc.getBlock();
+			
 			final Location theloc = newloc;
 			//Bukkit.getLogger().info("respawn function of "+ name);
 			if(lc.fall&& (num <= players || force) ) {
 				
 				Location startloc = new Location(newloc.getWorld(), newloc.getX()+0.5, newloc.getY()+height, newloc.getZ()+0.5);
 				Boolean loaded = startloc.getWorld().isChunkLoaded(startloc.getBlockX()/16, startloc.getBlockZ()/16) ;
+				final Block newblock = newloc.getBlock();
 				if(loaded || config.getConfig().getBoolean("Fall_Effect.Let_Block_Above_Chest_After_Fall")) {
 
 					new FallingPackageEntity(startloc, loaded, theloc);
@@ -284,6 +298,7 @@ public class Utils  {
 				
 			}
 			else {
+				final Block newblock = newloc.getBlock();
 				spawnChest(lc, newblock, theloc, force);
 			}
 			
@@ -337,9 +352,14 @@ public class Utils  {
 			final Location loc2 = name.getActualLocation();
 			loc2.add(0.5,0.5,0.5);
 			if(block.getType().equals(Material.CHEST) ) {
-				for(Object part : Main.particules) {
-					if((""+part).contains(name.particle)) {
-						Main.part.put(loc2, part);
+				if(name.particle.equals("Disabled")){
+					Main.part.remove(loc2);
+				}
+				else{
+					for(Object part : Main.particules) {
+						if((""+part).contains(name.particle)) {
+							Main.part.put(loc2, part);
+						}
 					}
 				}
 			}else if  (!block.getType().equals(Material.CHEST)){
@@ -496,259 +516,7 @@ public class Utils  {
 	
 	
 	
-	//Inventaires
-	public  void invChances(Player p, Lootchest name) {
-		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.chances.name", "[Chest]", name.name));
-		for(int i = 0; i < name.inv.getSize(); i++) {
-			if(name.inv.getItem(i) != null && name.inv.getItem(i).getType()!= Material.AIR) {
-				ItemStack item = name.inv.getItem(i).clone();
-				List<String> lore = new ArrayList<String>();
-				lore.add(getMsg("Menu.chances.lore", "[Chest]", name.name));
-				lore.add(name.chances[i]+ "%");
-				ItemMeta im = item.getItemMeta();
-				im.setLore(lore);
-				ItemStack item2 = new ItemStack(item.getType(), item.getAmount());
-				item2.setItemMeta(im);
-				
-				inv.setItem(i, item2);
-			}
-		}
-		LootchestCommand.editinv.put(p, name.name);
-		p.openInventory(inv);
-	}
-	
-	public  void invTime(Player p, Lootchest name) {
-		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.time.name", "[Chest]", name.name));
-		inv.setItem(4, getItem(Mat.TOTEM_OF_UNDYING, getMsg("Menu.time.infinite", " ", " ")));
-		
-		long temps = name.getTime();
-		long jours = temps/3600;
-		long heures = temps/60 - jours*24;
-		long minutes = temps - heures*60 - jours*3600;
-		
-		
-		//Initialisation du menu selon le temps du coffre
-		if (jours/10 == 0) {
-			inv.setItem(9, getItem(Mat.BARRIER, getMsg("Menu.time.days", " ", " ")));
-		} else {
-			inv.setItem(9, getItem(Mat.GOLD_BLOCK, getMsg("Menu.time.days", " ", " ")));
-			inv.getItem(9).setAmount((int) (jours/10));
-		} if (jours/10*10 == jours) {
-			inv.setItem(10, getItem(Mat.BARRIER, getMsg("Menu.time.days", " ", " ")));
-		}else {
-			inv.setItem(10, getItem(Mat.GOLD_BLOCK, getMsg("Menu.time.days", " ", " ")));
-			inv.getItem(10).setAmount((int) (jours-jours/10*10));
-		}if (heures/10 == 0) {
-			inv.setItem(12, getItem(Mat.BARRIER, getMsg("Menu.time.hours", " ", " ")));
-		}else {
-			inv.setItem(12, getItem(Mat.GOLD_INGOT, getMsg("Menu.time.hours", " ", " ")));
-			inv.getItem(12).setAmount((int) (heures/10));
-		}if (heures/10*10 == heures) {
-			inv.setItem(13, getItem(Mat.BARRIER, getMsg("Menu.time.hours", " ", " ")));
-		}else {
-			inv.setItem(13, getItem(Mat.GOLD_INGOT, getMsg("Menu.time.hours", " ", " ")));
-			inv.getItem(13).setAmount((int) (heures-heures/10*10));
-		}if (minutes/10 == 0) {
-			inv.setItem(15, getItem(Mat.BARRIER, getMsg("Menu.time.minutes", " ", " ")));
-		}else {
-			inv.setItem(15, getItem(Mat.GOLD_NUGGET, getMsg("Menu.time.minutes", " ", " ")));
-			inv.getItem(15).setAmount((int) (minutes/10));
-		}if (minutes/10*10 == minutes || minutes == -1) {
-			inv.setItem(16, getItem(Mat.BARRIER, getMsg("Menu.time.minutes", " ", " ")));
-		}else {
-			inv.setItem(16, getItem(Mat.GOLD_NUGGET, getMsg("Menu.time.minutes", " ", " ")));
-			inv.getItem(16).setAmount((int) (minutes-minutes/10*10));
-		}
-        inv.setItem(14, getItem(Mat.STICK, ""));
-        inv.setItem(11, getItem(Mat.STICK, ""));
-		LootchestCommand.editinv.put(p, name.name);
-		ItemStack sign = new ItemStack(Mat.SIGN, 1);
-		ItemMeta meta = sign.getItemMeta(); 
-		if(minutes != -1) {
-			meta.setDisplayName("Respawn time: " + jours+" days, " + heures + " hours, " + minutes + " minutes.");
-		}
-		else {
-			meta.setDisplayName("Respawn time: infinite");
-		}
-		sign.setItemMeta(meta);
-    	inv.setItem(22, sign);
-		p.openInventory(inv);
-	}
-	
-	public  void invEdit(Player p, Lootchest name) {
-		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.items.name", "[Chest]", name.name));
-		inv.setContents(name.inv.getContents());;
-		LootchestCommand.editinv.put(p, name.name);
-		p.openInventory(inv);
-	}
-	
-	public  void invcopy(Player p, Lootchest chest, int j) {
-		int i = 0;
-		int nbBoxes = 0;
-		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 54, getMsg("Menu.copy.name", " ", " "));
-		Set<String> boxes = Main.LootChest.keySet();
 
-		for(String keys : boxes) {
-			if(j== 2 && nbBoxes < 53) nbBoxes++;
-			else if(j> 2 && nbBoxes < (j*54-(2*(j-1)))-52) nbBoxes++;
-			//exempter le coffre actuel de la liste, et si il y a plus de 54 coffres, stopper i à 53 si on doit faire deux pages
-			
-			else if(!keys.equals(chest.name) && (i!=45 || j==1) && (i!=53 || (boxes.size() -1)<=(j*52+1) ) ){
-				String name = Main.LootChest.get(keys).holo.replace("&", "§");
-				String effect = config.getData().getString("chests." + keys + ".particle");
-				String world;
-				if(Bukkit.getWorld(Main.LootChest.get(keys).world) == null) {
-					world = "Unloaded world";
-				}
-				else {
-					world = Bukkit.getWorld(Main.LootChest.get(keys).world).getName();
-				}
-				ItemStack item = getItemWithLore(Material.CHEST, "§6" +keys, "§bHologram: §6" + name + "||§bWorld: §6"+ world + "||§bEffect: §6" + effect);
-				inv.setItem(i++, item);
-			}
-			else if (!keys.equals(chest.name) && i==45) {
-				String name = getMsg("Menu.copy.page", "[Number]", j-1+"");
-				ItemStack item = getItem(Material.PAPER,  name );
-				inv.setItem(i++, item);
-				String world;
-				if(Bukkit.getWorld(Main.LootChest.get(keys).world) == null) {
-					world = "Unloaded world";
-				}
-				else {
-					world = Bukkit.getWorld(Main.LootChest.get(keys).world).getName();
-				}
-				String name2 = Main.LootChest.get(keys).holo.replace("&", "§");
-				String effect = Main.LootChest.get(keys).particle;
-
-				ItemStack item2 = getItemWithLore(Material.CHEST, "§6" +keys, "§bHologram: §6" + name2 + "||§bWorld: §6"+ world + "||§bEffect: §6" + effect);
-				inv.setItem(i++, item2);
-			}
-			else if (!keys.equals(chest.name) && i==53){
-				String name = getMsg("Menu.copy.page", "[Number]", (j+1)+"");
-
-				ItemStack item = getItem(Material.PAPER,  name );
-				inv.setItem(i, item);
-				break;
-
-			}
-		}			
-
-		p.openInventory(inv);
-        LootchestCommand.editinv.put(p, chest.name);
-	}
-	
-	
-	public  void mainInv(Player p, String name) {
-        final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 36, getMsg("Menu.main.name", " ", " "));
-        inv.setItem(4, getItem(Mat.ENDER_CHEST, getMsg("Menu.main.copychest", " ", " ")));
-        if(config.getConfig().getBoolean("Particles.enable")) {
-        	inv.setItem(11, getItem(Mat.ENDER_EYE, getMsg("Menu.main.particles", " ", " ")));
-        }
-        inv.setItem(13, getItem(Mat.CHEST, getMsg("Menu.main.content", " ", " ")));
-        inv.setItem(15, getItem(Mat.CLOCK, getMsg("Menu.main.respawnTime", " ", " ")));
-        inv.setItem(22, getItem(Mat.DIAMOND, getMsg("Menu.main.chances", " ", " ")));
-        inv.setItem(28, getEnabled("fall", name));
-        inv.setItem(30, getEnabled("respawn_cmd", name));
-        inv.setItem(32, getEnabled("respawn_natural", name));
-        inv.setItem(34, getEnabled("take_message", name));
-        
-        new BukkitRunnable() {       
-            @Override
-            public void run() {
-            	p.openInventory(inv);
-                LootchestCommand.editinv.put(p, name);
-            }                
-        }.runTaskLater(Main.getInstance(), 2);
-    }
-	
-	ItemStack getEnabled(String path, String name){
-		if(config.getData().getBoolean("chests." + name +  "." + path)) {
-			return getItem(Mat.EMERALD_BLOCK, getMsg("Menu.main.disable_" + path, " ", " "));
-		}else {
-			return getItem(Mat.REDSTONE_BLOCK, getMsg("Menu.main.enable_" + path, " ", " "));
-		}
-	}
-	
-	
-	public ItemStack switchState(String path, String name){
-		if(!config.getData().getBoolean("chests." + name +  "." + path)) {
-			config.getData().set("chests." + name +  "." + path, true);
-			config.reloadData();
-
-			return getItem(Mat.EMERALD_BLOCK, getMsg("Menu.main.disable_" + path, " ", " "));
-		}else {
-			config.getData().set("chests." + name + "." + path, false);
-			config.reloadData();
-
-			return getItem(Mat.REDSTONE_BLOCK, getMsg("Menu.main.enable_" + path, " ", " "));
-		}
-	}
-	
-
-	
-	// /!\ Certains items ne sont pas les m§mes selont que l'on est en 1.12 ou 1.13, § v§rifier pour particules
-	public  void particleInv(Player p, String name) {
-        final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 54, getMsg("Menu.particles.name", " ", " "));
-        inv.setItem(0, getItem(Mat.TNT, "Huge Explosion"));
-        inv.setItem(1, getItem(Mat.TNT, "Large Explosion"));
-        inv.setItem(2, getItem(Mat.TNT, "Normal Explosion"));
-        inv.setItem(3, getItem(Mat.FIREWORK, "Fireworks Sparks"));
-        inv.setItem(4, getItem(Mat.PRISMARINE, "Bubble Pop"));
-        inv.setItem(5, getItem(Mat.STONE, "Suspended"));
-        inv.setItem(6, getItem(Mat.MYCELIUM, "Town Aura"));
-        inv.setItem(7, getItem(Mat.IRON_SWORD, "Crit"));
-        inv.setItem(8, getItem(Mat.DIAMOND_SWORD, "Magic Crit"));
-        inv.setItem(9, getItem(Mat.FURNACE, "Normal Smoke"));
-        inv.setItem(10, getItem(Mat.FURNACE, "Large Smoke"));
-        inv.setItem(11, getItem(Mat.ENCHANTED_BOOK, "Mob Spell"));
-        inv.setItem(12, getItem(Mat.ENCHANTED_BOOK, "Mob Spell Ambient"));
-        inv.setItem(13, getItem(Mat.ENCHANTED_BOOK, "Spell"));
-        inv.setItem(14, getItem(Mat.ENCHANTED_BOOK, "Instant Spell"));
-        inv.setItem(15, getItem(Mat.ENCHANTED_BOOK, "Witch Spell"));
-        inv.setItem(16, getItem(Mat.NOTE_BLOCK, "Note"));
-        inv.setItem(17, getItem(Mat.END_PORTAL_FRAME, "Portal"));
-        inv.setItem(18, getItem(Mat.ENCHANTING_TABLE , "Enchantment Table"));
-        inv.setItem(19, getItem(Mat.BLAZE_POWDER, "Flame"));
-        inv.setItem(20, getItem(Mat.LAVA_BUCKET, "Lava"));
-        inv.setItem(21, getItem(Mat.STONE, "Footstep"));
-        inv.setItem(22, getItem(Mat.WATER_BUCKET, "Water Splash"));
-        inv.setItem(23, getItem(Mat.WATER_BUCKET, "Water Wake"));
-        inv.setItem(24, getItem(Mat.QUARTZ, "Cloud"));
-        inv.setItem(25, getItem(Mat.SNOW_BALL, "Snowball"));
-        inv.setItem(26, getItem(Mat.WATER_BUCKET, "Drip Water"));
-        inv.setItem(27, getItem(Mat.LAVA_BUCKET, "Drip Lava"));
-        inv.setItem(28, getItem(Mat.IRON_SHOVEL, "Snow Shovel"));
-        inv.setItem(29, getItem(Mat.SLIME_BALL, "Slime"));
-        inv.setItem(30, getItem(Mat.ROSE_RED, "Heart"));
-        inv.setItem(31, getItem(Mat.REDSTONE_BLOCK, "Angry Villager"));
-        inv.setItem(32, getItem(Mat.EMERALD, "Happy Villager"));
-        inv.setItem(33, getItem(Mat.BARRIER, "Barrier"));
-        p.openInventory(inv);
-        LootchestCommand.editinv.put(p, name);
-    }
-
-
-	public  ItemStack getItem(final Material enderChest, final String customName) {
-		final ItemStack A = new ItemStack(enderChest, 1);
-		final ItemMeta B = A.getItemMeta();
-		if (customName != null) {
-			B.setDisplayName(customName);
-		}
-		A.setItemMeta(B);
-		return A;
-	}
-	
-	public  ItemStack getItemWithLore(final Material material, final String customName,  String lore) {
-		final ItemStack A = new ItemStack(material);
-		final ItemMeta B = A.getItemMeta();
-		if (customName != null) {
-			B.setDisplayName(customName);
-			List<String> lore2 = new ArrayList<String>(Arrays.asList(lore.split("\\|\\|")));
-			B.setLore(lore2);
-		}
-		A.setItemMeta(B);
-		return A;
-	}
 	
 	
 	@SuppressWarnings("deprecation")

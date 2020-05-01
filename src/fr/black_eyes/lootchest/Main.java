@@ -51,6 +51,7 @@ public class Main extends JavaPlugin {
 	
 	@SuppressWarnings("deprecation")
 	public void onEnable() {
+
 		instance = this;
 		config = new Config();
 		utils = new Utils();
@@ -86,6 +87,8 @@ public class Main extends JavaPlugin {
         config.setConfig("respawn_notify.per_world_message", true);
         config.setConfig("respawn_notify.message_on_chest_take", true);
         config.setConfig("Minimum_Number_Of_Players_For_Natural_Spawning", 0);
+        config.setConfig("Cooldown_Before_Plugin_Start", 0);
+        config.setConfig("Prevent_Chest_Spawn_In_Protected_Places", false);
         config.setLang("PluginReloaded", "&aConfig file, lang, and chest data were reloaded");
         config.setLang("PlayerIsNotOnline", "&cThe player [Player] is not online");
         config.setLang("givefrom", "&aYou were given the [Chest] chest by [Player]");
@@ -160,7 +163,9 @@ public class Main extends JavaPlugin {
         	config.getConfig().set("Enable_fall_effect", null);
         	config.saveConfig();
         }
-        
+        if(config.getLang().getString("Menu.chances.lore").equals("&aLeft click: +1; right: -1; shift+right: -10; shift+left: +10; tab+right: -50") || config.getLang().getString("Menu.chances.lore").equals("&aLeft click to up percentage, Right click to down it")) {
+        	config.getLang().set("Menu.chances.lore", "&aLeft click: +1||&aright: -1||&ashift+right: -10||&ashift+left: +10||&atab+right: -50");
+        }
         
         /*
 
@@ -219,29 +224,39 @@ public class Main extends JavaPlugin {
     			}
     		}
     	}.runTaskTimer(this, 0, getConfig().getInt("Particles.respawn_ticks"));
-    	logInfo("Loading chests...");
-    	long current = (new Timestamp(System.currentTimeMillis())).getTime();
-		for(String keys : config.getData().getConfigurationSection("chests").getKeys(false)) {
-			if(org.bukkit.Bukkit.getWorld(config.getData().getString("chests." + keys + ".position.world")) != null) {
-					LootChest.put(keys, new Lootchest(keys));
-			}
-			else {
-    			getLogger().info("§cCouldn't load chest "+keys +" : the world " + config.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
-			}
+    	Integer cooldown = config.getConfig().getInt("Cooldown_Before_Plugin_Start");
+    	if(cooldown>0) {
+    		logInfo("Chest will load in "+ cooldown + " seconds.");
     	}
-		logInfo("Loaded "+LootChest.size() + " Lootchests in "+((new Timestamp(System.currentTimeMillis())).getTime()-current) + " miliseconds");
-		logInfo("Starting LootChest timers asynchronously...");
-		for (final Lootchest lc : Main.LootChest.values()) {
-            Bukkit.getScheduler().scheduleAsyncDelayedTask(getInstance(), () -> {
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
-                            if (!Main.utils.restoreChest(lc, false)) {
-                                Main.utils.sheduleRespawn(lc);
-                            }
-                            Main.utils.reactivateEffects(lc);
-                    }, 0L);
-            }, 5L);
-        }
-    	logInfo("Plugin loaded");
+        this.getServer().getScheduler().runTaskLater(this, (Runnable)new Runnable() {
+            @Override
+            public void run() {
+		    	logInfo("Loading chests...");
+		    	long current = (new Timestamp(System.currentTimeMillis())).getTime();
+				for(String keys : config.getData().getConfigurationSection("chests").getKeys(false)) {
+					if(org.bukkit.Bukkit.getWorld(config.getData().getString("chests." + keys + ".position.world")) != null) {
+							LootChest.put(keys, new Lootchest(keys));
+					}
+					else {
+		    			getLogger().info("§cCouldn't load chest "+keys +" : the world " + config.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
+					}
+		    	}
+				logInfo("Loaded "+LootChest.size() + " Lootchests in "+((new Timestamp(System.currentTimeMillis())).getTime()-current) + " miliseconds");
+				logInfo("Starting LootChest timers asynchronously...");
+				for (final Lootchest lc : Main.LootChest.values()) {
+		            Bukkit.getScheduler().scheduleAsyncDelayedTask(getInstance(), () -> {
+		                    Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
+		                            if (!Main.utils.restoreChest(lc, false)) {
+		                                Main.utils.sheduleRespawn(lc);
+		                            }
+		                            Main.utils.reactivateEffects(lc);
+		                    }, 0L);
+		            }, 5L);
+		        }
+		    	logInfo("Plugin loaded");
+            
+	        }
+	    }, cooldown*20);
     		/*if(!config.getData().isSet("chests." + keys + ".time") ) {
     			config.getData().set("chests." + keys, null);
 				config.reloadData();
