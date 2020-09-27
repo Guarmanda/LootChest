@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -43,7 +44,7 @@ public class Utils  {
 		chest2.chances = chest1.chances.clone();
 		chest2.direction = chest1.direction;
 		chest2.fall = chest1.fall;
-		chest2.inv.setContents(chest2.inv.getContents());
+		chest2.inv.setContents(chest1.inv.getContents());
 		chest2.time = chest1.time;
 		chest2.particle = chest1.particle;
 		chest2.respawn_cmd = chest1.respawn_cmd;
@@ -119,7 +120,7 @@ public class Utils  {
             public void run() {
             	restoreChest(lc, false);
             }                
-        }.runTaskLater(Main.getInstance(), (minutes*60-((tempsactuel - tempsenregistre)/1000))*20+5*20);
+        }.runTaskLater(Main.getInstance(), (minutes*60-((tempsactuel - tempsenregistre)/1000))*20);
     }
 	
 	//to fill a chest or give chest to player
@@ -127,7 +128,7 @@ public class Utils  {
         if (clear) {
             inv.clear();
         }
-        for (int i=0; i<26; i++){
+        for (int i=0; i<27; i++){
         	if(name.inv.getItem(i) != null && !name.inv.getItem(i).getType().equals(Material.AIR)) {
 	            final ItemStack item = name.inv.getItem(i);
 	            final int slot = i;
@@ -149,6 +150,7 @@ public class Utils  {
     }
 	
 	
+	@SuppressWarnings("deprecation")
 	public void reactivateEffects(Lootchest lc) {
 		Location loc = lc.getActualLocation();
 		if(!loc.getBlock().getType().equals(Material.CHEST)) {
@@ -157,6 +159,24 @@ public class Utils  {
 		if(Main.getInstance().getConfig().getBoolean("UseHologram")){
 			deleteholo(loc);
 			makeHolo(loc, lc);
+		}
+		if(!Bukkit.getVersion().contains("1.7") && lc.fall && Main.getInstance().getConfig().getBoolean("Fall_Effect.Let_Block_Above_Chest_After_Fall")){
+			Location arm = loc.clone();
+			arm.add(0.5, 2, 0.5);
+			Material mat = Material.valueOf(config.getConfig().getString("Fall_Effect.Block"));
+			Entity ent = (org.bukkit.entity.ArmorStand) loc.getWorld().spawnEntity(arm, org.bukkit.entity.EntityType.ARMOR_STAND);
+			
+			
+			((org.bukkit.entity.ArmorStand) ent).setVisible(false); //Makes the ArmorStand invisible
+		 	((org.bukkit.entity.ArmorStand) ent).setHelmet(new ItemStack(mat, 1));
+		 	if(!Bukkit.getVersion().contains("1.13") && !Bukkit.getVersion().contains("1.14") && !Bukkit.getVersion().contains("1.15") && !Bukkit.getVersion().contains("1.16")) {
+			 	if(mat.equals(Material.valueOf("WOOL"))) {
+			 		((org.bukkit.entity.ArmorStand) ent).setHelmet(new ItemStack(mat, 1, DyeColor.valueOf(config.getConfig().getString("Optionnal_Color_If_Block_Is_Wool")).getDyeData()));
+			 	}
+		 	}
+		 	((org.bukkit.entity.ArmorStand) ent).setBasePlate(false);
+		 	((org.bukkit.entity.ArmorStand) ent).setGravity(true);
+			
 		}
 		final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
 		loc2.add(0.5,0.5,0.5);
@@ -196,6 +216,21 @@ public class Utils  {
 		//Main.getInstance().getLogger().info("respawn function of "+ name + " (2)");
 
 		Location loc = lc.globalLoc.clone();
+		//if this option is true, we count players in a way that is compatible with all versions, then we take the location of one of these players randomly
+		if(config.getConfig().getBoolean("use_players_locations_for_randomspawn")) {
+			int i = 0;
+			for(@SuppressWarnings("unused") Player p : Bukkit.getOnlinePlayers()) i++;
+			if(i>0) {
+				int ran = ThreadLocalRandom.current().nextInt(1, i+1);
+				i=0;
+				for(Player p : Bukkit.getOnlinePlayers()) {
+					if(++i == ran) {
+						loc = p.getLocation();
+					}
+					
+				}
+			}
+		}
 		Location newloc = loc;
 		if(lc.radius != 0) {
 			int random = lc.radius;
@@ -204,7 +239,7 @@ public class Utils  {
 			randompos.setX(randomInt(random)+loc.getX());
 			randompos.setZ(randomInt(random)+loc.getZ());
 			randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos));
-			if (Bukkit.getVersion().contains("1.15")) {
+			if (Bukkit.getVersion().contains("1.15") || Bukkit.getVersion().contains("1.16")) {
 				randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos)+1);
 			}
 			if(config.getConfig().getBoolean("Prevent_Chest_Spawn_In_Protected_Places")) {
@@ -213,7 +248,7 @@ public class Utils  {
 					randompos.setX(randomInt(random)+loc.getX());
 					randompos.setZ(randomInt(random)+loc.getZ());
 					randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos));
-					if (Bukkit.getVersion().contains("1.15")) {
+					if (Bukkit.getVersion().contains("1.15")|| Bukkit.getVersion().contains("1.16")) {
 						randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos)+1);
 					}
 					counter++;
@@ -264,7 +299,10 @@ public class Utils  {
 			
 			if(!force && lc.respawn_natural && num <= players ) {
 				String holo = lc.holo;
-				if(!Main.getInstance().getConfig().getBoolean("respawn_notify.per_world_message")) {
+				if(Main.getInstance().getConfig().getBoolean("respawn_notify.bungee_broadcast")) {
+					BungeeChannel.bungeeBroadcast((((Main.getInstance().getConfig().getString("respawn_notify.natural_respawn.message").replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
+				}
+				else if(!Main.getInstance().getConfig().getBoolean("respawn_notify.per_world_message")) {
 					for(Player p : Bukkit.getOnlinePlayers()) {
 						p.sendMessage((((Main.getInstance().getConfig().getString("respawn_notify.natural_respawn.message").replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
 					}
@@ -373,6 +411,9 @@ public class Utils  {
 		}
 		long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime();
 		name.lastreset = tempsactuel;
+		if(config.getConfig().getBoolean("save_Chest_Locations_At_Every_Spawn")) {
+			config.reloadData();
+		}
 		//config.reloadData();
 		//Main.getInstance().getLogger().info("Shedule respawn of chest "+ name);
 
@@ -488,27 +529,35 @@ public class Utils  {
 			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
 			loc2.add(0.5, Main.getInstance().getConfig().getInt("Hologram_distance_to_chest"), 0.5);
 			//the coordinates of a block are at the corner of the block
-			org.bukkit.entity.ArmorStand as = (org.bukkit.entity.ArmorStand) loc2.getWorld().spawnEntity(loc2, org.bukkit.entity.EntityType.ARMOR_STAND); //Spawn the ArmorStand
-	
+
 			String name = lc.holo.replace("&", "§");
-			as.setCustomName(name); //Set this to the text you want
-			if(!(name.equals("\"\"") || name.equals("\" \"") || name.equals("null") || name.equals("") || name.equals(" ") || name.equals("_") || name.equals("none"))) {
+			if(!((name.equals("\"\"") || name.equals("\" \"") || name.equals("null") || name.equals("") || name.equals(" ") || name.equals("_") || name.equals("none")))) {
+				org.bukkit.entity.ArmorStand as = (org.bukkit.entity.ArmorStand) loc2.getWorld().spawnEntity(loc2, org.bukkit.entity.EntityType.ARMOR_STAND); //Spawn the ArmorStand
+				
+				as.setCustomName(name); //Set this to the text you want
 				as.setCustomNameVisible(true); //This makes the text appear no matter if your looking at the entity or not
-			}
-			else {
-				as.setCustomNameVisible(false); 
-			}
-			as.setGravity(false); //Make sure it doesn't fall
-			as.setCanPickupItems(false); //I'm not sure what happens if you leave this as it is, but you might as well disable it
-			//This makes the text appear no matter if your looking at the entity or not
-			as.setVisible(false); //Makes the ArmorStand invisible
-		 	as.setArms(false);
-		 	as.setBasePlate(false);
-		 	as.setSmall(true);
-		 	as.setMarker(true);
 
+				as.setGravity(false); //Make sure it doesn't fall
+				as.setCanPickupItems(false); //I'm not sure what happens if you leave this as it is, but you might as well disable it
+				//This makes the text appear no matter if your looking at the entity or not
+				as.setVisible(false); //Makes the ArmorStand invisible
+			 	as.setArms(false);
+			 	as.setBasePlate(false);
+			 	as.setSmall(true);
+			 	as.setMarker(true);
+			 	if(config.getConfig().getBoolean("Show_Timer_On_Hologram") && lc.time != -1) {
+			 	new BukkitRunnable() {
+			    		public void run() {
+			    			long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime()/1000;
+			    			long minutes = lc.time*60;
+			    			long tempsenregistre = lc.lastreset/1000;
+			    			as.setCustomName(name + " (" + (minutes - (tempsactuel - tempsenregistre)) + ")");
+			    		}
+			    	}.runTaskTimer(Main.getInstance(), lc.time*60*20, 20);
+			 	}
+	
+			}
 		}
-
 	}	
 	
 
@@ -522,7 +571,7 @@ public class Utils  {
 	@SuppressWarnings("deprecation")
 	public  String getDirection(Block chest) {
 		String data, direction;
-		if(Bukkit.getVersion().contains("1.15")) {
+		if(Bukkit.getVersion().contains("1.15")|| Bukkit.getVersion().contains("1.16")) {
 		   data = chest.toString();
 			direction = data.substring(data.indexOf("facing") + 7, data.indexOf("facing") + 12).toUpperCase();
 			if(direction.charAt(4) != 'H') {

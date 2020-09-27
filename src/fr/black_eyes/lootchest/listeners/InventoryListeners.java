@@ -49,6 +49,7 @@ public class InventoryListeners extends Menu implements Listener {
     	}
     	String chest = LootchestCommand.editinv.get(p);
     	LootchestCommand.editinv.remove(p);
+
         if (LootchestCommand.menuName.get(p).equals(getMsg("Menu.items.name", "[Chest]", chest))) {
         	Lootchest lc = Main.LootChest.get(chest);
 			lc.setInventory(e.getInventory());
@@ -206,39 +207,39 @@ public class InventoryListeners extends Menu implements Listener {
         			break;
         		case 28:
         			if(lc.getFall()) {
-        				lc.setFallEffect(false);
+        				lc.setFall(false);
         			}else {
-        				lc.setFallEffect(true);
+        				lc.setFall(true);
         			}
         			e.getInventory().setItem(28, getEnabled("fall", lc.getFall()));
         			updateData(lc);
         			break;
         		case 30:
-        			if(lc.getRespawnCMD()) {
-        				lc.setRespawnCMD(false);
+        			if(lc.getRespawn_cmd()) {
+        				lc.setRespawn_cmd(false);
         			}
         			else {
-        				lc.setRespawnCMD(true);
+        				lc.setRespawn_cmd(true);
         			}
-        			e.getInventory().setItem(30, getEnabled("respawn_cmd", lc.getRespawnCMD()));
+        			e.getInventory().setItem(30, getEnabled("respawn_cmd", lc.getRespawn_cmd()));
         			updateData(lc);
         			break;
         		case 32:
-        			if(lc.getRespawnNatural()) {
-        				lc.setRespawnNatural(false);
+        			if(lc.getRespawn_natural()) {
+        				lc.setRespawn_natural(false);
         			}else {
-        				lc.setRespawnNatural(true);
+        				lc.setRespawn_natural(true);
         			}
-        			e.getInventory().setItem(32, getEnabled("respawn_natural",lc.getRespawnNatural()));
+        			e.getInventory().setItem(32, getEnabled("respawn_natural",lc.getRespawn_natural()));
         			updateData(lc);
         			break;
         		case 34:
-        			if(lc.getTakeMessage()) {
-        				lc.setTakeMessage(false);
+        			if(lc.getTake_msg()) {
+        				lc.setTake_msg(false);
         			}else {
-        				lc.setTakeMessage(true);
+        				lc.setTake_msg(true);
         			}
-        			e.getInventory().setItem(34, getEnabled("take_message", lc.getTakeMessage()));
+        			e.getInventory().setItem(34, getEnabled("take_message", lc.getTake_msg()));
         			updateData(lc);
         			break;
         	}
@@ -282,13 +283,22 @@ public class InventoryListeners extends Menu implements Listener {
         	switch(e.getSlot()) {
         	case 4:
         		if(e.getClick() == ClickType.LEFT) {
-        			lc.setTime( -1);
-        			e.getInventory().setItem(9, new ItemStack(Mat.BARRIER));
-        			e.getInventory().setItem(10, new ItemStack(Mat.BARRIER));
-        			e.getInventory().setItem(12, new ItemStack(Mat.BARRIER));
-        			e.getInventory().setItem(13, new ItemStack(Mat.BARRIER));
-        			e.getInventory().setItem(15, new ItemStack(Mat.BARRIER));
-        			e.getInventory().setItem(16, new ItemStack(Mat.BARRIER));
+        			if(lc.getTime() == -1) {
+        				lc.setTime(10);
+        				e.getInventory().setItem(15, new ItemStack(Mat.GOLD_NUGGET));
+        				e.getInventory().setItem(4, getItem(Mat.TOTEM_OF_UNDYING, getMsg("Menu.time.infinite", " ", " ")));
+        			}
+        			else{
+        				lc.setTime( -1);
+	        			e.getInventory().setItem(9, new ItemStack(Mat.BARRIER));
+	        			e.getInventory().setItem(10, new ItemStack(Mat.BARRIER));
+	        			e.getInventory().setItem(12, new ItemStack(Mat.BARRIER));
+	        			e.getInventory().setItem(13, new ItemStack(Mat.BARRIER));
+	        			e.getInventory().setItem(15, new ItemStack(Mat.BARRIER));
+	        			e.getInventory().setItem(16, new ItemStack(Mat.BARRIER));
+	        			e.getInventory().setItem(4, getItem(Mat.TOTEM_OF_UNDYING, getMsg("Menu.time.notInfinite", " ", " ")));
+	        			
+        			}
         		}
         		break;
     		case 9:

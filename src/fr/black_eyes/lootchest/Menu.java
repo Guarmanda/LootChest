@@ -41,7 +41,11 @@ public class Menu extends Utils{
 	
 	public  void invTime(Player p, Lootchest name) {
 		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.time.name", "[Chest]", name.name));
-		inv.setItem(4, getItem(Mat.TOTEM_OF_UNDYING, getMsg("Menu.time.infinite", " ", " ")));
+		if(name.getTime() != -1) {
+			inv.setItem(4, getItem(Mat.TOTEM_OF_UNDYING, getMsg("Menu.time.infinite", " ", " ")));
+		}else {
+			inv.setItem(4, getItem(Mat.TOTEM_OF_UNDYING, getMsg("Menu.time.notInfinite", " ", " ")));
+		}
 		
 		long temps = name.getTime();
 		long jours = temps/3600;

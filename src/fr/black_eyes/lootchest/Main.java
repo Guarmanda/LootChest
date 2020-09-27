@@ -1,7 +1,5 @@
 package fr.black_eyes.lootchest;
 
-import static org.inventivetalent.reflection.minecraft.Minecraft.Version.*;
-
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -12,11 +10,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.inventivetalent.particle.ParticleEffect;
-import org.inventivetalent.reflection.minecraft.Minecraft;
-
 import fr.black_eyes.lootchest.commands.LootchestCommand;
 import fr.black_eyes.lootchest.listeners.Armorstand;
 import fr.black_eyes.lootchest.listeners.DeleteListener;
@@ -38,6 +35,7 @@ public class Main extends JavaPlugin {
 	private static Main instance;
 	private static Config config;
 	private static Utils utils;
+	public static Boolean UseArmorStands;
 	
 	public void onDisable() {
 		utils.updateData();
@@ -55,7 +53,7 @@ public class Main extends JavaPlugin {
 		instance = this;
 		config = new Config();
 		utils = new Utils();
-		
+		UseArmorStands = true;
 		logInfo("Loading config files...");
 		if(!config.initFiles()) {
         	getLogger().info("§cConfig or data files couldn't be initialized, the plugin will stop.");
@@ -87,6 +85,7 @@ public class Main extends JavaPlugin {
         config.setConfig("respawn_notify.per_world_message", true);
         config.setConfig("respawn_notify.message_on_chest_take", true);
         config.setConfig("Minimum_Number_Of_Players_For_Natural_Spawning", 0);
+        config.setConfig("use_players_locations_for_randomspawn", false);
         config.setConfig("Cooldown_Before_Plugin_Start", 0);
         config.setConfig("Prevent_Chest_Spawn_In_Protected_Places", false);
         config.setLang("PluginReloaded", "&aConfig file, lang, and chest data were reloaded");
@@ -115,6 +114,8 @@ public class Main extends JavaPlugin {
         config.setLang("Menu.main.enable_respawn_natural", "&cNatural-respawn message is disabled. Click to &aENABLE &cit");
         config.setLang("Menu.main.enable_respawn_cmd", "&cCommand-respawn message is disabled. Click to &aENABLE &cit");
         config.setLang("Menu.main.enable_take_message", "&cMessage on chest take is disabled. Click to &aENABLE &cit");
+        config.setLang("locate_command.main_message",  "&6Location of loot chests:");
+        config.setLang("locate_command.chest_list", "- &b[Chest]&6: [x], [y], [z] in world [world]");
         if (config.getLang().isSet("help.line1")) {
             final List<String> tab = new ArrayList<String>();
             for (int i = 1; i <= 17; ++i) {
@@ -138,7 +139,11 @@ public class Main extends JavaPlugin {
         config.setConfig("Fall_Effect.Enabled",  config.getConfig().getBoolean("Enable_fall_effect"));
         config.setConfig("Fall_Effect.Enable_Fireworks",  true);
         config.setConfig("Fall_Effect.Speed", 0.9);
+        config.setConfig("respawn_notify.bungee_broadcast", false);
         config.setConfig("ConsoleMessages", true);
+        config.setConfig("save_Chest_Locations_At_Every_Spawn", true);
+        config.setConfig("Show_Timer_On_Hologram", true);
+        config.setLang("Menu.time.notInfinite", "&6Reactivate respawn time");
         config.setLang("commandGetName", "&6Your'e looking the chest &b[Chest]");
         if(!config.getLang().getStringList("help").toString().contains("getname")){
         	Bukkit.broadcastMessage(config.getLang().getStringList("help").toString());
@@ -146,6 +151,13 @@ public class Main extends JavaPlugin {
         	help.add("&a/lc getname &b: get the name of the targeted LootChest");
         	config.getLang().set("help", help);
         	config.saveLang();
+        }
+        if(!config.getLang().getStringList("help").toString().contains("locate")){
+        	Bukkit.broadcastMessage(config.getLang().getStringList("help").toString());
+        	List<String> help = config.getLang().getStringList("help");
+        	help.add("&a/lc locate &b: gives locations of all chests that haves natural respawn message enabled");
+        	config.getLang().set("help", help);
+        	config.saveLang();        	
         }
         if(config.getConfig().isSet("Optionnal_Color_If_ArmorStand_Head_Is_Wool")) {
         	config.getConfig().set("Fall_Effect.Optionnal_Color_If_Block_Is_Wool",config.getConfig().getString("Optionnal_Color_If_ArmorStand_Head_Is_Wool") );
@@ -166,7 +178,18 @@ public class Main extends JavaPlugin {
         if(config.getLang().getString("Menu.chances.lore").equals("&aLeft click: +1; right: -1; shift+right: -10; shift+left: +10; tab+right: -50") || config.getLang().getString("Menu.chances.lore").equals("&aLeft click to up percentage, Right click to down it")) {
         	config.getLang().set("Menu.chances.lore", "&aLeft click: +1||&aright: -1||&ashift+right: -10||&ashift+left: +10||&atab+right: -50");
         }
-        
+        this.getServer().getMessenger().registerOutgoingPluginChannel((Plugin)this, "BungeeCord");
+        this.getServer().getMessenger().registerIncomingPluginChannel((Plugin)this, "BungeeCord", (org.bukkit.plugin.messaging.PluginMessageListener)new BungeeChannel(this));
+
+        if(Bukkit.getVersion().contains("Paper") && !Bukkit.getVersion().contains("1.8") && !Bukkit.getVersion().contains("1.7") ) {
+        	if(org.bukkit.Bukkit.getServer().spigot().getPaperConfig().isSet("world-settings.default.armor-stands-tick")) {
+	        	if(!org.bukkit.Bukkit.getServer().spigot().getPaperConfig().getBoolean("world-settings.default.armor-stands-tick")) {
+	        		UseArmorStands = false;
+	        		getLogger().info("§eYou disabled 'armor-stands-tick' in paper.yml. ArmorStands will not have gravity, so fall effect will use falling blocks instead! Some blocks can't be used as falling blocks. If so, only fireworks will show!");
+	        		getLogger().info("§eIf no blocks are spawned with the fireworks, use another type of block for fall-effect in config.yml or enable 'armor-stands-tick' in paper.yml");
+	        	}
+        	}
+        }
         /*
 
         config.setConfig("Fall_Effect_Block", "NOTE_BLOCK");
@@ -188,7 +211,7 @@ public class Main extends JavaPlugin {
     		initParticles();
         
         //One particle was created in 1.13 so that other versions won't have it. Let's remove it if you're not in 1.13
-        if (!Minecraft.VERSION.newerThan(v1_12_R1)) {
+        if (!(Bukkit.getVersion().contains("1.13") || Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15") || Bukkit.getVersion().contains("1.16"))) {
         	particules[21] = ParticleEffect.valueOf("FOOTSTEP");
         }
 
@@ -204,20 +227,23 @@ public class Main extends JavaPlugin {
     			double radius = config.getConfig().getDouble("Particles.radius");
     			if (config.getConfig().getBoolean("Particles.enable")) {
     				for(Location keys : part.keySet()) {
-    					int players = 0;
-    					if(Minecraft.VERSION.olderThan(v1_8_R1)) {
-    						players = org.bukkit.Bukkit.getOnlinePlayers().toArray().length;
-    					}else {
-    						players = org.bukkit.Bukkit.getOnlinePlayers().size();
-    					}
-    					if(part.get(keys) != ParticleEffect.REDSTONE && players>0) {
-    						if(Minecraft.VERSION.newerThan(v1_12_R1)) {
-    							keys.getWorld().spawnParticle( (org.bukkit.Particle) part.get(keys), keys, config.getConfig().getInt("Particles.number"), radius, radius, radius, config.getConfig().getDouble("Particles.speed"));
-        					} 
-    						else{
-    							((ParticleEffect) part.get(keys)).send(keys.getWorld().getPlayers(), keys, radius, radius, radius, config.getConfig().getDouble("Particles.speed"), config.getConfig().getInt("Particles.number"), 50);
-    						}
-
+    					Boolean loaded = keys.getWorld().isChunkLoaded(keys.getBlockX()/16, keys.getBlockZ()/16) ;
+    					if (loaded) {
+	    					int players = 0;
+	    					if(Bukkit.getVersion().contains("1.7") || Bukkit.getVersion().contains("1.6") ) {
+	    						players = org.bukkit.Bukkit.getOnlinePlayers().toArray().length;
+	    					}else {
+	    						players = org.bukkit.Bukkit.getOnlinePlayers().size();
+	    					}
+	    					if( players>0) {
+	    						if(Bukkit.getVersion().contains("1.13") || Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15") || Bukkit.getVersion().contains("1.16")) {
+	    							keys.getWorld().spawnParticle( (org.bukkit.Particle) part.get(keys), keys, config.getConfig().getInt("Particles.number"), radius, radius, radius, config.getConfig().getDouble("Particles.speed"));
+	        					} 
+	    						else{
+	    							((ParticleEffect) part.get(keys)).send(keys.getWorld().getPlayers(), keys, radius, radius, radius, config.getConfig().getDouble("Particles.speed"), config.getConfig().getInt("Particles.number"), 50);
+	    						}
+	
+	    					}
     					}
     					
     				}
@@ -261,7 +287,7 @@ public class Main extends JavaPlugin {
     			config.getData().set("chests." + keys, null);
 				config.reloadData();
     		}*/
- 
+        
 	}
     		
 
@@ -290,7 +316,7 @@ public class Main extends JavaPlugin {
 	//particle initialozation
 	private void initParticles() {
 		Object parti[];
-		if(Minecraft.VERSION.newerThan(v1_12_R1)) {
+		if(Bukkit.getVersion().contains("1.13") || Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15") || Bukkit.getVersion().contains("1.16")) {
 			parti = new org.bukkit.Particle[] {org.bukkit.Particle.EXPLOSION_HUGE, org.bukkit.Particle.EXPLOSION_LARGE, org.bukkit.Particle.EXPLOSION_NORMAL, org.bukkit.Particle.FIREWORKS_SPARK, org.bukkit.Particle.WATER_BUBBLE, org.bukkit.Particle.SUSPENDED, org.bukkit.Particle.TOWN_AURA, org.bukkit.Particle.CRIT, org.bukkit.Particle.CRIT_MAGIC, org.bukkit.Particle.SMOKE_NORMAL, org.bukkit.Particle.SMOKE_LARGE, org.bukkit.Particle.SPELL_MOB, org.bukkit.Particle.SPELL_MOB_AMBIENT, org.bukkit.Particle.SPELL, org.bukkit.Particle.SPELL_INSTANT, org.bukkit.Particle.SPELL_WITCH, org.bukkit.Particle.NOTE, org.bukkit.Particle.PORTAL, org.bukkit.Particle.ENCHANTMENT_TABLE, org.bukkit.Particle.FLAME, org.bukkit.Particle.LAVA, org.bukkit.Particle.LAVA, org.bukkit.Particle.WATER_SPLASH, org.bukkit.Particle.WATER_WAKE, org.bukkit.Particle.CLOUD, org.bukkit.Particle.SNOWBALL, org.bukkit.Particle.DRIP_WATER, org.bukkit.Particle.DRIP_LAVA, org.bukkit.Particle.SNOW_SHOVEL, org.bukkit.Particle.SLIME, org.bukkit.Particle.HEART, org.bukkit.Particle.VILLAGER_ANGRY, org.bukkit.Particle.VILLAGER_HAPPY, org.bukkit.Particle.BARRIER};
 
 		}else {

@@ -8,23 +8,26 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.inventory.Inventory;
+
+import lombok.Getter;
+import lombok.Setter;
 public class Lootchest extends Utils {
-	String name;
-	Location globalLoc;
-	Location randomLoc;
+	@Getter @Setter String name;
+	@Setter Location globalLoc;
+	@Setter Location randomLoc;
 	Inventory inv;
-	Boolean fall;
+	@Getter @Setter Boolean fall;
 	Integer[] chances;
-	String direction;
-	String holo;
-	int time;
-	long lastreset;
-	String particle;
-	Boolean respawn_cmd;
-	Boolean respawn_natural;
-	Boolean take_msg;
-	int radius;
-	String world;
+	@Setter String direction;
+	@Getter @Setter String holo;
+	@Getter @Setter int time;
+	@Getter @Setter long lastreset;
+	@Getter @Setter String particle;
+	@Getter @Setter Boolean respawn_cmd;
+	@Getter @Setter Boolean respawn_natural;
+	@Getter @Setter Boolean take_msg;
+	@Getter @Setter int radius;
+	@Getter @Setter String world;
 	
 	
 	/*Function used in Main / reload for chest loading */
@@ -74,7 +77,7 @@ public class Lootchest extends Utils {
 				chances[i] =  config.getConfig().getInt("default_item_chance");
 			}
 		}
-		fall =  config.getConfig().getBoolean("Enable_fall_effect");
+		fall =  config.getConfig().getBoolean("Fall_Effect.Enabled");
 		respawn_cmd =  config.getConfig().getBoolean("respawn_notify.respawn_with_command.enabled");
 		respawn_natural =  config.getConfig().getBoolean("respawn_notify.natural_respawn.enabled");
 		take_msg =  config.getConfig().getBoolean("respawn_notify.message_on_chest_take");
@@ -119,35 +122,18 @@ public class Lootchest extends Utils {
 
 	}
 	
-	public String getName() {				return name;		}
+
 	public Location getPosition() {			return globalLoc.clone();	}
 	public Location getRandomPosition() {	return (randomLoc!=null)?randomLoc.clone():null;	}
-	public long getLastReset() {			return lastreset;	}
-	public String getHolo() {				return holo;		}
-	public String getParticle() {			return particle;	}
-	public int getTime() {					return time;		}
-	public Boolean getFall() {				return fall;		}
-	public String getWorld() {				return world;		}
-	public Boolean getRespawnCMD() {		return respawn_cmd;	}
-	public Boolean getRespawnNatural() {		return respawn_natural;	}
-	public Boolean getTakeMessage() {		return take_msg;	}
+
+
 	public Location getActualLocation() {
 		return (radius!=0)?randomLoc.clone():globalLoc.clone();
 	}
 	
-	public void setLastReset(long reset) {			lastreset = reset; 	}
-	public void setHolo(String h) {					holo = h; 			}
 	public void setChance(int c, int v) {			chances[c] = v;		}
-	public void setDirection(String dir) {			direction = dir;	}
-	public void setParticle(String part) {			particle = part;	}
-	public void setGlobalLocation(Location loc) {	globalLoc = loc;	}
-	public void setRandomLocation(Location loc) {	randomLoc = loc;	}
-	public void setFallEffect(Boolean falle) {		fall = falle;		} 
-	public void setRespawnCMD(Boolean falle) {		respawn_cmd = falle;} 
-	public void setRespawnNatural(Boolean falle) {	respawn_natural = falle;} 
-	public void setTakeMessage(Boolean falle) {		take_msg = falle;	} 
-	public void setTime(int timing) {				time = timing;		}
-	public void setRadius(int timing) {				radius = timing;	}
+
+
 	public void setInventory(Inventory inve) {
 		for(int i = 0 ; i < inve.getSize() ; i++) {
 			if(inve.getItem(i) != null) {

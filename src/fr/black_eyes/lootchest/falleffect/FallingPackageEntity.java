@@ -4,7 +4,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.Plugin;
 
-import static org.inventivetalent.reflection.minecraft.Minecraft.Version.v1_12_R1;
+
 
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -15,7 +15,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.util.Vector;
 import org.inventivetalent.particle.ParticleEffect;
-import org.inventivetalent.reflection.minecraft.Minecraft;
+
 
 import fr.black_eyes.lootchest.Config;
 import fr.black_eyes.lootchest.Main;
@@ -44,14 +44,15 @@ public class FallingPackageEntity extends PackageEntity {
     	this.target = target;
     	this.loaded = loaded;
     	this.letAlive = config.getConfig().getBoolean("Fall_Effect.Let_Block_Above_Chest_After_Fall");
-    	this.armorstand = false;
+
+    	this.armorstand = Main.UseArmorStands;
         this.blocky = null;
         this.startLoc = this.applyOffset(loc);
         this.world = loc.getWorld();
         this.material = Material.valueOf(config.getConfig().getString("Fall_Effect.Block"));
         this.speed = config.getConfig().getDouble("Fall_Effect.Speed");
-        if (!Bukkit.getVersion().contains("1.7")) {
-        	this.armorstand = true;
+        if (Bukkit.getVersion().contains("1.7")) {
+        	this.armorstand = false;
         }
         this.summon();
     }
@@ -60,14 +61,13 @@ public class FallingPackageEntity extends PackageEntity {
 	@SuppressWarnings("deprecation")
 	@Override
     public void summon() {
-		
-		if(!this.armorstand) {
+		if((!this.armorstand) && loaded) {
 			this.blocky = this.world.spawnFallingBlock(startLoc, this.material, (byte)0);
 		}else {
 			if(!loaded && letAlive) {
-			
+				
 				startLoc.setY(startLoc.getWorld().getHighestBlockYAt(startLoc)+2);
-				if (Bukkit.getVersion().contains("1.15")) {
+				if (Bukkit.getVersion().contains("1.15")|| Bukkit.getVersion().contains("1.16")) {
 					startLoc.setY(startLoc.getWorld().getHighestBlockYAt(startLoc)+3);
 				}
 				
@@ -78,7 +78,7 @@ public class FallingPackageEntity extends PackageEntity {
 	
 				((org.bukkit.entity.ArmorStand) blocky).setVisible(false); //Makes the ArmorStand invisible
 			 	((org.bukkit.entity.ArmorStand) blocky).setHelmet(new ItemStack(this.material, 1));
-			 	if(!Bukkit.getVersion().contains("1.13") && !Bukkit.getVersion().contains("1.14") && !Bukkit.getVersion().contains("1.15")) {
+			 	if(!Bukkit.getVersion().contains("1.13") && !Bukkit.getVersion().contains("1.14") && !Bukkit.getVersion().contains("1.15")&& !Bukkit.getVersion().contains("1.16")) {
 				 	if(material.equals(Material.valueOf("WOOL"))) {
 				 		((org.bukkit.entity.ArmorStand) blocky).setHelmet(new ItemStack(this.material, 1, DyeColor.valueOf(config.getConfig().getString("Optionnal_Color_If_Block_Is_Wool")).getDyeData()));
 				 	}
@@ -98,21 +98,30 @@ public class FallingPackageEntity extends PackageEntity {
 		}
     }
     
-
+	public Location goodLocation() {
+		Location loc = ((Entity) this.blocky).getLocation();
+		if(!armorstand) return loc;
+		else {
+			Location loc2 = loc.clone();
+			loc2.setY(loc.getY()+3);
+			return loc2;
+		}
+	}
+	
 	@SuppressWarnings("deprecation")
 	public void tick() {
 		Vector v = ((Entity) blocky).getVelocity();
 		v.setY(-(speed));
 		((Entity) blocky).setVelocity(v);
 		
-		if((((Entity) this.blocky).getLocation().getY() - target.getY()) <1) {
+		if((((Entity) this.blocky).getLocation().getY() - target.getY()) <2) {
 			if(!this.armorstand || this.armorstand && !this.letAlive) this.remove();
         }
 		else if (this.world.getBlockAt(LocationUtils.offset(((Entity) this.blocky).getLocation(), 0.0, -1.0, 0.0)).getType() == Material.AIR) {
             ++this.counter;
             if(!Bukkit.getVersion().contains("1.8")) {
-				if(Minecraft.VERSION.newerThan(v1_12_R1)) {
-		           	this.world.spawnParticle(org.bukkit.Particle.SMOKE_NORMAL, ((Entity) this.blocky).getLocation(), 50, 0.1, 0.1, 0.1, 0.1);
+				if(Bukkit.getVersion().contains("1.13") || Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15") || Bukkit.getVersion().contains("1.16")) {
+		           	this.world.spawnParticle(org.bukkit.Particle.SMOKE_NORMAL, goodLocation(), 50, 0.1, 0.1, 0.1, 0.1);
 				}				
 				else{
 				 ParticleEffect.SMOKE_NORMAL.send(((Entity) this.blocky).getLocation().getWorld().getPlayers(), ((Entity) this.blocky).getLocation(), 0.1, 0.1, 0.1, 0.1, 50, 100);			
@@ -141,10 +150,12 @@ public class FallingPackageEntity extends PackageEntity {
             }
             else if(counter < 100){
             	this.retick();
+            }else {
+            	this.remove();
             }
         }
         else {
-        	if(!(this.armorstand && this.letAlive)) this.remove();
+        	 this.remove();
         }
     }
     
@@ -156,7 +167,7 @@ public class FallingPackageEntity extends PackageEntity {
     
     private void summonUpdateFireworks() {
         //if (Main.getInstance().getConfig().getBoolean("options.fireworks_on_fall")) {
-            final Firework fw = (Firework)this.world.spawnEntity((((Entity) this.blocky).getLocation()), EntityType.FIREWORK);
+            final Firework fw = (Firework)this.world.spawnEntity(goodLocation(), EntityType.FIREWORK);
             final FireworkMeta fwm = fw.getFireworkMeta();
             fwm.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL).withColor(Color.RED).withColor(Color.WHITE).build());
             fw.setFireworkMeta(fwm);
@@ -171,7 +182,7 @@ public class FallingPackageEntity extends PackageEntity {
     
     private void summonSpawnFireworks() {
         //if (Main.getInstance().getConfig().getBoolean("options.fireworks_on_fall")) {
-            final Firework fw = (Firework)this.world.spawnEntity((((Entity) this.blocky).getLocation()), EntityType.FIREWORK);
+            final Firework fw = (Firework)this.world.spawnEntity(goodLocation(), EntityType.FIREWORK);
             final FireworkMeta fwm = fw.getFireworkMeta();
             fwm.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE).withColor(Color.RED).withColor(Color.WHITE).build());
             fw.setFireworkMeta(fwm);

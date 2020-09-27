@@ -17,14 +17,16 @@ settime: '&6You successfully set the time of the chest &b[Chest]'
 PlayerIsNotOnline: '&cThe player [Player] is not online'
 givefrom: '&aYou were given the &b[Chest] &achest by &b[Player]'
 giveto: '&aYou gave the chest &b[Chest] &ato player &b[Player]'
-chestRadiusSet: '&aYou defined a spawn radius for the chest &b[Chest]'
+chestRadiusSet: '&aYou set a spawn radius for chest &b[Chest]&a. From now, it will spawn at this radius around the place where the chest was created, or around a random player if you set "use_players_locations_for_randomspawn" to true.'
 teleportedToChest: '&aYou were teleported to chest &b[Chest]'
 enabledFallEffect: '&aYou enabled fall effect for chest &b[Chest]'
 disabledFallEffect: '&cYou disabled fall effect for chest &b[Chest]'
 playerTookChest: '&6Oh no! &b[Player] &6found the chest &b[Chest] &6and took everything in it!'
 disabledChestRadius: '&cYou disabled random spawn for chest [Chest]'
 commandGetName: '&6Your''e looking the chest &b[Chest]'
-
+locate_command:
+  main_message: "&6Location of loot chests:"
+  chest_list: "- &b[Chest]&6: [x], [y], [z] in world [world]"
 
 Menu:
   particles:
@@ -77,5 +79,6 @@ help:
   - '&a/lc tp <name> &b: teleports you to a chest'
   - '&a/lc togglefall <name> &b: enable/disable the fall effect for a chest'
   - '&a/lc getname &b: get the name of the targeted LootChest'
+  - '&a/lc locate &b: gives locations of all chests that haves natural respawn message enabled'
  
  

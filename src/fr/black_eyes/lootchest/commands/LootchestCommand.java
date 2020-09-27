@@ -15,6 +15,8 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BlockIterator;
+
+import fr.black_eyes.lootchest.BungeeChannel;
 import fr.black_eyes.lootchest.Config;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
@@ -110,18 +112,10 @@ public void drawInPlane(Player p) {
 					}
 					Block chest;
 					BlockIterator iter = new BlockIterator(player, 10);
-
 				    Block lastBlock = iter.next();
-
 				    while (iter.hasNext()) {
-
 				        lastBlock = iter.next();
-
-				        if (lastBlock.getType() == Material.AIR) {
-				        	
-				            continue;
-				        }
-
+				        if (lastBlock.getType() == Material.AIR) continue;
 				        break;
 				    }
 				    chest = lastBlock;
@@ -167,10 +161,10 @@ public void drawInPlane(Player p) {
 				case "togglefall":
 					boolean fall = lc.getFall();
 					if(fall) {
-						lc.setFallEffect(false);
+						lc.setFall(false);
 						msg(sender, "disabledFallEffect", "[Chest]", args[1]);
 					} else {
-						lc.setFallEffect(true);
+						lc.setFall(true);
 						msg(sender, "enabledFallEffect", "[Chest]", args[1]);
 					}
 					updateData(lc);
@@ -192,12 +186,15 @@ public void drawInPlane(Player p) {
 					if(Bukkit.getWorld(lc.getWorld()) != null) {
 						restoreChest(lc, true);
 						msg(sender, "succesfulyRespawnedChest", "[Chest]", args[1]);
-						if(lc.getRespawnCMD()) {
+						if(lc.getRespawn_cmd()) {
 							Block block = lc.getActualLocation().getBlock();
 							String holo = lc.getHolo();
-							if(!config.getConfig().getBoolean("respawn_notify.per_world_message")) {
+							if(Main.getInstance().getConfig().getBoolean("respawn_notify.bungee_broadcast")) {
+								BungeeChannel.bungeeBroadcast((((Main.getInstance().getConfig().getString("respawn_notify.respawn_with_command.message").replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "§"));
+							}
+							else if(!config.getConfig().getBoolean("respawn_notify.per_world_message")) {
 								for(Player p : Bukkit.getOnlinePlayers()) {
-									p.sendMessage((((Main.getInstance().getConfig().getString("respawn_notify.respawn_with_command.message").replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "§"));							
+									p.sendMessage((((config.getConfig().getString("respawn_notify.respawn_with_command.message").replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "§"));							
 								}
 								
 							}else {
@@ -217,7 +214,17 @@ public void drawInPlane(Player p) {
 				}
 			}
 			else if(args.length == 1) {
-				if(args[0].equalsIgnoreCase("getname")) {
+				if(args[0].equalsIgnoreCase("locate")) {
+					msg(sender, "locate_command.main_message", " "," ");
+					for(Lootchest lcs : Main.LootChest.values()) {
+						if(lcs.getRespawn_natural()) {
+							Location block = lcs.getActualLocation();
+							String holo = lcs.getHolo();
+							sender.sendMessage(getMsg("locate_command.chest_list", "[world]", block.getWorld().getName()).replace("[Chest]", holo).replace("[x]", block.getX()+"").replace("[y]", block.getY()+"").replace("[z]", block.getZ()+""));
+						}
+					}
+				}
+				else if(args[0].equalsIgnoreCase("getname")) {
 					if(!(sender instanceof org.bukkit.entity.Player)) {
 						sender.sendMessage("§cPlease, run this command in-game");
 						return false;
@@ -251,10 +258,15 @@ public void drawInPlane(Player p) {
 			                    }, 0L);
 			            }, 5L);
 			        }
+
 					if(Main.getInstance().getConfig().getBoolean("respawn_notify.respawn_all_with_command.enabled") ) {
-						for(Player p : Bukkit.getOnlinePlayers()) {
-							p.sendMessage(Main.getInstance().getConfig().getString("respawn_notify.respawn_all_with_command.message").replaceAll("&", "§"));
-					
+						if(Main.getInstance().getConfig().getBoolean("respawn_notify.bungee_broadcast")) {
+							BungeeChannel.bungeeBroadcast(Main.getInstance().getConfig().getString("respawn_notify.respawn_all_with_command.message").replace("&", "§"));
+						}else {
+							for(Player p : Bukkit.getOnlinePlayers()) {
+								p.sendMessage(Main.getInstance().getConfig().getString("respawn_notify.respawn_all_with_command.message").replaceAll("&", "§"));
+						
+							}
 						}
 					}
 					msg(sender, "AllChestsReloaded", " ", " ");
@@ -361,7 +373,7 @@ public void drawInPlane(Player p) {
 						Main.part.remove(loc);
 					}
 					if(Integer.parseInt(args[2]) == 0) {
-						lc.setRandomLocation(null);
+						lc.setRandomLoc(null);
 						msg(sender, "disabledChestRadius", "[Chest]", args[1]);
 					}
 					restoreChest(lc, true);
@@ -403,7 +415,7 @@ public void drawInPlane(Player p) {
 	
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String msg, String[] args) {
-		final String[] completions0 = { "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "reload", "list", "setpos", "give", "randomspawn", "tp", "settime","togglefall", "getname"};
+		final String[] completions0 = { "locate", "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "reload", "list", "setpos", "give", "randomspawn", "tp", "settime","togglefall", "getname"};
 		final List<String> chests = new ArrayList<String>();
 		for(String g: data.getConfigurationSection("chests").getKeys(false)){
 			chests.add(g);

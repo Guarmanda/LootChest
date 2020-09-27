@@ -55,8 +55,8 @@ public final class Mat {
 			ENDER_EYE = Material.valueOf("EYE_OF_ENDER");
 			TOTEM_OF_UNDYING = Material.valueOf("STONE");
 		}
-		if(Bukkit.getVersion().contains("1.13") || Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15")) {
-			if(Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15")){
+		if(Bukkit.getVersion().contains("1.13") || Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15") || Bukkit.getVersion().contains("1.16")) {
+			if(Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15")|| Bukkit.getVersion().contains("1.16")){
 				SIGN = Material.valueOf("OAK_SIGN");
 			}
 			else {

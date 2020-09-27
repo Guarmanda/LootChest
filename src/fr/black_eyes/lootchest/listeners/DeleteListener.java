@@ -21,6 +21,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.Plugin;
 
+import fr.black_eyes.lootchest.BungeeChannel;
 import fr.black_eyes.lootchest.Config;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
@@ -93,8 +94,12 @@ public class DeleteListener extends Utils implements Listener  {
     					restoreChest(keys, false);
     				}
     			}
-    			if(keys.getTakeMessage()){
+    			if(keys.getTake_msg()){
 	    			String msg = Main.getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "§");
+	    			if(Main.getInstance().getConfig().getBoolean("respawn_notify.bungee_broadcast")) {
+						BungeeChannel.bungeeBroadcast(msg);
+					}
+					else 
 	    			if(!Main.getInstance().getConfig().getBoolean("respawn_notify.per_world_message")) {
 						Bukkit.broadcastMessage(msg);							
 					}else {
@@ -128,6 +133,22 @@ public class DeleteListener extends Utils implements Listener  {
     		Lootchest keys = isLootChest(e.getBlock().getLocation());
 
     		if(keys!=null) {
+    			Player p = e.getPlayer();
+    			if(keys.getTake_msg()){
+	    			String msg = Main.getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "§");
+	    			if(Main.getInstance().getConfig().getBoolean("respawn_notify.bungee_broadcast")) {
+						BungeeChannel.bungeeBroadcast(msg);
+					}
+					else 
+	    			if(!Main.getInstance().getConfig().getBoolean("respawn_notify.per_world_message")) {
+						Bukkit.broadcastMessage(msg);							
+					}else {
+						for(Player pl : p.getWorld().getPlayers()){
+							pl.sendMessage(msg);							
+							
+						}
+					}
+    			}
     			Location loc = e.getBlock().getLocation();
     			deleteholo(loc);
     	        final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
