@@ -217,7 +217,7 @@ public class Utils  {
 
 		Location loc = lc.globalLoc.clone();
 		//if this option is true, we count players in a way that is compatible with all versions, then we take the location of one of these players randomly
-		if(config.getConfig().getBoolean("use_players_locations_for_randomspawn")) {
+		if(config.getConfig().getBoolean("use_players_locations_for_randomspawn") && lc.radius != 0) {
 			int i = 0;
 			for(@SuppressWarnings("unused") Player p : Bukkit.getOnlinePlayers()) i++;
 			if(i>0) {
