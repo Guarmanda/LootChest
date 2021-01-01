@@ -1,6 +1,7 @@
 package fr.black_eyes.lootchest;
 
 import java.sql.Timestamp;
+import java.util.Iterator;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
@@ -12,6 +13,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Directional;
 import org.bukkit.command.CommandSender;
 
 import org.bukkit.entity.Entity;
@@ -23,8 +26,9 @@ import fr.black_eyes.lootchest.falleffect.FallingPackageEntity;
 
 public class Utils  {
 	Main instance = Main.getInstance();
-	Config config = Main.getConfigFiles();
-	long timing;
+	Files configFiles = Main.getConfigFiles();
+
+
 	
 	//message functions that automatically get a message from config.getLang()uage file
 	public void msg(CommandSender p, String path, String replacer, String replacement) {
@@ -32,7 +36,7 @@ public class Utils  {
 	}
 	
 	public String getMsg(String path, String replacer, String replacement) {
-		return config.getLang().getString(path).replace(replacer, replacement).replace("&", "§");
+		return configFiles.getLang().getString(path).replace(replacer, replacement).replace("&", "§");
 	}
 	
 	
@@ -100,7 +104,7 @@ public class Utils  {
 		loc2.setZ(loc.getZ()+0.5);
 		Main.part.remove(loc2);
 		deleteholo(chest.getLocation());
-		Main.LootChest.remove(lc.name);
+		Main.getInstance().getLootChest().remove(lc.name);
 		
 	}
 	
@@ -113,8 +117,6 @@ public class Utils  {
 		if( minutes<1) {
 			return;
 		}
-		//Bukkit.getLogger().info("spawning of "+ key + " in "+ (minutes*60-((tempsactuel - tempsenregistre)/1000)) +"seconds");
-		//Main.getInstance().getLogger().info("Sheduler launched for chest " + key + " : " + (minutes*60-((tempsactuel - tempsenregistre)/1000)) + " seconds");
 		new BukkitRunnable() {       
             @Override
             public void run() {
@@ -160,10 +162,10 @@ public class Utils  {
 			deleteholo(loc);
 			makeHolo(loc, lc);
 		}
-		if(!Bukkit.getVersion().contains("1.7") && lc.fall && Main.getInstance().getConfig().getBoolean("Fall_Effect.Let_Block_Above_Chest_After_Fall")){
+		if(!Bukkit.getVersion().contains("1.7") && lc.fall && Main.configs.FALL_Let_Block_Above_Chest_After_Fall){
 			Location arm = loc.clone();
 			arm.add(0.5, 2, 0.5);
-			Material mat = Material.valueOf(config.getConfig().getString("Fall_Effect.Block"));
+			Material mat = Material.valueOf(Main.configs.FALL_Block);
 			Entity ent = (org.bukkit.entity.ArmorStand) loc.getWorld().spawnEntity(arm, org.bukkit.entity.EntityType.ARMOR_STAND);
 			
 			
@@ -171,7 +173,7 @@ public class Utils  {
 		 	((org.bukkit.entity.ArmorStand) ent).setHelmet(new ItemStack(mat, 1));
 		 	if(!Bukkit.getVersion().contains("1.13") && !Bukkit.getVersion().contains("1.14") && !Bukkit.getVersion().contains("1.15") && !Bukkit.getVersion().contains("1.16")) {
 			 	if(mat.equals(Material.valueOf("WOOL"))) {
-			 		((org.bukkit.entity.ArmorStand) ent).setHelmet(new ItemStack(mat, 1, DyeColor.valueOf(config.getConfig().getString("Optionnal_Color_If_Block_Is_Wool")).getDyeData()));
+			 		((org.bukkit.entity.ArmorStand) ent).setHelmet(new ItemStack(mat, 1, DyeColor.valueOf(Main.configs.FALL_Optionnal_Color_If_Block_Is_Wool).getDyeData()));
 			 	}
 		 	}
 		 	((org.bukkit.entity.ArmorStand) ent).setBasePlate(false);
@@ -196,10 +198,10 @@ public class Utils  {
 	//se sert du config.getData().yml pour set le coffre et remplir son inventaire, cr§er l'holo en fonction du nom 
 	//Taking informations from config.getData().yml to restore a specific chest if it is time to do it, or if we force respawn. 
 	public boolean restoreChest(Lootchest lc, Boolean force) {
-		if(!Main.LootChest.containsValue(lc)) {
+		if(!Main.getInstance().getLootChest().containsValue(lc)) {
 			return false;
 		}
-		Integer num = config.getConfig().getInt("Minimum_Number_Of_Players_For_Natural_Spawning");
+		Integer num =Main.configs.Minimum_Number_Of_Players_For_Natural_Spawning;
 		int players = 0;
 		if(org.bukkit.Bukkit.getVersion().contains("1.7")) {
 			players = org.bukkit.Bukkit.getOnlinePlayers().toArray().length;
@@ -208,18 +210,21 @@ public class Utils  {
 		}
 		//Main.getInstance().getLogger().info("respawn function of "+ name + " (1)");
 
-		if(Bukkit.getWorld(lc.world) == null) {
-			Bukkit.getLogger().info("§cThe world " + lc.world + " is not loaded, can't respawn chest " + lc.name);
+		if(Bukkit.getWorld(lc.getWorld()) == null) {
+			Bukkit.getLogger().info("§cThe world " + lc.getWorld() + " is not loaded, can't respawn chest " + lc.getName());
 			return false;
 		}
 		
 		//Main.getInstance().getLogger().info("respawn function of "+ name + " (2)");
 
-		Location loc = lc.globalLoc.clone();
+		Location loc = lc.getPosition();
 		//if this option is true, we count players in a way that is compatible with all versions, then we take the location of one of these players randomly
-		if(config.getConfig().getBoolean("use_players_locations_for_randomspawn") && lc.radius != 0) {
+		if(Main.configs.use_players_locations_for_randomspawn && lc.getRadius() !=0) {
 			int i = 0;
-			for(@SuppressWarnings("unused") Player p : Bukkit.getOnlinePlayers()) i++;
+			Iterator<?> itr = Bukkit.getOnlinePlayers().iterator();
+			while( itr.hasNext()) { 
+				itr.next(); i++;
+			}
 			if(i>0) {
 				int ran = ThreadLocalRandom.current().nextInt(1, i+1);
 				i=0;
@@ -232,9 +237,9 @@ public class Utils  {
 			}
 		}
 		Location newloc = loc;
-		if(lc.radius != 0) {
-			int random = lc.radius;
-			Location randompos = lc.globalLoc.clone();
+		if(lc.getRadius() != 0) {
+			int random = lc.getRadius();
+			Location randompos = lc.getPosition();
 
 			randompos.setX(randomInt(random)+loc.getX());
 			randompos.setZ(randomInt(random)+loc.getZ());
@@ -242,7 +247,7 @@ public class Utils  {
 			if (Bukkit.getVersion().contains("1.15") || Bukkit.getVersion().contains("1.16")) {
 				randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos)+1);
 			}
-			if(config.getConfig().getBoolean("Prevent_Chest_Spawn_In_Protected_Places")) {
+			if(Main.configs.Prevent_Chest_Spawn_In_Protected_Places) {
 				int counter = 0;
 				while(counter<50 && ProtectedRegions.isProtected(randompos)) {
 					randompos.setX(randomInt(random)+loc.getX());
@@ -256,7 +261,7 @@ public class Utils  {
 				if(counter == 50) {
 					Bukkit.getLogger().info("§cThe chest " + lc.name + " didn't found an unprotected location, so that it can't respawn! " );
 					long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime();
-					lc.lastreset = tempsactuel;
+					lc.setLastreset(tempsactuel);
 					sheduleRespawn(lc);
 					return false;
 				}
@@ -283,7 +288,7 @@ public class Utils  {
 		long tempsenregistre = lc.lastreset;
 
 		if((tempsactuel - tempsenregistre > minutes && minutes>-1) || force) {
-			int height = Main.getInstance().getConfig().getInt("Fall_Effect.Height");
+			int height = Main.configs.FALL_Height;
 			if(lc.radius!=0 && loc3 != newloc && block.getType().equals( Material.CHEST)) {
 				deleteholo(loc3);
 				((Chest) block.getState()).getInventory().clear();
@@ -295,21 +300,24 @@ public class Utils  {
 			if(lc.radius != 0) {
 				lc.randomLoc = newloc;
 			}
-           // Bukkit.getLogger().info("respawn function of "+ name + " (4)");
+			//Bukkit.getLogger().info("respawn function of "+ lc.name + " force:" + force+" lc.respawn_natural:"+ lc.respawn_natural + " num <= players:"+(num <= players) );
 			
 			if(!force && lc.respawn_natural && num <= players ) {
+				//Bukkit.getLogger().info("entrée if message");
 				String holo = lc.holo;
-				if(Main.getInstance().getConfig().getBoolean("respawn_notify.bungee_broadcast")) {
-					BungeeChannel.bungeeBroadcast((((Main.getInstance().getConfig().getString("respawn_notify.natural_respawn.message").replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
+				if(Main.configs.NOTE_bungee_broadcast) {
+					BungeeChannel.bungeeBroadcast((((Main.configs.NOTE_natural_msg.replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
 				}
-				else if(!Main.getInstance().getConfig().getBoolean("respawn_notify.per_world_message")) {
+				else if(!Main.configs.NOTE_per_world_message) {
+					//Bukkit.getLogger().info("per world msg désactivé, envoie");
 					for(Player p : Bukkit.getOnlinePlayers()) {
-						p.sendMessage((((Main.getInstance().getConfig().getString("respawn_notify.natural_respawn.message").replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
+						p.sendMessage((((Main.configs.NOTE_natural_msg.replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
 					}
 						
 				}else {
+					//Bukkit.getLogger().info("per world msg activé, envoie");
 					for(Player p : loc.getWorld().getPlayers()){
-						p.sendMessage((((Main.getInstance().getConfig().getString("respawn_notify.natural_respawn.message").replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
+						p.sendMessage((((Main.configs.NOTE_natural_msg.replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
 					}
 				}
 			}
@@ -317,12 +325,12 @@ public class Utils  {
 			
 			final Location theloc = newloc;
 			//Bukkit.getLogger().info("respawn function of "+ name);
-			if(lc.fall&& (num <= players || force) ) {
+			if(lc.fall && (num <= players || force) ) {
 				
 				Location startloc = new Location(newloc.getWorld(), newloc.getX()+0.5, newloc.getY()+height, newloc.getZ()+0.5);
 				Boolean loaded = startloc.getWorld().isChunkLoaded(startloc.getBlockX()/16, startloc.getBlockZ()/16) ;
 				final Block newblock = newloc.getBlock();
-				if(loaded || config.getConfig().getBoolean("Fall_Effect.Let_Block_Above_Chest_After_Fall")) {
+				if(loaded || Main.configs.FALL_Let_Block_Above_Chest_After_Fall) {
 
 					new FallingPackageEntity(startloc, loaded, theloc);
 
@@ -340,7 +348,7 @@ public class Utils  {
 				spawnChest(lc, newblock, theloc, force);
 			}
 			
-			if(!Main.getInstance().getConfig().getBoolean("UseHologram")){
+			if(!Main.configs.UseHologram){
 				deleteholo(loc);
 
 			}
@@ -357,9 +365,8 @@ public class Utils  {
 	}
 	
 	
-	@SuppressWarnings("deprecation")
 	public  void spawnChest(Lootchest name, Block block, Location theloc, Boolean force) {
-		Integer num = config.getConfig().getInt("Minimum_Number_Of_Players_For_Natural_Spawning");
+		Integer num = Main.configs.Minimum_Number_Of_Players_For_Natural_Spawning;
 		int players = 0;
 		if(org.bukkit.Bukkit.getVersion().contains("1.7")) {
 			players = org.bukkit.Bukkit.getOnlinePlayers().toArray().length;
@@ -373,19 +380,8 @@ public class Utils  {
 
 			String direction = name.direction;
 			BlockState state = block.getState();
-			if(direction.equalsIgnoreCase("east")){
-				state.setData(new org.bukkit.material.Chest(BlockFace.EAST));
-			}
-			if(direction.equalsIgnoreCase("north")){
-				state.setData(new org.bukkit.material.Chest(BlockFace.NORTH));
-			}			
-			if(direction.equalsIgnoreCase("south")){
-				state.setData(new org.bukkit.material.Chest(BlockFace.SOUTH));
-			}			
-			if(direction.equalsIgnoreCase("west")){
-				state.setData(new org.bukkit.material.Chest(BlockFace.WEST));
-			}
-			state.update();
+			setDirection(state, direction);
+			
 			
 			final Location loc2 = name.getActualLocation();
 			loc2.add(0.5,0.5,0.5);
@@ -404,20 +400,56 @@ public class Utils  {
 				deleteholo(theloc);
 				Main.part.remove(loc2);
 			}
-			if(Main.getInstance().getConfig().getBoolean("UseHologram")){
+			if(Main.configs.UseHologram){
 				deleteholo(theloc);
 				makeHolo(theloc, name);
 			}
 		}
 		long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime();
 		name.lastreset = tempsactuel;
-		if(config.getConfig().getBoolean("save_Chest_Locations_At_Every_Spawn")) {
-			config.reloadData();
+		if(Main.configs.save_Chest_Locations_At_Every_Spawn) {
+			configFiles.reloadData();
 		}
 		//config.reloadData();
 		//Main.getInstance().getLogger().info("Shedule respawn of chest "+ name);
 
 		sheduleRespawn(name);
+	}
+	
+	
+	@SuppressWarnings("deprecation")
+	public void setDirection(BlockState state, String direction) {
+		if(org.bukkit.Bukkit.getVersion().contains("1.16")) {
+			BlockData b = state.getBlockData();
+			if(direction.equalsIgnoreCase("east")){
+				((Directional)b).setFacing(BlockFace.EAST);
+			}
+			if(direction.equalsIgnoreCase("north")){
+				((Directional)b).setFacing(BlockFace.NORTH);
+			}			
+			if(direction.equalsIgnoreCase("south")){
+				((Directional)b).setFacing(BlockFace.SOUTH);
+			}			
+			if(direction.equalsIgnoreCase("west")){
+				((Directional)b).setFacing(BlockFace.WEST);
+			}
+			state.setBlockData(b);
+		}
+		else {
+			if(direction.equalsIgnoreCase("east")){
+				state.setData(new org.bukkit.material.Chest(BlockFace.EAST));
+			}
+			if(direction.equalsIgnoreCase("north")){
+				state.setData(new org.bukkit.material.Chest(BlockFace.NORTH));
+			}			
+			if(direction.equalsIgnoreCase("south")){
+				state.setData(new org.bukkit.material.Chest(BlockFace.SOUTH));
+			}			
+			if(direction.equalsIgnoreCase("west")){
+				state.setData(new org.bukkit.material.Chest(BlockFace.WEST));
+			}
+		}
+		state.update();
 	}
 	
 	//check for empty inventory
@@ -433,7 +465,7 @@ public class Utils  {
 	//check if a chest is a lootchest by looking all lootchests locations
 	public  Lootchest isLootChest(Location loc) {
 		
-		for(Lootchest keys : Main.LootChest.values()) {
+		for(Lootchest keys : Main.getInstance().getLootChest().values()) {
 			Location loc2 = keys.getActualLocation();
 			if(loc2.equals(loc)) {
 				return keys;
@@ -444,60 +476,65 @@ public class Utils  {
 	
 	//geting chest position from config.getData().yml
 	public  Location getPosition(String name) {
-		if (config.getData().getString("chests." + name + ".position.world") == null) {
+		if (configFiles.getData().getString("chests." + name + ".position.world") == null) {
 			instance.getLogger().info("§cThe plugin couldn't get the world of chest §6" + name +"§c. This won't prevent the plugin to work, but the plugin may throw other errors because of that.");
 			return null;
 		}
-		World world = Bukkit.getWorld(config.getData().getString("chests." + name + ".position.world"));
-		double x = config.getData().getDouble("chests." + name + ".position.x");
-		double y = config.getData().getDouble("chests." + name + ".position.y");
-		double z = config.getData().getDouble("chests." + name + ".position.z");
-		float pitch = (float) config.getData().getDouble("chests." + name + ".position.pitch");
-		float yaw = (float) config.getData().getDouble("chests." + name + ".position.yaw");
+		World world = Bukkit.getWorld(configFiles.getData().getString("chests." + name + ".position.world"));
+		double x = configFiles.getData().getDouble("chests." + name + ".position.x");
+		double y = configFiles.getData().getDouble("chests." + name + ".position.y");
+		double z = configFiles.getData().getDouble("chests." + name + ".position.z");
+		float pitch = (float) configFiles.getData().getDouble("chests." + name + ".position.pitch");
+		float yaw = (float) configFiles.getData().getDouble("chests." + name + ".position.yaw");
 		return new Location(world, x, y, z, pitch, yaw);
 	}
 	
 	//seting chest position in config.getData().yml
 	public  void setPosition(String name, Location loc) {
-		config.getData().set("chests." + name + ".position.world", loc.getWorld().getName());
-		config.getData().set("chests." + name + ".position.x", loc.getX());
-		config.getData().set("chests." + name + ".position.y", loc.getY());
-		config.getData().set("chests." + name + ".position.z", loc.getZ());
-		config.getData().set("chests." + name + ".position.pitch", loc.getPitch());
-		config.getData().set("chests." + name + ".position.yaw", loc.getYaw());
+		configFiles.getData().set("chests." + name + ".position.world", loc.getWorld().getName());
+		configFiles.getData().set("chests." + name + ".position.x", loc.getX());
+		configFiles.getData().set("chests." + name + ".position.y", loc.getY());
+		configFiles.getData().set("chests." + name + ".position.z", loc.getZ());
+		configFiles.getData().set("chests." + name + ".position.pitch", loc.getPitch());
+		configFiles.getData().set("chests." + name + ".position.yaw", loc.getYaw());
 	}
 	
 	public  void setRandomPosition(String name, Location loc) {
-		config.getData().set("chests." + name + ".randomPosition.world", loc.getWorld().getName());
-		config.getData().set("chests." + name + ".randomPosition.x", loc.getX());
-		config.getData().set("chests." + name + ".randomPosition.y", loc.getY());
-		config.getData().set("chests." + name + ".randomPosition.z", loc.getZ());
-		config.getData().set("chests." + name + ".randomPosition.pitch", loc.getPitch());
-		config.getData().set("chests." + name + ".randomPosition.yaw", loc.getYaw());
+		try {
+		String world = loc.getWorld().getName();
+		configFiles.getData().set("chests." + name + ".randomPosition.world", world);
+		configFiles.getData().set("chests." + name + ".randomPosition.x", loc.getX());
+		configFiles.getData().set("chests." + name + ".randomPosition.y", loc.getY());
+		configFiles.getData().set("chests." + name + ".randomPosition.z", loc.getZ());
+		configFiles.getData().set("chests." + name + ".randomPosition.pitch", loc.getPitch());
+		configFiles.getData().set("chests." + name + ".randomPosition.yaw", loc.getYaw());
+		}catch(NullPointerException e) {
+			instance.getLogger().info(name + " " +loc.toString());
+		}
 	}
 	
 	public void updateData() {
-		for(Lootchest lc : Main.LootChest.values()) {
+		for(Lootchest lc : Main.getInstance().getLootChest().values()) {
 			lc.saveInConfig();
 		}
-		config.saveData();
+		configFiles.saveData();
 	}
 	
 	public void updateData(Lootchest lc) {
 		lc.saveInConfig();
-		config.saveData();
+		configFiles.saveData();
 	}
 	
 	public  Location getRandomPosition(String name) {
-		if(!config.getData().isSet("chests." + name + ".randomPosition.x")) {
+		if(!configFiles.getData().isSet("chests." + name + ".randomPosition.x")) {
 			return null;
 		}
-		World world = Bukkit.getWorld(config.getData().getString("chests." + name + ".randomPosition.world"));
-		double x = config.getData().getDouble("chests." + name + ".randomPosition.x");
-		double y = config.getData().getDouble("chests." + name + ".randomPosition.y");
-		double z = config.getData().getDouble("chests." + name + ".randomPosition.z");
-		float pitch = (float) config.getData().getDouble("chests." + name + ".randomPosition.pitch");
-		float yaw = (float) config.getData().getDouble("chests." + name + ".randomPosition.yaw");
+		World world = Bukkit.getWorld(configFiles.getData().getString("chests." + name + ".randomPosition.world"));
+		double x = configFiles.getData().getDouble("chests." + name + ".randomPosition.x");
+		double y = configFiles.getData().getDouble("chests." + name + ".randomPosition.y");
+		double z = configFiles.getData().getDouble("chests." + name + ".randomPosition.z");
+		float pitch = (float) configFiles.getData().getDouble("chests." + name + ".randomPosition.pitch");
+		float yaw = (float) configFiles.getData().getDouble("chests." + name + ".randomPosition.yaw");
 		return new Location(world, x, y, z, pitch, yaw);
 	}
 	
@@ -527,7 +564,7 @@ public class Utils  {
 	public  void makeHolo(Location loc, Lootchest lc) {
 		if(!org.bukkit.Bukkit.getVersion().contains("1.7")){
 			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-			loc2.add(0.5, Main.getInstance().getConfig().getInt("Hologram_distance_to_chest"), 0.5);
+			loc2.add(0.5, Main.configs.Hologram_distance_to_chest, 0.5);
 			//the coordinates of a block are at the corner of the block
 
 			String name = lc.holo.replace("&", "§");
@@ -545,15 +582,18 @@ public class Utils  {
 			 	as.setBasePlate(false);
 			 	as.setSmall(true);
 			 	as.setMarker(true);
-			 	if(config.getConfig().getBoolean("Show_Timer_On_Hologram") && lc.time != -1) {
+			 	if(Main.configs.Show_Timer_On_Hologram && lc.time != -1) {
 			 	new BukkitRunnable() {
 			    		public void run() {
 			    			long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime()/1000;
 			    			long minutes = lc.time*60;
 			    			long tempsenregistre = lc.lastreset/1000;
 			    			as.setCustomName(name + " (" + (minutes - (tempsactuel - tempsenregistre)) + ")");
+			    			if(minutes - (tempsactuel - tempsenregistre)<=0) {
+			    				this.cancel();
+			    			}
 			    		}
-			    	}.runTaskTimer(Main.getInstance(), lc.time*60*20, 20);
+			    	}.runTaskTimer(Main.getInstance(), 0, 20);
 			 	}
 	
 			}

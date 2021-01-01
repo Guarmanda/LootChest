@@ -48,9 +48,9 @@ public class Menu extends Utils{
 		}
 		
 		long temps = name.getTime();
-		long jours = temps/3600;
-		long heures = temps/60 - jours*24;
-		long minutes = temps - heures*60 - jours*3600;
+		long jours = temps/1440;
+		long heures = (temps-jours*1440)/60;
+		long minutes = temps - (jours*1440+heures*60);
 		
 		
 		//Initialisation du menu selon le temps du coffre
@@ -112,7 +112,7 @@ public class Menu extends Utils{
 		int i = 0;
 		int nbBoxes = 0;
 		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 54, getMsg("Menu.copy.name", " ", " "));
-		Set<String> boxes = Main.LootChest.keySet();
+		Set<String> boxes = Main.getInstance().getLootChest().keySet();
 
 		for(String keys : boxes) {
 			if(j== 2 && nbBoxes < 53) nbBoxes++;
@@ -120,14 +120,14 @@ public class Menu extends Utils{
 			//exempter le coffre actuel de la liste, et si il y a plus de 54 coffres, stopper i à 53 si on doit faire deux pages
 			
 			else if(!keys.equals(chest.name) && (i!=45 || j==1) && (i!=53 || (boxes.size() -1)<=(j*52+1) ) ){
-				String name = Main.LootChest.get(keys).holo.replace("&", "§");
-				String effect = config.getData().getString("chests." + keys + ".particle");
+				String name = Main.getInstance().getLootChest().get(keys).holo.replace("&", "§");
+				String effect = configFiles.getData().getString("chests." + keys + ".particle");
 				String world;
-				if(Bukkit.getWorld(Main.LootChest.get(keys).world) == null) {
+				if(Bukkit.getWorld(Main.getInstance().getLootChest().get(keys).world) == null) {
 					world = "Unloaded world";
 				}
 				else {
-					world = Bukkit.getWorld(Main.LootChest.get(keys).world).getName();
+					world = Bukkit.getWorld(Main.getInstance().getLootChest().get(keys).world).getName();
 				}
 				ItemStack item = getItemWithLore(Material.CHEST, "§6" +keys, "§bHologram: §6" + name + "||§bWorld: §6"+ world + "||§bEffect: §6" + effect);
 				inv.setItem(i++, item);
@@ -137,14 +137,14 @@ public class Menu extends Utils{
 				ItemStack item = getItem(Material.PAPER,  name );
 				inv.setItem(i++, item);
 				String world;
-				if(Bukkit.getWorld(Main.LootChest.get(keys).world) == null) {
+				if(Bukkit.getWorld(Main.getInstance().getLootChest().get(keys).world) == null) {
 					world = "Unloaded world";
 				}
 				else {
-					world = Bukkit.getWorld(Main.LootChest.get(keys).world).getName();
+					world = Bukkit.getWorld(Main.getInstance().getLootChest().get(keys).world).getName();
 				}
-				String name2 = Main.LootChest.get(keys).holo.replace("&", "§");
-				String effect = Main.LootChest.get(keys).particle;
+				String name2 = Main.getInstance().getLootChest().get(keys).holo.replace("&", "§");
+				String effect = Main.getInstance().getLootChest().get(keys).particle;
 
 				ItemStack item2 = getItemWithLore(Material.CHEST, "§6" +keys, "§bHologram: §6" + name2 + "||§bWorld: §6"+ world + "||§bEffect: §6" + effect);
 				inv.setItem(i++, item2);
@@ -167,13 +167,13 @@ public class Menu extends Utils{
 	public  void mainInv(Player p, String name) {
         final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 36, getMsg("Menu.main.name", " ", " "));
         inv.setItem(4, getItem(Mat.ENDER_CHEST, getMsg("Menu.main.copychest", " ", " ")));
-        if(config.getConfig().getBoolean("Particles.enable")) {
+        if(Main.configs.PART_enable) {
         	inv.setItem(11, getItem(Mat.ENDER_EYE, getMsg("Menu.main.particles", " ", " ")));
         }
         inv.setItem(13, getItem(Mat.CHEST, getMsg("Menu.main.content", " ", " ")));
         inv.setItem(15, getItem(Mat.CLOCK, getMsg("Menu.main.respawnTime", " ", " ")));
         inv.setItem(22, getItem(Mat.DIAMOND, getMsg("Menu.main.chances", " ", " ")));
-        Lootchest lc = Main.LootChest.get(name);
+        Lootchest lc = Main.getInstance().getLootChest().get(name);
         inv.setItem(28, getEnabled("fall", lc.fall));
         inv.setItem(30, getEnabled("respawn_cmd", lc.respawn_cmd));
         inv.setItem(32, getEnabled("respawn_natural", lc.respawn_natural));

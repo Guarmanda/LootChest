@@ -5,7 +5,6 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,7 +15,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import fr.black_eyes.lootchest.Config;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
@@ -26,9 +24,9 @@ import fr.black_eyes.lootchest.commands.LootchestCommand;
 public class InventoryListeners extends Menu implements Listener {
 	
 
-	Config config = Main.getConfigFiles();
 
-	 FileConfiguration lang = Main.getConfigFiles().getLang();
+
+	
 	public static HashMap<Player, String> particles = new HashMap<Player, String>();
 	
 	//gère la modification des coffres
@@ -51,7 +49,7 @@ public class InventoryListeners extends Menu implements Listener {
     	LootchestCommand.editinv.remove(p);
 
         if (LootchestCommand.menuName.get(p).equals(getMsg("Menu.items.name", "[Chest]", chest))) {
-        	Lootchest lc = Main.LootChest.get(chest);
+        	Lootchest lc = Main.getInstance().getLootChest().get(chest);
 			lc.setInventory(e.getInventory());
 			LootchestCommand.menuName.put(p, getMsg("Menu.main.name", "[Chest]", chest));
 			updateData(lc);
@@ -70,7 +68,7 @@ public class InventoryListeners extends Menu implements Listener {
         }*/
 
         else if (LootchestCommand.menuName.get(p).equals(getMsg("Menu.chances.name", "[Chest]", chest))) {
-        	Lootchest lc = Main.LootChest.get(chest);
+        	Lootchest lc = Main.getInstance().getLootChest().get(chest);
 			for(int i = 0 ; i < e.getInventory().getSize() ; i++) {
 				if(e.getInventory().getItem(i) != null) {
 					List<String> lore = e.getInventory().getItem(i).getItemMeta().getLore();
@@ -84,7 +82,7 @@ public class InventoryListeners extends Menu implements Listener {
         
         
         else if (LootchestCommand.menuName.get(p).equals(getMsg("Menu.time.name", "[Chest]", chest))) {
-        	Lootchest lc = Main.LootChest.get(chest);
+        	Lootchest lc = Main.getInstance().getLootChest().get(chest);
 			Inventory inv = e.getInventory();
 			int valeurs[] = {0,0,0,0,0,0,0,0};
 			for(int i=9; i<17; i++) {
@@ -105,7 +103,7 @@ public class InventoryListeners extends Menu implements Listener {
 			
         }
         else return;
-        restoreChest(Main.LootChest.get(chest), true);
+        restoreChest(Main.getInstance().getLootChest().get(chest), true);
     }
 	
 	
@@ -124,7 +122,7 @@ public class InventoryListeners extends Menu implements Listener {
         if (!(e.getWhoClicked() instanceof Player)) {
         	return;
         }
-        if (Main.LootChest.size() == 0) {  	
+        if (Main.getInstance().getLootChest().size() == 0) {  	
         	return;
         }
         final Player player =(Player)e.getWhoClicked();
@@ -133,7 +131,7 @@ public class InventoryListeners extends Menu implements Listener {
         }
         //particles menu
         if (LootchestCommand.menuName.get(player).equals(getMsg("Menu.particles.name", "[Chest]", LootchestCommand.editinv.get(player)))) {
-        	Lootchest lc = Main.LootChest.get(LootchestCommand.editinv.get(player));
+        	Lootchest lc = Main.getInstance().getLootChest().get(LootchestCommand.editinv.get(player));
         	e.setCancelled(true);
     		String particules[] = {"EXPLOSION_HUGE", "EXPLOSION_LARGE", "EXPLOSION_NORMAL", "FIREWORKS_SPARK", "WATER_BUBBLE", "SUSPENDED", "TOWN_AURA", "CRIT", "CRIT_MAGIC", "SMOKE_NORMAL", "SMOKE_LARGE", "SPELL_MOB", "SPELL_MOB_AMBIENT", "SPELL", "SPELL_INSTANT", "SPELL_WITCH", "NOTE", "PORTAL", "ENCHANTMENT_TABLE", "FLAME", "LAVA", "LAVA", "WATER_SPLASH", "WATER_WAKE", "CLOUD", "SNOWBALL", "DRIP_WATER", "DRIP_LAVA", "SNOW_SHOVEL", "SLIME", "HEART", "VILLAGER_ANGRY", "VILLAGER_HAPPY", "BARRIER"};
         	if(!Bukkit.getVersion().contains("1.13") && !Bukkit.getVersion().contains("1.14") && !Bukkit.getVersion().contains("1.15")) {
@@ -158,7 +156,7 @@ public class InventoryListeners extends Menu implements Listener {
         //copy menu
         else if (LootchestCommand.menuName.get(player).equals(getMsg("Menu.copy.name", " ", " "))) {
         	String chest = LootchestCommand.editinv.get(player);
-        	Lootchest lc = Main.LootChest.get(chest);
+        	Lootchest lc = Main.getInstance().getLootChest().get(chest);
         	if (e.getCurrentItem().getType().equals(Material.AIR)) {return;}
         	if (e.getCurrentItem().getType().equals(Material.PAPER)) {
         		int j = Integer.parseInt(org.bukkit.ChatColor.stripColor(e.getCurrentItem().getItemMeta().getDisplayName()).replaceAll("\\D+",""));
@@ -168,7 +166,7 @@ public class InventoryListeners extends Menu implements Listener {
         	}
         	String copyChest = e.getCurrentItem().getItemMeta().getDisplayName().replace("§6", "");
         	
-        	copychest(Main.LootChest.get(copyChest), Main.LootChest.get(chest));
+        	copychest(Main.getInstance().getLootChest().get(copyChest), Main.getInstance().getLootChest().get(chest));
         	player.closeInventory();
         	player.sendMessage(getMsg("copiedChest", "[Chest1]", copyChest).replace("[Chest2]", chest));
         }
@@ -176,7 +174,7 @@ public class InventoryListeners extends Menu implements Listener {
         else if(LootchestCommand.menuName.get(player).equals(getMsg("Menu.main.name", "[chest]", LootchestCommand.editinv.get(player)))) {
         	e.setCancelled(true);
         	String chest = LootchestCommand.editinv.get(player);
-        	Lootchest lc = Main.LootChest.get(chest);
+        	Lootchest lc = Main.getInstance().getLootChest().get(chest);
         	switch(e.getSlot()) {
         		case 4:
         			player.closeInventory();
@@ -278,7 +276,7 @@ public class InventoryListeners extends Menu implements Listener {
         }
         else if(LootchestCommand.menuName.get(player).equals(getMsg("Menu.time.name", "[Chest]", LootchestCommand.editinv.get(player)))) {
         	e.setCancelled(true);
-        	Lootchest lc = Main.LootChest.get(LootchestCommand.editinv.get(player));
+        	Lootchest lc = Main.getInstance().getLootChest().get(LootchestCommand.editinv.get(player));
         	ItemStack item = e.getCurrentItem();
         	switch(e.getSlot()) {
         	case 4:

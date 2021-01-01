@@ -5,6 +5,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,10 +21,11 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 import fr.black_eyes.lootchest.BungeeChannel;
-import fr.black_eyes.lootchest.Config;
+
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
@@ -31,7 +34,7 @@ import fr.black_eyes.lootchest.Utils;
 
 public class DeleteListener extends Utils implements Listener  {
 	
-	Config config = Main.getConfigFiles();
+
 	 FileConfiguration lang = Main.getConfigFiles().getLang();
 	public static HashMap<Player, Location> openInvs = new HashMap<Player, Location>();
 	//g§re la destruction d'un coffre au niveau des hologrames
@@ -83,12 +86,13 @@ public class DeleteListener extends Utils implements Listener  {
     public void oncloseInventory(InventoryCloseEvent e) {
     	Inventory inv = e.getInventory();
     	Player p = Bukkit.getPlayer(e.getPlayer().getName());
-    	if((isEmpty(inv) || config.getConfig().getBoolean("RemoveChestAfterFirstOpenning")) && openInvs.containsKey(p)) {
+    	if((isEmpty(inv) || Main.configs.RemoveChestAfterFirstOpenning) && openInvs.containsKey(p)) {
     		Lootchest keys = isLootChest(openInvs.get(p));
     		if(keys != null) {
     			Location loc = openInvs.get(p);
-    			if((config.getConfig().getBoolean("RemoveEmptyChests") && isEmpty(inv)) || config.getConfig().getBoolean("RemoveChestAfterFirstOpenning")) {
+    			if((Main.configs.RemoveEmptyChests && isEmpty(inv)) || Main.configs.RemoveChestAfterFirstOpenning) {
     				inv.clear();
+    				deleteholo(loc);
     				loc.getBlock().setType(Material.AIR);
     				if(keys.getTime()==0) {
     					restoreChest(keys, false);
@@ -96,11 +100,11 @@ public class DeleteListener extends Utils implements Listener  {
     			}
     			if(keys.getTake_msg()){
 	    			String msg = Main.getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "§");
-	    			if(Main.getInstance().getConfig().getBoolean("respawn_notify.bungee_broadcast")) {
+	    			if(Main.configs.NOTE_bungee_broadcast) {
 						BungeeChannel.bungeeBroadcast(msg);
 					}
 					else 
-	    			if(!Main.getInstance().getConfig().getBoolean("respawn_notify.per_world_message")) {
+	    			if(!Main.configs.NOTE_per_world_message) {
 						Bukkit.broadcastMessage(msg);							
 					}else {
 						for(Player pl : p.getWorld().getPlayers()){
@@ -109,7 +113,9 @@ public class DeleteListener extends Utils implements Listener  {
 						}
 					}
     			}
-    			deleteholo(loc);
+    			if(!Main.configs.Show_Timer_On_Hologram) {
+    				deleteholo(loc);
+    			}
     			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
     	    	loc2.setX(loc.getX()+0.5);
     	    	loc2.setY(loc.getY()+0.5);
@@ -136,11 +142,10 @@ public class DeleteListener extends Utils implements Listener  {
     			Player p = e.getPlayer();
     			if(keys.getTake_msg()){
 	    			String msg = Main.getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "§");
-	    			if(Main.getInstance().getConfig().getBoolean("respawn_notify.bungee_broadcast")) {
+	    			if(Main.configs.NOTE_bungee_broadcast) {
 						BungeeChannel.bungeeBroadcast(msg);
 					}
-					else 
-	    			if(!Main.getInstance().getConfig().getBoolean("respawn_notify.per_world_message")) {
+					else if(!Main.configs.NOTE_per_world_message) {
 						Bukkit.broadcastMessage(msg);							
 					}else {
 						for(Player pl : p.getWorld().getPlayers()){
@@ -175,6 +180,22 @@ public class DeleteListener extends Utils implements Listener  {
     	    	}
     			Lootchest keys = isLootChest(chest.getLocation());
         		if(keys != null) {
+        			if(Main.configs.Protect_From_Explosions) {
+        				
+        				BlockState state = chest.getState();
+        				ItemStack[] content = ((Chest)state).getInventory().getStorageContents();
+        				((Chest)state).getInventory().clear();
+        				chest.setType(Material.AIR); //stop item drops
+        		        
+        	            int delay = 2; 
+        	            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.getInstance(), new Runnable() {
+        	                public void run() {
+        	                    state.update(true, false);
+        	                    ((Chest)state).getInventory().setStorageContents(content);
+        	                }
+        	            }, delay);
+        				return;
+        			}
         			Location loc = chest.getLocation();
         			deleteholo(loc);
         	        final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
@@ -203,7 +224,7 @@ public class DeleteListener extends Utils implements Listener  {
     	if(block.getType() == Material.HOPPER) {
     		for(Block blockabove : blocksabove) {
 	    		if(isLootChest(blockabove.getLocation()) != null) {
-	    			if(config.getConfig().getBoolean("PreventHopperPlacingUnderLootChest")) {
+	    			if(Main.configs.PreventHopperPlacingUnderLootChest) {
 	    				e.setCancelled(true);
 	    			}
 	    		}
@@ -216,7 +237,7 @@ public class DeleteListener extends Utils implements Listener  {
     public void hopperPistonPush(BlockPistonExtendEvent e) {
     	for(Block block : e.getBlocks()) {
     		if(block.getType() == Material.HOPPER) {
-    			if(config.getConfig().getBoolean("PreventHopperPlacingUnderLootChest")) {
+    			if(Main.configs.PreventHopperPlacingUnderLootChest) {
     				e.setCancelled(true);
     			}    			
     		}

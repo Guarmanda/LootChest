@@ -16,8 +16,7 @@ import org.bukkit.entity.Firework;
 import org.bukkit.util.Vector;
 import org.inventivetalent.particle.ParticleEffect;
 
-
-import fr.black_eyes.lootchest.Config;
+import fr.black_eyes.lootchest.Files;
 import fr.black_eyes.lootchest.Main;
 
 
@@ -27,7 +26,8 @@ import org.bukkit.World;
 
 public class FallingPackageEntity extends PackageEntity {
 	Main instance = Main.getInstance();
-	Config config = Main.getConfigFiles();
+	Files configFiles = Main.getConfigFiles();
+
     World world;
     Location startLoc;
     Material material;
@@ -40,17 +40,17 @@ public class FallingPackageEntity extends PackageEntity {
     Boolean fireworks;
     
     public FallingPackageEntity(final Location loc, Boolean loaded,Location target) {
-    	this.fireworks = config.getConfig().getBoolean("Fall_Effect.Enable_Fireworks");
+    	this.fireworks = Main.configs.FALL_Enable_Fireworks;
     	this.target = target;
     	this.loaded = loaded;
-    	this.letAlive = config.getConfig().getBoolean("Fall_Effect.Let_Block_Above_Chest_After_Fall");
+    	this.letAlive = Main.configs.FALL_Let_Block_Above_Chest_After_Fall;
 
     	this.armorstand = Main.UseArmorStands;
         this.blocky = null;
         this.startLoc = this.applyOffset(loc);
         this.world = loc.getWorld();
-        this.material = Material.valueOf(config.getConfig().getString("Fall_Effect.Block"));
-        this.speed = config.getConfig().getDouble("Fall_Effect.Speed");
+        this.material = Material.valueOf(Main.configs.FALL_Block);
+        this.speed = Main.configs.FALL_Speed;
         if (Bukkit.getVersion().contains("1.7")) {
         	this.armorstand = false;
         }
@@ -80,7 +80,7 @@ public class FallingPackageEntity extends PackageEntity {
 			 	((org.bukkit.entity.ArmorStand) blocky).setHelmet(new ItemStack(this.material, 1));
 			 	if(!Bukkit.getVersion().contains("1.13") && !Bukkit.getVersion().contains("1.14") && !Bukkit.getVersion().contains("1.15")&& !Bukkit.getVersion().contains("1.16")) {
 				 	if(material.equals(Material.valueOf("WOOL"))) {
-				 		((org.bukkit.entity.ArmorStand) blocky).setHelmet(new ItemStack(this.material, 1, DyeColor.valueOf(config.getConfig().getString("Optionnal_Color_If_Block_Is_Wool")).getDyeData()));
+				 		((org.bukkit.entity.ArmorStand) blocky).setHelmet(new ItemStack(this.material, 1, DyeColor.valueOf(Main.configs.FALL_Optionnal_Color_If_Block_Is_Wool).getDyeData()));
 				 	}
 			 	}
 			 	((org.bukkit.entity.ArmorStand) blocky).setBasePlate(false);
@@ -120,7 +120,7 @@ public class FallingPackageEntity extends PackageEntity {
 		else if (this.world.getBlockAt(LocationUtils.offset(((Entity) this.blocky).getLocation(), 0.0, -1.0, 0.0)).getType() == Material.AIR) {
             ++this.counter;
             if(!Bukkit.getVersion().contains("1.8")) {
-				if(Bukkit.getVersion().contains("1.13") || Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15") || Bukkit.getVersion().contains("1.16")) {
+				if(Bukkit.getVersion().contains("1.12") || Bukkit.getVersion().contains("1.13") || Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15") || Bukkit.getVersion().contains("1.16")) {
 		           	this.world.spawnParticle(org.bukkit.Particle.SMOKE_NORMAL, goodLocation(), 50, 0.1, 0.1, 0.1, 0.1);
 				}				
 				else{
