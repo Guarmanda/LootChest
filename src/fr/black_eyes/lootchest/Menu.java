@@ -164,12 +164,24 @@ public class Menu extends Utils{
 	}
 	
 	
+	public void invType(Player p, Lootchest name) {
+		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 9, getMsg("Menu.time.name", "[Chest]", name.name));
+		inv.setItem(0, new ItemStack(Mat.CHEST, 1));
+		inv.setItem(1, new ItemStack(Mat.TRAPPED_CHEST, 1));
+		if(Mat.BARREL!=Mat.CHEST) {
+			inv.setItem(3,  new ItemStack(Mat.BARREL));
+		}
+		p.openInventory(inv);
+		LootchestCommand.editinv.put(p, name.name);
+	}
+	
 	public  void mainInv(Player p, String name) {
         final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 36, getMsg("Menu.main.name", " ", " "));
         inv.setItem(4, getItem(Mat.ENDER_CHEST, getMsg("Menu.main.copychest", " ", " ")));
         if(Main.configs.PART_enable) {
         	inv.setItem(11, getItem(Mat.ENDER_EYE, getMsg("Menu.main.particles", " ", " ")));
         }
+        inv.setItem(9, getItem(Mat.NOTE_BLOCK, getMsg("Menu.main.type", " ", " ")));
         inv.setItem(13, getItem(Mat.CHEST, getMsg("Menu.main.content", " ", " ")));
         inv.setItem(15, getItem(Mat.CLOCK, getMsg("Menu.main.respawnTime", " ", " ")));
         inv.setItem(22, getItem(Mat.DIAMOND, getMsg("Menu.main.chances", " ", " ")));

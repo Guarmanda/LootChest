@@ -7,7 +7,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
+import org.bukkit.inventory.InventoryHolder;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -21,6 +22,7 @@ import fr.black_eyes.lootchest.Config;
 import fr.black_eyes.lootchest.Files;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
+import fr.black_eyes.lootchest.Mat;
 import fr.black_eyes.lootchest.Menu;
 
 
@@ -121,10 +123,10 @@ public void drawInPlane(Player p) {
 				        break;
 				    }
 				    chest = lastBlock;
-					if (chest.getType() != Material.CHEST) {
+					if (!Mat.isALootChestBlock(chest)) {
 						msg(sender, "notAChest", " ", " ");
 					}
-					else if (isEmpty(((Chest) chest.getState()).getInventory())) {
+					else if (isEmpty(((InventoryHolder) chest.getState()).getInventory())) {
 						msg(sender, "chestIsEmpy", " ", " ");
 					}
 					else if (Main.getInstance().getLootChest().containsKey(args[1])){
@@ -173,6 +175,7 @@ public void drawInPlane(Player p) {
 					break;
 				case "setpos":
 					changepos(lc, player.getLocation().getBlock().getLocation());
+					lc.setDirection(getCardinalDirection(player));
 					updateData(lc);
 					msg(sender, "changedPosition", "[Chest]", args[1]);
 					break;
@@ -219,7 +222,7 @@ public void drawInPlane(Player p) {
 				if(args[0].equalsIgnoreCase("locate")) {
 					msg(sender, "locate_command.main_message", " "," ");
 					for(Lootchest lcs : Main.getInstance().getLootChest().values()) {
-						if(lcs.getRespawn_natural()) {
+						if(lcs.getRespawn_natural() && !lc.getTaken()) {
 							Location block = lcs.getActualLocation();
 							String holo = lcs.getHolo();
 							sender.sendMessage(getMsg("locate_command.chest_list", "[world]", block.getWorld().getName()).replace("[Chest]", holo).replace("[x]", block.getX()+"").replace("[y]", block.getY()+"").replace("[z]", block.getZ()+""));
@@ -244,7 +247,7 @@ public void drawInPlane(Player p) {
 				    chest = lastBlock;
 				    Lootchest l = isLootChest(chest.getLocation());
 				    
-					if (chest.getType() != Material.CHEST || l == null) {
+					if (l == null || !l.isGoodType(chest)) {
 						msg(sender, "notAChest", " ", " ");
 					}
 					else if (l!=null){
@@ -277,7 +280,7 @@ public void drawInPlane(Player p) {
 				else if(args[0].equalsIgnoreCase("reload")) {
 					updateData();
 					configFiles.reloadConfig();
-					Main.configs = Config.getInstance();
+					Main.configs = Config.getInstance(configFiles.getConfig());
 					Main.part.clear();
 					Main.getInstance().getLootChest().clear();
 					for(String keys : configFiles.getData().getConfigurationSection("chests").getKeys(false)) {
@@ -366,18 +369,18 @@ public void drawInPlane(Player p) {
 					Location loc;
 					if(lc.getRandomPosition()!=null) {
 						loc = lc.getRandomPosition();
-						if(loc.getBlock().getType().equals(Material.CHEST)) {
+						if(lc.isGoodType(loc.getBlock())) {
 							deleteholo(loc);
-							((Chest) loc.getBlock().getState()).getInventory().clear();
+							((InventoryHolder) loc.getBlock().getState()).getInventory().clear();
 							loc.getBlock().setType(Material.AIR);
 							loc.add(0.5,0.5,0.5);
 							Main.part.remove(loc);
 						}
 					}
 					loc = lc.getPosition();
-					if(loc.getBlock().getType().equals(Material.CHEST)) {
+					if(lc.isGoodType(loc.getBlock())) {
 						deleteholo(loc);
-						((Chest) loc.getBlock().getState()).getInventory().clear();
+						((InventoryHolder) loc.getBlock().getState()).getInventory().clear();
 						loc.getBlock().setType(Material.AIR);
 						loc.add(0.5,0.5,0.5);
 						Main.part.remove(loc);
@@ -414,6 +417,20 @@ public void drawInPlane(Player p) {
 			p.sendMessage(help.get(i).replace("&", "§"));
 		}
 	}
+	
+	public static String getCardinalDirection(Player player) {
+        double rotation = player.getLocation().getYaw();
+        if (rotation>135.0 || rotation <= -135.0) {
+            return "NORTH";
+        } else if ( rotation > -135.0 && rotation < -45.0) {
+            return "EAST";
+        } else if ( rotation >= -45.0 && rotation < 45.0) {
+            return "SOUTH";
+        }  else if (rotation >= 45.0 && rotation <= 135.0) {
+            return "WEST";
+        }
+		return null;
+    }
 
 	boolean hasPerm(CommandSender sender, String permission) {
 		if (!sender.hasPermission("lootchest." + permission) && !sender.hasPermission("lootchest.admin") && !sender.hasPermission("lootchest.*")) {

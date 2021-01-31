@@ -49,13 +49,13 @@ PART_radius,
 PART_speed;
 
 
-private static final Config instance = new Config();
-public static Config getInstance() {
-    return instance;
+//private static final Config instance = new Config();
+public static Config getInstance(FileConfiguration config) {
+    return new Config(config);
 }
 
-public Config() {
-	FileConfiguration config = Main.getInstance().getConfig();
+public Config(FileConfiguration config) {
+	
 	default_reset_time = config.getInt("default_reset_time");
 	default_item_chance = config.getInt("default_item_chance");
 	Cooldown_Before_Plugin_Start = config.getInt("Cooldown_Before_Plugin_Start");

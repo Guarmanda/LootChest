@@ -3,12 +3,15 @@ package fr.black_eyes.lootchest;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 
 
 public final class Mat {
 	public static Material  EMERALD_BLOCK, STICK, GOLD_NUGGET, GOLD_INGOT, GOLD_BLOCK, TOTEM_OF_UNDYING, CHEST, CLOCK, DIAMOND, ENDER_CHEST, ENDER_EYE, SIGN, TNT, FIREWORK, PRISMARINE, MYCELIUM, IRON_SWORD, DIAMOND_SWORD, FURNACE, ENCHANTED_BOOK, NOTE_BLOCK, END_PORTAL_FRAME, ENCHANTING_TABLE, BLAZE_POWDER, LAVA_BUCKET, STONE, WATER_BUCKET, QUARTZ, SNOW_BALL, IRON_SHOVEL, SLIME_BALL, ROSE_RED, REDSTONE_BLOCK, BARRIER, EMERALD, REDSTONE;
+	public static Material TRAPPED_CHEST, BARREL;
 	public static void init_materials(){
-		
+		TRAPPED_CHEST = Material.TRAPPED_CHEST;
+		BARREL = Material.CHEST;	
 		TNT = Material.TNT;
 		IRON_SWORD = Material.IRON_SWORD;
 		DIAMOND_SWORD = Material.DIAMOND_SWORD;
@@ -34,6 +37,7 @@ public final class Mat {
 		EMERALD_BLOCK = Material.EMERALD_BLOCK;
 		ENDER_CHEST= Material.ENDER_CHEST;
 		
+		
 		if(!org.bukkit.Bukkit.getVersion().contains("1.7")){
 			BARRIER = Material.valueOf("BARRIER");
 			PRISMARINE = Material.valueOf("PRISMARINE_CRYSTALS");
@@ -56,8 +60,9 @@ public final class Mat {
 			TOTEM_OF_UNDYING = Material.valueOf("STONE");
 		}
 		if(Bukkit.getVersion().contains("1.13") || Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15") || Bukkit.getVersion().contains("1.16")) {
-			if(Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15")|| Bukkit.getVersion().contains("1.16")){
+			if(!Bukkit.getVersion().contains("1.13")){
 				SIGN = Material.valueOf("OAK_SIGN");
+				BARREL = Material.valueOf("BARREL");;
 			}
 			else {
 				SIGN = Material.valueOf("SIGN");
@@ -74,5 +79,9 @@ public final class Mat {
 			TOTEM_OF_UNDYING = Material.valueOf("TOTEM_OF_UNDYING");
 		}
 
+	}
+	
+	public static boolean isALootChestBlock(Block block) {
+		return (block.getType().equals(Mat.CHEST) || block.getType().equals(Mat.TRAPPED_CHEST) || block.getType().equals(Mat.BARREL));
 	}
 }

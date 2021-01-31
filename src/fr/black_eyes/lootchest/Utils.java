@@ -12,9 +12,9 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.Chest;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Directional;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.material.DirectionalContainer;
+import org.bukkit.material.MaterialData;
 import org.bukkit.command.CommandSender;
 
 import org.bukkit.entity.Entity;
@@ -24,13 +24,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import fr.black_eyes.lootchest.falleffect.FallingPackageEntity;
 
+@SuppressWarnings("deprecation")
 public class Utils  {
 	Main instance = Main.getInstance();
 	Files configFiles = Main.getConfigFiles();
 
 
 	
-	//message functions that automatically get a message from config.getLang()uage file
+	//message functions that automatically get a message from config lang file
 	public void msg(CommandSender p, String path, String replacer, String replacement) {
 		p.sendMessage(getMsg(path, replacer, replacement));
 	}
@@ -46,7 +47,7 @@ public class Utils  {
 		
 		chest2.holo = chest1.holo;
 		chest2.chances = chest1.chances.clone();
-		chest2.direction = chest1.direction;
+		//chest2.direction = chest1.direction; let's not change original direction
 		chest2.fall = chest1.fall;
 		chest2.inv.setContents(chest1.inv.getContents());
 		chest2.time = chest1.time;
@@ -70,10 +71,10 @@ public class Utils  {
 	//function to change a chest location
 	public void changepos(Lootchest name, Location loc3) {
 		Location loc = name.getActualLocation();
-		if(Bukkit.getWorld(name.world) != null && loc.getBlock().getType() == Material.CHEST) {
+		if(Bukkit.getWorld(name.world) != null && name.isGoodType(loc.getBlock())) {
 			Block chest = loc.getBlock();
 			deleteholo(loc);
-			((Chest) chest.getLocation().getBlock().getState()).getInventory().clear();
+			((InventoryHolder) chest.getLocation().getBlock().getState()).getInventory().clear();
 			chest.setType(Material.AIR);
 			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
 			loc2.setX(loc.getX()+0.5);
@@ -94,8 +95,8 @@ public class Utils  {
 			loc = lc.randomLoc;
 		}
 		Block chest = loc.getBlock();
-		if(chest.getType().equals(Material.CHEST)) {
-			((Chest) chest.getState()).getInventory().clear();
+		if(lc.isGoodType(chest)) {
+			((InventoryHolder) chest.getState()).getInventory().clear();
 		}
 		chest.setType(Material.AIR);
 		final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
@@ -152,10 +153,9 @@ public class Utils  {
     }
 	
 	
-	@SuppressWarnings("deprecation")
 	public void reactivateEffects(Lootchest lc) {
 		Location loc = lc.getActualLocation();
-		if(!loc.getBlock().getType().equals(Material.CHEST)) {
+		if(!lc.isGoodType(loc.getBlock())) {
 			return;
 		}
 		if(Main.getInstance().getConfig().getBoolean("UseHologram")){
@@ -221,16 +221,16 @@ public class Utils  {
 		//if this option is true, we count players in a way that is compatible with all versions, then we take the location of one of these players randomly
 		if(Main.configs.use_players_locations_for_randomspawn && lc.getRadius() !=0) {
 			int i = 0;
-			Iterator<?> itr = Bukkit.getOnlinePlayers().iterator();
+			Iterator<?> itr = Bukkit.getWorld(lc.getWorld()).getPlayers().iterator();
 			while( itr.hasNext()) { 
 				itr.next(); i++;
 			}
 			if(i>0) {
 				int ran = ThreadLocalRandom.current().nextInt(1, i+1);
 				i=0;
-				for(Player p : Bukkit.getOnlinePlayers()) {
+				for(Player p : Bukkit.getWorld(lc.getWorld()).getPlayers()) {
 					if(++i == ran) {
-						loc = p.getLocation();
+						loc = p.getLocation().getBlock().getLocation();
 					}
 					
 				}
@@ -244,7 +244,7 @@ public class Utils  {
 			randompos.setX(randomInt(random)+loc.getX());
 			randompos.setZ(randomInt(random)+loc.getZ());
 			randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos));
-			if (Bukkit.getVersion().contains("1.15") || Bukkit.getVersion().contains("1.16")) {
+			if (Bukkit.getVersion().contains("1.15.2") || Bukkit.getVersion().contains("1.16")) {
 				randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos)+1);
 			}
 			if(Main.configs.Prevent_Chest_Spawn_In_Protected_Places) {
@@ -257,6 +257,7 @@ public class Utils  {
 						randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos)+1);
 					}
 					counter++;
+				
 				}
 				if(counter == 50) {
 					Bukkit.getLogger().info("§cThe chest " + lc.name + " didn't found an unprotected location, so that it can't respawn! " );
@@ -289,9 +290,9 @@ public class Utils  {
 
 		if((tempsactuel - tempsenregistre > minutes && minutes>-1) || force) {
 			int height = Main.configs.FALL_Height;
-			if(lc.radius!=0 && loc3 != newloc && block.getType().equals( Material.CHEST)) {
+			if(lc.radius!=0 && loc3 != newloc && lc.isGoodType(block) ) {
 				deleteholo(loc3);
-				((Chest) block.getState()).getInventory().clear();
+				((InventoryHolder) block.getState()).getInventory().clear();
 				block.setType(Material.AIR);
 				loc3.add(0.5,0.5,0.5);
 				Main.part.remove(loc3);
@@ -373,19 +374,26 @@ public class Utils  {
 		}else {
 			players = org.bukkit.Bukkit.getOnlinePlayers().size();
 		}
-		block.setType(Material.CHEST);
+		block.setType(name.getType());
+
 		if(num <= players || force) {
-			Inventory inv = ((Chest) block.getState()).getInventory();
+			Inventory inv = ((InventoryHolder) block.getState()).getInventory();
 			fillInventory(name, inv, true, null);
 
 			String direction = name.direction;
-			BlockState state = block.getState();
-			setDirection(state, direction);
-			
+			MaterialData data = null;
+			//if the chest isn't a barrel, we can change its direction
+			if( !(Mat.CHEST != Mat.BARREL && name.getType() == Mat.BARREL) ) {
+				 data = (DirectionalContainer)block.getState().getData();
+				((DirectionalContainer)data).setFacingDirection(BlockFace.valueOf(direction));
+				BlockState state = block.getState();
+				state.setData(data);
+				state.update();
+			}
 			
 			final Location loc2 = name.getActualLocation();
 			loc2.add(0.5,0.5,0.5);
-			if(block.getType().equals(Material.CHEST) ) {
+			if(name.isGoodType(block) ) {
 				if(name.particle.equals("Disabled")){
 					Main.part.remove(loc2);
 				}
@@ -396,7 +404,7 @@ public class Utils  {
 						}
 					}
 				}
-			}else if  (!block.getType().equals(Material.CHEST)){
+			}else if  (!name.isGoodType(block) ){
 				deleteholo(theloc);
 				Main.part.remove(loc2);
 			}
@@ -417,40 +425,7 @@ public class Utils  {
 	}
 	
 	
-	@SuppressWarnings("deprecation")
-	public void setDirection(BlockState state, String direction) {
-		if(org.bukkit.Bukkit.getVersion().contains("1.16")) {
-			BlockData b = state.getBlockData();
-			if(direction.equalsIgnoreCase("east")){
-				((Directional)b).setFacing(BlockFace.EAST);
-			}
-			if(direction.equalsIgnoreCase("north")){
-				((Directional)b).setFacing(BlockFace.NORTH);
-			}			
-			if(direction.equalsIgnoreCase("south")){
-				((Directional)b).setFacing(BlockFace.SOUTH);
-			}			
-			if(direction.equalsIgnoreCase("west")){
-				((Directional)b).setFacing(BlockFace.WEST);
-			}
-			state.setBlockData(b);
-		}
-		else {
-			if(direction.equalsIgnoreCase("east")){
-				state.setData(new org.bukkit.material.Chest(BlockFace.EAST));
-			}
-			if(direction.equalsIgnoreCase("north")){
-				state.setData(new org.bukkit.material.Chest(BlockFace.NORTH));
-			}			
-			if(direction.equalsIgnoreCase("south")){
-				state.setData(new org.bukkit.material.Chest(BlockFace.SOUTH));
-			}			
-			if(direction.equalsIgnoreCase("west")){
-				state.setData(new org.bukkit.material.Chest(BlockFace.WEST));
-			}
-		}
-		state.update();
-	}
+
 	
 	//check for empty inventory
 	public  boolean isEmpty(Inventory inv) {
@@ -581,7 +556,10 @@ public class Utils  {
 			 	as.setArms(false);
 			 	as.setBasePlate(false);
 			 	as.setSmall(true);
-			 	as.setMarker(true);
+			 	if(!org.bukkit.Bukkit.getVersion().contains("1.8)")) {
+			 		
+			 		as.setMarker(true);
+				}
 			 	if(Main.configs.Show_Timer_On_Hologram && lc.time != -1) {
 			 	new BukkitRunnable() {
 			    		public void run() {
@@ -608,9 +586,11 @@ public class Utils  {
 
 	
 	
-	@SuppressWarnings("deprecation")
 	public  String getDirection(Block chest) {
-		String data, direction;
+		MaterialData data = (DirectionalContainer)chest.getState().getData();
+		return ((DirectionalContainer)data).getFacing().name();
+
+		/*String data, direction;
 		if(Bukkit.getVersion().contains("1.15")|| Bukkit.getVersion().contains("1.16")) {
 		   data = chest.toString();
 			direction = data.substring(data.indexOf("facing") + 7, data.indexOf("facing") + 12).toUpperCase();
@@ -627,7 +607,7 @@ public class Utils  {
 				direction = data.substring(data.indexOf("facing") + 7, data.indexOf(",type"));
 			}
 		}
-		return direction;
+		return direction;*/
 		
 	}
 	

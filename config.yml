@@ -31,6 +31,8 @@ save_Chest_Locations_At_Every_Spawn: true
 UseHologram: true
     #remove the chests if the player empty them (they still respawn and everything)
 RemoveEmptyChests: true
+    #protect Loot Chests from tnt/creepers?
+Protect_From_Explosions: false
     #this detects factions, residence and worldguard regions
 Prevent_Chest_Spawn_In_Protected_Places: false
     #removes the chest when a player closes it, even if there's still items in it

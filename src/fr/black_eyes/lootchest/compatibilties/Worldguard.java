@@ -19,7 +19,7 @@ public class Worldguard
 		Class<? extends RegionManager> cls = null; 
 		Method getregion = null;
 		try {
-			if(Bukkit.getVersion().contains("1.13")|| Bukkit.getVersion().contains("1.14")|| Bukkit.getVersion().contains("1.15")) {
+			if(Bukkit.getVersion().contains("1.13")|| Bukkit.getVersion().contains("1.14")|| Bukkit.getVersion().contains("1.15")|| Bukkit.getVersion().contains("1.16")) {
 				com.sk89q.worldguard.protection.regions.RegionContainer container = com.sk89q.worldguard.WorldGuard.getInstance().getPlatform().getRegionContainer();
 
 				regions = container.get(com.sk89q.worldedit.bukkit.BukkitAdapter.adapt(loc.getWorld()));
@@ -37,7 +37,7 @@ public class Worldguard
 		}
 		ApplicableRegionSet set = null;
 		try {
-			if(Bukkit.getVersion().contains("1.13")|| Bukkit.getVersion().contains("1.14")|| Bukkit.getVersion().contains("1.15")) {
+			if(Bukkit.getVersion().contains("1.13")|| Bukkit.getVersion().contains("1.14")|| Bukkit.getVersion().contains("1.15")|| Bukkit.getVersion().contains("1.16")) {
 				set = (ApplicableRegionSet) getregion.invoke(regions, com.sk89q.worldedit.math.BlockVector3.at(loc.getX(), loc.getY(), loc.getZ()));
 			}else {
 				com.sk89q.worldedit.Vector v = com.sk89q.worldedit.bukkit.BukkitUtil.toVector(loc);

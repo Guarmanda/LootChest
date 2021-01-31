@@ -102,6 +102,7 @@ public class InventoryListeners extends Menu implements Listener {
 			mainInv(p, chest);
 			
         }
+        	 
         else return;
         restoreChest(Main.getInstance().getLootChest().get(chest), true);
     }
@@ -153,6 +154,22 @@ public class InventoryListeners extends Menu implements Listener {
     		msg(player, "editedParticle", "[Chest]", LootchestCommand.editinv.get(player));
         }
         
+        
+        //type menu
+        else if(LootchestCommand.menuName.get(player).equals(getMsg("Menu.type.name", " ", " "))) {
+        	if (e.getCurrentItem().getType().equals(Material.AIR)) {return;}
+        	else {
+        		String chest = LootchestCommand.editinv.get(player);
+            	Lootchest lc = Main.getInstance().getLootChest().get(chest);
+            	lc.setType(e.getCurrentItem().getType());
+            	updateData(lc);
+            	player.closeInventory();
+            	restoreChest(lc, true);
+            	player.sendMessage(getMsg("editedChestType", "[Chest]", chest));
+            	return;
+        	}
+        }
+        
         //copy menu
         else if (LootchestCommand.menuName.get(player).equals(getMsg("Menu.copy.name", " ", " "))) {
         	String chest = LootchestCommand.editinv.get(player);
@@ -180,6 +197,11 @@ public class InventoryListeners extends Menu implements Listener {
         			player.closeInventory();
     				LootchestCommand.menuName.put(player, getMsg("Menu.copy.name", "[Chest]", chest));
         			invcopy(player, lc, 1);
+        			break;
+        		case 9:
+        			player.closeInventory();
+        			LootchestCommand.menuName.put(player, getMsg("Menu.type.name", "[Chest]", chest));
+        			invType(player, lc);
         			break;
         		case 11:
         			if(Main.getInstance().getConfig().getBoolean("Particles.enable")) {

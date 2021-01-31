@@ -18,6 +18,9 @@ public class ProtectedRegions {
     	if(Bukkit.getServer().getPluginManager().isPluginEnabled("Factions")) {
     		if(Factions.isInClaim(loc)) return true;
     	}
+    	if(Bukkit.getServer().getPluginManager().isPluginEnabled("FactionsX")) {
+    		if(FactionsX.isInXClaim(loc)) return true;
+    	}
     	if(Bukkit.getServer().getPluginManager().isPluginEnabled("Towny")) {
     		if(Towny.isInTown(loc)) return true;
     	}

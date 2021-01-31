@@ -49,6 +49,8 @@ public class Main extends JavaPlugin {
 	}
 	
 	
+
+	
 	public void backUp() {
 		File directoryPath = new File(instance.getDataFolder() + "/backups/");
 		if(!directoryPath.exists()) {
@@ -178,8 +180,11 @@ public class Main extends JavaPlugin {
         configFiles.setLang("Menu.main.enable_fall", "&cFall effect is disabled. Click to &aENABLE &cit");
         configFiles.setLang("Menu.main.enable_respawn_natural", "&cNatural-respawn message is disabled. Click to &aENABLE &cit");
         configFiles.setLang("Menu.main.enable_respawn_cmd", "&cCommand-respawn message is disabled. Click to &aENABLE &cit");
+        configFiles.setLang("Menu.main.type", "&1Choose type (Barrel, trapped chest, chest)");
+        configFiles.setLang("Menu.type.name", "&1Choose type (Barrel, trapped chest, chest)");
         configFiles.setLang("Menu.main.enable_take_message", "&cMessage on chest take is disabled. Click to &aENABLE &cit");
         configFiles.setLang("locate_command.main_message",  "&6Location of loot chests:");
+        configFiles.setLang("editedChestType", "&aEdited type of chest &b[Chest]");
         configFiles.setLang("locate_command.chest_list", "- &b[Chest]&6: [x], [y], [z] in world [world]");
         if (configFiles.getLang().isSet("help.line1")) {
             final List<String> tab = new ArrayList<String>();
@@ -260,7 +265,7 @@ public class Main extends JavaPlugin {
         	}
         }
         
-        configs= Config.getInstance();
+        configs= Config.getInstance(configFiles.getConfig());
         if(!hasBungee() && configs.NOTE_bungee_broadcast) {
     		getLogger().info("§cYou enaled bungee broadcast in config but you didn't enable bungeecord in spigot config!");
     		getLogger().info("§cSo if this server isn't in a bungee network, no messages will be sent at all on chest spawn!");
@@ -276,12 +281,9 @@ public class Main extends JavaPlugin {
 
         if(configs.CheckForUpdates) {
         	logInfo("Checking for update...");
-        	new Thread() {
-        		public void run() {
-        			Updater.checkversion();
-        		}
-        	};
+        	 new Updater(this);
         }
+
         //initialisation des matériaux dans toutes les verions du jeu
         //initializing materials in all game versions, to allow cross-version compatibility
         logInfo("Starting particles...");
@@ -392,10 +394,6 @@ public class Main extends JavaPlugin {
 		return configFiles.getData();
 		
 	}
-	
-	
-	
-	
 
 	
 	//particle initialozation

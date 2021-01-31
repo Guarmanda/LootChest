@@ -6,8 +6,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -28,10 +28,23 @@ public class Lootchest extends Utils {
 	@Getter @Setter Boolean take_msg;
 	@Getter @Setter int radius;
 	@Getter @Setter String world;
+	@Getter @Setter Boolean taken;
+	@Getter @Setter Material type;
 	
 	
 	/*Function used in Main / reload for chest loading */
 	public Lootchest(String naming) {
+		taken = false;
+		if(!configFiles.getData().isSet("chests."+naming+".type")){
+			type = Mat.CHEST;
+		}else {
+			String types = configFiles.getData().getString("chests."+naming+".type");
+			switch(types) {
+			case "CHEST": type = Mat.CHEST; break;
+			case "TRAPPED_CHEST": type = Mat.TRAPPED_CHEST; break;
+			case "BARREL": type = Mat.BARREL; break;
+			}
+		}
 		name = naming;
 		Integer[] chancesInit = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 		chances = chancesInit;
@@ -74,12 +87,13 @@ public class Lootchest extends Utils {
 	
 	/*Function used for /lc create */
 	public Lootchest(Block chest, String naming){
-
+		type = chest.getType();
+		taken = false;
 		name = naming;
 		inv = Bukkit.createInventory(null, 27);
 		Integer[] chancesInit = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 		chances = chancesInit;
-		Inventory inve = ((Chest) chest.getState()).getInventory();
+		Inventory inve =  ((InventoryHolder) chest.getState()).getInventory();
 		for(int i = 0 ; i < inve.getSize() ; i++) {
 			if(inve.getItem(i) != null) {
 				inv.setItem( i, inve.getItem(i));
@@ -90,7 +104,9 @@ public class Lootchest extends Utils {
 		respawn_cmd =  Main.configs.NOTE_command_e;
 		respawn_natural =  Main.configs.NOTE_natural_e;
 		take_msg =  Main.configs.NOTE_message_on_chest_take;
-		direction = getDirection(chest);
+		if( !(Mat.CHEST != Mat.BARREL && chest.getType() == Mat.BARREL) ) {
+			direction = getDirection(chest);
+		}
 		holo = name;
 		time =  Main.configs.default_reset_time;
 		globalLoc =  chest.getLocation();
@@ -98,7 +114,7 @@ public class Lootchest extends Utils {
 	   	particle =  Main.configs.PART_default_particle;
 	   	radius = 0;
 	   	world = chest.getWorld().getName();
-		((Chest) chest.getLocation().getBlock().getState()).getInventory().clear();
+		((InventoryHolder) chest.getLocation().getBlock().getState()).getInventory().clear();
 		chest.getLocation().getBlock().setType(Material.AIR);
 		
 	}
@@ -114,6 +130,7 @@ public class Lootchest extends Utils {
 				}
 			}
 			configFiles.getData().set("chests." + name + ".fall", fall);
+			configFiles.getData().set("chests." + name + ".type", type.name());
 			configFiles.getData().set("chests." + name + ".respawn_cmd", respawn_cmd);
 			configFiles.getData().set("chests." + name + ".respawn_natural", respawn_natural);
 			configFiles.getData().set("chests." + name + ".take_message", take_msg);
@@ -154,7 +171,9 @@ public class Lootchest extends Utils {
 		}
 	}
 
-
+	public boolean isGoodType(Block block) {
+		return type.equals(block.getType());
+	}
 
 	
 	

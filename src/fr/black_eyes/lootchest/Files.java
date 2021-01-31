@@ -37,6 +37,7 @@ public class Files {
 	
 	public void reloadConfig() {
 		try {
+			configFile = new File(Main.getInstance().getDataFolder(), "config.yml");
 			config.load(getConfigF());
 
 			data.save(getDataF());

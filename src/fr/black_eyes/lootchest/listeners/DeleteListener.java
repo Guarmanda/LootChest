@@ -6,7 +6,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.Chest;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,16 +17,16 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 
 import fr.black_eyes.lootchest.BungeeChannel;
 
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
+import fr.black_eyes.lootchest.Mat;
 import fr.black_eyes.lootchest.Utils;
 
 
@@ -49,7 +48,7 @@ public class DeleteListener extends Utils implements Listener  {
         Player p = e.getPlayer();
         if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 Block b = e.getClickedBlock();
-                if (b.getType().equals(Material.CHEST)){
+                if (Mat.isALootChestBlock(b)){
 
                     if(openInvs.containsKey(p)) {
                     	openInvs.remove(p);
@@ -63,7 +62,7 @@ public class DeleteListener extends Utils implements Listener  {
                 }
         }
     }
-    
+    /*
     @EventHandler
     public void openInventory(InventoryOpenEvent e) {
     	Player p = (Player) e.getPlayer();
@@ -80,7 +79,7 @@ public class DeleteListener extends Utils implements Listener  {
     			
     		}
     	}
-    }
+    }*/
     
     @EventHandler
     public void oncloseInventory(InventoryCloseEvent e) {
@@ -98,7 +97,8 @@ public class DeleteListener extends Utils implements Listener  {
     					restoreChest(keys, false);
     				}
     			}
-    			if(keys.getTake_msg()){
+    			if(keys.getTake_msg()&&!keys.getTaken()){
+    				keys.setTaken(true);
 	    			String msg = Main.getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "§");
 	    			if(Main.configs.NOTE_bungee_broadcast) {
 						BungeeChannel.bungeeBroadcast(msg);
@@ -132,7 +132,7 @@ public class DeleteListener extends Utils implements Listener  {
     
     @EventHandler
     public void onchestbreak(BlockBreakEvent e) {
-    	if(e.getBlock().getType().equals(Material.CHEST)) {
+    	if(Mat.isALootChestBlock(e.getBlock())) {
 	    	if(e.isCancelled()) {
 	    		return;
 	    	}
@@ -140,7 +140,8 @@ public class DeleteListener extends Utils implements Listener  {
 
     		if(keys!=null) {
     			Player p = e.getPlayer();
-    			if(keys.getTake_msg()){
+    			if(keys.getTake_msg() && !keys.getTaken()){
+    				keys.setTaken(true);
 	    			String msg = Main.getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "§");
 	    			if(Main.configs.NOTE_bungee_broadcast) {
 						BungeeChannel.bungeeBroadcast(msg);
@@ -173,7 +174,7 @@ public class DeleteListener extends Utils implements Listener  {
     public void chestexploded(EntityExplodeEvent e) {
 
     	for(Block chest : e.blockList()) {
-    		if(chest.getType().equals(Material.CHEST)) {
+    		if(Mat.isALootChestBlock(chest)) {
 
     	    	if(e.isCancelled()) {
     	    		return;
@@ -183,15 +184,16 @@ public class DeleteListener extends Utils implements Listener  {
         			if(Main.configs.Protect_From_Explosions) {
         				
         				BlockState state = chest.getState();
-        				ItemStack[] content = ((Chest)state).getInventory().getStorageContents();
-        				((Chest)state).getInventory().clear();
+        				
+        				ItemStack[] content = ((InventoryHolder)state).getInventory().getContents();
+        				((InventoryHolder)state).getInventory().clear();
         				chest.setType(Material.AIR); //stop item drops
         		        
         	            int delay = 2; 
         	            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.getInstance(), new Runnable() {
         	                public void run() {
         	                    state.update(true, false);
-        	                    ((Chest)state).getInventory().setStorageContents(content);
+        	                    ((InventoryHolder)state).getInventory().setContents(content);
         	                }
         	            }, delay);
         				return;
