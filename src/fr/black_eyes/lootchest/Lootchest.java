@@ -11,29 +11,32 @@ import org.bukkit.inventory.InventoryHolder;
 
 import lombok.Getter;
 import lombok.Setter;
-public class Lootchest extends Utils {
-	@Getter @Setter String name;
-	@Setter Location globalLoc;
-	@Setter Location randomLoc;
-	Inventory inv;
-	@Getter @Setter Boolean fall;
-	Integer[] chances;
-	@Setter String direction;
-	@Getter @Setter String holo;
-	@Getter @Setter long time;
-	@Getter @Setter long lastreset;
-	@Getter @Setter String particle;
-	@Getter @Setter Boolean respawn_cmd;
-	@Getter @Setter Boolean respawn_natural;
-	@Getter @Setter Boolean take_msg;
-	@Getter @Setter int radius;
-	@Getter @Setter String world;
-	@Getter @Setter Boolean taken;
-	@Getter @Setter Material type;
+public class Lootchest {
+	@Getter @Setter  String name;
+	@Setter 		private Location globalLoc;
+	@Setter 		private Location randomLoc;
+	@Getter			private Inventory inv;
+	@Getter @Setter private Boolean fall;
+	@Getter			 Integer[] chances;
+	@Getter @Setter private String direction;
+	@Getter @Setter private String holo;
+	@Getter @Setter private long time;
+	@Getter @Setter private long lastreset;
+	@Getter @Setter private String particle;
+	@Getter @Setter private Boolean respawn_cmd;
+	@Getter @Setter private Boolean respawn_natural;
+	@Getter @Setter private Boolean take_msg;
+	@Getter @Setter private int radius;
+	@Getter @Setter private String world;
+	@Getter @Setter private Boolean taken;
+	@Getter @Setter private Material type;
 	
 	
 	/*Function used in Main / reload for chest loading */
 	public Lootchest(String naming) {
+		Main main = Main.getInstance();
+		Utils utils = main.getUtils();
+		Files configFiles = main.getConfigFiles();
 		taken = false;
 		if(!configFiles.getData().isSet("chests."+naming+".type")){
 			type = Mat.CHEST;
@@ -50,11 +53,11 @@ public class Lootchest extends Utils {
 		chances = chancesInit;
 		chancesInit = null;
 		inv = Bukkit.createInventory(null, 27);
-		globalLoc = getPosition(naming);
+		globalLoc = utils.getPosition(naming);
 		if(configFiles.getData().isSet("chests."+naming+".randomradius")) {
 			radius = configFiles.getData().getInt("chests."+naming+".randomradius");
 			if(radius > 0) {
-				randomLoc = getRandomPosition(naming);
+				randomLoc = utils.getRandomPosition(naming);
 			}else {
 				randomLoc = null;
 			}
@@ -74,7 +77,7 @@ public class Lootchest extends Utils {
 			chances[Integer.parseInt(keys)] = configFiles.getData().getInt("chests." + naming + ".chance." + keys);
 		}
 		}catch(NullPointerException e) {
-			Main.logInfo("&cMaybe you changed to an older server version recently: chest inventory of "+name+" was lost :/");
+			main.logInfo("&cMaybe you changed to an older server version recently: chest inventory of "+name+" was lost :/");
 		}
 		respawn_cmd =  configFiles.getData().getBoolean("chests." + naming + ".respawn_cmd");
 		respawn_natural =  configFiles.getData().getBoolean("chests." + naming + ".respawn_natural");
@@ -87,6 +90,9 @@ public class Lootchest extends Utils {
 	
 	/*Function used for /lc create */
 	public Lootchest(Block chest, String naming){
+		Main main = Main.getInstance();
+		Utils utils = main.getUtils();
+
 		type = chest.getType();
 		taken = false;
 		name = naming;
@@ -94,18 +100,21 @@ public class Lootchest extends Utils {
 		Integer[] chancesInit = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 		chances = chancesInit;
 		Inventory inve =  ((InventoryHolder) chest.getState()).getInventory();
-		for(int i = 0 ; i < inve.getSize() ; i++) {
+		for(int i = 0 ; i < 27 ; i++) {
 			if(inve.getItem(i) != null) {
 				inv.setItem( i, inve.getItem(i));
 				chances[i] =  Main.configs.default_item_chance;
 			}
+		}
+		if(inve.getSize() >27) {
+			main.logInfo("&cDo not use double chests to create chests! Only half of the inventory of the chest was registered.");
 		}
 		fall =  Main.configs.FALL_Enabled;
 		respawn_cmd =  Main.configs.NOTE_command_e;
 		respawn_natural =  Main.configs.NOTE_natural_e;
 		take_msg =  Main.configs.NOTE_message_on_chest_take;
 		if( !(Mat.CHEST != Mat.BARREL && chest.getType() == Mat.BARREL) ) {
-			direction = getDirection(chest);
+			direction = utils.getDirection(chest);
 		}
 		holo = name;
 		time =  Main.configs.default_reset_time;
@@ -121,7 +130,9 @@ public class Lootchest extends Utils {
 	
 	/*Function used at defined time in config and at plugin stop for saving chests */
 	void saveInConfig(){
-
+		Main main = Main.getInstance();
+		Utils utils = main.getUtils();
+		Files configFiles = main.getConfigFiles();
 		configFiles.getData().set("chests." + name + ".inventory", null);
 			for(int i = 0 ; i < inv.getSize() ; i++) {
 				if(inv.getItem(i) != null && inv.getItem(i).getType() != Material.AIR) {
@@ -138,12 +149,12 @@ public class Lootchest extends Utils {
 			configFiles.getData().set("chests." + name + ".direction", direction);
 			configFiles.getData().set("chests." + name + ".holo", holo);
 			configFiles.getData().set("chests." + name + ".time", time);
-			setPosition(name, globalLoc);
+			utils.setPosition(name, globalLoc);
 			configFiles.getData().set("chests." + name + ".lastreset", lastreset);
 			configFiles.getData().set("chests." +name+ ".particle", particle);
 		   	configFiles.getData().set("chests."+name+".randomradius", radius);
 		   	if(randomLoc != null) {
-		   		setRandomPosition(name, randomLoc);
+		   		utils.setRandomPosition(name, randomLoc);
 		   	}
 
 	}
@@ -151,7 +162,6 @@ public class Lootchest extends Utils {
 
 	public Location getPosition() {			return globalLoc.clone();	}
 	public Location getRandomPosition() {	return (randomLoc!=null)?randomLoc.clone():null;	}
-
 
 	public Location getActualLocation() {
 		return (radius!=0)?randomLoc.clone():globalLoc.clone();
@@ -175,6 +185,8 @@ public class Lootchest extends Utils {
 		return type.equals(block.getType());
 	}
 
-	
-	
+	public String toString() {
+		return (name +" "+fall +" " +direction+" "+ radius+" "+particle);             
+	}
+    
 }

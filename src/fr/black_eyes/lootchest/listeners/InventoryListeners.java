@@ -15,15 +15,29 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
 import fr.black_eyes.lootchest.Menu;
+import fr.black_eyes.lootchest.Utils;
 import fr.black_eyes.lootchest.commands.LootchestCommand;
 
-public class InventoryListeners extends Menu implements Listener {
+public class InventoryListeners implements Listener {
 	
 
+
+
+	private  Menu menu;
+	private  Utils utils;
+	 private Main main;
+	 public InventoryListeners() {
+			 main = Main.getInstance();
+
+
+			menu = main.getMenu();
+			utils = main.getUtils();
+	 }
 
 
 	
@@ -48,26 +62,26 @@ public class InventoryListeners extends Menu implements Listener {
     	String chest = LootchestCommand.editinv.get(p);
     	LootchestCommand.editinv.remove(p);
 
-        if (LootchestCommand.menuName.get(p).equals(getMsg("Menu.items.name", "[Chest]", chest))) {
+        if (LootchestCommand.menuName.get(p).equals(utils.getMsg("Menu.items.name", "[Chest]", chest))) {
         	Lootchest lc = Main.getInstance().getLootChest().get(chest);
 			lc.setInventory(e.getInventory());
-			LootchestCommand.menuName.put(p, getMsg("Menu.main.name", "[Chest]", chest));
-			updateData(lc);
-			mainInv(p, chest);
+			LootchestCommand.menuName.put(p, utils.getMsg("Menu.main.name", "[Chest]", chest));
+			utils.updateData(lc);
+			menu.mainInv(p, chest);
         }
         
-        else if (LootchestCommand.menuName.get(p).equals(getMsg("Menu.particles.name", "[Chest]", chest))) {
-        	LootchestCommand.menuName.put(p, getMsg("Menu.main.name", "[Chest]", chest));
+        else if (LootchestCommand.menuName.get(p).equals(utils.getMsg("Menu.particles.name", "[Chest]", chest))) {
+        	LootchestCommand.menuName.put(p, utils.getMsg("Menu.main.name", "[Chest]", chest));
         	
-        	mainInv(p, chest);
+        	menu.mainInv(p, chest);
         }
         
-       /* else if (Lootchest.menuName.get(p).equals(getMsg("Menu.copy.name", "[Chest]", chest))) {
-        	Lootchest.menuName.put(p, getMsg("Menu.main.name", "[Chest]", chest));
+       /* else if (Lootchest.menuName.get(p).equals( utils.getMsg("Menu.copy.name", "[Chest]", chest))) {
+        	Lootchest.menuName.put(p, utils.getMsg("Menu.main.name", "[Chest]", chest));
         	mainInv(p, chest);
         }*/
 
-        else if (LootchestCommand.menuName.get(p).equals(getMsg("Menu.chances.name", "[Chest]", chest))) {
+        else if (LootchestCommand.menuName.get(p).equals(utils.getMsg("Menu.chances.name", "[Chest]", chest))) {
         	Lootchest lc = Main.getInstance().getLootChest().get(chest);
 			for(int i = 0 ; i < e.getInventory().getSize() ; i++) {
 				if(e.getInventory().getItem(i) != null) {
@@ -75,13 +89,13 @@ public class InventoryListeners extends Menu implements Listener {
 					 lc.setChance(i, Integer.parseInt(lore.get(getLoreLine(lore)).replace("%", "")));
 				}
 			}
-			updateData(lc);
-			LootchestCommand.menuName.put(p, getMsg("Menu.main.name", "[Chest]", chest));
-			mainInv(p, chest);
+			utils.updateData(lc);
+			LootchestCommand.menuName.put(p, utils.getMsg("Menu.main.name", "[Chest]", chest));
+			menu.mainInv(p, chest);
         }
         
         
-        else if (LootchestCommand.menuName.get(p).equals(getMsg("Menu.time.name", "[Chest]", chest))) {
+        else if (LootchestCommand.menuName.get(p).equals( utils.getMsg("Menu.time.name", "[Chest]", chest))) {
         	Lootchest lc = Main.getInstance().getLootChest().get(chest);
 			Inventory inv = e.getInventory();
 			int valeurs[] = {0,0,0,0,0,0,0,0};
@@ -97,14 +111,14 @@ public class InventoryListeners extends Menu implements Listener {
 			if(inv.getItem(22).getItemMeta().getDisplayName().equals("Respawn time: infinite")) {
 				lc.setTime( -1);
 			}
-			updateData(lc);
-			LootchestCommand.menuName.put(p, getMsg("Menu.main.name", "[Chest]", chest));
-			mainInv(p, chest);
+			utils.updateData(lc);
+			LootchestCommand.menuName.put(p, utils.getMsg("Menu.main.name", "[Chest]", chest));
+			menu.mainInv(p, chest);
 			
         }
         	 
         else return;
-        restoreChest(Main.getInstance().getLootChest().get(chest), true);
+        utils.restoreChest(Main.getInstance().getLootChest().get(chest), true);
     }
 	
 	
@@ -131,7 +145,7 @@ public class InventoryListeners extends Menu implements Listener {
         	return;
         }
         //particles menu
-        if (LootchestCommand.menuName.get(player).equals(getMsg("Menu.particles.name", "[Chest]", LootchestCommand.editinv.get(player)))) {
+        if (LootchestCommand.menuName.get(player).equals( utils.getMsg("Menu.particles.name", "[Chest]", LootchestCommand.editinv.get(player)))) {
         	Lootchest lc = Main.getInstance().getLootChest().get(LootchestCommand.editinv.get(player));
         	e.setCancelled(true);
     		String particules[] = {"EXPLOSION_HUGE", "EXPLOSION_LARGE", "EXPLOSION_NORMAL", "FIREWORKS_SPARK", "WATER_BUBBLE", "SUSPENDED", "TOWN_AURA", "CRIT", "CRIT_MAGIC", "SMOKE_NORMAL", "SMOKE_LARGE", "SPELL_MOB", "SPELL_MOB_AMBIENT", "SPELL", "SPELL_INSTANT", "SPELL_WITCH", "NOTE", "PORTAL", "ENCHANTMENT_TABLE", "FLAME", "LAVA", "LAVA", "WATER_SPLASH", "WATER_WAKE", "CLOUD", "SNOWBALL", "DRIP_WATER", "DRIP_LAVA", "SNOW_SHOVEL", "SLIME", "HEART", "VILLAGER_ANGRY", "VILLAGER_HAPPY", "BARRIER"};
@@ -146,84 +160,84 @@ public class InventoryListeners extends Menu implements Listener {
         	}
         	Location loc = lc.getActualLocation();
         	loc.add(0.5,0.5,0.5);
-			for(Object part : Main.particules) {
+			for(Object part :main.getParticules()) {
 				if(e.getSlot() < 33 && (""+part).contains(particules[e.getSlot()])) 
-					Main.part.put(loc, part);
+					main.getPart().put(loc, part);
 			}
-			updateData(lc);
-    		msg(player, "editedParticle", "[Chest]", LootchestCommand.editinv.get(player));
+			utils.updateData(lc);
+			utils.msg(player, "editedParticle", "[Chest]", LootchestCommand.editinv.get(player));
         }
         
         
         //type menu
-        else if(LootchestCommand.menuName.get(player).equals(getMsg("Menu.type.name", " ", " "))) {
+        else if(LootchestCommand.menuName.get(player).equals( utils.getMsg("Menu.type.name", " ", " "))) {
         	if (e.getCurrentItem().getType().equals(Material.AIR)) {return;}
         	else {
         		String chest = LootchestCommand.editinv.get(player);
             	Lootchest lc = Main.getInstance().getLootChest().get(chest);
             	lc.setType(e.getCurrentItem().getType());
-            	updateData(lc);
+            	utils.updateData(lc);
             	player.closeInventory();
-            	restoreChest(lc, true);
-            	player.sendMessage(getMsg("editedChestType", "[Chest]", chest));
+            	utils.restoreChest(lc, true);
+            	player.sendMessage( utils.getMsg("editedChestType", "[Chest]", chest));
             	return;
         	}
         }
         
         //copy menu
-        else if (LootchestCommand.menuName.get(player).equals(getMsg("Menu.copy.name", " ", " "))) {
+        else if (LootchestCommand.menuName.get(player).equals( utils.getMsg("Menu.copy.name", " ", " "))) {
         	String chest = LootchestCommand.editinv.get(player);
         	Lootchest lc = Main.getInstance().getLootChest().get(chest);
         	if (e.getCurrentItem().getType().equals(Material.AIR)) {return;}
         	if (e.getCurrentItem().getType().equals(Material.PAPER)) {
         		int j = Integer.parseInt(org.bukkit.ChatColor.stripColor(e.getCurrentItem().getItemMeta().getDisplayName()).replaceAll("\\D+",""));
         		player.closeInventory();
-        		invcopy(player, lc,j);
+        		menu.invcopy(player, lc,j);
         		return;
         	}
         	String copyChest = e.getCurrentItem().getItemMeta().getDisplayName().replace("§6", "");
         	
-        	copychest(Main.getInstance().getLootChest().get(copyChest), Main.getInstance().getLootChest().get(chest));
+        	utils.copychest(Main.getInstance().getLootChest().get(copyChest), Main.getInstance().getLootChest().get(chest));
         	player.closeInventory();
-        	player.sendMessage(getMsg("copiedChest", "[Chest1]", copyChest).replace("[Chest2]", chest));
+        	player.sendMessage( utils.getMsg("copiedChest", "[Chest1]", copyChest).replace("[Chest2]", chest));
         }
         //main menu
-        else if(LootchestCommand.menuName.get(player).equals(getMsg("Menu.main.name", "[chest]", LootchestCommand.editinv.get(player)))) {
+        else if(LootchestCommand.menuName.get(player).equals( utils.getMsg("Menu.main.name", "[chest]", LootchestCommand.editinv.get(player)))) {
         	e.setCancelled(true);
         	String chest = LootchestCommand.editinv.get(player);
         	Lootchest lc = Main.getInstance().getLootChest().get(chest);
         	switch(e.getSlot()) {
         		case 4:
         			player.closeInventory();
-    				LootchestCommand.menuName.put(player, getMsg("Menu.copy.name", "[Chest]", chest));
-        			invcopy(player, lc, 1);
+    				LootchestCommand.menuName.put(player, utils.getMsg("Menu.copy.name", "[Chest]", chest));
+    				menu.invcopy(player, lc, 1);
         			break;
         		case 9:
         			player.closeInventory();
-        			LootchestCommand.menuName.put(player, getMsg("Menu.type.name", "[Chest]", chest));
-        			invType(player, lc);
+        			LootchestCommand.menuName.put(player, utils.getMsg("Menu.type.name", "[Chest]", chest));
+        			menu.invType(player, lc);
         			break;
         		case 11:
         			if(Main.getInstance().getConfig().getBoolean("Particles.enable")) {
         				player.closeInventory();
-        				LootchestCommand.menuName.put(player, getMsg("Menu.particles.name", "[Chest]", chest));
-        				particleInv(player, chest);
+        				LootchestCommand.menuName.put(player, utils.getMsg("Menu.particles.name", "[Chest]", chest));
+        				menu.particleInv(player, chest);
         			}
         			break;
         		case 13:
         			player.closeInventory();
-    				LootchestCommand.menuName.put(player, getMsg("Menu.items.name", "[Chest]", chest));
-        			invEdit(player, lc);
+    				LootchestCommand.menuName.put(player, utils.getMsg("Menu.items.name", "[Chest]", chest));
+    				menu.invEdit(player, lc);
         			break;
         		case 15:
         			player.closeInventory();
-    				LootchestCommand.menuName.put(player, getMsg("Menu.time.name", "[Chest]", chest));
-        			invTime(player, lc);
+    				LootchestCommand.menuName.put(player, utils.getMsg("Menu.time.name", "[Chest]", chest));
+    				menu.invTime(player, lc);
         			break;	
         		case 22:
         			player.closeInventory();
-    				LootchestCommand.menuName.put(player, getMsg("Menu.chances.name", "[Chest]", chest));
-        			invChances(player, lc);
+    				LootchestCommand.menuName.put(player, utils.getMsg("Menu.chances.name", "[Chest]", chest));
+    				menu.invChances(player, lc);
         			break;
         		case 28:
         			if(lc.getFall()) {
@@ -231,8 +245,8 @@ public class InventoryListeners extends Menu implements Listener {
         			}else {
         				lc.setFall(true);
         			}
-        			e.getInventory().setItem(28, getEnabled("fall", lc.getFall()));
-        			updateData(lc);
+        			e.getInventory().setItem(28, menu.getEnabled("fall", lc.getFall()));
+        			utils.updateData(lc);
         			break;
         		case 30:
         			if(lc.getRespawn_cmd()) {
@@ -241,8 +255,8 @@ public class InventoryListeners extends Menu implements Listener {
         			else {
         				lc.setRespawn_cmd(true);
         			}
-        			e.getInventory().setItem(30, getEnabled("respawn_cmd", lc.getRespawn_cmd()));
-        			updateData(lc);
+        			e.getInventory().setItem(30, menu.getEnabled("respawn_cmd", lc.getRespawn_cmd()));
+        			utils.updateData(lc);
         			break;
         		case 32:
         			if(lc.getRespawn_natural()) {
@@ -250,8 +264,8 @@ public class InventoryListeners extends Menu implements Listener {
         			}else {
         				lc.setRespawn_natural(true);
         			}
-        			e.getInventory().setItem(32, getEnabled("respawn_natural",lc.getRespawn_natural()));
-        			updateData(lc);
+        			e.getInventory().setItem(32, menu.getEnabled("respawn_natural",lc.getRespawn_natural()));
+        			utils.updateData(lc);
         			break;
         		case 34:
         			if(lc.getTake_msg()) {
@@ -259,13 +273,13 @@ public class InventoryListeners extends Menu implements Listener {
         			}else {
         				lc.setTake_msg(true);
         			}
-        			e.getInventory().setItem(34, getEnabled("take_message", lc.getTake_msg()));
-        			updateData(lc);
+        			e.getInventory().setItem(34, menu.getEnabled("take_message", lc.getTake_msg()));
+        			utils.updateData(lc);
         			break;
         	}
         }
         
-        else if(LootchestCommand.menuName.get(player).equals(getMsg("Menu.chances.name", "[Chest]", LootchestCommand.editinv.get(player)))) {
+        else if(LootchestCommand.menuName.get(player).equals( utils.getMsg("Menu.chances.name", "[Chest]", LootchestCommand.editinv.get(player)))) {
         	e.setCancelled(true);
         	ItemStack item = e.getCurrentItem();
         	ItemMeta meta = item.getItemMeta();
@@ -296,7 +310,7 @@ public class InventoryListeners extends Menu implements Listener {
 	        	}
         	}
         }
-        else if(LootchestCommand.menuName.get(player).equals(getMsg("Menu.time.name", "[Chest]", LootchestCommand.editinv.get(player)))) {
+        else if(LootchestCommand.menuName.get(player).equals( utils.getMsg("Menu.time.name", "[Chest]", LootchestCommand.editinv.get(player)))) {
         	e.setCancelled(true);
         	Lootchest lc = Main.getInstance().getLootChest().get(LootchestCommand.editinv.get(player));
         	ItemStack item = e.getCurrentItem();
@@ -306,7 +320,7 @@ public class InventoryListeners extends Menu implements Listener {
         			if(lc.getTime() == -1) {
         				lc.setTime(10);
         				e.getInventory().setItem(15, new ItemStack(Mat.GOLD_NUGGET));
-        				e.getInventory().setItem(4, getItem(Mat.TOTEM_OF_UNDYING, getMsg("Menu.time.infinite", " ", " ")));
+        				e.getInventory().setItem(4, menu.getItem(Mat.TOTEM_OF_UNDYING, utils.getMsg("Menu.time.infinite", " ", " ")));
         			}
         			else{
         				lc.setTime( -1);
@@ -316,7 +330,7 @@ public class InventoryListeners extends Menu implements Listener {
 	        			e.getInventory().setItem(13, new ItemStack(Mat.BARRIER));
 	        			e.getInventory().setItem(15, new ItemStack(Mat.BARRIER));
 	        			e.getInventory().setItem(16, new ItemStack(Mat.BARRIER));
-	        			e.getInventory().setItem(4, getItem(Mat.TOTEM_OF_UNDYING, getMsg("Menu.time.notInfinite", " ", " ")));
+	        			e.getInventory().setItem(4, menu.getItem(Mat.TOTEM_OF_UNDYING, utils.getMsg("Menu.time.notInfinite", " ", " ")));
 	        			
         			}
         		}

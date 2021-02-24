@@ -8,13 +8,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 public class BungeeChannel implements PluginMessageListener {
 	
 
-	@SuppressWarnings("unused")
-	private static Main main;
-	public BungeeChannel(Main main){
-		BungeeChannel.main = main;
 
-	}
-	
 	@Override
 	public void onPluginMessageReceived(String channel, Player player, byte[] message) {
 		if (!channel.equals("BungeeCord")) {

@@ -26,7 +26,7 @@ import org.bukkit.World;
 
 public class FallingPackageEntity extends PackageEntity {
 	Main instance = Main.getInstance();
-	Files configFiles = Main.getConfigFiles();
+	Files configFiles = instance.getConfigFiles();
 
     World world;
     Location startLoc;
@@ -40,12 +40,13 @@ public class FallingPackageEntity extends PackageEntity {
     Boolean fireworks;
     
     public FallingPackageEntity(final Location loc, Boolean loaded,Location target) {
+    	Main main = Main.getInstance();
     	this.fireworks = Main.configs.FALL_Enable_Fireworks;
     	this.target = target;
     	this.loaded = loaded;
     	this.letAlive = Main.configs.FALL_Let_Block_Above_Chest_After_Fall;
 
-    	this.armorstand = Main.UseArmorStands;
+    	this.armorstand = main.getUseArmorStands();
         this.blocky = null;
         this.startLoc = this.applyOffset(loc);
         this.world = loc.getWorld();

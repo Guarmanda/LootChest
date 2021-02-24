@@ -24,17 +24,28 @@ import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
 import fr.black_eyes.lootchest.Menu;
+import fr.black_eyes.lootchest.Utils;
 
 
-public class LootchestCommand extends Menu implements CommandExecutor, TabCompleter  {
+public class LootchestCommand implements CommandExecutor, TabCompleter  {
     public static int dc;
 	public static  HashMap<org.bukkit.entity.Player, String> editinv = new HashMap<org.bukkit.entity.Player, String>();
 	public static HashMap<org.bukkit.entity.Player, String> menuName = new HashMap<org.bukkit.entity.Player, String>();
-	Files configFiles = Main.getConfigFiles();
-
-	 FileConfiguration data = Main.getConfigFiles().getData();
-	 FileConfiguration lang = Main.getConfigFiles().getLang();
+	private Files configFiles;
+	
+	private FileConfiguration data; 
+	 private Menu menu;
+	 private Utils utils;
+	 private Main main;
 	 
+	 public LootchestCommand() {
+		 	main = Main.getInstance();
+
+			configFiles = main.getConfigFiles();
+			data = configFiles.getData();
+			menu = main.getMenu();
+			utils = main.getUtils();
+	 }
 	 
 /*public Vector perp(Vector onto, Vector u) {
 	return u.clone().subtract(proj(onto, u));
@@ -98,7 +109,7 @@ public void drawInPlane(Player p) {
 				return false;
 			}
 			if (args.length>1 && !Main.getInstance().getLootChest().containsKey(args[1]) && !args[0].equalsIgnoreCase("create")){
-				msg(sender, "chestDoesntExist", "[Chest]", args[1]);
+				utils.msg(sender, "chestDoesntExist", "[Chest]", args[1]);
 				return false;
 			}else if(args.length>1 && !args[0].equalsIgnoreCase("create")){
 				lc = Main.getInstance().getLootChest().get(args[1]);
@@ -124,22 +135,22 @@ public void drawInPlane(Player p) {
 				    }
 				    chest = lastBlock;
 					if (!Mat.isALootChestBlock(chest)) {
-						msg(sender, "notAChest", " ", " ");
+						utils.msg(sender, "notAChest", " ", " ");
 					}
-					else if (isEmpty(((InventoryHolder) chest.getState()).getInventory())) {
-						msg(sender, "chestIsEmpy", " ", " ");
+					else if (utils.isEmpty(((InventoryHolder) chest.getState()).getInventory())) {
+						utils.msg(sender, "chestIsEmpy", " ", " ");
 					}
 					else if (Main.getInstance().getLootChest().containsKey(args[1])){
-						msg(sender, "chestAlreadyExist", "[Chest]", args[1]);
+						utils.msg(sender, "chestAlreadyExist", "[Chest]", args[1]);
 					}
 					else {
 						Main.getInstance().getLootChest().put(args[1], new Lootchest(chest, args[1]));
-						restoreChest(Main.getInstance().getLootChest().get(args[1]), true);
-						msg(sender, "chestSuccefulySaved", "[Chest]", args[1]);
-						updateData(Main.getInstance().getLootChest().get(args[1]));
+						utils.restoreChest(Main.getInstance().getLootChest().get(args[1]), true);
+						utils.msg(sender, "chestSuccefulySaved", "[Chest]", args[1]);
+						utils.updateData(Main.getInstance().getLootChest().get(args[1]));
 						editinv.put(player, args[1]);
-						menuName.put(player, getMsg("Menu.main.name", "[Chest]", args[1]));
-						mainInv(player, args[1]);
+						menuName.put(player, utils.getMsg("Menu.main.name", "[Chest]", args[1]));
+						menu.mainInv(player, args[1]);
 					}
 					break;
 					
@@ -151,46 +162,47 @@ public void drawInPlane(Player p) {
 					}
 					else {
 						editinv.put(player, args[1]);
-						menuName.put(player, getMsg("Menu.main.name", "[Chest]", args[1]));
-						mainInv(player, args[1]);
+						menuName.put(player, utils.getMsg("Menu.main.name", "[Chest]", args[1]));
+						menu.mainInv(player, args[1]);
 					}
 					break;	
 					
 				case "remove":
 					data.set("chests."+ lc.getName(), null);
 					configFiles.saveData();
-					deleteChest(lc);
-					msg(sender, "chestDeleted", "[Chest]", args[1]);
+					utils.deleteChest(lc);
+					utils.msg(sender, "chestDeleted", "[Chest]", args[1]);
 					break;
 				case "togglefall":
 					boolean fall = lc.getFall();
 					if(fall) {
 						lc.setFall(false);
-						msg(sender, "disabledFallEffect", "[Chest]", args[1]);
+						utils.msg(sender, "disabledFallEffect", "[Chest]", args[1]);
 					} else {
 						lc.setFall(true);
-						msg(sender, "enabledFallEffect", "[Chest]", args[1]);
+						utils.msg(sender, "enabledFallEffect", "[Chest]", args[1]);
 					}
-					updateData(lc);
+					utils.updateData(lc);
 					break;
 				case "setpos":
-					changepos(lc, player.getLocation().getBlock().getLocation());
+					//Main.logInfo("registering direction " +getCardinalDirection(player));
 					lc.setDirection(getCardinalDirection(player));
-					updateData(lc);
-					msg(sender, "changedPosition", "[Chest]", args[1]);
+					utils.changepos(lc, player.getLocation().getBlock().getLocation());
+					utils.updateData(lc);
+					utils.msg(sender, "changedPosition", "[Chest]", args[1]);
 					break;
 				case "tp":
 					Location loc = lc.getActualLocation();
 					player.teleport(loc);
-					msg(sender, "teleportedToChest", "[Chest]", args[1]);
+					utils.msg(sender, "teleportedToChest", "[Chest]", args[1]);
 					break;
 					
 					
 				case "respawn":
 
 					if(Bukkit.getWorld(lc.getWorld()) != null) {
-						restoreChest(lc, true);
-						msg(sender, "succesfulyRespawnedChest", "[Chest]", args[1]);
+						utils.restoreChest(lc, true);
+						utils.msg(sender, "succesfulyRespawnedChest", "[Chest]", args[1]);
 						if(lc.getRespawn_cmd()) {
 							Block block = lc.getActualLocation().getBlock();
 							String holo = lc.getHolo();
@@ -220,12 +232,12 @@ public void drawInPlane(Player p) {
 			}
 			else if(args.length == 1) {
 				if(args[0].equalsIgnoreCase("locate")) {
-					msg(sender, "locate_command.main_message", " "," ");
+					utils.msg(sender, "locate_command.main_message", " "," ");
 					for(Lootchest lcs : Main.getInstance().getLootChest().values()) {
 						if(lcs.getRespawn_natural() && !lc.getTaken()) {
 							Location block = lcs.getActualLocation();
 							String holo = lcs.getHolo();
-							sender.sendMessage(getMsg("locate_command.chest_list", "[world]", block.getWorld().getName()).replace("[Chest]", holo).replace("[x]", block.getX()+"").replace("[y]", block.getY()+"").replace("[z]", block.getZ()+""));
+							sender.sendMessage(utils.getMsg("locate_command.chest_list", "[world]", block.getWorld().getName()).replace("[Chest]", holo).replace("[x]", block.getX()+"").replace("[y]", block.getY()+"").replace("[z]", block.getZ()+""));
 						}
 					}
 				}
@@ -245,13 +257,13 @@ public void drawInPlane(Player p) {
 				        break;
 				    }
 				    chest = lastBlock;
-				    Lootchest l = isLootChest(chest.getLocation());
+				    Lootchest l = utils.isLootChest(chest.getLocation());
 				    
 					if (l == null || !l.isGoodType(chest)) {
-						msg(sender, "notAChest", " ", " ");
+						utils.msg(sender, "notAChest", " ", " ");
 					}
 					else if (l!=null){
-						msg(sender, "commandGetName", "[Chest]", l.getName());
+						utils.msg(sender, "commandGetName", "[Chest]", l.getName());
 					}
 				}
 				else if(args[0].equalsIgnoreCase("respawnall")) {
@@ -259,7 +271,7 @@ public void drawInPlane(Player p) {
 					for (final Lootchest l : Main.getInstance().getLootChest().values()) {
 			            Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
 			                    Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
-			                            restoreChest(l, true) ;
+			                    	utils.restoreChest(l, true) ;
 
 			                    }, 0L);
 			            }, 5L);
@@ -275,13 +287,13 @@ public void drawInPlane(Player p) {
 							}
 						}
 					}
-					msg(sender, "AllChestsReloaded", " ", " ");
+					utils.msg(sender, "AllChestsReloaded", " ", " ");
 				}
 				else if(args[0].equalsIgnoreCase("reload")) {
-					updateData();
+					utils.updateData();
 					configFiles.reloadConfig();
 					Main.configs = Config.getInstance(configFiles.getConfig());
-					Main.part.clear();
+					main.getPart().clear();
 					Main.getInstance().getLootChest().clear();
 					for(String keys : configFiles.getData().getConfigurationSection("chests").getKeys(false)) {
 						String name = configFiles.getData().getString("chests." + keys + ".position.world");
@@ -301,23 +313,23 @@ public void drawInPlane(Player p) {
 						if(Bukkit.getWorld(l.getWorld()) != null) {
 				            Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
 				                    Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
-	        							if (!restoreChest(l, false)) {
-	        								sheduleRespawn(l);
+	        							if (!utils.restoreChest(l, false)) {
+	        								utils.sheduleRespawn(l);
 	        							}
-	        							reactivateEffects(l);
+	        							utils.reactivateEffects(l);
 	
 				                    }, 0L);
 				            }, 5L);
 						}
 					}
-					msg(sender, "PluginReloaded", " ", " ");
+					utils.msg(sender, "PluginReloaded", " ", " ");
 				}
 				else if(args[0].equalsIgnoreCase("list")) {
 					final StringBuilder bc = new StringBuilder();
 					for(String keys : Main.getInstance().getLootChest().keySet()) {
 						bc.append(" " + String.valueOf(keys));
 					}
-					msg(sender, "ListCommand", "[List]", bc.toString());
+					utils.msg(sender, "ListCommand", "[List]", bc.toString());
 				}
 				else {
 					displayhelp(sender);
@@ -334,64 +346,64 @@ public void drawInPlane(Player p) {
 						
                     }
 					lc.setHolo(bc.toString());
-					updateData(lc);
-					msg(sender, "hologram_edited", "[Chest]", args[1]);
-					restoreChest(lc, false);
+					utils.updateData(lc);
+					utils.msg(sender, "hologram_edited", "[Chest]", args[1]);
+					utils.restoreChest(lc, false);
 					
 				}
 				else if(args[0].equalsIgnoreCase("settime")) {
 					lc.setTime(Integer.parseInt(args[2]));
-					updateData(lc);
-					restoreChest(lc, true);
-					msg(sender, "settime", "[Chest]", args[1]);
+					utils.updateData(lc);
+					utils.restoreChest(lc, true);
+					utils.msg(sender, "settime", "[Chest]", args[1]);
 				}
 				
 				
 				else if(args[0].equalsIgnoreCase("give")) {
 					org.bukkit.entity.Player arg2 = Bukkit.getPlayerExact(args[2]);
 					if(arg2 == null) {
-						msg(sender, "PlayerIsNotOnline", "[Player]", args[2]);
+						utils.msg(sender, "PlayerIsNotOnline", "[Player]", args[2]);
 					}
 					else {
-						String msg = getMsg("giveto", "[Chest]", args[1]);
+						String msg = utils.getMsg("giveto", "[Chest]", args[1]);
 						sender.sendMessage(msg.replace("[Player]", args[2]));
-						msg = getMsg("givefrom", "[Chest]", args[1]);
+						msg = utils.getMsg("givefrom", "[Chest]", args[1]);
 						Bukkit.getServer().getPlayer(args[2]).sendMessage(msg.replace("[Player]", sender.getName()));
-						fillInventory(lc, arg2.getInventory(), false, arg2);
+						utils.fillInventory(lc, arg2.getInventory(), false, arg2);
 					}
 				}
 				else if(args[0].equalsIgnoreCase("randomspawn")) {
 					lc.setRadius(Integer.parseInt(args[2]));
-					if(Integer.parseInt(args[2]) != 0) {
-						msg(sender, "chestRadiusSet", "[Chest]", args[1]);
+					if(Integer.parseInt(args[2]) > 0) {
+						utils.msg(sender, "chestRadiusSet", "[Chest]", args[1]);
 					}
 					
 					Location loc;
 					if(lc.getRandomPosition()!=null) {
 						loc = lc.getRandomPosition();
 						if(lc.isGoodType(loc.getBlock())) {
-							deleteholo(loc);
+							utils.deleteholo(loc);
 							((InventoryHolder) loc.getBlock().getState()).getInventory().clear();
 							loc.getBlock().setType(Material.AIR);
 							loc.add(0.5,0.5,0.5);
-							Main.part.remove(loc);
+							main.getPart().remove(loc);
 						}
 					}
 					loc = lc.getPosition();
 					if(lc.isGoodType(loc.getBlock())) {
-						deleteholo(loc);
+						utils.deleteholo(loc);
 						((InventoryHolder) loc.getBlock().getState()).getInventory().clear();
 						loc.getBlock().setType(Material.AIR);
 						loc.add(0.5,0.5,0.5);
-						Main.part.remove(loc);
+						main.getPart().remove(loc);
 					}
-					if(Integer.parseInt(args[2]) == 0) {
+					if(Integer.parseInt(args[2]) <= 0) {
 						lc.setRandomLoc(null);
-						msg(sender, "disabledChestRadius", "[Chest]", args[1]);
+						utils.msg(sender, "disabledChestRadius", "[Chest]", args[1]);
 					}
-					restoreChest(lc, true);
+					utils.restoreChest(lc, true);
 					
-					updateData(lc);
+					utils.updateData(lc);
 						
 					
 
@@ -419,14 +431,20 @@ public void drawInPlane(Player p) {
 	}
 	
 	public static String getCardinalDirection(Player player) {
-        double rotation = player.getLocation().getYaw();
+		float rotation = Utils.normalizeYaw(player.getLocation().getYaw());
+		
+       // Main.logInfo("pitch: "+player.getLocation().getPitch());
         if (rotation>135.0 || rotation <= -135.0) {
+        //	Main.logInfo(rotation + " > 135 || <=-135" );
             return "NORTH";
         } else if ( rotation > -135.0 && rotation < -45.0) {
+        //	Main.logInfo(rotation + " > -135 && <-45" );
             return "EAST";
         } else if ( rotation >= -45.0 && rotation < 45.0) {
+        //	Main.logInfo(rotation + " > -45 && <45" );
             return "SOUTH";
         }  else if (rotation >= 45.0 && rotation <= 135.0) {
+        //	Main.logInfo(rotation + " > 45 || <135" );
             return "WEST";
         }
 		return null;
@@ -434,7 +452,7 @@ public void drawInPlane(Player p) {
 
 	boolean hasPerm(CommandSender sender, String permission) {
 		if (!sender.hasPermission("lootchest." + permission) && !sender.hasPermission("lootchest.admin") && !sender.hasPermission("lootchest.*")) {
-			msg(sender, "noPermission", "[Permission]", "lootchest." + permission);
+			utils.msg(sender, "noPermission", "[Permission]", "lootchest." + permission);
 			return false;
 		}
 		return true;

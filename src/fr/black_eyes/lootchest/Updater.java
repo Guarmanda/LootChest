@@ -18,7 +18,7 @@ public class Updater {
 
     private JavaPlugin plugin;
     private int resourceId;
-    Logger log;
+    private Logger log;
     public Updater(JavaPlugin plugin) {
         this.plugin = plugin;
         String spigot_complete_id = "lootchest.61564";

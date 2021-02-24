@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -16,14 +17,30 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import fr.black_eyes.lootchest.commands.LootchestCommand;
 
-public class Menu extends Utils{
+public class Menu {
+	
+	private Main main;
+	private Files configFiles;
+
+	public Menu() {
+		main = Main.getInstance();
+		configFiles = main.getConfigFiles();
+	}
+	
+	public void msg(CommandSender p, String path, String replacer, String replacement) {
+		p.sendMessage(getMsg(path, replacer, replacement));
+	}
+	
+	public String getMsg(String path, String replacer, String replacement) {
+		return configFiles.getLang().getString(path).replace(replacer, replacement).replace("&", "§");
+	}
 	//Inventaires
 	public  void invChances(Player p, Lootchest name) {
 		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.chances.name", "[Chest]", name.name));
-		for(int i = 0; i < name.inv.getSize(); i++) {
-			if(name.inv.getItem(i) != null && name.inv.getItem(i).getType()!= Material.AIR) {
-				ItemStack item = name.inv.getItem(i).clone();
-				String lore = getMsg("Menu.chances.lore", "[Chest]", name.name);
+		for(int i = 0; i < name.getInv().getSize(); i++) {
+			if(name.getInv().getItem(i) != null && name.getInv().getItem(i).getType()!= Material.AIR) {
+				ItemStack item = name.getInv().getItem(i).clone();
+				String lore = getMsg("Menu.chances.lore", "[Chest]", name.getName());
 				List<String> lore2 = new ArrayList<String>(Arrays.asList(lore.split("\\|\\|")));
 				lore2.add(name.chances[i]+ "%");
 				ItemMeta im = item.getItemMeta();
@@ -103,7 +120,7 @@ public class Menu extends Utils{
 	
 	public  void invEdit(Player p, Lootchest name) {
 		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.items.name", "[Chest]", name.name));
-		inv.setContents(name.inv.getContents());;
+		inv.setContents(name.getInv().getContents());;
 		LootchestCommand.editinv.put(p, name.name);
 		p.openInventory(inv);
 	}
@@ -120,14 +137,14 @@ public class Menu extends Utils{
 			//exempter le coffre actuel de la liste, et si il y a plus de 54 coffres, stopper i à 53 si on doit faire deux pages
 			
 			else if(!keys.equals(chest.name) && (i!=45 || j==1) && (i!=53 || (boxes.size() -1)<=(j*52+1) ) ){
-				String name = Main.getInstance().getLootChest().get(keys).holo.replace("&", "§");
+				String name = Main.getInstance().getLootChest().get(keys).getHolo().replace("&", "§");
 				String effect = configFiles.getData().getString("chests." + keys + ".particle");
 				String world;
-				if(Bukkit.getWorld(Main.getInstance().getLootChest().get(keys).world) == null) {
+				if(Bukkit.getWorld(Main.getInstance().getLootChest().get(keys).getWorld()) == null) {
 					world = "Unloaded world";
 				}
 				else {
-					world = Bukkit.getWorld(Main.getInstance().getLootChest().get(keys).world).getName();
+					world = Bukkit.getWorld(Main.getInstance().getLootChest().get(keys).getWorld()).getName();
 				}
 				ItemStack item = getItemWithLore(Material.CHEST, "§6" +keys, "§bHologram: §6" + name + "||§bWorld: §6"+ world + "||§bEffect: §6" + effect);
 				inv.setItem(i++, item);
@@ -137,14 +154,14 @@ public class Menu extends Utils{
 				ItemStack item = getItem(Material.PAPER,  name );
 				inv.setItem(i++, item);
 				String world;
-				if(Bukkit.getWorld(Main.getInstance().getLootChest().get(keys).world) == null) {
+				if(Bukkit.getWorld(Main.getInstance().getLootChest().get(keys).getWorld()) == null) {
 					world = "Unloaded world";
 				}
 				else {
-					world = Bukkit.getWorld(Main.getInstance().getLootChest().get(keys).world).getName();
+					world = Bukkit.getWorld(Main.getInstance().getLootChest().get(keys).getWorld()).getName();
 				}
-				String name2 = Main.getInstance().getLootChest().get(keys).holo.replace("&", "§");
-				String effect = Main.getInstance().getLootChest().get(keys).particle;
+				String name2 = Main.getInstance().getLootChest().get(keys).getHolo().replace("&", "§");
+				String effect = Main.getInstance().getLootChest().get(keys).getParticle();
 
 				ItemStack item2 = getItemWithLore(Material.CHEST, "§6" +keys, "§bHologram: §6" + name2 + "||§bWorld: §6"+ world + "||§bEffect: §6" + effect);
 				inv.setItem(i++, item2);
@@ -186,10 +203,10 @@ public class Menu extends Utils{
         inv.setItem(15, getItem(Mat.CLOCK, getMsg("Menu.main.respawnTime", " ", " ")));
         inv.setItem(22, getItem(Mat.DIAMOND, getMsg("Menu.main.chances", " ", " ")));
         Lootchest lc = Main.getInstance().getLootChest().get(name);
-        inv.setItem(28, getEnabled("fall", lc.fall));
-        inv.setItem(30, getEnabled("respawn_cmd", lc.respawn_cmd));
-        inv.setItem(32, getEnabled("respawn_natural", lc.respawn_natural));
-        inv.setItem(34, getEnabled("take_message", lc.take_msg));
+        inv.setItem(28, getEnabled("fall", lc.getFall()));
+        inv.setItem(30, getEnabled("respawn_cmd", lc.getRespawn_cmd()));
+        inv.setItem(32, getEnabled("respawn_natural", lc.getRespawn_natural()));
+        inv.setItem(34, getEnabled("take_message", lc.getTake_msg()));
         
         new BukkitRunnable() {       
             @Override

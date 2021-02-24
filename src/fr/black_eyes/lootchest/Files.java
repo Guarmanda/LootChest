@@ -20,8 +20,10 @@ public class Files {
 	private File langFile;
 	private FileConfiguration lang;
 	public Boolean PER_WORLD_MESSAGE;
-	
-	
+	private Main main;
+	public Files() {
+		main = Main.getInstance();
+	}
 	
 	
 	
@@ -79,7 +81,7 @@ public class Files {
 			return;
 		else
 			getConfig().set(path, value);
-			Main.logInfo("Added config option '"+path+"' in config.yml");
+			main.logInfo("Added config option '"+path+"' in config.yml");
 			try {
 				getConfig().save(getConfigF());
 				getConfig().load(getConfigF());
@@ -94,7 +96,7 @@ public class Files {
 			return;
 		else
 			getLang().set(path, value);
-			Main.logInfo("Added message '"+path+"' in lang.yml");
+			main.logInfo("Added message '"+path+"' in lang.yml");
 			try {
 				getLang().save(getLangF());
 				getLang().load(getLangF());
@@ -160,7 +162,7 @@ public class Files {
 	        Main.getInstance().saveResource("data.yml", false);
 	    }
 	    if(dataFile.length() == 0) {
-	    	Main.logInfo("&cInvalid data file detected! Finding backup right now...");
+	    	main.logInfo("&cInvalid data file detected! Finding backup right now...");
 			File directoryPath = new File(Main.getInstance().getDataFolder() + "/backups/");
 			List<String> contents = Arrays.asList(directoryPath.list());
 			int i;
@@ -168,11 +170,11 @@ public class Files {
 			for(i=0; contents.contains(i+"data.yml");i++);
 			
 			if((new File(Main.getInstance().getDataFolder() + "/backups/", (i-1)+"data.yml")).length() ==0) {
-				Main.logInfo("&cDidn't find old enough backups, creating new data file!");
+				main.logInfo("&cDidn't find old enough backups, creating new data file!");
 			    Main.getInstance().saveResource("data.yml", true);
 			}
 			else {
-				Main.logInfo("&aFound an old enough backup. If it doesn't works, contact developper (all infos in spigot plugin page)");
+				main.logInfo("&aFound an old enough backup. If it doesn't works, contact developper (all infos in spigot plugin page)");
 				Path source = Paths.get(Main.getInstance().getDataFolder() + "/data.yml");
 			    Path target = Paths.get(Main.getInstance().getDataFolder() + "/backups/"+(i-2)+"data.yml");
 			    try {

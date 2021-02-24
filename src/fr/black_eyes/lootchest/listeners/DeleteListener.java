@@ -6,7 +6,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -23,7 +22,6 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import fr.black_eyes.lootchest.BungeeChannel;
-
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
@@ -31,16 +29,25 @@ import fr.black_eyes.lootchest.Utils;
 
 
 
-public class DeleteListener extends Utils implements Listener  {
+public class DeleteListener implements Listener  {
 	
 
-	 FileConfiguration lang = Main.getConfigFiles().getLang();
-	public static HashMap<Player, Location> openInvs = new HashMap<Player, Location>();
+	public static HashMap<Player, Location> openInvs;
 	//g§re la destruction d'un coffre au niveau des hologrames
 	
 	
 	
-	
+
+	private Main main ;
+	private Utils utils;
+	 
+	 public DeleteListener() {
+			 main = Main.getInstance();
+
+
+			utils = main.getUtils();
+			openInvs= new HashMap<Player, Location>();
+	 }
 
 
     @EventHandler
@@ -85,21 +92,21 @@ public class DeleteListener extends Utils implements Listener  {
     public void oncloseInventory(InventoryCloseEvent e) {
     	Inventory inv = e.getInventory();
     	Player p = Bukkit.getPlayer(e.getPlayer().getName());
-    	if((isEmpty(inv) || Main.configs.RemoveChestAfterFirstOpenning) && openInvs.containsKey(p)) {
-    		Lootchest keys = isLootChest(openInvs.get(p));
+    	if((utils.isEmpty(inv) || Main.configs.RemoveChestAfterFirstOpenning) && openInvs.containsKey(p)) {
+    		Lootchest keys = utils.isLootChest(openInvs.get(p));
     		if(keys != null) {
     			Location loc = openInvs.get(p);
-    			if((Main.configs.RemoveEmptyChests && isEmpty(inv)) || Main.configs.RemoveChestAfterFirstOpenning) {
+    			if((Main.configs.RemoveEmptyChests && utils.isEmpty(inv)) || Main.configs.RemoveChestAfterFirstOpenning) {
     				inv.clear();
-    				deleteholo(loc);
-    				loc.getBlock().setType(Material.AIR);
+    				utils.deleteholo(loc);
+    				loc.getBlock().breakNaturally();
     				if(keys.getTime()==0) {
-    					restoreChest(keys, false);
+    					utils.restoreChest(keys, false);
     				}
     			}
     			if(keys.getTake_msg()&&!keys.getTaken()){
     				keys.setTaken(true);
-	    			String msg = Main.getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "§");
+	    			String msg = Main.getInstance().getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "§");
 	    			if(Main.configs.NOTE_bungee_broadcast) {
 						BungeeChannel.bungeeBroadcast(msg);
 					}
@@ -114,14 +121,14 @@ public class DeleteListener extends Utils implements Listener  {
 					}
     			}
     			if(!Main.configs.Show_Timer_On_Hologram) {
-    				deleteholo(loc);
+    				utils.deleteholo(loc);
     			}
     			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
     	    	loc2.setX(loc.getX()+0.5);
     	    	loc2.setY(loc.getY()+0.5);
     	    	loc2.setZ(loc.getZ()+0.5);
 
-    	    		Main.part.remove(loc2);
+    	    	main.getPart().remove(loc2);
 
 
 
@@ -136,13 +143,13 @@ public class DeleteListener extends Utils implements Listener  {
 	    	if(e.isCancelled()) {
 	    		return;
 	    	}
-    		Lootchest keys = isLootChest(e.getBlock().getLocation());
+    		Lootchest keys = utils.isLootChest(e.getBlock().getLocation());
 
     		if(keys!=null) {
     			Player p = e.getPlayer();
     			if(keys.getTake_msg() && !keys.getTaken()){
     				keys.setTaken(true);
-	    			String msg = Main.getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "§");
+	    			String msg = Main.getInstance().getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "§");
 	    			if(Main.configs.NOTE_bungee_broadcast) {
 						BungeeChannel.bungeeBroadcast(msg);
 					}
@@ -156,13 +163,13 @@ public class DeleteListener extends Utils implements Listener  {
 					}
     			}
     			Location loc = e.getBlock().getLocation();
-    			deleteholo(loc);
+    			utils.deleteholo(loc);
     	        final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
     	    	loc2.setX(loc.getX()+0.5);
     	    	loc2.setY(loc.getY()+0.5);
     	    	loc2.setZ(loc.getZ()+0.5);
  
-    	    		Main.part.remove(loc2);
+    	    	main.getPart().remove(loc2);
 
     	    	//executeRespawn(keys);
     			return;
@@ -179,7 +186,7 @@ public class DeleteListener extends Utils implements Listener  {
     	    	if(e.isCancelled()) {
     	    		return;
     	    	}
-    			Lootchest keys = isLootChest(chest.getLocation());
+    			Lootchest keys = utils.isLootChest(chest.getLocation());
         		if(keys != null) {
         			if(Main.configs.Protect_From_Explosions) {
         				
@@ -199,13 +206,13 @@ public class DeleteListener extends Utils implements Listener  {
         				return;
         			}
         			Location loc = chest.getLocation();
-        			deleteholo(loc);
+        			utils.deleteholo(loc);
         	        final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
         	    	loc2.setX(loc.getX()+0.5);
         	    	loc2.setY(loc.getY()+0.5);
         	    	loc2.setZ(loc.getZ()+0.5);
     
-        	    		Main.part.remove(loc2);
+        	    	main.getPart().remove(loc2);
         	    	
         			//executeRespawn(keys);
         			
@@ -225,7 +232,7 @@ public class DeleteListener extends Utils implements Listener  {
 
     	if(block.getType() == Material.HOPPER) {
     		for(Block blockabove : blocksabove) {
-	    		if(isLootChest(blockabove.getLocation()) != null) {
+	    		if(utils.isLootChest(blockabove.getLocation()) != null) {
 	    			if(Main.configs.PreventHopperPlacingUnderLootChest) {
 	    				e.setCancelled(true);
 	    			}
@@ -251,7 +258,7 @@ public class DeleteListener extends Utils implements Listener  {
     	if(!org.bukkit.Bukkit.getVersion().contains("1.7")){
 	    	for(Block block : e.getBlocks()) {
 	    		if(block.getType() == Material.HOPPER) {
-	    			if(Main.getConfigFiles().getConfig().getBoolean("PreventHopperPlacingUnderLootChest")) {
+	    			if(Main.getInstance().getConfigFiles().getConfig().getBoolean("PreventHopperPlacingUnderLootChest")) {
 	    				e.setCancelled(true);
 	    			}    			
 	    		}
