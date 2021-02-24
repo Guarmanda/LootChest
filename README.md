@@ -91,14 +91,12 @@ You can donate to me here <a href="https://www.paypal.com/paypalme/BlackEyes99" 
 <br />
 <div style="text-align: center"><span style="font-size: 12px"><span style="font-size: 12px"><span style="font-size: 12px"><span style="font-size: 22px"><span style="font-size: 15px"><a href="https://www.spigotmc.org/resources/api-particleapi-1-7-1-8-1-9-1-10.2067/" class="internalLink"> </a></span></span></span></span></span><br />
 <br />
-<span style="font-size: 12px"><span style="font-size: 12px"><span style="font-size: 12px"><b><span style="font-size: 22px">Screens:</span></b></span></span></span><br />
-<span style="font-size: 12px"><span style="font-size: 12px"><span style="font-size: 12px"><span style="font-size: 22px"><i><span style="font-size: 18px">All menu texts are editable</span></i></span></span></span></span><br />
-<br />
+
 <span style="font-size: 22px"><b>Using my code:</b></span><br />
 <span style="font-size: 15px">Don&#039;t sell copy of this thing, it will always stay open source. You can still use my code if you want to edit this plugin for yourself, or someone in needs, or you can use some function for your own plugin^^ (the fall effect class could be useful to some, and there&#039;s many menu in this, and also some config file functions) </span>&#8203;</div>
 </blockquote></article>
 <div class="imageCollection">
-<h3 class="textHeading">Images</h3>
+
 
 </div>
 
