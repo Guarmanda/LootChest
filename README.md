@@ -26,8 +26,7 @@
 <div style="text-align: center"><span style="font-size: 26px"><span style="font-family: 'Verdana'">LootChest</span></span><br />
 <span style="font-size: 12px"><span style="font-family: 'Verdana'">Configurable chest reloader<br />
 <br />
-<img src="//proxy.spigotmc.org/bc535a3f25f47f63598064e9034b5c0523261b97?url=https%3A%2F%2Fi.imgur.com%2F4B01agg.gif" class="bbCodeImage LbImage" alt="[&#x200B;IMG]" data-url="https://i.imgur.com/4B01agg.gif" /><br />
-<img src="//proxy.spigotmc.org/a0bd3eab35a54ca9380ce58138adc878b1243ee1?url=https%3A%2F%2Fi.imgur.com%2FR6B91lX.png" class="bbCodeImage LbImage" alt="[&#x200B;IMG]" data-url="https://i.imgur.com/R6B91lX.png" /><br />
+
 </span></span><br />
 <span style="font-size: 22px"><b>Features:</b></span>&#8203;</div><span style="font-size: 15px">- Set particles for each chest (35 particles supported) (can be disabled for each chest)<br />
 - BungeeCord messages on chest respawn/take<br />
@@ -50,7 +49,7 @@
 - Awesome fall effect (fully editable) (can be disabled for each chests)<br />
 - Broadcast on chest taken (can be disabled for each chest)<br />
 <br />
-<div style="text-align: center">You can also look this awesome video made by <a href="https://www.youtube.com/channel/UC0DKOswctz1q3gtm5BMfPtw" target="_blank" class="externalLink" rel="nofollow">MusicTechnician</a> (English) or the one from <a href="https://www.youtube.com/channel/UCrngTubVPUjA-I2f4wuM1MQ" target="_blank" class="externalLink" rel="nofollow">Maxar628 </a>(Spanish) to know everything about this plugin:&#8203;</div><div style="text-align: left">&#8203;</div><div style="text-align: center"><iframe width="500" height="300" src="https://www.youtube.com/embed/p2Coe1gJgZY?wmode=opaque" frameborder="0" allowfullscreen></iframe><iframe width="500" height="300" src="https://www.youtube.com/embed/zX-GDKOkkvU?wmode=opaque" frameborder="0" allowfullscreen></iframe><br />
+<div style="text-align: center">You can also look this awesome video made by <a href="https://www.youtube.com/channel/UC0DKOswctz1q3gtm5BMfPtw" target="_blank" class="externalLink" rel="nofollow">MusicTechnician</a> (English) or the one from <a href="https://www.youtube.com/channel/UCrngTubVPUjA-I2f4wuM1MQ" target="_blank" class="externalLink" rel="nofollow">Maxar628 </a>(Spanish) to know everything about this plugin:&#8203;</div><div style="text-align: left">&#8203;</div><div style="text-align: center">
 <br />
 <span style="font-size: 12px"><b><span style="font-size: 22px">Commands:</span></b></span>&#8203;</div><span style="font-size: 12px"><span style="font-size: 15px">-/lc create &lt;name&gt; : Creates a chest and opens creating menu</span></span><br />
 <span style="font-size: 12px"><span style="font-size: 15px">-/lc edit &lt;name&gt; : Open editing menu</span></span><br />
