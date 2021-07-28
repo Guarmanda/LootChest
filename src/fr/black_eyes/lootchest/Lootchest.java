@@ -12,14 +12,14 @@ import org.bukkit.inventory.InventoryHolder;
 import lombok.Getter;
 import lombok.Setter;
 public class Lootchest {
-	@Getter @Setter  String name;
+	@Getter @Setter private String name;
 	@Setter 		private Location globalLoc;
 	@Setter 		private Location randomLoc;
 	@Getter			private Inventory inv;
 	@Getter @Setter private Boolean fall;
 	@Getter			 Integer[] chances;
 	@Getter @Setter private String direction;
-	@Getter @Setter private String holo;
+	@Getter private String holo;
 	@Getter @Setter private long time;
 	@Getter @Setter private long lastreset;
 	@Getter @Setter private String particle;
@@ -30,6 +30,7 @@ public class Lootchest {
 	@Getter @Setter private String world;
 	@Getter @Setter private Boolean taken;
 	@Getter @Setter private Material type;
+	@Getter private Hologram hologram;
 	
 	
 	/*Function used in Main / reload for chest loading */
@@ -85,6 +86,8 @@ public class Lootchest {
 		world = configFiles.getData().getString("chests." + naming + ".position.world");
 		direction = configFiles.getData().getString("chests." + naming + ".direction");
 		lastreset = configFiles.getData().getLong("chests." + name + ".lastreset");
+		
+		hologram = new Hologram(this);
 	}
 	
 	
@@ -125,7 +128,7 @@ public class Lootchest {
 	   	world = chest.getWorld().getName();
 		((InventoryHolder) chest.getLocation().getBlock().getState()).getInventory().clear();
 		chest.getLocation().getBlock().setType(Material.AIR);
-		
+		hologram = new Hologram(this);
 	}
 	
 	/*Function used at defined time in config and at plugin stop for saving chests */
@@ -187,6 +190,11 @@ public class Lootchest {
 
 	public String toString() {
 		return (name +" "+fall +" " +direction+" "+ radius+" "+particle);             
+	}
+	
+	public void setHolo(String text) {
+		holo = text;
+		hologram.setText(holo);
 	}
     
 }

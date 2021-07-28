@@ -36,7 +36,7 @@ public class Menu {
 	}
 	//Inventaires
 	public  void invChances(Player p, Lootchest name) {
-		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.chances.name", "[Chest]", name.name));
+		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.chances.name", "[Chest]", name.getName()));
 		for(int i = 0; i < name.getInv().getSize(); i++) {
 			if(name.getInv().getItem(i) != null && name.getInv().getItem(i).getType()!= Material.AIR) {
 				ItemStack item = name.getInv().getItem(i).clone();
@@ -52,12 +52,12 @@ public class Menu {
 				inv.setItem(i, item2);
 			}
 		}
-		LootchestCommand.editinv.put(p, name.name);
+		LootchestCommand.editinv.put(p, name.getName());
 		p.openInventory(inv);
 	}
 	
 	public  void invTime(Player p, Lootchest name) {
-		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.time.name", "[Chest]", name.name));
+		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.time.name", "[Chest]", name.getName()));
 		if(name.getTime() != -1) {
 			inv.setItem(4, getItem(Mat.TOTEM_OF_UNDYING, getMsg("Menu.time.infinite", " ", " ")));
 		}else {
@@ -104,7 +104,7 @@ public class Menu {
 		}
         inv.setItem(14, getItem(Mat.STICK, ""));
         inv.setItem(11, getItem(Mat.STICK, ""));
-		LootchestCommand.editinv.put(p, name.name);
+		LootchestCommand.editinv.put(p, name.getName());
 		ItemStack sign = new ItemStack(Mat.SIGN, 1);
 		ItemMeta meta = sign.getItemMeta(); 
 		if(minutes != -1) {
@@ -119,9 +119,9 @@ public class Menu {
 	}
 	
 	public  void invEdit(Player p, Lootchest name) {
-		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.items.name", "[Chest]", name.name));
+		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.items.name", "[Chest]", name.getName()));
 		inv.setContents(name.getInv().getContents());;
-		LootchestCommand.editinv.put(p, name.name);
+		LootchestCommand.editinv.put(p, name.getName());
 		p.openInventory(inv);
 	}
 	
@@ -136,7 +136,7 @@ public class Menu {
 			else if(j> 2 && nbBoxes < (j*54-(2*(j-1)))-52) nbBoxes++;
 			//exempter le coffre actuel de la liste, et si il y a plus de 54 coffres, stopper i à 53 si on doit faire deux pages
 			
-			else if(!keys.equals(chest.name) && (i!=45 || j==1) && (i!=53 || (boxes.size() -1)<=(j*52+1) ) ){
+			else if(!keys.equals(chest.getName()) && (i!=45 || j==1) && (i!=53 || (boxes.size() -1)<=(j*52+1) ) ){
 				String name = Main.getInstance().getLootChest().get(keys).getHolo().replace("&", "§");
 				String effect = configFiles.getData().getString("chests." + keys + ".particle");
 				String world;
@@ -149,7 +149,7 @@ public class Menu {
 				ItemStack item = getItemWithLore(Material.CHEST, "§6" +keys, "§bHologram: §6" + name + "||§bWorld: §6"+ world + "||§bEffect: §6" + effect);
 				inv.setItem(i++, item);
 			}
-			else if (!keys.equals(chest.name) && i==45) {
+			else if (!keys.equals(chest.getName()) && i==45) {
 				String name = getMsg("Menu.copy.page", "[Number]", j-1+"");
 				ItemStack item = getItem(Material.PAPER,  name );
 				inv.setItem(i++, item);
@@ -166,7 +166,7 @@ public class Menu {
 				ItemStack item2 = getItemWithLore(Material.CHEST, "§6" +keys, "§bHologram: §6" + name2 + "||§bWorld: §6"+ world + "||§bEffect: §6" + effect);
 				inv.setItem(i++, item2);
 			}
-			else if (!keys.equals(chest.name) && i==53){
+			else if (!keys.equals(chest.getName()) && i==53){
 				String name = getMsg("Menu.copy.page", "[Number]", (j+1)+"");
 
 				ItemStack item = getItem(Material.PAPER,  name );
@@ -177,19 +177,19 @@ public class Menu {
 		}			
 
 		p.openInventory(inv);
-        LootchestCommand.editinv.put(p, chest.name);
+        LootchestCommand.editinv.put(p, chest.getName());
 	}
 	
 	
 	public void invType(Player p, Lootchest name) {
-		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 9, getMsg("Menu.time.name", "[Chest]", name.name));
+		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 9, getMsg("Menu.time.name", "[Chest]", name.getName()));
 		inv.setItem(0, new ItemStack(Mat.CHEST, 1));
 		inv.setItem(1, new ItemStack(Mat.TRAPPED_CHEST, 1));
 		if(Mat.BARREL!=Mat.CHEST) {
 			inv.setItem(3,  new ItemStack(Mat.BARREL));
 		}
 		p.openInventory(inv);
-		LootchestCommand.editinv.put(p, name.name);
+		LootchestCommand.editinv.put(p, name.getName());
 	}
 	
 	public  void mainInv(Player p, String name) {

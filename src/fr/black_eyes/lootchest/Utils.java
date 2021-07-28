@@ -1,7 +1,10 @@
 package fr.black_eyes.lootchest;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
@@ -9,6 +12,7 @@ import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -36,18 +40,44 @@ public class Utils  {
 	
 	//message functions that automatically get a message from config lang file
 	public void msg(CommandSender p, String path, String replacer, String replacement) {
-		p.sendMessage(getMsg(path, replacer, replacement));
+		String message = path;
+		if(configFiles.getLang().isSet(path)) {
+			message = getMsg(path, replacer, replacement);
+		}
+		sendMultilineMessage(message, p);
+	}
+	
+	//message functions that automatically get a message from config lang file
+	public void msg(CommandSender p, String path, String replacer, String replacement, String replacer2, String replacement2) {
+		String message = configFiles.getLang().getString(path).replace(replacer, replacement).replace(replacer2, replacement2);
+		sendMultilineMessage(message, p);
+	}
+	
+	/*
+	 * This function is only for messages of chest spawning.
+	 * 
+	 */
+	public void msg(CommandSender p, String path,  String r1, String r1b, String r2, String r2b, String r3, String r3b, String r4, String r4b,  String r5, String r5b) {
+		String message = path;
+		if(configFiles.getLang().isSet(path)) {
+			message = configFiles.getLang().getString(path);
+		}
+		message = message.replace(r1, r1b).replace(r2, r2b).replace(r3, r3b).replace(r4, r4b).replace(r5, r5b);
+		sendMultilineMessage(message, p);
+	}
+	
+	private void sendMultilineMessage(String message, CommandSender player) {
+		List<String> msgs = Arrays.asList(message.split("\\\\n"));
+		msgs.stream().forEach(msg -> player.sendMessage(msg.replace("&", "§")));
 	}
 	
 	public String getMsg(String path, String replacer, String replacement) {
-		return configFiles.getLang().getString(path).replace(replacer, replacement).replace("&", "§");
+		return configFiles.getLang().getString(path).replace(replacer, replacement);
 	}
-	
 	
 	//function to copy a chest
 	//fonction pour copier un coffre
 	public void copychest(Lootchest chest1, Lootchest chest2) {
-		
 		chest2.setHolo(chest1.getHolo());
 		chest2.chances = chest1.chances.clone();
 		//chest2.direction = chest1.direction; let's not change original direction
@@ -76,13 +106,11 @@ public class Utils  {
 		Location loc = name.getActualLocation();
 		if(Bukkit.getWorld(name.getWorld()) != null && name.isGoodType(loc.getBlock())) {
 			Block chest = loc.getBlock();
-			deleteholo(loc);
+			//deleteholo(loc);
 			((InventoryHolder) chest.getLocation().getBlock().getState()).getInventory().clear();
 			chest.setType(Material.AIR);
 			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-			loc2.setX(loc.getX()+0.5);
-			loc2.setY(loc.getY()+0.5);
-			loc2.setZ(loc.getZ()+0.5);
+			loc2.add(0.5,0.5,0.5);
 			main.getPart().remove(loc2);
 		}
 		name.setWorld(loc3.getWorld().getName());
@@ -93,6 +121,7 @@ public class Utils  {
 	//deletes a chest
 	//supprimes un coffre
 	public void deleteChest(Lootchest lc) {
+		lc.getHologram().remove();
 		Location loc = lc.getPosition();
 		if(lc.getRandomPosition() != null) {
 			loc = lc.getRandomPosition();
@@ -103,12 +132,9 @@ public class Utils  {
 		}
 		chest.setType(Material.AIR);
 		final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-		loc2.setX(loc.getX()+0.5);
-		loc2.setY(loc.getY()+0.5);
-		loc2.setZ(loc.getZ()+0.5);
+		loc2.add(0.5,0.5,0.5);
 		main.getPart().remove(loc2);
-		deleteholo(chest.getLocation());
-		Main.getInstance().getLootChest().remove(lc.name);
+		Main.getInstance().getLootChest().remove(lc.getName());
 		
 	}
 	
@@ -157,13 +183,14 @@ public class Utils  {
 	
 	
 	public void reactivateEffects(Lootchest lc) {
+
 		Location loc = lc.getActualLocation();
+		//if the lootchest isn't here, let's not spawn particles or anything
 		if(!lc.isGoodType(loc.getBlock())) {
 			return;
 		}
 		if(Main.getInstance().getConfig().getBoolean("UseHologram")){
-			deleteholo(loc);
-			makeHolo(loc, lc);
+			lc.getHologram().setLoc(loc);
 		}
 		if(!Bukkit.getVersion().contains("1.7") && lc.getFall() && Main.configs.FALL_Let_Block_Above_Chest_After_Fall){
 			Location arm = loc.clone();
@@ -174,7 +201,7 @@ public class Utils  {
 			
 			((org.bukkit.entity.ArmorStand) ent).setVisible(false); //Makes the ArmorStand invisible
 		 	((org.bukkit.entity.ArmorStand) ent).setHelmet(new ItemStack(mat, 1));
-		 	if(!Bukkit.getVersion().contains("1.13") && !Bukkit.getVersion().contains("1.14") && !Bukkit.getVersion().contains("1.15") && !Bukkit.getVersion().contains("1.16")) {
+	        if (Bukkit.getVersion().contains("1.7") || Bukkit.getVersion().contains("1.8") || Bukkit.getVersion().contains("1.9") || Bukkit.getVersion().contains("1.10") || Bukkit.getVersion().contains("1.11") || Bukkit.getVersion().contains("1.12")) {
 			 	if(mat.equals(Material.valueOf("WOOL"))) {
 			 		((org.bukkit.entity.ArmorStand) ent).setHelmet(new ItemStack(mat, 1, DyeColor.valueOf(Main.configs.FALL_Optionnal_Color_If_Block_Is_Wool).getDyeData()));
 			 	}
@@ -247,23 +274,26 @@ public class Utils  {
 			randompos.setX(randomInt(random)+loc.getX());
 			randompos.setZ(randomInt(random)+loc.getZ());
 			randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos));
-			if (Bukkit.getVersion().contains("1.15.2") || Bukkit.getVersion().contains("1.16")) {
+			if (Bukkit.getVersion().contains("1.15") || Bukkit.getVersion().contains("1.16")|| Bukkit.getVersion().contains("1.17")) {
 				randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos)+1);
 			}
-			if(Main.configs.Prevent_Chest_Spawn_In_Protected_Places) {
+			if(Main.configs.Prevent_Chest_Spawn_In_Protected_Places || Main.configs.WorldBorder_Check_For_Spawn) {
 				int counter = 0;
-				while(counter<50 && ProtectedRegions.isProtected(randompos)) {
+				boolean checkreg = Main.configs.Prevent_Chest_Spawn_In_Protected_Places;
+				boolean checkwb = Main.configs.WorldBorder_Check_For_Spawn && randompos.getWorld().getWorldBorder()!=null;
+				while(counter<50 && ((checkreg &&ProtectedRegions.isProtected(randompos)) || (isOutsideOfBorder(randompos) && checkwb))) {
+
 					randompos.setX(randomInt(random)+loc.getX());
 					randompos.setZ(randomInt(random)+loc.getZ());
 					randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos));
-					if (Bukkit.getVersion().contains("1.15")|| Bukkit.getVersion().contains("1.16")) {
+					if (Bukkit.getVersion().contains("1.15")|| Bukkit.getVersion().contains("1.16")|| Bukkit.getVersion().contains("1.17")) {
 						randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos)+1);
 					}
 					counter++;
 				
 				}
 				if(counter == 50) {
-					Bukkit.getLogger().info("§cThe chest " + lc.name + " didn't found an unprotected location, so that it can't respawn! " );
+					Bukkit.getLogger().info("§cThe chest " + lc.getName() + " didn't found an unprotected location, so that it can't respawn! " );
 					long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime();
 					lc.setLastreset(tempsactuel);
 					sheduleRespawn(lc);
@@ -296,7 +326,7 @@ public class Utils  {
 			Location startloc = new Location(newloc.getWorld(), newloc.getX()+0.5, newloc.getY()+height, newloc.getZ()+0.5);
 			Boolean loaded = startloc.getWorld().isChunkLoaded((int)startloc.getX()/16, (int)startloc.getZ()/16) ;
 			if(lc.getRadius()!=0 && loc3 != newloc && lc.isGoodType(block) ) {
-				deleteholo(loc3);
+				//deleteholo(loc3);
 				((InventoryHolder) block.getState()).getInventory().clear();
 				block.setType(Material.AIR);
 				loc3.add(0.5,0.5,0.5);
@@ -323,13 +353,13 @@ public class Utils  {
 				else if(!Main.configs.NOTE_per_world_message) {
 					//Bukkit.getLogger().info("per world msg désactivé, envoie");
 					for(Player p : Bukkit.getOnlinePlayers()) {
-						p.sendMessage((((Main.configs.NOTE_natural_msg.replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
+						msg(p, Main.configs.NOTE_natural_msg,"[World]", newloc.getWorld().getName(), "[Chest]", holo, "[x]", newloc.getX()+"", "[y]", newloc.getY()+"", "[z]", newloc.getZ()+"");
 					}
 						
 				}else {
 					//Bukkit.getLogger().info("per world msg activé, envoie");
 					for(Player p : loc.getWorld().getPlayers()){
-						p.sendMessage((((Main.configs.NOTE_natural_msg.replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
+						msg(p, Main.configs.NOTE_natural_msg, "[World]", newloc.getWorld().getName(), "[Chest]", holo, "[x]", newloc.getX()+"", "[y]", newloc.getY()+"", "[z]", newloc.getZ()+"");
 					}
 				}
 			}
@@ -360,7 +390,7 @@ public class Utils  {
 			}
 			
 			if(!Main.configs.UseHologram){
-				deleteholo(loc);
+				lc.getHologram().remove();
 
 			}
 
@@ -374,6 +404,19 @@ public class Utils  {
 		
 		return ((tempsactuel - tempsenregistre > minutes && minutes>=0) || force);
 	}
+	
+	/**
+	 * Checks if location is outside border (thanks spigot forum)
+	 * @param the location to check
+	 * @return
+	 */
+	public boolean isOutsideOfBorder(Location loc) {
+        WorldBorder border = loc.getWorld().getWorldBorder();
+        double size = border.getSize()/2;
+        Location center = border.getCenter();
+        double x = loc.getX() - center.getX(), z = loc.getZ() - center.getZ();
+        return ((x > size || (-x) > size) || (z > size || (-z) > size));
+    }
 	
 	/**
 	 * used by restoreChest, spawns the chest
@@ -422,12 +465,11 @@ public class Utils  {
 					}
 				}
 			}else if  (!name.isGoodType(block) ){
-				deleteholo(theloc);
+				name.getHologram().remove();
 				main.getPart().remove(loc2);
 			}
 			if(Main.configs.UseHologram){
-				deleteholo(theloc);
-				makeHolo(theloc, name);
+				name.getHologram().setLoc(theloc);
 			}
 		}
 		long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime();
@@ -530,6 +572,40 @@ public class Utils  {
 		configFiles.saveData();
 	}
 	
+	public int killOldHolograms(boolean all) {
+		int cpt = 0;
+		List<String> holograms = new ArrayList<String>();
+		Main.getInstance().getLootChest().values().forEach(lc -> {
+			lc.getActualLocation().getWorld().loadChunk(lc.getActualLocation().getChunk());
+			holograms.add(lc.getHolo().replace("&", "§"));
+		});
+		for(World world : Bukkit.getWorlds()) {
+			for(Entity ent : world.getEntities()) {
+				if(ent instanceof org.bukkit.entity.ArmorStand) {
+					//remove is set to true if the entity name contains hologram text
+					boolean remove = false;
+					for(String holo:holograms) {
+						if(ent.getCustomName() != null && holo !=null && ent.getCustomName().contains(holo)) {
+							remove = true;
+							break;
+						}
+					}
+					Location loc = ent.getLocation();
+					loc = loc.subtract(0, Main.configs.Hologram_distance_to_chest, 0);
+					//if the block under holo is a chest or if we want to remove all holo (at startup)
+					if((!Mat.isALootChestBlock(loc.getBlock()) || all) &&remove) {
+						ent.remove();
+						cpt++;
+					}
+				}
+			}
+		}
+		if(all) {
+			main.logInfo("Removed "+cpt+" holograms");
+		}
+		return cpt;
+	}
+	
 	public  Location getRandomPosition(String name) {
 		if(!configFiles.getData().isSet("chests." + name + ".randomPosition.x")) {
 			return null;
@@ -542,7 +618,7 @@ public class Utils  {
 		float yaw = (float) configFiles.getData().getDouble("chests." + name + ".randomPosition.yaw");
 		return new Location(world, x, y, z, pitch, yaw);
 	}
-	
+	/*
 	//Pour suprimer un holograme
 	//To delete hologram
 	public  void deleteholo(Location loc) {
@@ -561,56 +637,7 @@ public class Utils  {
 				}
 			}
 		}
-	}
-	
-	//Pour faire des hologrames au dessus des coffres
-	//To do holograms near chests
-	//the below function was created using some spigot forums code with some modifications
-	public  void makeHolo(Location loc, Lootchest lc) {
-		if(!org.bukkit.Bukkit.getVersion().contains("1.7")){
-			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-			loc2.add(0.5, Main.configs.Hologram_distance_to_chest, 0.5);
-			//the coordinates of a block are at the corner of the block
-
-			String name = lc.getHolo().replace("&", "§");
-			if(!((name.equals("\"\"") || name.equals("\" \"") || name.equals("null") || name.equals("") || name.equals(" ") || name.equals("_") || name.equals("none")))) {
-				org.bukkit.entity.ArmorStand as = (org.bukkit.entity.ArmorStand) loc2.getWorld().spawnEntity(loc2, org.bukkit.entity.EntityType.ARMOR_STAND); //Spawn the ArmorStand
-				
-				as.setCustomName(name); //Set this to the text you want
-				as.setCustomNameVisible(true); //This makes the text appear no matter if your looking at the entity or not
-
-				as.setGravity(false); //Make sure it doesn't fall
-				as.setCanPickupItems(false); //I'm not sure what happens if you leave this as it is, but you might as well disable it
-				//This makes the text appear no matter if your looking at the entity or not
-				as.setVisible(false); //Makes the ArmorStand invisible
-			 	as.setArms(false);
-			 	as.setBasePlate(false);
-			 	as.setSmall(true);
-			 	if(!org.bukkit.Bukkit.getVersion().contains("1.8)")) {
-			 		
-			 		as.setMarker(true);
-				}
-			 	if(Main.configs.Show_Timer_On_Hologram && lc.getTime() != -1) {
-			 	new BukkitRunnable() {
-			    		public void run() {
-			    			long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime()/1000;
-			    			long minutes = lc.getTime()*60;
-			    			long tempsenregistre = lc.getLastreset()/1000;
-			    			as.setCustomName(name + " (" + (minutes - (tempsactuel - tempsenregistre)) + ")");
-			    			if(minutes - (tempsactuel - tempsenregistre)<=0) {
-			    				this.cancel();
-			    			}
-			    		}
-			    	}.runTaskTimer(Main.getInstance(), 0, 20);
-			 	}
-	
-			}
-		}
-	}	
-	
-
-	
-	
+	}*/
 	
 	
 

@@ -26,7 +26,7 @@ default_item_chance: 100
 use_players_locations_for_randomspawn: false
     #if you save data file at each respawn, it can prevent bugged chests when server crashes. 
     #If you think your server never crashes, set it to false
-save_Chest_Locations_At_Every_Spawn: true
+save_Chest_Locations_At_Every_Spawn: false
     #I think you know what it is:
 UseHologram: true
     #remove the chests if the player empty them (they still respawn and everything)
@@ -44,6 +44,12 @@ Hologram_distance_to_chest: 1
 PreventHopperPlacingUnderLootChest: true
     #Someone asked for this^^
 Minimum_Number_Of_Players_For_Natural_Spawning: 0
+    #Should we check for the chests to spawn inside the world border?
+WorldBorder_Check_For_Spawn: true
+    #If put to false, lootchests won't drop when broken/looted
+Destroy_Naturally_Instead_Of_Removing_Chest: true
+    #Well if you make dungeons, you may prefer players to kill monsters before looting everything
+Radius_Without_Monsters_For_Opening_Chest: 0
     #Here comes the funny part :)
 Fall_Effect:
       #the block is on an armorstand's head, so it would be 1 or 2 blocks above the chest, and not really on it
@@ -62,8 +68,13 @@ Fall_Effect:
       #0.8 is a good speed I think^^ But that's your config file x)
   Speed: 0.8
 
-#Do you want seconds being shown on chest hologram?
-Show_Timer_On_Hologram: true
+#Do you want seconds being shown on chest hologram? It can be bugged in unloaded chunks.
+Timer_on_hologram:
+  Show_Timer_On_Hologram: false
+  Hours_Separator: ' hours, '
+  Minutes_Separator: ' minutes  and '
+  Seconds_Separator: ' seconds'
+  Format: '%Hours%Hsep%Minutes%Msep%Seconds%Ssep left for %Hologram to respawn'
 #you can edit or disable all these messages
 respawn_notify:
       #If you haven't bungeecord, the message will still be sent correctly, and if you have it it should send bungee message everywhare
@@ -74,11 +85,11 @@ respawn_notify:
   message_on_chest_take: true #this is a default value. You can enable or disable it for each chest
   natural_respawn:
     enabled: true #this is a default value. You can enable or disable it for each chest
-    message: "&6The chest &b[Chest] &6has just respawned at [x], [y], [z]!"
+    message: '&6The chest &b[Chest] &6has just respawned \n&6at [x], [y], [z] in [World]!'
   respawn_with_command:
     enabled: true #this is a default value. You can enable or disable it for each chest
-    message: "&6The chest &b[Chest] &6has just respawned at [x], [y], [z]!"
+    message: '&6The chest &b[Chest] &6has just respawned \n&6at [x], [y], [z] in [World]!'
   respawn_all_with_command:
     enabled: true 
-    message: "&6All chests where forced to respawn! Get them guys!" 
+    message: '&6All chests where forced to respawn!\n&6Get them guys!' 
 

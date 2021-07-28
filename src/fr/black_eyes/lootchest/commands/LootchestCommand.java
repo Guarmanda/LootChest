@@ -1,6 +1,7 @@
 package fr.black_eyes.lootchest.commands;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import org.bukkit.Bukkit;
@@ -28,6 +29,7 @@ import fr.black_eyes.lootchest.Utils;
 
 
 public class LootchestCommand implements CommandExecutor, TabCompleter  {
+	
     public static int dc;
 	public static  HashMap<org.bukkit.entity.Player, String> editinv = new HashMap<org.bukkit.entity.Player, String>();
 	public static HashMap<org.bukkit.entity.Player, String> menuName = new HashMap<org.bukkit.entity.Player, String>();
@@ -37,6 +39,15 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 	 private Menu menu;
 	 private Utils utils;
 	 private Main main;
+	 
+	//variables for command completion
+	private static final String[] completions0 = {"removeallholo", "locate", "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "reload", "list", "setpos", "give", "randomspawn", "tp", "settime","togglefall", "getname"};
+	
+	//following args must be followed by chest names
+	private static final List<String> argsFollowedByChest = new ArrayList<String>(
+			Arrays.asList("randomspawn", "edit", "respawn", "remove", "setholo", "setpos", "tp", "give", "settime", "togglefall")
+			);
+		
 	 
 	 public LootchestCommand() {
 		 	main = Main.getInstance();
@@ -211,13 +222,12 @@ public void drawInPlane(Player p) {
 							}
 							else if(!Main.configs.NOTE_per_world_message) {
 								for(Player p : Bukkit.getOnlinePlayers()) {
-									p.sendMessage((((Main.configs.NOTE_command_msg.replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "§"));							
+									utils.msg(p, Main.configs.NOTE_command_msg, "[World]", block.getWorld().getName(), "[Chest]", holo, "[x]", block.getX()+"", "[y]", block.getY()+"", "[z]", block.getZ()+"");
 								}
 								
 							}else {
 								for(org.bukkit.entity.Player p : block.getWorld().getPlayers()){
-									p.sendMessage((((Main.configs.NOTE_command_msg.replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "§"));							
-								
+									utils.msg(p, Main.configs.NOTE_command_msg, "[World]", block.getWorld().getName(), "[Chest]", holo, "[x]", block.getX()+"", "[y]", block.getY()+"", "[z]", block.getZ()+"");								
 								}
 							}
 						}
@@ -234,10 +244,10 @@ public void drawInPlane(Player p) {
 				if(args[0].equalsIgnoreCase("locate")) {
 					utils.msg(sender, "locate_command.main_message", " "," ");
 					for(Lootchest lcs : Main.getInstance().getLootChest().values()) {
-						if(lcs.getRespawn_natural() && !lc.getTaken()) {
+						if(lcs.getRespawn_natural() && !lcs.getTaken()) {
 							Location block = lcs.getActualLocation();
 							String holo = lcs.getHolo();
-							sender.sendMessage(utils.getMsg("locate_command.chest_list", "[world]", block.getWorld().getName()).replace("[Chest]", holo).replace("[x]", block.getX()+"").replace("[y]", block.getY()+"").replace("[z]", block.getZ()+""));
+							utils.msg(sender, "locate_command.chest_list", "[world]", block.getWorld().getName(), "[Chest]", holo, "[x]", block.getX()+"", "[y]", block.getY()+"", "[z]", block.getZ()+"");
 						}
 					}
 				}
@@ -266,6 +276,10 @@ public void drawInPlane(Player p) {
 						utils.msg(sender, "commandGetName", "[Chest]", l.getName());
 					}
 				}
+				else if(args[0].equalsIgnoreCase("removeallholo")) {
+					int cpt = utils.killOldHolograms(false);
+					utils.msg(sender, "removedHolograms", "[Number]", cpt +"");
+				}
 				else if(args[0].equalsIgnoreCase("respawnall")) {
 		
 					for (final Lootchest l : Main.getInstance().getLootChest().values()) {
@@ -282,7 +296,7 @@ public void drawInPlane(Player p) {
 							BungeeChannel.bungeeBroadcast(Main.configs.NOTE_allcmd_msg.replace("&", "§"));
 						}else {
 							for(Player p : Bukkit.getOnlinePlayers()) {
-								p.sendMessage(Main.configs.NOTE_allcmd_msg.replaceAll("&", "§"));
+								utils.msg(p, Main.configs.NOTE_allcmd_msg," ", " ");
 						
 							}
 						}
@@ -294,6 +308,7 @@ public void drawInPlane(Player p) {
 					configFiles.reloadConfig();
 					Main.configs = Config.getInstance(configFiles.getConfig());
 					main.getPart().clear();
+					Main.getInstance().getLootChest().values().stream().forEach(chest -> chest.getHologram().remove());
 					Main.getInstance().getLootChest().clear();
 					for(String keys : configFiles.getData().getConfigurationSection("chests").getKeys(false)) {
 						String name = configFiles.getData().getString("chests." + keys + ".position.world");
@@ -365,10 +380,8 @@ public void drawInPlane(Player p) {
 						utils.msg(sender, "PlayerIsNotOnline", "[Player]", args[2]);
 					}
 					else {
-						String msg = utils.getMsg("giveto", "[Chest]", args[1]);
-						sender.sendMessage(msg.replace("[Player]", args[2]));
-						msg = utils.getMsg("givefrom", "[Chest]", args[1]);
-						Bukkit.getServer().getPlayer(args[2]).sendMessage(msg.replace("[Player]", sender.getName()));
+						utils.msg(sender, "giveto", "[Chest]", args[1], "[Player]", args[2]);
+						utils.msg(Bukkit.getServer().getPlayer(args[2]), "givefrom", "[Chest]", args[1], "[Player]", sender.getName());
 						utils.fillInventory(lc, arg2.getInventory(), false, arg2);
 					}
 				}
@@ -382,7 +395,7 @@ public void drawInPlane(Player p) {
 					if(lc.getRandomPosition()!=null) {
 						loc = lc.getRandomPosition();
 						if(lc.isGoodType(loc.getBlock())) {
-							utils.deleteholo(loc);
+							//utils.deleteholo(loc);
 							((InventoryHolder) loc.getBlock().getState()).getInventory().clear();
 							loc.getBlock().setType(Material.AIR);
 							loc.add(0.5,0.5,0.5);
@@ -391,7 +404,7 @@ public void drawInPlane(Player p) {
 					}
 					loc = lc.getPosition();
 					if(lc.isGoodType(loc.getBlock())) {
-						utils.deleteholo(loc);
+						//utils.deleteholo(loc);
 						((InventoryHolder) loc.getBlock().getState()).getInventory().clear();
 						loc.getBlock().setType(Material.AIR);
 						loc.add(0.5,0.5,0.5);
@@ -460,23 +473,24 @@ public void drawInPlane(Player p) {
 	
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String msg, String[] args) {
-		final String[] completions0 = { "locate", "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "reload", "list", "setpos", "give", "randomspawn", "tp", "settime","togglefall", "getname"};
-		final List<String> chests = new ArrayList<String>();
-		for(String g: data.getConfigurationSection("chests").getKeys(false)){
-			chests.add(g);
-			
-		}
+		final List<String> chests = new ArrayList<String>(data.getConfigurationSection("chests").getKeys(false));
+		
 		/*completion improved by alessevan*/
 		if(args.length == 1){
 		    final List<String> completions = new ArrayList<>();
-		    for(final String string : completions0){
+		    for(String string : completions0){
 		        if(string.toLowerCase().startsWith(args[0].toLowerCase())) completions.add(string);
 		    }
 		    return completions;
 		}
+
 		else if(args.length ==2) {
-			if(args[0].equalsIgnoreCase("randomspawn") || args[0].equalsIgnoreCase("edit") || args[0].equalsIgnoreCase("respawn") || args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("setholo") || args[0].equalsIgnoreCase("setpos")|| args[0].equalsIgnoreCase("tp") || args[0].equalsIgnoreCase("give")|| args[0].equalsIgnoreCase("settime") || args[0].equalsIgnoreCase("togglefall") ) {
-				return chests;
+			if( argsFollowedByChest.contains(args[0].toLowerCase())) {
+			    final List<String> completions = new ArrayList<>();
+			    for(String string : chests){
+			        if(string.toLowerCase().startsWith(args[1].toLowerCase())) completions.add(string);
+			    }
+			    return completions;
 			}
 		}
 		return null;

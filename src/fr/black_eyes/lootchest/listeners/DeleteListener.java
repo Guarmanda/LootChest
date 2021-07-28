@@ -1,11 +1,15 @@
 package fr.black_eyes.lootchest.listeners;
 
 import java.util.HashMap;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -56,17 +60,32 @@ public class DeleteListener implements Listener  {
         if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 Block b = e.getClickedBlock();
                 if (Mat.isALootChestBlock(b)){
-
                     if(openInvs.containsKey(p)) {
                     	openInvs.remove(p);
-                    	return;
+                    	//return;
                     }
                     else {
                     	openInvs.put(p, b.getLocation());
-
                     }
                     
+                    
                 }
+        }
+        if(e.getAction() == Action.LEFT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+	        Lootchest keys = utils.isLootChest(e.getClickedBlock().getLocation());
+	        if(keys!=null) {
+	        	if(Main.configs.Radius_Without_Monsters_For_Opening_Chest >0) {
+	        		int cpt = 0;
+	        		List<Entity> entities = p.getNearbyEntities(Main.configs.Radius_Without_Monsters_For_Opening_Chest, Main.configs.Radius_Without_Monsters_For_Opening_Chest, Main.configs.Radius_Without_Monsters_For_Opening_Chest);
+	        		for(Entity ent: entities) {
+	        			if(ent instanceof Monster) cpt++;
+	        		}
+	        		if(cpt !=0) {
+	        			e.setCancelled(true);
+	        			utils.msg(p, "CantOpenLootchestBecauseMonster", "[Number]", cpt+"");
+	        		}
+	        	}
+	        }
         }
     }
     /*
@@ -98,8 +117,12 @@ public class DeleteListener implements Listener  {
     			Location loc = openInvs.get(p);
     			if((Main.configs.RemoveEmptyChests && utils.isEmpty(inv)) || Main.configs.RemoveChestAfterFirstOpenning) {
     				inv.clear();
-    				utils.deleteholo(loc);
-    				loc.getBlock().breakNaturally();
+    				keys.getHologram().remove();
+    				//utils.deleteholo(loc);
+    				if(Main.configs.Destroy_Naturally_Instead_Of_Removing_Chest)
+    					loc.getBlock().breakNaturally();
+    				else
+    					loc.getBlock().setType(Material.AIR);
     				if(keys.getTime()==0) {
     					utils.restoreChest(keys, false);
     				}
@@ -120,8 +143,9 @@ public class DeleteListener implements Listener  {
 						}
 					}
     			}
-    			if(!Main.configs.Show_Timer_On_Hologram) {
-    				utils.deleteholo(loc);
+    			if(!Main.configs.TIMER_Show_Timer) {
+    				keys.getHologram().remove();
+    				//utils.deleteholo(loc);
     			}
     			final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
     	    	loc2.setX(loc.getX()+0.5);
@@ -139,6 +163,7 @@ public class DeleteListener implements Listener  {
     
     @EventHandler
     public void onchestbreak(BlockBreakEvent e) {
+    	
     	if(Mat.isALootChestBlock(e.getBlock())) {
 	    	if(e.isCancelled()) {
 	    		return;
@@ -146,6 +171,11 @@ public class DeleteListener implements Listener  {
     		Lootchest keys = utils.isLootChest(e.getBlock().getLocation());
 
     		if(keys!=null) {
+    			if(!Main.configs.Destroy_Naturally_Instead_Of_Removing_Chest) {
+    				e.setCancelled(true);
+    				e.getBlock().setType(Material.AIR);
+    			}
+    				
     			Player p = e.getPlayer();
     			if(keys.getTake_msg() && !keys.getTaken()){
     				keys.setTaken(true);
@@ -163,7 +193,8 @@ public class DeleteListener implements Listener  {
 					}
     			}
     			Location loc = e.getBlock().getLocation();
-    			utils.deleteholo(loc);
+    			keys.getHologram().remove();
+    			//utils.deleteholo(loc);
     	        final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
     	    	loc2.setX(loc.getX()+0.5);
     	    	loc2.setY(loc.getY()+0.5);
@@ -182,12 +213,13 @@ public class DeleteListener implements Listener  {
 
     	for(Block chest : e.blockList()) {
     		if(Mat.isALootChestBlock(chest)) {
-
+    			
     	    	if(e.isCancelled()) {
     	    		return;
     	    	}
     			Lootchest keys = utils.isLootChest(chest.getLocation());
         		if(keys != null) {
+
         			if(Main.configs.Protect_From_Explosions) {
         				
         				BlockState state = chest.getState();
@@ -205,8 +237,12 @@ public class DeleteListener implements Listener  {
         	            }, delay);
         				return;
         			}
+        			if(!Main.configs.Destroy_Naturally_Instead_Of_Removing_Chest) {
+        				chest.setType(Material.AIR);
+        			}
         			Location loc = chest.getLocation();
-        			utils.deleteholo(loc);
+        			keys.getHologram().remove();
+        			//utils.deleteholo(loc);
         	        final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
         	    	loc2.setX(loc.getX()+0.5);
         	    	loc2.setY(loc.getY()+0.5);

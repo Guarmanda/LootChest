@@ -179,7 +179,7 @@ public class InventoryListeners implements Listener {
             	utils.updateData(lc);
             	player.closeInventory();
             	utils.restoreChest(lc, true);
-            	player.sendMessage( utils.getMsg("editedChestType", "[Chest]", chest));
+            	utils.msg(player, "editedChestType", "[Chest]", chest);
             	return;
         	}
         }
@@ -199,7 +199,7 @@ public class InventoryListeners implements Listener {
         	
         	utils.copychest(Main.getInstance().getLootChest().get(copyChest), Main.getInstance().getLootChest().get(chest));
         	player.closeInventory();
-        	player.sendMessage( utils.getMsg("copiedChest", "[Chest1]", copyChest).replace("[Chest2]", chest));
+        	utils.msg(player, "copiedChest", "[Chest1]", copyChest, "[Chest2]", chest);
         }
         //main menu
         else if(LootchestCommand.menuName.get(player).equals( utils.getMsg("Menu.main.name", "[chest]", LootchestCommand.editinv.get(player)))) {

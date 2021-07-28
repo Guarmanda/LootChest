@@ -44,8 +44,16 @@ public class Main extends JavaPlugin {
 	@Getter private Boolean UseArmorStands;
 	@Getter private Menu menu;
 	
+	//the way holograms are working changed a lot since 2.2.4. 
+	//If user just done the update, this will be auto set to true by detecting a lacking config option
+	//that appeared precisely in 2.2.4
+	@Getter private boolean killOldHolograms = false;
+	
 
 	public void onDisable() {
+		for(Lootchest lc : LootChest.values()) {
+			lc.getHologram().remove();
+		}
 		utils.updateData();
 		backUp();
 		logInfo("&aBacked up data file in case of crash");
@@ -169,7 +177,7 @@ public class Main extends JavaPlugin {
 	    						players = org.bukkit.Bukkit.getOnlinePlayers().size();
 	    					}
 	    					if( players>0) {
-	    						if(Bukkit.getVersion().contains("1.12") || Bukkit.getVersion().contains("1.13") || Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15") || Bukkit.getVersion().contains("1.16")) {
+	    						if(!Bukkit.getVersion().contains("1.7") && !Bukkit.getVersion().contains("1.8") && !Bukkit.getVersion().contains("1.9") && !Bukkit.getVersion().contains("1.10") && !Bukkit.getVersion().contains("1.11")) {
 	    							keys.getWorld().spawnParticle( (org.bukkit.Particle) part.get(keys), keys, configs.PART_number, radius, radius, radius, configs.PART_speed);
 	        					} 
 	    						else{
@@ -215,6 +223,8 @@ public class Main extends JavaPlugin {
 		    			getLogger().info("§cCouldn't load chest "+keys +" : the world " + configFiles.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
 					}
 		    	}
+				utils.killOldHolograms(true);
+				
 				logInfo("Loaded "+LootChest.size() + " Lootchests in "+((new Timestamp(System.currentTimeMillis())).getTime()-current) + " miliseconds");
 				logInfo("Starting LootChest timers asynchronously...");
 				for (final Lootchest lc : LootChest.values()) {
@@ -266,6 +276,7 @@ public class Main extends JavaPlugin {
       configFiles.setConfig("use_players_locations_for_randomspawn", false);
       configFiles.setConfig("Cooldown_Before_Plugin_Start", 0);
       configFiles.setConfig("Prevent_Chest_Spawn_In_Protected_Places", false);
+      configFiles.setConfig("WorldBorder_Check_For_Spawn", true);
       configFiles.setLang("PluginReloaded", "&aConfig file, lang, and chest data were reloaded");
       configFiles.setLang("PlayerIsNotOnline", "&cThe player [Player] is not online");
       configFiles.setLang("givefrom", "&aYou were given the [Chest] chest by [Player]");
@@ -297,6 +308,8 @@ public class Main extends JavaPlugin {
       configFiles.setLang("locate_command.main_message",  "&6Location of loot chests:");
       configFiles.setLang("editedChestType", "&aEdited type of chest &b[Chest]");
       configFiles.setLang("locate_command.chest_list", "- &b[Chest]&6: [x], [y], [z] in world [world]");
+      configFiles.setLang("removedHolograms", "&aSuccessfully removed &b[Number] LootChest holograms.");
+      configFiles.setLang("CantOpenLootchestBecauseMonster", "&cYou can't open this chest while there is [Number] monsters nearby");
       if (configFiles.getLang().isSet("help.line1")) {
           final List<String> tab = new ArrayList<String>();
           for (int i = 1; i <= 17; ++i) {
@@ -323,8 +336,12 @@ public class Main extends JavaPlugin {
       configFiles.setConfig("respawn_notify.bungee_broadcast", false);
       configFiles.setConfig("ConsoleMessages", true);
       configFiles.setConfig("save_Chest_Locations_At_Every_Spawn", true);
-      configFiles.setConfig("Show_Timer_On_Hologram", true);
       configFiles.setConfig("Protect_From_Explosions", false);
+      configFiles.setConfig("Radius_Without_Monsters_For_Opening_Chest", 0);
+      if(!configFiles.getConfig().isSet("Destroy_Naturally_Instead_Of_Removing_Chest")) {
+    	  killOldHolograms = true;
+      }
+      configFiles.setConfig("Destroy_Naturally_Instead_Of_Removing_Chest", true);
       configFiles.setLang("Menu.time.notInfinite", "&6Reactivate respawn time");
       configFiles.setLang("commandGetName", "&6Your'e looking the chest &b[Chest]");
       if(!configFiles.getLang().getStringList("help").toString().contains("getname")){
@@ -341,6 +358,14 @@ public class Main extends JavaPlugin {
       	configFiles.getLang().set("help", help);
       	configFiles.saveLang();        	
       }
+      if(!configFiles.getLang().getStringList("help").toString().contains("removeAllHolo")){
+    	Bukkit.broadcastMessage(configFiles.getLang().getStringList("help").toString());
+    	List<String> help = configFiles.getLang().getStringList("help");
+    	help.add("&a/lc removeAllHolo &b: removes only bugged LootChest holograms without chest under them");
+    	configFiles.getLang().set("help", help);
+    	configFiles.saveLang();        	
+      }
+    	
       if(configFiles.getConfig().isSet("Optionnal_Color_If_ArmorStand_Head_Is_Wool")) {
       	configFiles.getConfig().set("Fall_Effect.Optionnal_Color_If_Block_Is_Wool",configFiles.getConfig().getString("Optionnal_Color_If_ArmorStand_Head_Is_Wool") );
       	configFiles.getConfig().set("Optionnal_Color_If_ArmorStand_Head_Is_Wool", null);
@@ -357,10 +382,20 @@ public class Main extends JavaPlugin {
       	configFiles.getConfig().set("Enable_fall_effect", null);
       	configFiles.saveConfig();
       }
+      if(!configFiles.getConfig().isSet("Timer_on_hologram.Show_Timer_On_Hologram")) {
+    	  boolean timeholo = configFiles.getConfig().getBoolean("Show_Timer_On_Hologram");
+    	  configFiles.getConfig().set("Show_Timer_On_Hologram", null);
+    	  configFiles.getConfig().set("Timer_on_hologram.Show_Timer_On_Hologram", timeholo);
+    	  configFiles.getConfig().set("Timer_on_hologram.Hours_Separator", " hours, ");
+    	  configFiles.getConfig().set("Timer_on_hologram.Minutes_Separator", " minutes  and ");
+    	  configFiles.getConfig().set("Timer_on_hologram.Seconds_Separator", " seconds.");
+    	  configFiles.getConfig().set("Timer_on_hologram.Format", "&3%Hours%Hsep%Minutes%Msep%Seconds%Ssep &bleft for %Hologram to respawn");
+      }
       if(configFiles.getLang().getString("Menu.chances.lore").equals("&aLeft click: +1; right: -1; shift+right: -10; shift+left: +10; tab+right: -50") || configFiles.getLang().getString("Menu.chances.lore").equals("&aLeft click to up percentage, Right click to down it")) {
       	configFiles.getLang().set("Menu.chances.lore", "&aLeft click: +1||&aright: -1||&ashift+right: -10||&ashift+left: +10||&atab+right: -50");
       	configFiles.saveLang();
       }
+      
   }
 	
 
@@ -371,7 +406,7 @@ public class Main extends JavaPlugin {
 	 */
 	private void initParticles() {
 		Object parti[];
-		if(Bukkit.getVersion().contains("1.12") || Bukkit.getVersion().contains("1.13") || Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15") || Bukkit.getVersion().contains("1.16")) {
+		if(!Bukkit.getVersion().contains("1.7") && !Bukkit.getVersion().contains("1.8") && !Bukkit.getVersion().contains("1.9") && !Bukkit.getVersion().contains("1.10") && !Bukkit.getVersion().contains("1.11")) {
 			parti = new org.bukkit.Particle[] {org.bukkit.Particle.EXPLOSION_HUGE, org.bukkit.Particle.EXPLOSION_LARGE, org.bukkit.Particle.EXPLOSION_NORMAL, org.bukkit.Particle.FIREWORKS_SPARK, org.bukkit.Particle.WATER_BUBBLE, org.bukkit.Particle.SUSPENDED, org.bukkit.Particle.TOWN_AURA, org.bukkit.Particle.CRIT, org.bukkit.Particle.CRIT_MAGIC, org.bukkit.Particle.SMOKE_NORMAL, org.bukkit.Particle.SMOKE_LARGE, org.bukkit.Particle.SPELL_MOB, org.bukkit.Particle.SPELL_MOB_AMBIENT, org.bukkit.Particle.SPELL, org.bukkit.Particle.SPELL_INSTANT, org.bukkit.Particle.SPELL_WITCH, org.bukkit.Particle.NOTE, org.bukkit.Particle.PORTAL, org.bukkit.Particle.ENCHANTMENT_TABLE, org.bukkit.Particle.FLAME, org.bukkit.Particle.LAVA, org.bukkit.Particle.LAVA, org.bukkit.Particle.WATER_SPLASH, org.bukkit.Particle.WATER_WAKE, org.bukkit.Particle.CLOUD, org.bukkit.Particle.SNOWBALL, org.bukkit.Particle.DRIP_WATER, org.bukkit.Particle.DRIP_LAVA, org.bukkit.Particle.SNOW_SHOVEL, org.bukkit.Particle.SLIME, org.bukkit.Particle.HEART, org.bukkit.Particle.VILLAGER_ANGRY, org.bukkit.Particle.VILLAGER_HAPPY, org.bukkit.Particle.BARRIER};
 
 		}else {
@@ -381,7 +416,7 @@ public class Main extends JavaPlugin {
 			particules[i] = parti[i];
 		}
 		//One particle was created in 1.13 so that other versions won't have it. Let's remove it if you're not in 1.13
-        if (!(Bukkit.getVersion().contains("1.13") || Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15") || Bukkit.getVersion().contains("1.16"))) {
+        if (Bukkit.getVersion().contains("1.7") || Bukkit.getVersion().contains("1.8") || Bukkit.getVersion().contains("1.9") || Bukkit.getVersion().contains("1.10") || Bukkit.getVersion().contains("1.11") || Bukkit.getVersion().contains("1.12")) {
         	particules[21] = ParticleEffect.valueOf("FOOTSTEP");
         }
 	}

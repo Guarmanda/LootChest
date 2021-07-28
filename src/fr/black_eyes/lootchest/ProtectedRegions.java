@@ -24,6 +24,9 @@ public class ProtectedRegions {
     	if(Bukkit.getServer().getPluginManager().isPluginEnabled("Towny")) {
     		if(Towny.isInTown(loc)) return true;
     	}
+    	if(Bukkit.getServer().getPluginManager().isPluginEnabled("GriefPrevention")) {
+    		if(GriefPreventions.isInGriefPreventionClaim(loc)) return true;
+    	}
     	return false;
 	}
 }
