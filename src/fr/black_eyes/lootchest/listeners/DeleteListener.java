@@ -117,7 +117,9 @@ public class DeleteListener implements Listener  {
     			Location loc = openInvs.get(p);
     			if((Main.configs.RemoveEmptyChests && utils.isEmpty(inv)) || Main.configs.RemoveChestAfterFirstOpenning) {
     				inv.clear();
-    				keys.getHologram().remove();
+    				if(Main.getVersion()!=7) {
+    					keys.getHologram().remove();
+    				}
     				//utils.deleteholo(loc);
     				if(Main.configs.Destroy_Naturally_Instead_Of_Removing_Chest)
     					loc.getBlock().breakNaturally();
@@ -291,7 +293,7 @@ public class DeleteListener implements Listener  {
     
     @EventHandler
     public void hopperPistonGrab(BlockPistonRetractEvent e) {
-    	if(!org.bukkit.Bukkit.getVersion().contains("1.7")){
+    	if(Main.getVersion()!=7){
 	    	for(Block block : e.getBlocks()) {
 	    		if(block.getType() == Material.HOPPER) {
 	    			if(Main.getInstance().getConfigFiles().getConfig().getBoolean("PreventHopperPlacingUnderLootChest")) {

@@ -1,5 +1,6 @@
 package fr.black_eyes.lootchest;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class Config {
@@ -56,10 +57,20 @@ Hologram_distance_to_chest,
 PART_speed;
 
 
-//private static final Config instance = new Config();
-public static Config getInstance(FileConfiguration config) {
-    return new Config(config);
+private static Config instance = null;
+
+
+public static Config getInstance(FileConfiguration config)
+{
+    instance = new Config(config);
+    return instance;
 }
+
+public static Config getInstance()
+{
+	return instance;
+}
+
 
 public Config(FileConfiguration config) {
 	
@@ -74,7 +85,7 @@ public Config(FileConfiguration config) {
 
 	use_players_locations_for_randomspawn = config.getBoolean("use_players_locations_for_randomspawn");
 	save_Chest_Locations_At_Every_Spawn = config.getBoolean("save_Chest_Locations_At_Every_Spawn");
-	UseHologram = config.getBoolean("UseHologram");
+	UseHologram = config.getBoolean("UseHologram") && !Bukkit.getVersion().contains("1.7");
 	RemoveEmptyChests = config.getBoolean("RemoveEmptyChests");
 	CheckForUpdates = config.getBoolean("CheckForUpdates");
 	ConsoleMessages = config.getBoolean("ConsoleMessages");
@@ -92,7 +103,7 @@ public Config(FileConfiguration config) {
 	NOTE_command_e = config.getBoolean("respawn_notify.respawn_with_command.enabled");
 	NOTE_allcmd_e = config.getBoolean("respawn_notify.respawn_all_with_command.enabled");
 	Protect_From_Explosions = config.getBoolean("Protect_From_Explosions");
-	WorldBorder_Check_For_Spawn = config.getBoolean("WorldBorder_Check_For_Spawn");
+	WorldBorder_Check_For_Spawn = config.getBoolean("WorldBorder_Check_For_Spawn") && !Bukkit.getVersion().contains("1.7");
 	Destroy_Naturally_Instead_Of_Removing_Chest = config.getBoolean("Destroy_Naturally_Instead_Of_Removing_Chest");
 	TIMER_Show_Timer = config.getBoolean("Timer_on_hologram.Show_Timer_On_Hologram");
 

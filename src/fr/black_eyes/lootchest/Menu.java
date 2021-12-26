@@ -2,6 +2,7 @@ package fr.black_eyes.lootchest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import fr.black_eyes.lootchest.commands.LootchestCommand;
+import fr.black_eyes.lootchest.particles.Particle;
 
 public class Menu {
 	
@@ -32,7 +34,7 @@ public class Menu {
 	}
 	
 	public String getMsg(String path, String replacer, String replacement) {
-		return configFiles.getLang().getString(path).replace(replacer, replacement).replace("&", "Â§");
+		return configFiles.getLang().getString(path).replace(replacer, replacement).replace("&", "§");
 	}
 	//Inventaires
 	public  void invChances(Player p, Lootchest name) {
@@ -128,7 +130,7 @@ public class Menu {
 	public  void invcopy(Player p, Lootchest chest, int j) {
 		int i = 0;
 		int nbBoxes = 0;
-		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 54, getMsg("Menu.copy.name", " ", " "));
+		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 54, getMsg("Menu.copy.name", "[Chest]", chest.getName()));
 		Set<String> boxes = Main.getInstance().getLootChest().keySet();
 
 		for(String keys : boxes) {
@@ -137,7 +139,7 @@ public class Menu {
 			//exempter le coffre actuel de la liste, et si il y a plus de 54 coffres, stopper i Ã  53 si on doit faire deux pages
 			
 			else if(!keys.equals(chest.getName()) && (i!=45 || j==1) && (i!=53 || (boxes.size() -1)<=(j*52+1) ) ){
-				String name = Main.getInstance().getLootChest().get(keys).getHolo().replace("&", "Â§");
+				String name = Main.getInstance().getLootChest().get(keys).getHolo().replace("&", "§");
 				String effect = configFiles.getData().getString("chests." + keys + ".particle");
 				String world;
 				if(Bukkit.getWorld(Main.getInstance().getLootChest().get(keys).getWorld()) == null) {
@@ -146,7 +148,7 @@ public class Menu {
 				else {
 					world = Bukkit.getWorld(Main.getInstance().getLootChest().get(keys).getWorld()).getName();
 				}
-				ItemStack item = getItemWithLore(Material.CHEST, "Â§6" +keys, "Â§bHologram: Â§6" + name + "||Â§bWorld: Â§6"+ world + "||Â§bEffect: Â§6" + effect);
+				ItemStack item = getItemWithLore(Material.CHEST, "§6" +keys, "§bHologram: §6" + name + "||§bWorld: §6"+ world + "||§bEffect: §6" + effect);
 				inv.setItem(i++, item);
 			}
 			else if (!keys.equals(chest.getName()) && i==45) {
@@ -160,10 +162,10 @@ public class Menu {
 				else {
 					world = Bukkit.getWorld(Main.getInstance().getLootChest().get(keys).getWorld()).getName();
 				}
-				String name2 = Main.getInstance().getLootChest().get(keys).getHolo().replace("&", "Â§");
-				String effect = Main.getInstance().getLootChest().get(keys).getParticle();
+				String name2 = Main.getInstance().getLootChest().get(keys).getHolo().replace("&", "§");
+				String effect = Main.getInstance().getLootChest().get(keys).getParticle().name();
 
-				ItemStack item2 = getItemWithLore(Material.CHEST, "Â§6" +keys, "Â§bHologram: Â§6" + name2 + "||Â§bWorld: Â§6"+ world + "||Â§bEffect: Â§6" + effect);
+				ItemStack item2 = getItemWithLore(Material.CHEST, "§6" +keys, "§bHologram: §6" + name2 + "||§bWorld: §6"+ world + "||§bEffect: §6" + effect);
 				inv.setItem(i++, item2);
 			}
 			else if (!keys.equals(chest.getName()) && i==53){
@@ -193,7 +195,7 @@ public class Menu {
 	}
 	
 	public  void mainInv(Player p, String name) {
-        final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 36, getMsg("Menu.main.name", " ", " "));
+        final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 36, getMsg("Menu.main.name", "[Chest]", name));
         inv.setItem(4, getItem(Mat.ENDER_CHEST, getMsg("Menu.main.copychest", " ", " ")));
         if(Main.configs.PART_enable) {
         	inv.setItem(11, getItem(Mat.ENDER_EYE, getMsg("Menu.main.particles", " ", " ")));
@@ -230,24 +232,56 @@ public class Menu {
 	
 
 	
-	// /!\ Certains items ne sont pas les mÂ§mes selont que l'on est en 1.12 ou 1.13, Â§ vÂ§rifier pour particules
-	public  void particleInv(Player p, String name) {
-        final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 54, getMsg("Menu.particles.name", " ", " "));
-        String[] part = {"Huge Explosion", "Large Explosion", "Normal Explosion",  "Fireworks Sparks", "Bubble Pop", "Suspended",
-        		"Town Aura", "Crit", "Magic Crit", "Normal Smoke", "Large Smoke", "Mob Spell", "Mob Spell Ambient", "Spell",
-        		"Instant Spell", "Witch Spell", "Note", "Portal", "Enchantment Table", "Flame","Lava", "Footstep", "Water Splash",
-        		"Water Wake",  "Cloud", "Snowball", "Drip Water", "Drip Lava", "Snow Shovel", "Slime", "Heart", "Angry Villager",
-        		 "Happy Villager", "Barrier"};
-        Material[] mat = {Mat.TNT,Mat.TNT,Mat.TNT,Mat.FIREWORK,Mat.PRISMARINE,Mat.STONE,Mat.MYCELIUM,Mat.IRON_SWORD,Mat.DIAMOND_SWORD,Mat.FURNACE,Mat.FURNACE,Mat.ENCHANTED_BOOK,Mat.ENCHANTED_BOOK,Mat.ENCHANTED_BOOK,Mat.ENCHANTED_BOOK,Mat.ENCHANTED_BOOK,
-        		Mat.NOTE_BLOCK,Mat.END_PORTAL_FRAME,Mat.ENCHANTING_TABLE,Mat.BLAZE_POWDER,Mat.LAVA_BUCKET,Mat.STONE,Mat.WATER_BUCKET,Mat.WATER_BUCKET,Mat.QUARTZ,
-        		Mat.SNOW_BALL,Mat.WATER_BUCKET,Mat.LAVA_BUCKET,Mat.IRON_SHOVEL,Mat.SLIME_BALL,Mat.ROSE_RED,Mat.REDSTONE_BLOCK,Mat.EMERALD,Mat.BARRIER
-        };
-        for(int i=0; i<34; i++) {
-        	 inv.setItem(i, getItem(mat[i], part[i]));
-        }
-        inv.setItem(49, getItem(Mat.BARRIER, "Disable particles"));
-        p.openInventory(inv);
-        LootchestCommand.editinv.put(p, name);
+	
+	public  void particleInv(Player p, Lootchest chest, int j) {
+		int i = 0;
+		int nbBoxes = 0;
+		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 54, getMsg("Menu.particles.name", " ", " "));
+		Collection<Particle> boxes = Main.getInstance().getParticles().values();
+		//on laisse une ligne vide pour désactiver les particules
+		if(j==1) {
+			inv.setItem(4, getItem(Mat.BARRIER, "Disable particles"));
+			i=9;
+		}
+		else {
+			String name = getMsg("Menu.particles.page", "[Number]", j-1+"");
+			ItemStack item = getItem(Material.PAPER,  name );
+			inv.setItem(45, item);
+		}
+		for(Particle keys : boxes) {
+
+			//si on est à la page j>1 et qu'on a moins de ((j-1)*52)-10) particules, on continue 
+			if(j> 1 && nbBoxes < ((j-1)*52)-8) nbBoxes++;
+			
+			// si case 45 (bouton retour) on fait rien. sur la page 1, pas de bouton retour donc on peux quand même faire qq chose
+			// si case 53 (bouton suivant) on fait rien. Sur la dernière page, pas de bouton suivant.
+			else if( (i!=45 || j==1) && (i!=53 || (boxes.size()-1)<=(j*52+1) ) ){
+
+				inv.setItem(i++, getItem(keys.getMat(), keys.getReadableName()));
+				if(inv.getItem(i-1) == null) {
+					inv.setItem(i-1, getItem(Material.STONE, keys.getReadableName()));
+				}
+			}
+			//bouton suivant et retour
+			else if (i==45) {
+				String name = getMsg("Menu.particles.page", "[Number]", j-1+"");
+				ItemStack item = getItem(Material.PAPER,  name );
+				inv.setItem(i++, item);
+				//on peux afficher l'item suivant maintenant qu'on a fait le bouton retour
+				inv.setItem(i++, getItem(keys.getMat(), keys.getReadableName()));
+			}
+			else if (i==53){
+				String name = getMsg("Menu.particles.page", "[Number]", (j+1)+"");
+
+				ItemStack item = getItem(Material.PAPER,  name );
+				inv.setItem(i, item);
+				break;
+
+			}
+		}			
+
+		p.openInventory(inv);
+        LootchestCommand.editinv.put(p, chest.getName());
     }
 
 

@@ -12,7 +12,6 @@ import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.WorldBorder;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -27,6 +26,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import fr.black_eyes.lootchest.falleffect.FallingPackageEntity;
+import fr.black_eyes.lootchest.particles.Particle;
 
 @SuppressWarnings("deprecation")
 public class Utils  {
@@ -68,7 +68,7 @@ public class Utils  {
 	
 	private void sendMultilineMessage(String message, CommandSender player) {
 		List<String> msgs = Arrays.asList(message.split("\\\\n"));
-		msgs.stream().forEach(msg -> player.sendMessage(msg.replace("&", "Â§")));
+		msgs.stream().forEach(msg -> player.sendMessage(msg.replace("&", "§")));
 	}
 	
 	public String getMsg(String path, String replacer, String replacement) {
@@ -95,7 +95,7 @@ public class Utils  {
 	
 
 	
-	//crÂ§er le coffe et enregistrer les infos
+	//cr§er le coffe et enregistrer les infos
 	//chest creation and registering
 
 	
@@ -189,10 +189,10 @@ public class Utils  {
 		if(!lc.isGoodType(loc.getBlock())) {
 			return;
 		}
-		if(Main.getInstance().getConfig().getBoolean("UseHologram")){
+		if(Main.configs.UseHologram){
 			lc.getHologram().setLoc(loc);
 		}
-		if(!Bukkit.getVersion().contains("1.7") && lc.getFall() && Main.configs.FALL_Let_Block_Above_Chest_After_Fall){
+		if(Main.getVersion()!=7 && lc.getFall() && Main.configs.FALL_Let_Block_Above_Chest_After_Fall){
 			Location arm = loc.clone();
 			arm.add(0.5, 2, 0.5);
 			Material mat = Material.valueOf(Main.configs.FALL_Block);
@@ -201,7 +201,7 @@ public class Utils  {
 			
 			((org.bukkit.entity.ArmorStand) ent).setVisible(false); //Makes the ArmorStand invisible
 		 	((org.bukkit.entity.ArmorStand) ent).setHelmet(new ItemStack(mat, 1));
-	        if (Bukkit.getVersion().contains("1.7") || Bukkit.getVersion().contains("1.8") || Bukkit.getVersion().contains("1.9") || Bukkit.getVersion().contains("1.10") || Bukkit.getVersion().contains("1.11") || Bukkit.getVersion().contains("1.12")) {
+	        if (Main.getVersion()<13) {
 			 	if(mat.equals(Material.valueOf("WOOL"))) {
 			 		((org.bukkit.entity.ArmorStand) ent).setHelmet(new ItemStack(mat, 1, DyeColor.valueOf(Main.configs.FALL_Optionnal_Color_If_Block_Is_Wool).getDyeData()));
 			 	}
@@ -212,8 +212,8 @@ public class Utils  {
 		}
 		final Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
 		loc2.add(0.5,0.5,0.5);
-		for(Object part : main.getParticules()) {
-			if((""+part).contains(lc.getParticle())) {
+		for(Particle part : main.getParticules()) {
+			if(lc.getParticle() != null && (""+part).contains(lc.getParticle().name())) {
 				main.getPart().put(loc2, part);
 			}
 		}
@@ -221,11 +221,21 @@ public class Utils  {
 	}
 	
 	//gives a random number from -max to max
-	public int randomInt(int max) {
+	private int randomInt(int max) {
 		return ThreadLocalRandom.current().nextInt(0-max, max+1);
 	}
 	
-	//se sert du config.getData().yml pour set le coffre et remplir son inventaire, crÂ§er l'holo en fonction du nom 
+	private Location getRandomLocation(Location center, int radius) {
+		center.setX(randomInt(radius)+center.getX());
+		center.setZ(randomInt(radius)+center.getZ());
+		center.setY(center.getWorld().getHighestBlockYAt(center));
+		if (Main.getVersion()>14) {
+			center.setY(center.getWorld().getHighestBlockYAt(center)+1);
+		}
+		return center;
+	}
+	
+	//se sert du config.getData().yml pour set le coffre et remplir son inventaire, cr§er l'holo en fonction du nom 
 	//Taking informations from config.getData().yml to restore a specific chest if it is time to do it, or if we force respawn. 
 	public boolean restoreChest(Lootchest lc, Boolean force) {
 		if(!Main.getInstance().getLootChest().containsValue(lc)) {
@@ -233,15 +243,11 @@ public class Utils  {
 		}
 		Integer num =Main.configs.Minimum_Number_Of_Players_For_Natural_Spawning;
 		int players = 0;
-		if(org.bukkit.Bukkit.getVersion().contains("1.7")) {
-			players = org.bukkit.Bukkit.getOnlinePlayers().toArray().length;
-		}else {
-			players = org.bukkit.Bukkit.getOnlinePlayers().size();
-		}
+		for(@SuppressWarnings("unused") Player p : org.bukkit.Bukkit.getOnlinePlayers()) players++;
 		//Main.getInstance().getLogger().info("respawn function of "+ name + " (1)");
 
 		if(Bukkit.getWorld(lc.getWorld()) == null) {
-			Bukkit.getLogger().info("Â§cThe world " + lc.getWorld() + " is not loaded, can't respawn chest " + lc.getName());
+			Bukkit.getLogger().info("§cThe world " + lc.getWorld() + " is not loaded, can't respawn chest " + lc.getName());
 			return false;
 		}
 		
@@ -269,31 +275,18 @@ public class Utils  {
 		Location newloc = loc;
 		if(lc.getRadius() != 0) {
 			int random = lc.getRadius();
-			Location randompos = lc.getPosition();
+			Location randompos = getRandomLocation(loc, random );
 
-			randompos.setX(randomInt(random)+loc.getX());
-			randompos.setZ(randomInt(random)+loc.getZ());
-			randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos));
-			if (Bukkit.getVersion().contains("1.15") || Bukkit.getVersion().contains("1.16")|| Bukkit.getVersion().contains("1.17")) {
-				randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos)+1);
-			}
 			if(Main.configs.Prevent_Chest_Spawn_In_Protected_Places || Main.configs.WorldBorder_Check_For_Spawn) {
 				int counter = 0;
 				boolean checkreg = Main.configs.Prevent_Chest_Spawn_In_Protected_Places;
 				boolean checkwb = Main.configs.WorldBorder_Check_For_Spawn && randompos.getWorld().getWorldBorder()!=null;
-				while(counter<50 && ((checkreg &&ProtectedRegions.isProtected(randompos)) || (isOutsideOfBorder(randompos) && checkwb))) {
-
-					randompos.setX(randomInt(random)+loc.getX());
-					randompos.setZ(randomInt(random)+loc.getZ());
-					randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos));
-					if (Bukkit.getVersion().contains("1.15")|| Bukkit.getVersion().contains("1.16")|| Bukkit.getVersion().contains("1.17")) {
-						randompos.setY(randompos.getWorld().getHighestBlockYAt(randompos)+1);
-					}
+				while(counter<50 && ((checkreg &&ProtectedRegions.isProtected(randompos)) || checkwb && (isOutsideOfBorder(randompos) ))) {
+					randompos = getRandomLocation(loc, random );
 					counter++;
-				
 				}
 				if(counter == 50) {
-					Bukkit.getLogger().info("Â§cThe chest " + lc.getName() + " didn't found an unprotected location, so that it can't respawn! " );
+					Bukkit.getLogger().info("§cThe chest " + lc.getName() + " didn't found an unprotected location, so that it can't respawn! " );
 					long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime();
 					lc.setLastreset(tempsactuel);
 					sheduleRespawn(lc);
@@ -348,7 +341,7 @@ public class Utils  {
 				//Bukkit.getLogger().info("entrÃ©e if message");
 				String holo = lc.getHolo();
 				if(Main.configs.NOTE_bungee_broadcast) {
-					BungeeChannel.bungeeBroadcast((((Main.configs.NOTE_natural_msg.replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "Â§"));
+					BungeeChannel.bungeeBroadcast((((Main.configs.NOTE_natural_msg.replace("[Chest]", holo)).replace("[x]", newloc.getX()+"")).replace("[y]", newloc.getY()+"")).replace("[z]", newloc.getZ()+"").replace("&", "§"));
 				}
 				else if(!Main.configs.NOTE_per_world_message) {
 					//Bukkit.getLogger().info("per world msg dÃ©sactivÃ©, envoie");
@@ -389,7 +382,7 @@ public class Utils  {
 				spawnChest(lc, newblock, theloc, force);
 			}
 			
-			if(!Main.configs.UseHologram){
+			if(!Main.configs.UseHologram && Main.getVersion()!=7){
 				lc.getHologram().remove();
 
 			}
@@ -411,7 +404,7 @@ public class Utils  {
 	 * @return
 	 */
 	public boolean isOutsideOfBorder(Location loc) {
-        WorldBorder border = loc.getWorld().getWorldBorder();
+		org.bukkit.WorldBorder border = loc.getWorld().getWorldBorder();
         double size = border.getSize()/2;
         Location center = border.getCenter();
         double x = loc.getX() - center.getX(), z = loc.getZ() - center.getZ();
@@ -427,12 +420,7 @@ public class Utils  {
 	 */
 	public  void spawnChest(Lootchest name, Block block, Location theloc, Boolean force) {
 		Integer num = Main.configs.Minimum_Number_Of_Players_For_Natural_Spawning;
-		int players = 0;
-		if(org.bukkit.Bukkit.getVersion().contains("1.7")) {
-			players = org.bukkit.Bukkit.getOnlinePlayers().toArray().length;
-		}else {
-			players = org.bukkit.Bukkit.getOnlinePlayers().size();
-		}
+		int players = getPlayersOnServer();
 		block.setType(name.getType());
 
 		if(num <= players || force) {
@@ -442,7 +430,7 @@ public class Utils  {
 			String direction = name.getDirection();
 			MaterialData data = null;
 			//if the chest isn't a barrel, we can change its direction
-			if( !(Mat.CHEST != Mat.BARREL && name.getType() == Mat.BARREL) ) {
+			if( !(Mat.CHEST != Mat.BARREL && name.getType() == Mat.BARREL) && Main.getVersion()!=7) {
 				//Main.logInfo("chest direction set to "+direction);
 				 data = (DirectionalContainer)block.getState().getData();
 				((DirectionalContainer)data).setFacingDirection(BlockFace.valueOf(direction));
@@ -454,12 +442,12 @@ public class Utils  {
 			final Location loc2 = name.getActualLocation();
 			loc2.add(0.5,0.5,0.5);
 			if(name.isGoodType(block) ) {
-				if(name.getParticle().equals("Disabled")){
+				if(name.getParticle() == null){
 					main.getPart().remove(loc2);
 				}
 				else{
-					for(Object part : main.getParticules()) {
-						if((""+part).contains(name.getParticle())) {
+					for(Particle part : main.getParticules()) {
+						if((""+part).contains(name.getParticle().name())) {
 							main.getPart().put(loc2, part);
 						}
 					}
@@ -524,7 +512,7 @@ public class Utils  {
 	//geting chest position from config.getData().yml
 	public  Location getPosition(String name) {
 		if (configFiles.getData().getString("chests." + name + ".position.world") == null) {
-			main.getLogger().info("Â§cThe plugin couldn't get the world of chest Â§6" + name +"Â§c. This won't prevent the plugin to work, but the plugin may throw other errors because of that.");
+			main.getLogger().info("§cThe plugin couldn't get the world of chest §6" + name +"§c. This won't prevent the plugin to work, but the plugin may throw other errors because of that.");
 			return null;
 		}
 		World world = Bukkit.getWorld(configFiles.getData().getString("chests." + name + ".position.world"));
@@ -577,7 +565,7 @@ public class Utils  {
 		List<String> holograms = new ArrayList<String>();
 		Main.getInstance().getLootChest().values().forEach(lc -> {
 			lc.getActualLocation().getWorld().loadChunk(lc.getActualLocation().getChunk());
-			holograms.add(lc.getHolo().replace("&", "Â§"));
+			holograms.add(lc.getHolo().replace("&", "§"));
 		});
 		for(World world : Bukkit.getWorlds()) {
 			for(Entity ent : world.getEntities()) {
@@ -639,8 +627,32 @@ public class Utils  {
 		}
 	}*/
 	
+	public int getPlayersOnServer() {
+		int players;
+		if(Main.getVersion()==7) {
+			players = org.bukkit.Bukkit.getOnlinePlayers().toArray().length;
+		}else {
+			players = org.bukkit.Bukkit.getOnlinePlayers().size();
+		}
+		return players;
+	}
 	
+	public int numberOfPlayersAroundLocation(Location loc, int radius) {
+		int cpt = 0;
+		for (Player players : loc.getWorld().getPlayers()) 
+            if (loc.distanceSquared(players.getLocation()) <= radius) 
+                cpt++;
+        return cpt;    
+	}
 
+	
+	public List<Player> getPlayersAroundLocation(Location loc, int radius) {
+		List<Player> list = new ArrayList<Player>();
+		for (Player players : loc.getWorld().getPlayers()) 
+            if (loc.distanceSquared(players.getLocation()) <= radius) 
+                list.add(players);
+        return list;    
+	}
 	
 	/**
 	 * Get the direction of a chest with its beautiful superclass "DirectionalContainer"
@@ -648,6 +660,9 @@ public class Utils  {
 	 * @return the direction of the chest
 	 */
 	public  String getDirection(Block chest) {
+		if(Main.getVersion() ==7) {
+			return "NORTH";
+		}
 		MaterialData data = (DirectionalContainer)chest.getState().getData();
 		return ((DirectionalContainer)data).getFacing().name();	
 	}

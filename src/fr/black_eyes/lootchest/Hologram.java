@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -45,13 +46,15 @@ public class Hologram {
 			if(runnable == null) {
 				startShowTime();
 			}
-			if(runnable.isCancelled()) {
-				try {
-					runnable.runTaskTimer(Main.getInstance(), 0, 20);
-				}catch(IllegalStateException e) {
-					runnable.cancel();
-					runnable = null; 
-					startShowTime();
+			if(Main.getVersion()>8 ) {
+				if(runnable.isCancelled()) {
+					try {
+						runnable.runTaskTimer(Main.getInstance(), 0, 20);
+					}catch(IllegalStateException e) {
+						runnable.cancel();
+						runnable = null; 
+						startShowTime();
+					}
 				}
 			}
 		}
@@ -78,7 +81,7 @@ public class Hologram {
 			as = createArmorStand();
 		}
 		if(!NULL_NAME.contains(text)) {
-			name = text.replace("&", "ยง");
+			name = text.replace("&", "ง");
 			as.setCustomName(name);
 		}else {
 			remove();
@@ -121,7 +124,11 @@ public class Hologram {
     					.replace("%Minutes", mins+"").replace("%Msep", Main.configs.TIMER_M_Sep)
     					.replace("%Seconds", secs+"").replace("%Ssep", Main.configs.TIMER_S_Sep)
     					.replace("%Hologram", text);
-    			as.setCustomName(hologram.replace("&", "ยง"));
+    			if(as ==null) {
+    				runnable.cancel();
+    			}else {
+    				as.setCustomName(hologram.replace("&", "ง"));
+    			}
     			if(secondes<=0) {
     				runnable.cancel();
     			}
@@ -135,17 +142,34 @@ public class Hologram {
 		if(uuid==null) {
 			for(Entity ent : location.getWorld().getEntities()) {
 				if(ent instanceof org.bukkit.entity.ArmorStand && ent.getLocation().distance(location) <0.1) {
-					Main.getInstance().logInfo("Armorstand found");
+					//Main.getInstance().logInfo("Armorstand found");
 					return (ArmorStand)ent;
 				}
 			}
 			return null;
 		}
 		location.getWorld().loadChunk(location.getChunk());
-		if(Bukkit.getEntity(uuid) !=null) {
-			Main.getInstance().logInfo("Armorstand found (uuid)");
-			return (ArmorStand)Bukkit.getEntity(uuid);
+		Entity ent = null;
+		if(Bukkit.getVersion().contains("1.7") ||Bukkit.getVersion().contains("1.8") ) {
+			ent = getEntityByUniqueId(uuid);
+		}
+		else {
+			ent = org.bukkit.Bukkit.getEntity(uuid) ;
+		}
+		if(ent!=null) {
+			return (ArmorStand)ent;
 		}
 		return null;
+	}
+	
+	public static Entity getEntityByUniqueId(UUID uniqueId) {
+	    for (World world : Bukkit.getWorlds()) {
+	        for (Entity entity : world.getEntities()) {
+	            if (entity.getUniqueId().equals(uniqueId))
+	                return entity;
+	         }
+	    }
+
+	    return null;
 	}
 }

@@ -1,6 +1,8 @@
 package fr.black_eyes.lootchest;
 
 import java.sql.Timestamp;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -9,6 +11,7 @@ import org.bukkit.block.Block;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
+import fr.black_eyes.lootchest.particles.Particle;
 import lombok.Getter;
 import lombok.Setter;
 public class Lootchest {
@@ -22,7 +25,7 @@ public class Lootchest {
 	@Getter private String holo;
 	@Getter @Setter private long time;
 	@Getter @Setter private long lastreset;
-	@Getter @Setter private String particle;
+	@Getter @Setter private Particle particle;
 	@Getter @Setter private Boolean respawn_cmd;
 	@Getter @Setter private Boolean respawn_natural;
 	@Getter @Setter private Boolean take_msg;
@@ -69,7 +72,19 @@ public class Lootchest {
 			randomLoc = null;
 		}
 		holo = configFiles.getData().getString("chests." + naming + ".holo");
-		particle = configFiles.getData().getString("chests." + naming + ".particle");
+		String part = configFiles.getData().getString("chests." + naming + ".particle");
+		if(part.equals("Disabled")) {
+			particle = null;
+		}else {
+			try {
+				particle = Particle.valueOf(part);
+			}catch(IllegalArgumentException e) {
+				particle = Particle.FLAME;
+			}
+			if(!particle.isSupported()) {
+				particle = Particle.FLAME;
+			}
+		}
 		time = configFiles.getData().getInt("chests." + naming + ".time");
 		fall =  configFiles.getData().getBoolean("chests." + naming + ".fall");
 		try {
@@ -123,13 +138,35 @@ public class Lootchest {
 		time =  Main.configs.default_reset_time;
 		globalLoc =  chest.getLocation();
 		lastreset =  new Timestamp(System.currentTimeMillis()).getTime();
-	   	particle =  Main.configs.PART_default_particle;
+	   	particle =  Particle.valueOf(Main.configs.PART_default_particle);
 	   	radius = 0;
 	   	world = chest.getWorld().getName();
 		((InventoryHolder) chest.getLocation().getBlock().getState()).getInventory().clear();
 		chest.getLocation().getBlock().setType(Material.AIR);
 		hologram = new Hologram(this);
 	}
+	
+	
+	void taskParticles() {
+		new Thread(() -> {
+			System.out.println("Main thread: " + Thread.currentThread());
+		    Timer timer = new Timer();
+		    final long start = System.currentTimeMillis();
+		    timer.scheduleAtFixedRate(new TimerTask() {
+		        @Override
+		        public void run () {
+		            System.out.print("Task invoked - " + " - " +
+		                                                 (System.currentTimeMillis()
+		                                                                     - start) + " ms");
+		            System.out.println(" - " + Thread.currentThread());
+		        }
+		    },0, 500);
+		    timer.cancel();
+		}).start();
+
+
+	}
+	
 	
 	/*Function used at defined time in config and at plugin stop for saving chests */
 	void saveInConfig(){
@@ -154,7 +191,10 @@ public class Lootchest {
 			configFiles.getData().set("chests." + name + ".time", time);
 			utils.setPosition(name, globalLoc);
 			configFiles.getData().set("chests." + name + ".lastreset", lastreset);
-			configFiles.getData().set("chests." +name+ ".particle", particle);
+			if(particle!=null)
+				configFiles.getData().set("chests." +name+ ".particle", particle.name());
+			else
+				configFiles.getData().set("chests." +name+ ".particle", "Disabled");
 		   	configFiles.getData().set("chests."+name+".randomradius", radius);
 		   	if(randomLoc != null) {
 		   		utils.setRandomPosition(name, randomLoc);

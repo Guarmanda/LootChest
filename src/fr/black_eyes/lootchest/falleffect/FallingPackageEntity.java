@@ -14,12 +14,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.util.Vector;
-import org.inventivetalent.particle.ParticleEffect;
-
 import fr.black_eyes.lootchest.Files;
 import fr.black_eyes.lootchest.Main;
-
-
 import org.bukkit.Material;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -68,7 +64,8 @@ public class FallingPackageEntity extends PackageEntity {
 			if(!loaded && letAlive) {
 				
 				startLoc.setY(startLoc.getWorld().getHighestBlockYAt(startLoc)+2);
-				if (Bukkit.getVersion().contains("1.15")|| Bukkit.getVersion().contains("1.16") || Bukkit.getVersion().contains("1.17")) {
+				//getHighestBlockAt function was changed in 1.15
+				if (Main.getVersion()>14) {
 					startLoc.setY(startLoc.getWorld().getHighestBlockYAt(startLoc)+3);
 				}
 				
@@ -79,7 +76,7 @@ public class FallingPackageEntity extends PackageEntity {
 	
 				((org.bukkit.entity.ArmorStand) blocky).setVisible(false); //Makes the ArmorStand invisible
 			 	((org.bukkit.entity.ArmorStand) blocky).setHelmet(new ItemStack(this.material, 1));
-		        if (Bukkit.getVersion().contains("1.7") || Bukkit.getVersion().contains("1.8") || Bukkit.getVersion().contains("1.9") || Bukkit.getVersion().contains("1.10") || Bukkit.getVersion().contains("1.11") || Bukkit.getVersion().contains("1.12")) {
+		        if (Main.getVersion()<13) {
 				 	if(material.equals(Material.valueOf("WOOL"))) {
 				 		((org.bukkit.entity.ArmorStand) blocky).setHelmet(new ItemStack(this.material, 1, DyeColor.valueOf(Main.configs.FALL_Optionnal_Color_If_Block_Is_Wool).getDyeData()));
 				 	}
@@ -120,12 +117,8 @@ public class FallingPackageEntity extends PackageEntity {
         }
 		else if (this.world.getBlockAt(LocationUtils.offset(((Entity) this.blocky).getLocation(), 0.0, -1.0, 0.0)).getType() == Material.AIR) {
             ++this.counter;
-        	if(!Bukkit.getVersion().contains("1.7") && !Bukkit.getVersion().contains("1.8") && !Bukkit.getVersion().contains("1.9") && !Bukkit.getVersion().contains("1.10") && !Bukkit.getVersion().contains("1.11")) {
-	           	this.world.spawnParticle(org.bukkit.Particle.SMOKE_NORMAL, goodLocation(), 50, 0.1, 0.1, 0.1, 0.1);
-			}				
-			else{
-			 ParticleEffect.SMOKE_NORMAL.send(((Entity) this.blocky).getLocation().getWorld().getPlayers(), ((Entity) this.blocky).getLocation(), 0.1, 0.1, 0.1, 0.1, 50, 100);			
-			}
+			Main.getInstance().getParticles().get("SMOKE_NORMAL").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation(), (float)50.0);
+			
             if (((Entity) this.blocky).isDead()) {
                 final Location oldLoc = ((Entity) this.blocky).getLocation();
                 final Vector oldVelocity = ((Entity) this.blocky).getVelocity();

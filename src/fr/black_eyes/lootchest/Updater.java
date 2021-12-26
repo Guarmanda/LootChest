@@ -28,10 +28,10 @@ public class Updater {
         this.getVersion(version -> {
             if (!version.equals(installedVersion) && Integer.parseInt(version.replace(".", "")) >  Integer.parseInt(installedVersion.replace(".", ""))) {
             	String lastverDownloadUrl = "https://www.spigotmc.org/resources/"+spigot_complete_id+"/history";
-			    log.info( "Â§aA new version " + version + " was found on Spigot (your version: " + installedVersion + "). Please update me! <3 - Link: " + lastverDownloadUrl);
+			    log.info( "§aA new version " + version + " was found on Spigot (your version: " + installedVersion + "). Please update me! <3 - Link: " + lastverDownloadUrl);
 
             } else {
-            	log.info("Â§aThe plugin seems up to date.");
+            	log.info("§aThe plugin seems up to date.");
             }
         });
     }
@@ -43,7 +43,7 @@ public class Updater {
                     consumer.accept(scanner.next());
                 }
             } catch (IOException exception) {
-            	log.info("Â§cFailed to check for a update on spigot.");
+            	log.info("§cFailed to check for a update on spigot.");
             }
         });
     }

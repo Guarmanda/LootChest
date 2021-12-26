@@ -16,15 +16,14 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.inventivetalent.particle.ParticleEffect;
 import org.spigotmc.SpigotConfig;
 
 import fr.black_eyes.lootchest.commands.LootchestCommand;
 import fr.black_eyes.lootchest.listeners.Armorstand;
 import fr.black_eyes.lootchest.listeners.DeleteListener;
 import fr.black_eyes.lootchest.listeners.InventoryListeners;
+import fr.black_eyes.lootchest.particles.Particle;
 import lombok.Getter;
-import fr.black_eyes.lootchest.Utils;
 
 
 
@@ -34,15 +33,18 @@ import fr.black_eyes.lootchest.Utils;
 
 public class Main extends JavaPlugin {
 	//public ArrayList<LootChest> lc = new ArrayList<LootChest>();
-	@Getter private Object particules[] = new Object[34];
-	@Getter private HashMap<Location, Object> part = new HashMap<Location, Object>();
+	@Getter private Particle particules[];
+	@Getter private HashMap<String, Particle> particles = new HashMap<String, Particle>();
+	@Getter private HashMap<Location, Particle> part = new HashMap<Location, Particle>();
 	public static Config configs;
+	public static int players;
 	@Getter private HashMap<String, Lootchest> LootChest;
 	@Getter private static Main instance;
 	@Getter private Files configFiles;
 	@Getter private Utils utils;
 	@Getter private Boolean UseArmorStands;
 	@Getter private Menu menu;
+	private static int version;
 	
 	//the way holograms are working changed a lot since 2.2.4. 
 	//If user just done the update, this will be auto set to true by detecting a lacking config option
@@ -51,8 +53,10 @@ public class Main extends JavaPlugin {
 	
 
 	public void onDisable() {
-		for(Lootchest lc : LootChest.values()) {
-			lc.getHologram().remove();
+		if(getVersion()!=7) {
+			for(Lootchest lc : LootChest.values()) {
+				lc.getHologram().remove();
+			}
 		}
 		utils.updateData();
 		backUp();
@@ -65,7 +69,7 @@ public class Main extends JavaPlugin {
 	 */
     public void logInfo(String msg) {
     	if(configFiles.getConfig() ==null || !configFiles.getConfig().isSet("ConsoleMessages") || configFiles.getConfig().getBoolean("ConsoleMessages")) {
-    		instance.getLogger().info(msg.replace("&", "Â§"));
+    		instance.getLogger().info(msg.replace("&", "§"));
     	}
     }
     
@@ -82,6 +86,18 @@ public class Main extends JavaPlugin {
         return false;
     }
 	
+	/**
+	 * Returns the version of your server (1.x)
+	 * 
+	 * @return The version number
+	 */
+	public static int getVersion() {
+		if(version == 0) {
+			version = Integer.parseInt((Bukkit.getBukkitVersion().split("-")[0]).split("[.]")[1]);
+		}
+		return version;
+	}
+    
 	public void onEnable() {
 		instance = this;
 		configFiles = new Files();
@@ -89,12 +105,16 @@ public class Main extends JavaPlugin {
 		utils = new Utils();
 		menu = new Menu();
 		UseArmorStands = true;
+		//initialisation des matÃ©riaux dans toutes les verions du jeu
+        //initializing materials in all game versions, to allow cross-version compatibility
+        Mat.init_materials();
+		logInfo("Server version: 1." + getVersion() );
 		logInfo("Loading config files...");
 		if(!configFiles.initFiles()) {
-        	getLogger().info("Â§cConfig or data files couldn't be initialized, the plugin will stop.");
+        	getLogger().info("§cConfig or data files couldn't be initialized, the plugin will stop.");
         	return;
         }
-		if(!org.bukkit.Bukkit.getVersion().contains("1.7")){
+		if(getVersion() !=7){
 			this.getServer().getPluginManager().registerEvents(new Armorstand(), this);
 		}
 		this.getServer().getPluginManager().registerEvents(new DeleteListener(), this);
@@ -114,12 +134,12 @@ public class Main extends JavaPlugin {
         
         //If we're on paperspigot, in 1.9+, we check if armorstands ticks aren't disabled. If they are, we use 
         //falling blocks insteand of armor stands for fall effect
-        if(Bukkit.getVersion().contains("Paper") && !Bukkit.getVersion().contains("1.8") && !Bukkit.getVersion().contains("1.7") ) {
+        if(Bukkit.getVersion().contains("Paper") && getVersion()!=8 && getVersion()!=7 ) {
         	if(org.bukkit.Bukkit.getServer().spigot().getPaperConfig().isSet("world-settings.default.armor-stands-tick")) {
 	        	if(!org.bukkit.Bukkit.getServer().spigot().getPaperConfig().getBoolean("world-settings.default.armor-stands-tick")) {
 	        		UseArmorStands = false;
-	        		getLogger().info("Â§eYou disabled 'armor-stands-tick' in paper.yml. ArmorStands will not have gravity, so fall effect will use falling blocks instead! Some blocks can't be used as falling blocks. If so, only fireworks will show!");
-	        		getLogger().info("Â§eIf no blocks are spawned with the fireworks, use another type of block for fall-effect in config.yml or enable 'armor-stands-tick' in paper.yml");
+	        		getLogger().info("§eYou disabled 'armor-stands-tick' in paper.yml. ArmorStands will not have gravity, so fall effect will use falling blocks instead! Some blocks can't be used as falling blocks. If so, only fireworks will show!");
+	        		getLogger().info("§eIf no blocks are spawned with the fireworks, use another type of block for fall-effect in config.yml or enable 'armor-stands-tick' in paper.yml");
 	        	}
         	}
         }
@@ -127,8 +147,8 @@ public class Main extends JavaPlugin {
         //If we enabled bungee broadcast but we aren't on a bungee server, not any message will show
         configs= Config.getInstance(configFiles.getConfig());
         if(!hasBungee() && configs.NOTE_bungee_broadcast) {
-    		getLogger().info("Â§cYou enaled bungee broadcast in config but you didn't enable bungeecord in spigot config!");
-    		getLogger().info("Â§cSo if this server isn't in a bungee network, no messages will be sent at all on chest spawn!");
+    		getLogger().info("§cYou enaled bungee broadcast in config but you didn't enable bungeecord in spigot config!");
+    		getLogger().info("§cSo if this server isn't in a bungee network, no messages will be sent at all on chest spawn!");
         }
  
 
@@ -139,9 +159,7 @@ public class Main extends JavaPlugin {
         	 new Updater(this);
         }
 
-        //initialisation des matÃ©riaux dans toutes les verions du jeu
-        //initializing materials in all game versions, to allow cross-version compatibility
-        Mat.init_materials();
+        
         
         logInfo("Starting particles...");
         
@@ -165,32 +183,18 @@ public class Main extends JavaPlugin {
 	private void startParticles() {
 		new BukkitRunnable() {
     		public void run() {
-    			double radius = configs.PART_radius;
+    			float radius = (float) configs.PART_radius;
+    			float speed = (float)configs.PART_speed;
+    			int number = configs.PART_number;
     			if (configs.PART_enable) {
     				for(Location keys : part.keySet()) {
     					Boolean loaded = keys.getWorld().isChunkLoaded((int)keys.getX()/16, (int)keys.getZ()/16) ;
     					if (loaded) {
-	    					int players = 0;
-	    					if(Bukkit.getVersion().contains("1.7") || Bukkit.getVersion().contains("1.6") ) {
-	    						players = org.bukkit.Bukkit.getOnlinePlayers().toArray().length;
-	    					}else {
-	    						players = org.bukkit.Bukkit.getOnlinePlayers().size();
-	    					}
-	    					if( players>0) {
-	    						if(!Bukkit.getVersion().contains("1.7") && !Bukkit.getVersion().contains("1.8") && !Bukkit.getVersion().contains("1.9") && !Bukkit.getVersion().contains("1.10") && !Bukkit.getVersion().contains("1.11")) {
-	    							keys.getWorld().spawnParticle( (org.bukkit.Particle) part.get(keys), keys, configs.PART_number, radius, radius, radius, configs.PART_speed);
-	        					} 
-	    						else{
-	    							((ParticleEffect) part.get(keys)).send(keys.getWorld().getPlayers(), keys, radius, radius, radius, configs.PART_speed, configs.PART_number, 50);
-	    						}
-	
-	    					}
-    					}else {
-
+    						new Thread(() -> {
+		    					part.get(keys).display(radius, radius, radius, speed, number, keys, keys.getWorld().getPlayers());
+    						}).start();
     					}
-    					
     				}
-    				//logInfo(unloaded + "Unloaded chunk!");
     			}
     		}
     	}.runTaskTimer(this, 0, configs.PART_respawn_ticks);
@@ -204,6 +208,7 @@ public class Main extends JavaPlugin {
     	if(cooldown>0) {
     		logInfo("Chests will load in "+ cooldown + " seconds.");
     	}
+    	
         this.getServer().getScheduler().runTaskLater(this, (Runnable)new Runnable() {
             @SuppressWarnings("deprecation")
 			@Override
@@ -220,10 +225,12 @@ public class Main extends JavaPlugin {
 						getLootChest().put(keys, new Lootchest(keys));
 					}
 					else {
-		    			getLogger().info("Â§cCouldn't load chest "+keys +" : the world " + configFiles.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
+		    			getLogger().info("§cCouldn't load chest "+keys +" : the world " + configFiles.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
 					}
 		    	}
-				utils.killOldHolograms(true);
+				if(getVersion()!=7) {
+					utils.killOldHolograms(true);
+				}
 				
 				logInfo("Loaded "+LootChest.size() + " Lootchests in "+((new Timestamp(System.currentTimeMillis())).getTime()-current) + " miliseconds");
 				logInfo("Starting LootChest timers asynchronously...");
@@ -290,6 +297,7 @@ public class Main extends JavaPlugin {
       configFiles.setLang("Menu.time.infinite", "&6Desactivates the respawn time");
       configFiles.setLang("chestRadiusSet", "&aYou defined a spawn radius for the chest [Chest]");
       configFiles.setLang("Menu.copy.page", "&2---> Page &b[Number]");
+      configFiles.setLang("Menu.particles.page", "&2---> Page &b[Number]");
       configFiles.setLang("teleportedToChest", "&aYou were teleported to chest [Chest]");
       configFiles.setLang("enabledFallEffect", "&aYou enabled fall effect for chest &b[Chest]");
       configFiles.setLang("disabledFallEffect", "&cYou disabled fall effect for chest &b[Chest]");
@@ -405,20 +413,20 @@ public class Main extends JavaPlugin {
 	 * and for 1.12+, I use new particles spawning functions so I use default spigot particles
 	 */
 	private void initParticles() {
-		Object parti[];
-		if(!Bukkit.getVersion().contains("1.7") && !Bukkit.getVersion().contains("1.8") && !Bukkit.getVersion().contains("1.9") && !Bukkit.getVersion().contains("1.10") && !Bukkit.getVersion().contains("1.11")) {
-			parti = new org.bukkit.Particle[] {org.bukkit.Particle.EXPLOSION_HUGE, org.bukkit.Particle.EXPLOSION_LARGE, org.bukkit.Particle.EXPLOSION_NORMAL, org.bukkit.Particle.FIREWORKS_SPARK, org.bukkit.Particle.WATER_BUBBLE, org.bukkit.Particle.SUSPENDED, org.bukkit.Particle.TOWN_AURA, org.bukkit.Particle.CRIT, org.bukkit.Particle.CRIT_MAGIC, org.bukkit.Particle.SMOKE_NORMAL, org.bukkit.Particle.SMOKE_LARGE, org.bukkit.Particle.SPELL_MOB, org.bukkit.Particle.SPELL_MOB_AMBIENT, org.bukkit.Particle.SPELL, org.bukkit.Particle.SPELL_INSTANT, org.bukkit.Particle.SPELL_WITCH, org.bukkit.Particle.NOTE, org.bukkit.Particle.PORTAL, org.bukkit.Particle.ENCHANTMENT_TABLE, org.bukkit.Particle.FLAME, org.bukkit.Particle.LAVA, org.bukkit.Particle.LAVA, org.bukkit.Particle.WATER_SPLASH, org.bukkit.Particle.WATER_WAKE, org.bukkit.Particle.CLOUD, org.bukkit.Particle.SNOWBALL, org.bukkit.Particle.DRIP_WATER, org.bukkit.Particle.DRIP_LAVA, org.bukkit.Particle.SNOW_SHOVEL, org.bukkit.Particle.SLIME, org.bukkit.Particle.HEART, org.bukkit.Particle.VILLAGER_ANGRY, org.bukkit.Particle.VILLAGER_HAPPY, org.bukkit.Particle.BARRIER};
-
-		}else {
-			parti = new ParticleEffect[] {ParticleEffect.EXPLOSION_HUGE, ParticleEffect.EXPLOSION_LARGE, ParticleEffect.EXPLOSION_NORMAL, ParticleEffect.FIREWORKS_SPARK, ParticleEffect.WATER_BUBBLE, ParticleEffect.SUSPENDED, ParticleEffect.TOWN_AURA, ParticleEffect.CRIT, ParticleEffect.CRIT_MAGIC, ParticleEffect.SMOKE_NORMAL, ParticleEffect.SMOKE_LARGE, ParticleEffect.SPELL_MOB, ParticleEffect.SPELL_MOB_AMBIENT, ParticleEffect.SPELL, ParticleEffect.SPELL_INSTANT, ParticleEffect.SPELL_WITCH, ParticleEffect.NOTE, ParticleEffect.PORTAL, ParticleEffect.ENCHANTMENT_TABLE, ParticleEffect.FLAME, ParticleEffect.LAVA, ParticleEffect.LAVA, ParticleEffect.WATER_SPLASH, ParticleEffect.WATER_WAKE, ParticleEffect.CLOUD, ParticleEffect.SNOWBALL, ParticleEffect.DRIP_WATER, ParticleEffect.DRIP_LAVA, ParticleEffect.SNOW_SHOVEL, ParticleEffect.SLIME, ParticleEffect.HEART, ParticleEffect.VILLAGER_ANGRY, ParticleEffect.VILLAGER_HAPPY, ParticleEffect.BARRIER};
+		int cpt = 0;
+		for(Particle p:Particle.values()) {
+			if(p.isSupported()) {
+				cpt++;
+			}
 		}
-		for(int i = 0; i<parti.length; i++) {
-			particules[i] = parti[i];
+		particules = new Particle[cpt];
+		int i = 0;
+		for(Particle p:Particle.values()) {
+			if(p.isSupported()) {
+				particles.put(p.getName(), p);
+				particules[i++] = p;
+			}
 		}
-		//One particle was created in 1.13 so that other versions won't have it. Let's remove it if you're not in 1.13
-        if (Bukkit.getVersion().contains("1.7") || Bukkit.getVersion().contains("1.8") || Bukkit.getVersion().contains("1.9") || Bukkit.getVersion().contains("1.10") || Bukkit.getVersion().contains("1.11") || Bukkit.getVersion().contains("1.12")) {
-        	particules[21] = ParticleEffect.valueOf("FOOTSTEP");
-        }
 	}
 	
 	/**
@@ -465,4 +473,6 @@ public class Main extends JavaPlugin {
 	        e1.printStackTrace();
 	    }
 	}
+
+
 }

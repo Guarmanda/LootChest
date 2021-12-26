@@ -133,7 +133,7 @@ public void drawInPlane(Player p) {
 					//drawInPlane(player);
 				case "create":
 					if(!(sender instanceof org.bukkit.entity.Player)) {
-						sender.sendMessage("Â§cPlease, run this command in-game");
+						sender.sendMessage("§cPlease, run this command in-game");
 						return false;
 					}
 					Block chest;
@@ -168,7 +168,7 @@ public void drawInPlane(Player p) {
 					
 				case "edit":
 					if(!(sender instanceof org.bukkit.entity.Player)) {
-						sender.sendMessage("Â§cPlease, run this command in-game");
+						sender.sendMessage("§cPlease, run this command in-game");
 						return false;
 					}
 					else {
@@ -218,7 +218,7 @@ public void drawInPlane(Player p) {
 							Block block = lc.getActualLocation().getBlock();
 							String holo = lc.getHolo();
 							if(Main.configs.NOTE_bungee_broadcast) {
-								BungeeChannel.bungeeBroadcast((((Main.configs.NOTE_command_msg.replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "Â§"));
+								BungeeChannel.bungeeBroadcast((((Main.configs.NOTE_command_msg.replace("[Chest]", holo)).replace("[x]", block.getX()+"")).replace("[y]", block.getY()+"")).replace("[z]", block.getZ()+"").replace("&", "§"));
 							}
 							else if(!Main.configs.NOTE_per_world_message) {
 								for(Player p : Bukkit.getOnlinePlayers()) {
@@ -253,7 +253,7 @@ public void drawInPlane(Player p) {
 				}
 				else if(args[0].equalsIgnoreCase("getname")) {
 					if(!(sender instanceof org.bukkit.entity.Player)) {
-						sender.sendMessage("Â§cPlease, run this command in-game");
+						sender.sendMessage("§cPlease, run this command in-game");
 						return false;
 					}
 					Block chest;
@@ -293,11 +293,10 @@ public void drawInPlane(Player p) {
 					
 					if(Main.configs.NOTE_allcmd_e ) {
 						if(Main.configs.NOTE_bungee_broadcast) {
-							BungeeChannel.bungeeBroadcast(Main.configs.NOTE_allcmd_msg.replace("&", "Â§"));
+							BungeeChannel.bungeeBroadcast(Main.configs.NOTE_allcmd_msg.replace("&", "§"));
 						}else {
 							for(Player p : Bukkit.getOnlinePlayers()) {
 								utils.msg(p, Main.configs.NOTE_allcmd_msg," ", " ");
-						
 							}
 						}
 					}
@@ -308,7 +307,9 @@ public void drawInPlane(Player p) {
 					configFiles.reloadConfig();
 					Main.configs = Config.getInstance(configFiles.getConfig());
 					main.getPart().clear();
-					Main.getInstance().getLootChest().values().stream().forEach(chest -> chest.getHologram().remove());
+					if(!Bukkit.getVersion().contains("1.7")) {
+						Main.getInstance().getLootChest().values().stream().forEach(chest -> chest.getHologram().remove());
+					}
 					Main.getInstance().getLootChest().clear();
 					for(String keys : configFiles.getData().getConfigurationSection("chests").getKeys(false)) {
 						String name = configFiles.getData().getString("chests." + keys + ".position.world");
@@ -320,7 +321,7 @@ public void drawInPlane(Player p) {
 							Main.getInstance().getLootChest().put(keys, new Lootchest(keys));
 						}
 						else {
-			    			Main.getInstance().getLogger().info("Â§cCouldn't load chest "+keys +" : the world " + configFiles.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
+			    			Main.getInstance().getLogger().info("§cCouldn't load chest "+keys +" : the world " + configFiles.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
 						}
 			    	}
 					
@@ -439,7 +440,7 @@ public void drawInPlane(Player p) {
 	public void displayhelp(CommandSender p) {
 		List<String> help = configFiles.getLang().getStringList("help");
 		for(int i=0; i<help.size();i++) {
-			p.sendMessage(help.get(i).replace("&", "Â§"));
+			p.sendMessage(help.get(i).replace("&", "§"));
 		}
 	}
 	
