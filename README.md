@@ -4,7 +4,7 @@
 </dl>
 <dl class="customResourceFieldmc_versions">
 <dt>Tested Minecraft Versions:</dt>
-<dd><ul class="plainList"><li>1.7</li><li>1.8</li><li>1.9</li><li>1.10</li><li>1.11</li><li>1.12</li><li>1.13</li><li>1.14</li><li>1.15</li><li>1.16</li></ul></dd>
+<dd><ul class="plainList"><li>1.7</li><li>1.8</li><li>1.9</li><li>1.10</li><li>1.11</li><li>1.12</li><li>1.13</li><li>1.14</li><li>1.15</li><li>1.16</li><li>1.17</li><li>1.18</li></ul></dd>
 </dl>
 <dl class="customResourceFieldsource_code">
 <dt>Source Code:</dt>
