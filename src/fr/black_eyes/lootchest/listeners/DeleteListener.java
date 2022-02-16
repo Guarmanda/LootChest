@@ -37,7 +37,7 @@ public class DeleteListener implements Listener  {
 	
 
 	public static HashMap<Player, Location> openInvs;
-	//gÂ§re la destruction d'un coffre au niveau des hologrames
+	//g§re la destruction d'un coffre au niveau des hologrames
 	
 	
 	
@@ -131,7 +131,7 @@ public class DeleteListener implements Listener  {
     			}
     			if(keys.getTake_msg()&&!keys.getTaken()){
     				keys.setTaken(true);
-	    			String msg = Main.getInstance().getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "Â§");
+	    			String msg = Main.getInstance().getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "§");
 	    			if(Main.configs.NOTE_bungee_broadcast) {
 						BungeeChannel.bungeeBroadcast(msg);
 					}
@@ -181,7 +181,7 @@ public class DeleteListener implements Listener  {
     			Player p = e.getPlayer();
     			if(keys.getTake_msg() && !keys.getTaken()){
     				keys.setTaken(true);
-	    			String msg = Main.getInstance().getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "Â§");
+	    			String msg = Main.getInstance().getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "§");
 	    			if(Main.configs.NOTE_bungee_broadcast) {
 						BungeeChannel.bungeeBroadcast(msg);
 					}

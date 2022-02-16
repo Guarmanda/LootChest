@@ -1,6 +1,6 @@
 name: LootChest
 main: fr.black_eyes.lootchest.Main
-version: 2.2.7
+version: 2.3.3
 api-version: 1.13
 softdepend: [MultiWorld, Multiverse-Core, FabledSkyBlock, MultiverseCore]
 description: >

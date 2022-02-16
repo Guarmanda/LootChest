@@ -58,6 +58,8 @@ public class Menu {
 		p.openInventory(inv);
 	}
 	
+	
+	
 	public  void invTime(Player p, Lootchest name) {
 		final Inventory inv = Bukkit.createInventory((InventoryHolder)null, 27, getMsg("Menu.time.name", "[Chest]", name.getName()));
 		if(name.getTime() != -1) {
@@ -70,6 +72,13 @@ public class Menu {
 		long jours = temps/1440;
 		long heures = (temps-jours*1440)/60;
 		long minutes = temps - (jours*1440+heures*60);
+		
+		int i = 0;
+		int j;
+		
+		for(j = 0; j < 100; j++) {
+			if(j%2 == 0 && j>10 || j == 1) i++;
+		}
 		
 		
 		//Initialisation du menu selon le temps du coffre
@@ -163,7 +172,7 @@ public class Menu {
 					world = Bukkit.getWorld(Main.getInstance().getLootChest().get(keys).getWorld()).getName();
 				}
 				String name2 = Main.getInstance().getLootChest().get(keys).getHolo().replace("&", "§");
-				String effect = Main.getInstance().getLootChest().get(keys).getParticle().name();
+				String effect = (Main.getInstance().getLootChest().get(keys).getParticle()!=null)?Main.getInstance().getLootChest().get(keys).getParticle().getName():"Disabled";
 
 				ItemStack item2 = getItemWithLore(Material.CHEST, "§6" +keys, "§bHologram: §6" + name2 + "||§bWorld: §6"+ world + "||§bEffect: §6" + effect);
 				inv.setItem(i++, item2);

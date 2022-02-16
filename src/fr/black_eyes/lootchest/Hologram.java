@@ -25,16 +25,28 @@ public class Hologram {
 	private static List<String> NULL_NAME = new ArrayList<String>(
 			Arrays.asList("\"\"" ,"\" \"" ,"null" ,"" ," " ,"_" ,"none")
 			); 
+	/**
+	 * @return the text displayed by the hologram
+	 */
 	@Getter private String text;
+	/**
+	 * @return the location of the hologram
+	 */
 	@Getter private Location location;
 	private Lootchest chest;
 	private BukkitRunnable runnable;
 	private UUID uuid;
+	/**
+	 * @param chest the chest linked with this holo
+	 */
 	public Hologram(Lootchest chest) {
 		this.chest = chest;
 		this.location = chest.getActualLocation();
 	}
 	
+	/**
+	 * @param loca The location to set the hologram
+	 */
 	public void setLoc(Location loca) {
 		//Entity as = getArmorstand();
 		Location loc2 = new Location(loca.getWorld(), loca.getX(), loca.getY(), loca.getZ());
@@ -61,6 +73,9 @@ public class Hologram {
 	}
 
 	
+	/**
+	 * Kills the hologram
+	 */
 	public void remove() {
 		if(runnable != null) {
 			runnable.cancel();
@@ -74,6 +89,9 @@ public class Hologram {
 
 	}
 	
+	/**
+	 * @param name The text displayed by the hologram
+	 */
 	public void setText(String name) {
 		text = name;
 		org.bukkit.entity.ArmorStand as = getArmorstand();
@@ -88,6 +106,9 @@ public class Hologram {
 		}
 	}
 	
+	/**
+	 * @return Creates the hologram as an invisible armorstand
+	 */
 	private org.bukkit.entity.ArmorStand createArmorStand() {
 		org.bukkit.entity.ArmorStand as = (org.bukkit.entity.ArmorStand) location.getWorld().spawnEntity(location, org.bukkit.entity.EntityType.ARMOR_STAND); //Spawn the ArmorStand
 		uuid = as.getUniqueId();
@@ -100,12 +121,17 @@ public class Hologram {
 	 	as.setArms(false);
 	 	as.setBasePlate(false);
 	 	as.setSmall(true);
+	 	//setMarker function does not exist in early 1.8 versions
 	 	if(!org.bukkit.Bukkit.getVersion().contains("1.8)")) {
 	 		as.setMarker(true);
 		}
 	 	return as;
 	}
 	
+	/**
+	 * Doesn't throw a party.
+	 * Shows a timer on the hologram if the config says it
+	 */
 	private void startShowTime() {
 		runnable = new BukkitRunnable() {
     		public void run() {
@@ -138,6 +164,9 @@ public class Hologram {
 	}
 	
 	
+	/**
+	 * @return The armorstand entity involved in the hologram
+	 */
 	private org.bukkit.entity.ArmorStand getArmorstand() {
 		if(uuid==null) {
 			for(Entity ent : location.getWorld().getEntities()) {
@@ -162,6 +191,11 @@ public class Hologram {
 		return null;
 	}
 	
+	/**
+	 * Get back the holo entity to edit/kill it
+	 * @param uniqueId the id of the armostand entity
+	 * @return the entity if found
+	 */
 	public static Entity getEntityByUniqueId(UUID uniqueId) {
 	    for (World world : Bukkit.getWorlds()) {
 	        for (Entity entity : world.getEntities()) {

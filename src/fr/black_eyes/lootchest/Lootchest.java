@@ -1,9 +1,6 @@
 package fr.black_eyes.lootchest;
 
 import java.sql.Timestamp;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,28 +12,127 @@ import fr.black_eyes.lootchest.particles.Particle;
 import lombok.Getter;
 import lombok.Setter;
 public class Lootchest {
-	@Getter @Setter private String name;
+	/**
+	 * @return the Lootchest name
+	 */
+	@Getter /**
+	 * @param name the name to give to the lootchest
+	 */
+	@Setter private String name;
+	/**
+	 * @param globalLoc The static location of the lootchest, which is always used to choose the random location
+	 */
 	@Setter 		private Location globalLoc;
+	/**
+	 * @param randomLoc the random location that changes every time a lootchest respawns. Can be disabled to only use global location
+	 */
 	@Setter 		private Location randomLoc;
+	/**
+	 * @return The inventory of the lootchest, used to give it to someone, or fill the lootchest
+	 */
 	@Getter			private Inventory inv;
-	@Getter @Setter private Boolean fall;
+	/**
+	 * @return the value of the fall boolean, which says if the LootChest should display a fall effect or not
+	 */
+	@Getter /**
+	 * @param fall says if the LootChest should display a fall effect or not
+	 */
+	@Setter private Boolean fall;
+	/**
+	 * @return An array of integers, representing chances of each item in the chest
+	 */
 	@Getter			 Integer[] chances;
-	@Getter @Setter private String direction;
+	/**
+	 * @return a string representing the direction of the chest block (north, east, south, or east)
+	 */
+	@Getter /**
+	 * @param direction a string representing the direction of the chest block (north, east, south, or east)
+	 */
+	@Setter private String direction;
+	/**
+	 * @return the text displayed by the hologram of the lootchest
+	 */
 	@Getter private String holo;
-	@Getter @Setter private long time;
-	@Getter @Setter private long lastreset;
-	@Getter @Setter private Particle particle;
-	@Getter @Setter private Boolean respawn_cmd;
-	@Getter @Setter private Boolean respawn_natural;
-	@Getter @Setter private Boolean take_msg;
-	@Getter @Setter private int radius;
-	@Getter @Setter private String world;
-	@Getter @Setter private Boolean taken;
-	@Getter @Setter private Material type;
+	/**
+	 * @return the time between two spawns of the lootchest. 
+	 */
+	@Getter /**
+	 * @param time the time between two spawns of the lootchest. -1 to disable auto respawn
+	 */
+	@Setter private long time;
+	/**
+	 * @return the last respawn date of the chest, in milliseconds.
+	 */
+	@Getter /**
+	 * @param lastreset the last respawn date of the chest, in milliseconds.
+	 */
+	@Setter private long lastreset;
+	/**
+	 * @return the particle to spawn around the lootchest
+	 */
+	@Getter /**
+	 * @param particle the particle to spawn around the lootchest
+	 */
+	@Setter private Particle particle;
+	/**
+	 * @return the value of respawn_cmd boolean, which says if we should send a broadcast if the chest is respawned manually
+	 */
+	@Getter /**
+	 * @param respawn_cmd boolean, which says if we should send a broadcast if the chest is respawned manually
+	 */
+	@Setter private Boolean respawn_cmd;
+	/**
+	 * @return the value of the respawn_natural boolean, which says if we should send a broadcast if the chest is respawned "naturally"
+	 */
+	@Getter /**
+	 * @param respawn_natural boolean, which says if we should send a broadcast if the chest is respawned "naturally"
+	 */
+	@Setter private Boolean respawn_natural;
+	/**
+	 * @return the value of the take_msg boolean, which says if we should send a broadcast if the chest taken/looted by a player
+	 */
+	@Getter /**
+	 * @param take_msg boolean, which says if we should send a broadcast if the chest taken/looted by a playe
+	 */
+	@Setter private Boolean take_msg;
+	/**
+	 * @return the radius around the global location, to set the randm location
+	 */
+	@Getter /** 
+	 * @param radius the radius around the global location, to set the randm location
+	 */
+	@Setter private int radius;
+	/**
+	 * @return the world to spawn the lootchest
+	 */
+	@Getter /**
+	 * @param world the world to spawn the lootchest
+	 */
+	@Setter private String world;
+	/**
+	 * @return taken boolean, which says if the chest was looted already or not
+	 */
+	@Getter /**
+	 * @param taken boolean, which says if the chest was looted already or not
+	 */
+	@Setter private Boolean taken;
+	/** 
+	 * @return the type of the lootchest, can be chest, trapped chest or barrel
+	 */
+	@Getter /**
+	 * @param type the type of the lootchest, can be chest, trapped chest or barrel
+	 */
+	@Setter private Material type;
+	/**
+	 * @return the hologram object attached to this lootchest
+	 */
 	@Getter private Hologram hologram;
 	
 	
-	/*Function used in Main / reload for chest loading */
+	/**
+	 * Function used in Main / reload for chest loading
+	 * @param naming
+	 */
 	public Lootchest(String naming) {
 		Main main = Main.getInstance();
 		Utils utils = main.getUtils();
@@ -106,7 +202,12 @@ public class Lootchest {
 	}
 	
 	
-	/*Function used for /lc create */
+	
+	/**
+	 * Function used for /lc create
+	 * @param chest
+	 * @param naming
+	 */
 	public Lootchest(Block chest, String naming){
 		Main main = Main.getInstance();
 		Utils utils = main.getUtils();
@@ -147,28 +248,10 @@ public class Lootchest {
 	}
 	
 	
-	void taskParticles() {
-		new Thread(() -> {
-			System.out.println("Main thread: " + Thread.currentThread());
-		    Timer timer = new Timer();
-		    final long start = System.currentTimeMillis();
-		    timer.scheduleAtFixedRate(new TimerTask() {
-		        @Override
-		        public void run () {
-		            System.out.print("Task invoked - " + " - " +
-		                                                 (System.currentTimeMillis()
-		                                                                     - start) + " ms");
-		            System.out.println(" - " + Thread.currentThread());
-		        }
-		    },0, 500);
-		    timer.cancel();
-		}).start();
-
-
-	}
 	
-	
-	/*Function used at defined time in config and at plugin stop for saving chests */
+	/**
+	 * Function used at defined time in config and at plugin stop for saving chests
+	 */
 	void saveInConfig(){
 		Main main = Main.getInstance();
 		Utils utils = main.getUtils();
@@ -203,16 +286,32 @@ public class Lootchest {
 	}
 	
 
+	/**
+	 * @return
+	 */
 	public Location getPosition() {			return globalLoc.clone();	}
+	/**
+	 * @return
+	 */
 	public Location getRandomPosition() {	return (randomLoc!=null)?randomLoc.clone():null;	}
 
+	/**
+	 * @return
+	 */
 	public Location getActualLocation() {
 		return (radius!=0)?randomLoc.clone():globalLoc.clone();
 	}
 	
-	public void setChance(int c, int v) {			chances[c] = v;		}
+	/**
+	 * @param index the index to set the chance in inventory
+	 * @param v the value of the chance to set for "index" item
+	 */
+	public void setChance(int index, int v) {			chances[index] = v;		}
 
 
+	/**
+	 * @param inve
+	 */
 	public void setInventory(Inventory inve) {
 		for(int i = 0 ; i < inve.getSize() ; i++) {
 			if(inve.getItem(i) != null) {
@@ -224,14 +323,25 @@ public class Lootchest {
 		}
 	}
 
+	/**
+	 * @param block
+	 * @return true if the block is the good one for the chest
+	 */
 	public boolean isGoodType(Block block) {
 		return type.equals(block.getType());
 	}
 
+	/**
+	 * gives the main informations about the chest
+	 */
 	public String toString() {
 		return (name +" "+fall +" " +direction+" "+ radius+" "+particle);             
 	}
 	
+	/**
+	 * sets the text of the lootchest's holo
+	 * @param text the text to set
+	 */
 	public void setHolo(String text) {
 		holo = text;
 		hologram.setText(holo);

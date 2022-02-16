@@ -3,6 +3,11 @@ package fr.black_eyes.lootchest;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
+/**
+ * @author Black_Eyes
+ * Singleton-like class to initialize and get the config options
+ *
+ */
 public class Config {
 
 
@@ -57,21 +62,37 @@ Hologram_distance_to_chest,
 PART_speed;
 
 
+/**
+ * 
+ */
 private static Config instance = null;
 
 
+/**
+ * Creates a new instance replacing the old one, and re-initialize the config options
+ * Usefull for reloading the plugin
+ * @param config The file to get the options from
+ * @return a new instance of the config options
+ */
 public static Config getInstance(FileConfiguration config)
 {
     instance = new Config(config);
     return instance;
 }
 
+/**
+ * @return the only instance of the config options. Usefull for anything but reloading the plugin.
+ */
 public static Config getInstance()
 {
 	return instance;
 }
 
 
+/**
+ * Initialize all the config options by reading the YAML config file 
+ * @param config The config file to get the options from, and initialize them
+ */
 public Config(FileConfiguration config) {
 	
 	default_reset_time = config.getInt("default_reset_time");

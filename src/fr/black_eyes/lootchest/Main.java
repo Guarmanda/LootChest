@@ -134,15 +134,23 @@ public class Main extends JavaPlugin {
         
         //If we're on paperspigot, in 1.9+, we check if armorstands ticks aren't disabled. If they are, we use 
         //falling blocks insteand of armor stands for fall effect
-        if(Bukkit.getVersion().contains("Paper") && getVersion()!=8 && getVersion()!=7 ) {
-        	if(org.bukkit.Bukkit.getServer().spigot().getPaperConfig().isSet("world-settings.default.armor-stands-tick")) {
-	        	if(!org.bukkit.Bukkit.getServer().spigot().getPaperConfig().getBoolean("world-settings.default.armor-stands-tick")) {
-	        		UseArmorStands = false;
-	        		getLogger().info("§eYou disabled 'armor-stands-tick' in paper.yml. ArmorStands will not have gravity, so fall effect will use falling blocks instead! Some blocks can't be used as falling blocks. If so, only fireworks will show!");
-	        		getLogger().info("§eIf no blocks are spawned with the fireworks, use another type of block for fall-effect in config.yml or enable 'armor-stands-tick' in paper.yml");
+        if(getVersion()!=8 && getVersion()!=7 ) {
+        	//Paper has many forks so instead of checking if we're on paper/fork or not, let's just try and see if we can get the
+        	//settings.
+        	try {
+	        	if(org.bukkit.Bukkit.getServer().spigot().getPaperConfig().isSet("world-settings.default.armor-stands-tick")) {
+		        	if(!org.bukkit.Bukkit.getServer().spigot().getPaperConfig().getBoolean("world-settings.default.armor-stands-tick")) {
+		        		UseArmorStands = false;
+		        		getLogger().info("§eYou disabled 'armor-stands-tick' in paper.yml. ArmorStands will not have gravity, so fall effect will use falling blocks instead! Some blocks can't be used as falling blocks. If so, only fireworks will show!");
+		        		getLogger().info("§eIf no blocks are spawned with the fireworks, use another type of block for fall-effect in config.yml or enable 'armor-stands-tick' in paper.yml");
+		        	}
 	        	}
+        	}catch(NoSuchMethodError e) {
+        		
         	}
         }
+        
+
         
         //If we enabled bungee broadcast but we aren't on a bungee server, not any message will show
         configs= Config.getInstance(configFiles.getConfig());
@@ -151,7 +159,10 @@ public class Main extends JavaPlugin {
     		getLogger().info("§cSo if this server isn't in a bungee network, no messages will be sent at all on chest spawn!");
         }
  
-
+        if(UseArmorStands == false && Main.configs.FALL_Block.equals("CHEST")) {
+        	configFiles.getConfig().set("Fall_Effect.Block", "NOTE_BLOCK");
+        	configs.FALL_Block = "NOTE_BLOCK";
+        }
         
 
         if(configs.CheckForUpdates) {
@@ -191,7 +202,8 @@ public class Main extends JavaPlugin {
     					Boolean loaded = keys.getWorld().isChunkLoaded((int)keys.getX()/16, (int)keys.getZ()/16) ;
     					if (loaded) {
     						new Thread(() -> {
-		    					part.get(keys).display(radius, radius, radius, speed, number, keys, keys.getWorld().getPlayers());
+    							if(part.get(keys)!=null)
+    								part.get(keys).display(radius, radius, radius, speed, number, keys, keys.getWorld().getPlayers());
     						}).start();
     					}
     				}
@@ -266,16 +278,6 @@ public class Main extends JavaPlugin {
    */
   private void updateOldConfig() {
 	  configFiles.setConfig("Particles.enable", true);
-      configFiles.setConfig("Hologram_distance_to_chest", 1);
-      configFiles.setConfig("UseHologram", true);
-      configFiles.setConfig("RemoveEmptyChests", true);
-      configFiles.setConfig("RemoveChestAfterFirstOpenning", false);
-      configFiles.setConfig("respawn_notify.natural_respawn.enabled", true);
-      configFiles.setConfig("respawn_notify.respawn_with_command.enabled", true);
-      configFiles.setConfig("respawn_notify.respawn_all_with_command.enabled", true);
-      configFiles.setConfig("respawn_notify.natural_respawn.message", "&6The chest &b[Chest] &6has just respawned at [x], [y], [z]!");
-      configFiles.setConfig("respawn_notify.respawn_with_command.message", "&6The chest &b[Chest] &6has just respawned at [x], [y], [z]!");
-      configFiles.setConfig("respawn_notify.respawn_all_with_command.message", "&6All chests where forced to respawn! Get them guys!");
       configFiles.setConfig("PreventHopperPlacingUnderLootChest", true);
       configFiles.setConfig("respawn_notify.per_world_message", true);
       configFiles.setConfig("respawn_notify.message_on_chest_take", true);
@@ -284,25 +286,6 @@ public class Main extends JavaPlugin {
       configFiles.setConfig("Cooldown_Before_Plugin_Start", 0);
       configFiles.setConfig("Prevent_Chest_Spawn_In_Protected_Places", false);
       configFiles.setConfig("WorldBorder_Check_For_Spawn", true);
-      configFiles.setLang("PluginReloaded", "&aConfig file, lang, and chest data were reloaded");
-      configFiles.setLang("PlayerIsNotOnline", "&cThe player [Player] is not online");
-      configFiles.setLang("givefrom", "&aYou were given the [Chest] chest by [Player]");
-      configFiles.setLang("giveto", "&aYou gave the chest [Chest] to player [Player]");
-      configFiles.setLang("ListCommand", "&aList of all chests: [List]");
-      configFiles.setLang("Menu.main.copychest", "&1Copy settings from anyther chest");
-      configFiles.setLang("Menu.copy.name", "&1Choose a chest to copy its settings");
-      configFiles.setLang("copiedChest", "&6You copied the chest &b[Chest1] &6into the chest &b[Chest2]");
-      configFiles.setLang("changedPosition", "&6You set the location of chest &b[Chest] &6to your location");
-      configFiles.setLang("settime", "&6You successfully set the time of the chest &b[Chest]");
-      configFiles.setLang("Menu.time.infinite", "&6Desactivates the respawn time");
-      configFiles.setLang("chestRadiusSet", "&aYou defined a spawn radius for the chest [Chest]");
-      configFiles.setLang("Menu.copy.page", "&2---> Page &b[Number]");
-      configFiles.setLang("Menu.particles.page", "&2---> Page &b[Number]");
-      configFiles.setLang("teleportedToChest", "&aYou were teleported to chest [Chest]");
-      configFiles.setLang("enabledFallEffect", "&aYou enabled fall effect for chest &b[Chest]");
-      configFiles.setLang("disabledFallEffect", "&cYou disabled fall effect for chest &b[Chest]");
-      configFiles.setLang("playerTookChest", "&6Oh no! &b[Player] &6found the chest &b[Chest] &6and took everything in it!");
-      configFiles.setLang("disabledChestRadius", "&cYou disabled random spawn for chest [Chest]");
       configFiles.setLang("Menu.main.disable_fall", "&aFall effect is enabled. Click to &cDISABLE &ait");
       configFiles.setLang("Menu.main.disable_respawn_natural", "&aNatural-respawn message is enabled. Click to &cDISABLE &ait");
       configFiles.setLang("Menu.main.disable_respawn_cmd", "&aCommand-respawn message is enabled. Click to &cDISABLE &ait");
@@ -310,8 +293,8 @@ public class Main extends JavaPlugin {
       configFiles.setLang("Menu.main.enable_fall", "&cFall effect is disabled. Click to &aENABLE &cit");
       configFiles.setLang("Menu.main.enable_respawn_natural", "&cNatural-respawn message is disabled. Click to &aENABLE &cit");
       configFiles.setLang("Menu.main.enable_respawn_cmd", "&cCommand-respawn message is disabled. Click to &aENABLE &cit");
-      configFiles.setLang("Menu.main.type", "&1Choose type (Barrel, trapped chest, chest)");
-      configFiles.setLang("Menu.type.name", "&1Choose type (Barrel, trapped chest, chest)");
+      configFiles.setLang("Menu.main.type", "&1Select Chest Item");
+      configFiles.setLang("Menu.type.name", "&1Select Chest Item");
       configFiles.setLang("Menu.main.enable_take_message", "&cMessage on chest take is disabled. Click to &aENABLE &cit");
       configFiles.setLang("locate_command.main_message",  "&6Location of loot chests:");
       configFiles.setLang("editedChestType", "&aEdited type of chest &b[Chest]");
@@ -353,21 +336,18 @@ public class Main extends JavaPlugin {
       configFiles.setLang("Menu.time.notInfinite", "&6Reactivate respawn time");
       configFiles.setLang("commandGetName", "&6Your'e looking the chest &b[Chest]");
       if(!configFiles.getLang().getStringList("help").toString().contains("getname")){
-      	Bukkit.broadcastMessage(configFiles.getLang().getStringList("help").toString());
       	List<String> help = configFiles.getLang().getStringList("help");
       	help.add("&a/lc getname &b: get the name of the targeted LootChest");
       	configFiles.getLang().set("help", help);
       	configFiles.saveLang();
       }
       if(!configFiles.getLang().getStringList("help").toString().contains("locate")){
-      	Bukkit.broadcastMessage(configFiles.getLang().getStringList("help").toString());
       	List<String> help = configFiles.getLang().getStringList("help");
       	help.add("&a/lc locate &b: gives locations of all chests that haves natural respawn message enabled");
       	configFiles.getLang().set("help", help);
       	configFiles.saveLang();        	
       }
       if(!configFiles.getLang().getStringList("help").toString().contains("removeAllHolo")){
-    	Bukkit.broadcastMessage(configFiles.getLang().getStringList("help").toString());
     	List<String> help = configFiles.getLang().getStringList("help");
     	help.add("&a/lc removeAllHolo &b: removes only bugged LootChest holograms without chest under them");
     	configFiles.getLang().set("help", help);
@@ -401,8 +381,30 @@ public class Main extends JavaPlugin {
       }
       if(configFiles.getLang().getString("Menu.chances.lore").equals("&aLeft click: +1; right: -1; shift+right: -10; shift+left: +10; tab+right: -50") || configFiles.getLang().getString("Menu.chances.lore").equals("&aLeft click to up percentage, Right click to down it")) {
       	configFiles.getLang().set("Menu.chances.lore", "&aLeft click: +1||&aright: -1||&ashift+right: -10||&ashift+left: +10||&atab+right: -50");
-      	configFiles.saveLang();
       }
+      
+      if(configFiles.getLang().getString("Menu.main.respawnTime").equals("&1Respawn time editing")) {
+        	configFiles.getLang().set("Menu.main.respawnTime", "&1Edit Respawn Time");
+       }
+      if(configFiles.getLang().getString("Menu.main.type").equals("&1Choose type (Barrel, trapped chest, chest)")) {
+      	configFiles.getLang().set("Menu.main.type", "&1Select Chest Item");
+      }
+      if(configFiles.getLang().getString("Menu.main.content").equals("&1Chest content editing")) {
+        	configFiles.getLang().set("Menu.main.content", "&1Edit Chest Contents");
+        }
+      if(configFiles.getLang().getString("Menu.main.chances").equals("&1Items chances editing")) {
+      	configFiles.getLang().set("Menu.main.chances", "&1Edit Item Chances");
+      }
+      if(configFiles.getLang().getString("Menu.main.particles").equals("&1Particle choosing")) {
+        	configFiles.getLang().set("Menu.main.particles", "&1Particle Selection");
+      }
+      if(configFiles.getLang().getString("Menu.main.copychest").equals("&1Copy settings from another chest")) {
+      	configFiles.getLang().set("Menu.main.copychest", "&1Copy Chest");
+      }
+      if(configFiles.getLang().getString("Menu.time.name").equals("&1Temps de respawn")) {
+        	configFiles.getLang().set("Menu.time.name", "&1Respawn Time");
+      }
+      configFiles.saveLang();
       
   }
 	

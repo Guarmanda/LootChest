@@ -31,19 +31,22 @@ locate_command:
   main_message: "&6Location of loot chests:"
   chest_list: "- &b[Chest]&6: [x], [y], [z] in world [world]"
 
+#everything about menus
 Menu:
   particles:
     name: '&1Choose a chest particle!'
+    page: '&2---> Page &b[Number]'
   copy:
     name: '&1Choose a chest to copy it'
     page: '&2---> Page &b[Number]'
   main:
-    respawnTime: '&1Respawn time editing'
-    content: '&1Chest content editing'
-    chances: '&1Items chances editing'
+    respawnTime: '&1Edit Respawn Time'
+    content: '&1Edit Chest Contents'
+    chances: '&1Edit Item Chances'
     name: '&1Main editing menu'
-    particles: '&1Particle choosing'
-    copychest: '&1Copy settings from another chest'
+    particles: '&1Particle Selection'
+    copychest: '&1Copy Chest'
+    type: '&1Select Chest Item'
     disable_fall: '&aFall effect is enabled. Click to &cDISABLE &ait'
     disable_respawn_natural: '&aNatural-respawn message is enabled. Click to &cDISABLE &ait'
     disable_respawn_cmd: '&aCommand-respawn message is enabled. Click to &cDISABLE &ait'
@@ -63,6 +66,9 @@ Menu:
     minutes: '&aMinutes'
     hours: '&aHours'
     days: '&aDays'
+    notInfinite: '&6Reactivate respawn time'
+  type:
+    name: '&1Select Chest Item'
 help:
   - '&a -- Help for LootChest plugin --'
   - '&a(developped by Black_Eyes, idea of Ender_Griefeur99)'

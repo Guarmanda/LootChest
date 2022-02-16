@@ -58,7 +58,7 @@ public class FallingPackageEntity extends PackageEntity {
 	@SuppressWarnings("deprecation")
 	@Override
     public void summon() {
-		if((!this.armorstand) && loaded) {
+		if(!this.armorstand) {
 			this.blocky = this.world.spawnFallingBlock(startLoc, this.material, (byte)0);
 		}else {
 			if(!loaded && letAlive) {

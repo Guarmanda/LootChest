@@ -1,28 +1,32 @@
 package fr.black_eyes.lootchest;
 
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
 
 public final class Mat {
-	public static Material INK_SACK, SOUL_FIRE, NAUTILUS_SHELL, SPAWNER, GLOW_INK_SAC, SPORE_BLOSSOM, END_ROD, CRYING_OBSIDIAN, HONEY_BLOCK, LAVA, DRAGONS_BREATH, DOLPHIN_SPAWN_EGG, CRIMSON_FUNGUS, COMPOSTER, CAMPFIRE, BUBBLE_COLUMN, SOUL_SAND, EMERALD_BLOCK, STICK, GOLD_NUGGET, GOLD_INGOT, GOLD_BLOCK, TOTEM_OF_UNDYING, CHEST, CLOCK, DIAMOND, ENDER_CHEST, ENDER_EYE, SIGN, TNT, FIREWORK, PRISMARINE, MYCELIUM, IRON_SWORD, DIAMOND_SWORD, FURNACE, ENCHANTED_BOOK, NOTE_BLOCK, END_PORTAL_FRAME, ENCHANTING_TABLE, BLAZE_POWDER, LAVA_BUCKET, STONE, WATER_BUCKET, QUARTZ, SNOW_BALL, IRON_SHOVEL, SLIME_BALL, ROSE_RED, REDSTONE_BLOCK, BARRIER, EMERALD, REDSTONE;
+	public static Material WHITE_DYE, RED_CONCRETE, VILLAGER_SPAWN_EGG, WARPED_FUNGUS, LIGHTNING_ROD, POINTED_DRIPSTONE, SOUL_LANTERN, WATER, INK_SACK, NAUTILUS_SHELL, SPAWNER, GLOW_INK_SAC, SPORE_BLOSSOM, END_ROD, CRYING_OBSIDIAN, HONEY_BLOCK, LAVA, DRAGONS_BREATH, DOLPHIN_SPAWN_EGG, CRIMSON_FUNGUS, COMPOSTER, CAMPFIRE, BUBBLE_COLUMN, SOUL_SAND, EMERALD_BLOCK, STICK, GOLD_NUGGET, GOLD_INGOT, GOLD_BLOCK, TOTEM_OF_UNDYING, CHEST, CLOCK, DIAMOND, ENDER_CHEST, ENDER_EYE, SIGN, TNT, FIREWORK, PRISMARINE, MYCELIUM, IRON_SWORD, DIAMOND_SWORD, FURNACE, ENCHANTED_BOOK, NOTE_BLOCK, END_PORTAL_FRAME, ENCHANTING_TABLE, BLAZE_POWDER, STONE, QUARTZ, SNOW_BALL, IRON_SHOVEL, SLIME_BALL, ROSE_RED, REDSTONE_BLOCK, BARRIER, EMERALD, REDSTONE;
 	public static Material TRAPPED_CHEST, BARREL;
 	public static void init_materials(){ 
-		SOUL_FIRE = Material.FIRE;
-		NAUTILUS_SHELL = Material.STONE;
+		int v = Main.getVersion();
+		RED_CONCRETE = Material.REDSTONE_BLOCK;
+		WARPED_FUNGUS = Material.BROWN_MUSHROOM;
+		LIGHTNING_ROD = Material.BLAZE_ROD;
+		STONE = Material.STONE;
+		SOUL_LANTERN = Material.JACK_O_LANTERN;
+		NAUTILUS_SHELL = STONE;
 		GLOW_INK_SAC = Material.GLOWSTONE_DUST;
 		SPORE_BLOSSOM = Material.RED_MUSHROOM;
 		END_ROD = Material.BLAZE_ROD;
-		CRYING_OBSIDIAN = Material.STONE;
-		HONEY_BLOCK = Material.STONE;
+		CRYING_OBSIDIAN = STONE;
+		HONEY_BLOCK = STONE;
 		DRAGONS_BREATH = Material.DRAGON_EGG;
-		DOLPHIN_SPAWN_EGG = Material.STONE;
-		CRIMSON_FUNGUS = Material.STONE;
-		COMPOSTER = Material.STONE;
-		CAMPFIRE= Material.STONE;
-		BUBBLE_COLUMN = Material.STONE;
+		DOLPHIN_SPAWN_EGG = STONE;
+		CRIMSON_FUNGUS = STONE;
+		COMPOSTER = STONE;
+		CAMPFIRE= Material.TORCH;
+		BUBBLE_COLUMN = STONE;
 		SOUL_SAND = Material.SOUL_SAND;
 		TRAPPED_CHEST = Material.TRAPPED_CHEST;
 		BARREL = Material.CHEST;	
@@ -33,13 +37,11 @@ public final class Mat {
 		ENCHANTED_BOOK = Material.ENCHANTED_BOOK;
 		NOTE_BLOCK = Material.NOTE_BLOCK;
 		BLAZE_POWDER = Material.BLAZE_POWDER;
-		LAVA_BUCKET = Material.LAVA_BUCKET;
-		WATER_BUCKET = Material.WATER_BUCKET;
-		STONE = Material.STONE;
+		WATER = Material.WATER;
 		QUARTZ = Material.QUARTZ;
 		SLIME_BALL = Material.SLIME_BALL;
 		REDSTONE_BLOCK = Material.REDSTONE_BLOCK;
-
+		LAVA = Material.LAVA;
 		EMERALD = Material.EMERALD;
 		REDSTONE = Material.REDSTONE;
 		CHEST = Material.CHEST;
@@ -50,22 +52,24 @@ public final class Mat {
 		DIAMOND = Material.DIAMOND;
 		EMERALD_BLOCK = Material.EMERALD_BLOCK;
 		ENDER_CHEST= Material.ENDER_CHEST;
+		POINTED_DRIPSTONE = STONE;
 		
-		if(!Bukkit.getVersion().contains("1.7") ){
-			if(!Bukkit.getVersion().contains("1.8") ) {
+		if(v!=7){
+			if(v!=8) {
 				END_ROD = Material.valueOf("END_ROD");
 			}
-			
+			WATER = Material.WATER_BUCKET;
 			BARRIER = Material.valueOf("BARRIER");
 			PRISMARINE = Material.valueOf("PRISMARINE_CRYSTALS");
 		}
 		else {
-			
+			CAMPFIRE = Material.FIRE;
 			BARRIER = Material.valueOf("WOOL");
 			PRISMARINE = Material.valueOf("ENDER_PEARL");
 		}
-		if(Bukkit.getVersion().contains("1.7") ||Bukkit.getVersion().contains("1.8") || Bukkit.getVersion().contains("1.9") || Bukkit.getVersion().contains("1.10")|| Bukkit.getVersion().contains("1.11") || Bukkit.getVersion().contains("1.12")) {
-			if(!(Bukkit.getVersion().contains("1.7") ||Bukkit.getVersion().contains("1.8"))) DRAGONS_BREATH = Material.valueOf("DRAGONS_BREATH"); 
+		if(v>=7 && v <=12 ) {
+			if(!(v==7 || v ==8)) DRAGONS_BREATH = Material.valueOf("DRAGONS_BREATH"); 
+			VILLAGER_SPAWN_EGG = Material.valueOf("MONSTER_EGG");
 			SPAWNER = Material.valueOf("MOB_SPAWNER"); 
 			SIGN = Material.valueOf("SIGN");
 			FIREWORK = Material.valueOf("FIREWORK");
@@ -79,22 +83,26 @@ public final class Mat {
 			ENDER_EYE = Material.valueOf("EYE_OF_ENDER");
 			TOTEM_OF_UNDYING = Material.valueOf("STONE");
 			INK_SACK = Material.valueOf("INK_SACK");
+			WHITE_DYE = INK_SACK;
 		}
 		else {
 		//if(Bukkit.getVersion().contains("1.13") || Bukkit.getVersion().contains("1.14") || Bukkit.getVersion().contains("1.15") || Bukkit.getVersion().contains("1.16")|| Bukkit.getVersion().contains("1.17")) {
 			
-			if(!Bukkit.getVersion().contains("1.13")){
-				if(!Bukkit.getVersion().contains("1.14")) {
-					if(!Bukkit.getVersion().contains("1.15")) {
-						if(!Bukkit.getVersion().contains("1.16")) {
+			if(v>13){
+				if(v>14) {
+					if(v>15) {
+						if(v>16) {
 							SPORE_BLOSSOM = Material.valueOf("SPORE_BLOSSOM");
 							GLOW_INK_SAC = Material.valueOf("GLOW_INK_SAC");
 						}
-						SOUL_FIRE = Material.valueOf("SOUL_FIRE");
+						WARPED_FUNGUS = Material.valueOf("WARPED_FUNGUS");
 						CRIMSON_FUNGUS = Material.valueOf("CRIMSON_FUNGUS");
 						CRYING_OBSIDIAN = Material.valueOf("CRYING_OBSIDIAN");
 					}
-					HONEY_BLOCK = Material.valueOf("HONEY_BLOCK");
+					SOUL_LANTERN = Material.valueOf("SOUL_LANTERN");
+					HONEY_BLOCK = Material.HONEYCOMB;
+				}else {
+					SOUL_LANTERN = Material.valueOf("LANTERN");
 				}
 				CAMPFIRE = Material.valueOf("CAMPFIRE");
 				COMPOSTER = Material.valueOf("COMPOSTER");
@@ -104,6 +112,10 @@ public final class Mat {
 			else {
 				SIGN = Material.valueOf("SIGN");
 			}
+			WHITE_DYE = Material.valueOf("GRAY_DYE");
+			RED_CONCRETE= Material.valueOf("RED_CONCRETE");
+			VILLAGER_SPAWN_EGG = Material.valueOf("VILLAGER_SPAWN_EGG");
+			
 			SPAWNER = Material.valueOf("SPAWNER");
 			DRAGONS_BREATH = Material.valueOf("DRAGON_BREATH");
 			INK_SACK = Material.valueOf("INK_SAC");
@@ -120,6 +132,10 @@ public final class Mat {
 			ENDER_EYE = Material.valueOf("ENDER_EYE");
 			TOTEM_OF_UNDYING = Material.valueOf("TOTEM_OF_UNDYING");
 			BUBBLE_COLUMN = Material.valueOf("BUBBLE_COLUMN");
+			if(v >=17) {
+				POINTED_DRIPSTONE = Material.valueOf("POINTED_DRIPSTONE");
+				LIGHTNING_ROD = Material.valueOf("LIGHTNING_ROD");
+			}
 		}
 		
 
