@@ -85,7 +85,7 @@
 <span style="font-size: 12px"><span style="font-size: 22px"><span style="font-size: 15px">Mail: <a href="/cdn-cgi/l/email-protection#3147505d545f45585f715658435e551f5743"><span class="__cf_email__" data-cfemail="93e5f2fff6fde7fafdd3f4fae1fcf7bdf5e1">valentin@girod.fr</span></a></span></span></span><br />
 <span style="font-size: 12px"><span style="font-size: 22px"><span style="font-size: 15px">Discord: Black_Eyes#5538</span></span></span><br />
 <span style="font-size: 12px"><span style="font-size: 22px"><span style="font-size: 15px">github on top of page</span></span></span><br />
-<span style="font-size: 12px"><span style="font-size: 22px"><span style="font-size: 15px">This plugin is using InventiveTalent&#039;s <a href="https://www.spigotmc.org/resources/api-particleapi-1-7-1-8-1-9-1-10.2067/" class="internalLink">ParticleAPI</a></span></span></span><br />
+
 You can donate to me here <a href="https://www.paypal.com/paypalme/BlackEyes99" target="_blank" class="externalLink" rel="nofollow">https://www.paypal.com/paypalme/BlackEyes99</a> for all the hours I spent and will spend on this<br />
 
 <br />
