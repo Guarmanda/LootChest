@@ -1,6 +1,6 @@
 <dl class="customResourceFieldnative_mc_version">
 <dt>Native Minecraft Version:</dt>
-<dd>1.16</dd>
+<dd>1.19</dd>
 </dl>
 <dl class="customResourceFieldmc_versions">
 <dt>Tested Minecraft Versions:</dt>
@@ -32,7 +32,7 @@
 - BungeeCord messages on chest respawn/take<br />
 - Timer on chest&#039;s hologram (can be disabled)<br />
 - Give a chest content to a player (it allow you to create a kind of kit, since essentials kits doesn&#039;t store nbt tags)<br />
-- 1.7 to 1.15 support (No holograms in 1.7)</span><br />
+- 1.7 to 1.19 support (No holograms in 1.7)</span><br />
 - Menu to create or edit everything<br />
 - Editable inventory for each chest<br />
 - Editable item chance for each item in each chest (default: 100% (editable))<br />
