@@ -1,0 +1,99 @@
+    #Checks for updates at plugin start
+CheckForUpdates: true
+    #Info messages at plugin startup
+ConsoleMessages: true
+    #Some people have troubles about worlds loading before my plugin: in fact, chests located in unloaded worlds aren't loaded.
+    #Let's fi this with this option. Cooldown is in second.
+Cooldown_Before_Plugin_Start: 0
+    #Here are some options about particles
+Particles:
+      #if you disable this, no matter what you but below^^
+  enable: true
+  default_particle: FLAME
+      #10 of these particles spawn at the same time
+  number: 10
+      #They respawn all 5 ticks by default
+  respawn_ticks: 5
+      #The radius of spawning
+  radius: 0.3
+      #The speed of particles. A low speed is more smooth and good-looking. A speed of 1 is just insane.
+  speed: 0.05
+    # protects chests and prevent looting for some seconds after spawn. This is a default value, editable for each chest.
+respawn_protection_time_in_second_by_default: 0
+    #Prevent or not spawning on water
+allow_spawning_on_water: false
+    #time is in minutes
+default_reset_time: 10
+    #each item has a percentage of chance to spawn in a chest
+default_item_chance: 100
+    #when you activate randomspawn for a chest, it will spawn around location where the chest was created, unless you set the below option to true
+use_players_locations_for_randomspawn: false
+    #if you save data file at each respawn, it can prevent bugged chests when server crashes. 
+    #If you think your server never crashes, set it to false
+save_Chest_Locations_At_Every_Spawn: false
+    #I think you know what it is:
+UseHologram: true
+    #remove the chests if the player empty them (they still respawn and everything)
+RemoveEmptyChests: true
+    #protect Loot Chests from tnt/creepers?
+Protect_From_Explosions: false
+    #this detects factions, residence and worldguard regions
+Prevent_Chest_Spawn_In_Protected_Places: false
+    #removes the chest when a player closes it, even if there's still items in it
+RemoveChestAfterFirstOpenning: false
+    #Holograms doesn't act the same depending on server version, so here you can configure their height compared to the chest's height. 
+    #YOU CAN PUT A NEGATIVE NUMBER if the hologram is too high!
+Hologram_distance_to_chest: 1
+    #It was reported that placing hoppers under loot chests allows to do infinite farming, because they can respawn at same place if u want^^ 
+PreventHopperPlacingUnderLootChest: true
+    #Someone asked for this^^
+Minimum_Number_Of_Players_For_Natural_Spawning: 0
+    #Should we check for the chests to spawn inside the world border?
+WorldBorder_Check_For_Spawn: true
+    #If put to false, lootchests won't drop when broken/looted
+Destroy_Naturally_Instead_Of_Removing_Chest: true
+    #Well if you make dungeons, you may prefer players to kill monsters before looting everything
+Radius_Without_Monsters_For_Opening_Chest: 0
+    #Here comes the funny part :)
+Fall_Effect:
+      #the block is on an armorstand's head, so it would be 1 or 2 blocks above the chest, and not really on it
+  Let_Block_Above_Chest_After_Fall: false
+      #this option is for versions before 1.13: since 1.13, we have diferent material for each wool color, so we don't need this.
+      #Colors are wrong, for example, PINK is CYAN and CYAN is PINK. Spigot bug, sorry.
+  Optionnal_Color_If_Block_Is_Wool: CYAN
+      #The block that falls. This block is on an armorstand's head
+  Block: CHEST
+      #The block will spawn 50 blocks above the chest then will fall to it
+  Height: 50
+      #You can still disable fall effect by default, and enable it for some chests only
+  Enabled: true
+      #Or you can let fall effect and remove fireworks
+  Enable_Fireworks: true
+      #0.8 is a good speed I think^^ But that's your config file x)
+  Speed: 0.8
+
+#Do you want seconds being shown on chest hologram? It can be bugged in unloaded chunks.
+Timer_on_hologram:
+  Show_Timer_On_Hologram: false
+  Hours_Separator: ' hours, '
+  Minutes_Separator: ' minutes  and '
+  Seconds_Separator: ' seconds'
+  Format: '%Hours%Hsep%Minutes%Msep%Seconds%Ssep left for %Hologram to respawn'
+#you can edit or disable all these messages
+respawn_notify:
+      #If you haven't bungeecord, the message will still be sent correctly, and if you have it it should send bungee message everywhare
+  bungee_broadcast: false
+      #should the message only appear in the world the chest is in?
+  per_world_message: false
+      #should a message appear when a player takes a chest?
+  message_on_chest_take: true #this is a default value. You can enable or disable it for each chest
+  natural_respawn:
+    enabled: true #this is a default value. You can enable or disable it for each chest
+    message: '&6The chest &b[Chest] &6has just respawned\n&6 at [x], [y], [z] in [World]!'
+  respawn_with_command:
+    enabled: true #this is a default value. You can enable or disable it for each chest
+    message: '&6The chest &b[Chest] &6has just respawned\n&6 at [x], [y], [z] in [World]!'
+  respawn_all_with_command:
+    enabled: true 
+    message: '&6All chests where forced to respawn!\n&6Get them guys!' 
+
