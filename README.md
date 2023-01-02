@@ -1,3 +1,6 @@
+Build with maven (mvn package)
+
+
 <dl class="customResourceFieldnative_mc_version">
 <dt>Native Minecraft Version:</dt>
 <dd>1.19</dd>
