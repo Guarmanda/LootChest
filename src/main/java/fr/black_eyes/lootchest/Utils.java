@@ -102,7 +102,7 @@ public class Utils  {
 	
 
 	
-	//cr§er le coffe et enregistrer les infos
+	//crï¿½er le coffe et enregistrer les infos
 	//chest creation and registering
 
 	
@@ -175,6 +175,8 @@ public class Utils  {
 		if(time_to_wait<0) {
 			time_to_wait = 30;
 		}
+
+		time_to_wait += 5;
 
 		new BukkitRunnable() {       
             @Override
