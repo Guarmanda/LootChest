@@ -15,7 +15,7 @@ Build with maven (mvn package)
 </dl>
 <dl class="customResourceFieldcontributors">
 <dt>Contributors:</dt>
-<dd>Black_Eyes</dd>
+<dd>Black_Eyes</dd> <dd>Milan252525</dd>
 </dl>
 <dl class="customResourceFieldlanguages">
 <dt>Languages Supported:</dt>
