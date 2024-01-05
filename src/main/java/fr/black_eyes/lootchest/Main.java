@@ -246,7 +246,7 @@ public class Main extends JavaPlugin {
 			logInfo("Chests will load in "+ cooldown + " seconds.");
     	
         this.getServer().getScheduler().runTaskLater(this, new Runnable() {
-            @SuppressWarnings("deprecation")
+
 			@Override
             public void run() {
 		    	logInfo("Loading chests...");
@@ -271,19 +271,22 @@ public class Main extends JavaPlugin {
 				logInfo("Loaded "+lootChest.size() + " Lootchests in "+((new Timestamp(System.currentTimeMillis())).getTime()-current) + " miliseconds");
 				logInfo("Starting LootChest timers asynchronously...");
 				for (final Lootchest lc : lootChest.values()) {
-		            Bukkit.getScheduler().scheduleAsyncDelayedTask(instance, () -> 
-		                    Bukkit.getScheduler().scheduleSyncDelayedTask(instance, () -> {
-		                    		if (!lc.spawn(false)) {
+					new BukkitRunnable() {
+						@Override
+						public void run() {
+							new BukkitRunnable() {
+								@Override
+								public void run() {
+									if (!lc.spawn(false)) {
 		                                Utils.sheduleRespawn(lc);
 										utils.reactivateEffects(lc);
 		                            }
-
-
-		                    }, 0L)
-		            , 5L);
+								}
+							}.runTask(instance);
+						}
+					}.runTaskLaterAsynchronously(instance, 5);
 		        }
 		    	logInfo("Plugin loaded");
-            
 	        }
 	    }, cooldown+1 * 20);
 	}
