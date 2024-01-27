@@ -348,7 +348,7 @@ public class Lootchest {
 		long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime();
 		long minutes = getTime()*60*1000;
 		long tempsenregistre = getLastreset();
-		return (tempsactuel - tempsenregistre > minutes);
+		return (tempsactuel - tempsenregistre > minutes && minutes>-1);
 	}
 
 	/**

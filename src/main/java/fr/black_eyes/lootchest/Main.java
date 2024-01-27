@@ -240,6 +240,7 @@ public class Main extends JavaPlugin {
 	/**
 	 * Loads all chests asynchronously
 	 */
+	@SuppressWarnings("deprecation") //compatibility with 1.7
 	private void loadChests() {
 		long cooldown = configs.Cooldown_Before_Plugin_Start;
     	if(cooldown>0) 
@@ -271,20 +272,14 @@ public class Main extends JavaPlugin {
 				logInfo("Loaded "+lootChest.size() + " Lootchests in "+((new Timestamp(System.currentTimeMillis())).getTime()-current) + " miliseconds");
 				logInfo("Starting LootChest timers asynchronously...");
 				for (final Lootchest lc : lootChest.values()) {
-					new BukkitRunnable() {
-						@Override
-						public void run() {
-							new BukkitRunnable() {
-								@Override
-								public void run() {
-									if (!lc.spawn(false)) {
-		                                Utils.sheduleRespawn(lc);
-										utils.reactivateEffects(lc);
-		                            }
-								}
-							}.runTask(instance);
-						}
-					}.runTaskLaterAsynchronously(instance, 5);
+					Bukkit.getScheduler().scheduleAsyncDelayedTask(instance, () -> 
+						Bukkit.getScheduler().scheduleSyncDelayedTask(instance, () -> {
+							if (!lc.spawn(false)) {
+								Utils.sheduleRespawn(lc);
+								utils.reactivateEffects(lc);
+							}
+						}, 0L)
+					, 5L);
 		        }
 		    	logInfo("Plugin loaded");
 	        }

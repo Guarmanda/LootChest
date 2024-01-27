@@ -175,7 +175,7 @@ public class Utils  {
 		if(time_to_wait<0) {
 			time_to_wait = 30;
 		}
-
+		// aded by a pull request because chest weren't respawning
 		time_to_wait += 5;
 
 		new BukkitRunnable() {       

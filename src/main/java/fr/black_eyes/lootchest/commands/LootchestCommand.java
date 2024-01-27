@@ -11,7 +11,6 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -61,6 +60,7 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 	 }
 	 
 	@Override
+	@SuppressWarnings("deprecation") //compatibility with 1.7
 	public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
 			String cheststr = "[Chest]";
 			String runCmdInGame = Utils.color("&cPlease, run this command in-game");
@@ -236,17 +236,12 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 				else if(args[0].equalsIgnoreCase("respawnall")) {
 		
 					for (final Lootchest l : Main.getInstance().getLootChest().values()) {
-						new BukkitRunnable() {
-							@Override
-							public void run() {
-								new BukkitRunnable() {
-									@Override
-									public void run() {
-										l.spawn( true) ;
-									}
-								}.runTask(Main.getInstance());;
-							}
-						}.runTaskLaterAsynchronously(Main.getInstance(), 5);
+						Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
+								Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
+									l.spawn( true) ;
+
+								}, 0L);
+						}, 5L);
 			        }
 					
 					if(Main.configs.NOTE_allcmd_e ) {
@@ -287,20 +282,16 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 					
 					for (final Lootchest l : Main.getInstance().getLootChest().values()) {
 						if(Utils.isWorldLoaded(l.getWorld())) {
-							new BukkitRunnable() {
-								@Override
-								public void run() {
-									new BukkitRunnable() {
-										@Override
-										public void run() {
-											if (!l.spawn( false)) {
-												Utils.sheduleRespawn(l);
-												utils.reactivateEffects(l);
-											}
+							Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
+								Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
+										if (!l.spawn( false)) {
+											Utils.sheduleRespawn(l);
+											utils.reactivateEffects(l);
 										}
-									}.runTask(Main.getInstance());
-								}
-							}.runTaskLaterAsynchronously(Main.getInstance(), 5);
+										
+
+									}, 0L);
+							}, 5L);
 						}
 					}
 					Utils.msg(sender, "PluginReloaded", " ", " ");
