@@ -183,12 +183,16 @@ public class Utils  {
 		// plus, this isn't logical at all. but... let's try
 		time_to_wait +=5;
 
-		new BukkitRunnable() {       
+		//we have to noe duplicate respawn tasks
+		if(lc.getRespawnTask()!=null)
+			lc.getRespawnTask().cancel();
+		lc.setRespawnTask( new BukkitRunnable() { 	
             @Override
             public void run() {
             	lc.spawn(false);
             }                
-        }.runTaskLater(Main.getInstance(), time_to_wait*20);
+        });
+		lc.getRespawnTask().runTaskLater(Main.getInstance(), time_to_wait*20);
     }
 	
 	//to fill a chest or give chest to player

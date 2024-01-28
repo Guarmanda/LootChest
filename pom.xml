@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>fr.black_eyes.lootchest</groupId>
   <artifactId>LootChest</artifactId>
-  <version>2.3.4</version>
+  <version>2.3.6</version>
   <name>LootChest</name>
   <description>Create higly customizable lootboxes for your minecraft server</description>
   <packaging>jar</packaging>

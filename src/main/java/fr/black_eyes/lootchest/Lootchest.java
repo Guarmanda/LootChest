@@ -14,6 +14,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.material.DirectionalContainer;
 import org.bukkit.material.MaterialData;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import fr.black_eyes.events.LootChestSpawnEvent;
 import fr.black_eyes.lootchest.falleffect.FallingPackageEntity;
@@ -138,6 +139,8 @@ public class Lootchest {
 	@Getter private Hologram hologram;
 
 	@Getter @Setter private long protectionTime;
+
+	@Getter @Setter private BukkitRunnable respawnTask;
 	
 	
 	/**
@@ -407,6 +410,10 @@ public class Lootchest {
 			return false;
 		}
 		// if (there's not enough player || it's not time to respawn) && we didn't force respawn
+		if( !checkIfTimeToRespawn() && !force) {
+			Utils.sheduleRespawn(this);
+			return false;
+		}
 		if(!checkIfEnoughPlayers() && !force) {
 			Utils.sheduleRespawn(this);
 			return false;
