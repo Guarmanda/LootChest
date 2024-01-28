@@ -21,6 +21,10 @@ public class LootChestSpawnEvent extends Event {
         return HANDLERS;
     }
 
+    /**
+     * the lootchest concerned by the event
+     * @param lc
+     */
     public LootChestSpawnEvent(Lootchest lc) {
         this.lc = lc;
     }
