@@ -22,7 +22,8 @@ Radius_Without_Monsters_For_Opening_Chest,
 PART_respawn_ticks,
 defaultRespawnProtection;
 
-public Boolean use_players_locations_for_randomspawn,
+public Boolean saveDataFileDuringReload, 
+use_players_locations_for_randomspawn,
 save_Chest_Locations_At_Every_Spawn,
 UseHologram,
 RemoveEmptyChests,
@@ -106,6 +107,7 @@ public Config(FileConfiguration config) {
 	PART_respawn_ticks = config.getInt("Particles.respawn_ticks");
 	Radius_Without_Monsters_For_Opening_Chest= config.getInt("Radius_Without_Monsters_For_Opening_Chest");
 
+	saveDataFileDuringReload = config.getBoolean("SaveDataFileDuringReload");
 	allow_spawning_on_water = config.getBoolean("allow_spawning_on_water");
 	use_players_locations_for_randomspawn = config.getBoolean("use_players_locations_for_randomspawn");
 	save_Chest_Locations_At_Every_Spawn = config.getBoolean("save_Chest_Locations_At_Every_Spawn");

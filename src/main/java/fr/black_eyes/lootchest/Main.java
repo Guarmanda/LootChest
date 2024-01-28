@@ -298,6 +298,7 @@ public class Main extends JavaPlugin {
    * These lines are done to update config and language files without erasing options that are already set
    */
   private void updateOldConfig() {
+	  configFiles.setConfig("SaveDataFileDuringReload", false);
 	  configFiles.setConfig("respawn_protection_time_in_second_by_default", 0);
 	  configFiles.setConfig("allow_spawning_on_water", false);
 	  configFiles.setConfig("Particles.enable", true);
@@ -381,6 +382,12 @@ public class Main extends JavaPlugin {
 	  if(!configFiles.getLang().getStringList("help").toString().contains("setprotection")){
     	List<String> help = configFiles.getLang().getStringList("help");
     	help.add("&a/lc setprotection <name> <time> &b: set the spawn protection time in seconds for a chest");
+    	configFiles.getLang().set("help", help);
+    	configFiles.saveLang();        	
+      }
+	  if(!configFiles.getLang().getStringList("help").toString().contains("copy")){
+    	List<String> help = configFiles.getLang().getStringList("help");
+    	help.add("&a/lc copy <name> <name> &b: copy a chest into another");
     	configFiles.getLang().set("help", help);
     	configFiles.saveLang();        	
       }

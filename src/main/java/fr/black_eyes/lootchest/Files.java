@@ -40,17 +40,21 @@ public class Files {
 	public void reloadConfig() {
 		try {
 			configFile = new File(Main.getInstance().getDataFolder(), "config.yml");
+			langFile = new File(Main.getInstance().getDataFolder(), "lang.yml");
 			config.load(getConfigF());
-			data.save(getDataF());
 			lang.load(getLangF());
 		} catch (IOException | InvalidConfigurationException e) {
 			e.printStackTrace();
-		
 		}
 	}
 	
 	public void reloadData() {
-		saveData();
+		try {
+			dataFile = new File(Main.getInstance().getDataFolder(), "data.yml");
+			data.load(getDataF());
+		} catch (IOException | InvalidConfigurationException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void saveConfig() {
@@ -152,7 +156,7 @@ public class Files {
 	        dataFile.getParentFile().mkdirs();
 	        Main.getInstance().saveResource("data.yml", false);
 	    }
-	    if(dataFile.length() == 0) {
+	    if(dataFile.length() <10) {
 	    	main.logInfo("&cInvalid data file detected! Finding backup right now...");
 			File directoryPath = new File(Main.getInstance().getDataFolder() + "/backups/");
 			List<String> contents = Arrays.asList(directoryPath.list());

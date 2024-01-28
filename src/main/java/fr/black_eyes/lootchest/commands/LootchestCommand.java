@@ -64,7 +64,6 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 	 
 	@Override
 	@SuppressWarnings("deprecation") //compatibility with 1.7
-	// TODO: copy command
 	public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
 			String cheststr = "[Chest]";
 			String runCmdInGame = Utils.color("&cPlease, run this command in-game");
@@ -262,7 +261,11 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 					Utils.msg(sender, "AllChestsReloaded", " ", " ");
 				}
 				else if(args[0].equalsIgnoreCase("reload")) {
-					utils.updateData();
+					if(Config.getInstance().saveDataFileDuringReload) {
+						utils.updateData();
+					}else{
+						configFiles.reloadData();
+					}
 					configFiles.reloadConfig();
 					Main.configs = Config.getInstance(configFiles.getConfig());
 					main.getPart().clear();

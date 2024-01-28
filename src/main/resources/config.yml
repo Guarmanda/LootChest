@@ -71,6 +71,8 @@ Fall_Effect:
   Enable_Fireworks: true
       #0.8 is a good speed I think^^ But that's your config file x)
   Speed: 0.8
+    # keep this to false if you want to edit data file by hand (not recommended) then do a /lc reload
+SaveDataFileDuringReload: false
 
 #Do you want seconds being shown on chest hologram? It can be bugged in unloaded chunks.
 Timer_on_hologram:
@@ -96,4 +98,3 @@ respawn_notify:
   respawn_all_with_command:
     enabled: true 
     message: '&6All chests where forced to respawn!\n&6Get them guys!' 
-
