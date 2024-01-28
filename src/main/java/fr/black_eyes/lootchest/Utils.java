@@ -81,8 +81,12 @@ public class Utils  {
 		return color(Main.getInstance().getConfigFiles().getLang().getString(path));
 	}
 	
-	//function to copy a chest
-	//fonction pour copier un coffre
+	/**
+	* function to copy a chest
+	* fonction pour copier un coffre
+	* @param chest1 the chest to copy
+	* @param chest2 the chest to copy to
+	*/
 	public void copychest(Lootchest chest1, Lootchest chest2) {
 		chest2.despawn();
 		chest2.setHolo(chest1.getHolo());
@@ -175,6 +179,9 @@ public class Utils  {
 		if(time_to_wait<0) {
 			time_to_wait = 30;
 		}
+		// a pull request said that this was suposed to solve respawn problem. I don't experience this bug so I don't know it it works or not
+		// plus, this isn't logical at all. but... let's try
+		time_to_wait +=5;
 
 		new BukkitRunnable() {       
             @Override

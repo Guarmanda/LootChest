@@ -3,8 +3,10 @@ package fr.black_eyes.lootchest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -139,7 +141,8 @@ public class Menu {
 		int i = 0;
 		int nbBoxes = 0;
 		final Inventory inv = createInventory(menuname, 54);
-		Set<String> boxes = Main.getInstance().getLootChest().keySet();
+		Set<String> unsortedboxes = Main.getInstance().getLootChest().keySet();
+		SortedSet<String> boxes = Collections.synchronizedSortedSet((SortedSet<String>) unsortedboxes);
 
 		for(String keys : boxes) {
 			if(j== 2 && nbBoxes < 53) nbBoxes++;

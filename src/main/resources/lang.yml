@@ -93,6 +93,7 @@ help:
   - '&a/lc locate &b: gives locations of all chests that haves natural respawn message enabled'
   - '&a/lc removeAllHolo &b: removes only bugged LootChest holograms without chest under them'
   - '&a/lc setprotection <name> <time> &b: set the spawn protection time in seconds for a chest'
+  - '&a/lc copy <name> <name> &b: copy a chest into another'
 
 
 

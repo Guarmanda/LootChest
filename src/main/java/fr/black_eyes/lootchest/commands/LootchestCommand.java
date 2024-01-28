@@ -46,7 +46,10 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 	
 	//following args must be followed by chest names
 	private static final List<String> argsFollowedByChest = new ArrayList<>(
-			Arrays.asList("randomspawn", "edit", "respawn", "remove", "setholo", "setpos", "tp", "give", "settime", "togglefall", "setprotection")
+			Arrays.asList("copy","randomspawn", "edit", "respawn", "remove", "setholo", "setpos", "tp", "give", "settime", "togglefall", "setprotection")
+			);
+		private static final List<String> args2FollowedByChest = new ArrayList<>(
+			Arrays.asList("copy")
 			);
 		
 	 
@@ -368,6 +371,15 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 						
 					
 
+				}else if (args[0].equalsIgnoreCase("copy")){
+					// check if third arg is a chest
+					if (!Main.getInstance().getLootChest().containsKey(args[2]) ){
+						Utils.msg(sender, "chestDoesntExist", cheststr, args[2]);
+						return false;
+					}
+					utils.copychest(Main.getInstance().getLootChest().get(args[2]), lc);
+					Utils.msg(sender, "copiedChest", "[Chest1]", Main.getInstance().getLootChest().get(args[2]).getName(), "[Chest2]", lc.getName());
+
 				}
 				
 				
@@ -433,6 +445,14 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 			    }
 			    return completions;
 			
+		}
+		else if(args.length ==3 && args2FollowedByChest.contains(args[0].toLowerCase())) {
+			final List<String> completions = new ArrayList<>();
+			for(String string : chests){
+				if(string.toLowerCase().startsWith(args[2].toLowerCase())) completions.add(string);
+			}
+			return completions;
+		
 		}
 		return null;
 	}

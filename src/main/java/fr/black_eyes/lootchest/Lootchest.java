@@ -403,12 +403,10 @@ public class Lootchest {
 	public boolean spawn(Boolean force) {
 		// if world is not loaded || lootchest was deleted || not enough players
 		if(!Utils.isWorldLoaded(getWorld()) || !Main.getInstance().getLootChest().containsValue(this) ) {
+			Utils.sheduleRespawn(this);
 			return false;
 		}
 		// if (there's not enough player || it's not time to respawn) && we didn't force respawn
-		if( !checkIfTimeToRespawn() && !force) {
-			return false;
-		}
 		if(!checkIfEnoughPlayers() && !force) {
 			Utils.sheduleRespawn(this);
 			return false;

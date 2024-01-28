@@ -10,8 +10,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -47,7 +45,6 @@ public class Main extends JavaPlugin {
 	@Getter private Boolean useArmorStands;
 	@Getter private Menu menu;
 	private static int version;
-	private static ScheduledExecutorService executor;
 	
 	//the way holograms are working changed a lot since 2.2.4. 
 	//If user just done the update, this will be auto set to true by detecting a lacking config option
@@ -71,11 +68,17 @@ public class Main extends JavaPlugin {
 	 */
     public void logInfo(String msg) {
     	if(configFiles.getConfig() ==null || !configFiles.getConfig().isSet("ConsoleMessages") || configFiles.getConfig().getBoolean("ConsoleMessages")) {
-			msg = Utils.color(msg);
+			
 			//remove new lines
-			msg = msg.replaceAll("\\r|\\n", "");
-			//get console messager instead, does not breaks color codes, but jumps a line in 1.7
-			Bukkit.getConsoleSender().sendMessage("[LootChest] "+msg);
+			msg = msg.replaceAll("\\r|\\n", " ");
+			if(getVersion()==7) {
+				//remove all color codes from message
+				msg = msg.replaceAll("(&([a-f0-9]))", "");
+				Bukkit.getLogger().info("[LootChest] "+msg);
+			}else{
+				msg = Utils.color(msg);
+				Bukkit.getConsoleSender().sendMessage("[LootChest] "+msg);
+			}
 		}
 	}
     
@@ -90,7 +93,7 @@ public class Main extends JavaPlugin {
     }
 	
 	/**
-	 * Returns the version of your server (1.x)
+	 * Returns the version of your server (the x in 1.x)
 	 * 
 	 * @return The version number
 	 */
@@ -100,15 +103,10 @@ public class Main extends JavaPlugin {
 		}
 		return version;
 	}
-
-	public static ScheduledExecutorService getExecutor() {
-		return executor;
-	}
     
 	@Override
 	public void onEnable() {
 		setInstance(this);
-		executor = Executors.newSingleThreadScheduledExecutor();
 		configFiles = new Files();
 		lootChest = new HashMap<>();
 		utils = new Utils();
