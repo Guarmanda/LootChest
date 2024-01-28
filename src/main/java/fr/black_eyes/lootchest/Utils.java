@@ -15,13 +15,13 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.material.DirectionalContainer;
 import org.bukkit.material.MaterialData;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.command.CommandSender;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 import fr.black_eyes.lootchest.particles.Particle;
 
 @SuppressWarnings("deprecation")
@@ -175,8 +175,6 @@ public class Utils  {
 		if(time_to_wait<0) {
 			time_to_wait = 30;
 		}
-		// aded by a pull request because chest weren't respawning
-		time_to_wait += 5;
 
 		new BukkitRunnable() {       
             @Override

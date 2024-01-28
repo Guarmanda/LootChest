@@ -61,6 +61,7 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 	 
 	@Override
 	@SuppressWarnings("deprecation") //compatibility with 1.7
+	// TODO: copy command
 	public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
 			String cheststr = "[Chest]";
 			String runCmdInGame = Utils.color("&cPlease, run this command in-game");

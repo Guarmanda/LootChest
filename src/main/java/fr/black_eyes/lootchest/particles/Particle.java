@@ -14,13 +14,13 @@ import java.util.List;
 /**
  * <b>Particle Library</b>
  * <p>
- * I'm @Black_Eyes , I listed 1.7 to 1.18 particles, indicating version of appearance for each particles,
+ * I'm @Black_Eyes , I listed 1.7 to 1.20 particles, indicating version of appearance for each particles,
  * With this, I could get all particles and check their compatibility with version X.
  * Then I searched and found a good api to spawn/summon them in any version.
  * <p>
  * 
  * @author Black_Eyes
- * @version 1.7-1.18
+ * @version 1.7-1.20
  */
 
 
@@ -34,6 +34,7 @@ public enum Particle {
 	BUBBLE_POP(Material.GLASS, 13),
 	CAMPFIRE_COSY_SMOKE(Mat.CAMPFIRE, 14),
 	CAMPFIRE_SIGNAL_SMOKE(Mat.CAMPFIRE, 14),
+	CHERRY_LEAVES(Mat.LEAVES, 20),
 	CLOUD(Mat.WHITE_DYE, -1),
 	COMPOSTER(Mat.COMPOSTER, 14),
 	CRIMSON_SPORE(Mat.CRIMSON_FUNGUS, 17),
@@ -50,6 +51,8 @@ public enum Particle {
 	DRIPPING_HONEY(Mat.HONEY_BLOCK, 15),
 	DRIPPING_OBSIDIAN_TEAR(Mat.CRYING_OBSIDIAN, 16),
 	//DUST_COLOR_TRANSITION(Material.GLOWSTONE_DUST, 17),
+	DUST_PLUME(Material.GLOWSTONE_DUST, 20),
+	EGG_CRACK(Material.EGG, 20),
 	ELECTRIC_SPARK(Mat.LIGHTNING_ROD, 17),
 	ENCHANTMENT_TABLE(Mat.ENCHANTING_TABLE, -1),
 	END_ROD(Mat.END_ROD, 9),
@@ -71,6 +74,9 @@ public enum Particle {
 	FOOTSTEP(Mat.STONE, 8 ,ParticleProperty.DELETED_IN_1_13 ),
 	GLOW(Material.GLOWSTONE_DUST, 17),
 	GLOW_SQUID_INK(Mat.GLOW_INK_SAC, 17),
+	GUST(Mat.WHITE_DYE, 20),
+	GUST_DUST(Mat.WHITE_DYE, 20),
+	GUST_EMITTER(Mat.WHITE_DYE, 20),
 	HEART(Mat.RED_CONCRETE, -1),
 	ITEM_TAKE(Mat.STONE, 8, ParticleProperty.DELETED_IN_1_13),
 	LANDING_HONEY(Mat.HONEY_BLOCK,15),
@@ -112,6 +118,7 @@ public enum Particle {
 	SWEEP_ATTACK(Mat.DIAMOND_SWORD, 9),
 	TOTEM(Mat.TOTEM_OF_UNDYING, 11),
 	TOWN_AURA(Mat.ENCHANTED_BOOK, -1),
+	TRIAL_SPAWNER_DETECTION(Mat.SPAWNER, 20),
 	//VIBRATION(Mat.STONE, 17),
 	VILLAGER_ANGRY(Mat.VILLAGER_SPAWN_EGG, -1),
 	VILLAGER_HAPPY(Mat.VILLAGER_SPAWN_EGG, -1),
@@ -121,7 +128,8 @@ public enum Particle {
 	WATER_WAKE(Mat.WATER, -1),
 	WAX_OFF(Mat.HONEY_BLOCK, 17),
 	WAX_ON(Mat.HONEY_BLOCK, 17),
-	WHITE_ASH(Mat.SOUL_SAND, 16);
+	WHITE_ASH(Mat.SOUL_SAND, 16),
+	WHITE_SMOKE(Mat.WHITE_DYE, 20);
 
 	private static int version = 0;
 	// New name since 1.9 (some particles where renamed in 1.9)

@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -45,6 +47,7 @@ public class Main extends JavaPlugin {
 	@Getter private Boolean useArmorStands;
 	@Getter private Menu menu;
 	private static int version;
+	private static ScheduledExecutorService executor;
 	
 	//the way holograms are working changed a lot since 2.2.4. 
 	//If user just done the update, this will be auto set to true by detecting a lacking config option
@@ -97,10 +100,15 @@ public class Main extends JavaPlugin {
 		}
 		return version;
 	}
+
+	public static ScheduledExecutorService getExecutor() {
+		return executor;
+	}
     
 	@Override
 	public void onEnable() {
 		setInstance(this);
+		executor = Executors.newSingleThreadScheduledExecutor();
 		configFiles = new Files();
 		lootChest = new HashMap<>();
 		utils = new Utils();

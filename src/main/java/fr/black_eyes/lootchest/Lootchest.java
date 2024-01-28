@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -444,7 +445,11 @@ public class Lootchest {
 				BungeeChannel.bungeeBroadcast(natural_msg);
 			}
 			else if(!Main.configs.NOTE_per_world_message) {
-				Utils.broadcast(natural_msg);	
+				for(World w : Bukkit.getWorlds()) {
+					for(Player p : w.getPlayers()) {
+						Utils.sendMultilineMessage(natural_msg, p);
+					}
+				}
 			}else {
 				for(Player p : spawnLoc.getWorld().getPlayers()){
 					Utils.sendMultilineMessage(natural_msg, p);

@@ -27,7 +27,7 @@ public class PackageEntity
     }
     
     protected void retick() {
-    	Main.getInstance().getServer().getScheduler().runTaskLater((Plugin)Main.getInstance(), (Runnable)new Runnable() {
+    	Main.getInstance().getServer().getScheduler().runTaskLater((Plugin)Main.getInstance(), new Runnable() {
             @Override
             public void run() {
                 PackageEntity.this.tick();
