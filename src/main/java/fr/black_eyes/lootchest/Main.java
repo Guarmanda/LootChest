@@ -12,14 +12,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.Ansi.Attribute;
 import org.spigotmc.SpigotConfig;
 
 import fr.black_eyes.lootchest.commands.LootchestCommand;
-import fr.black_eyes.lootchest.listeners.Armorstand;
 import fr.black_eyes.lootchest.listeners.DeleteListener;
 import fr.black_eyes.lootchest.listeners.InventoryListeners;
 import fr.black_eyes.lootchest.particles.Particle;
@@ -54,9 +56,6 @@ public class Main extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		for(Lootchest lc : lootChest.values()) {
-			lc.getHologram().remove();
-		}
 		utils.updateData();
 		backUp();
 		logInfo("&aBacked up data file in case of crash");
@@ -68,17 +67,40 @@ public class Main extends JavaPlugin {
 	 */
     public void logInfo(String msg) {
     	if(configFiles.getConfig() ==null || !configFiles.getConfig().isSet("ConsoleMessages") || configFiles.getConfig().getBoolean("ConsoleMessages")) {
-			
-			//remove new lines
-			msg = msg.replaceAll("\\r|\\n", " ");
-			if(getVersion()==7) {
-				//remove all color codes from message
-				msg = msg.replaceAll("(&([a-f0-9]))", "");
-				Bukkit.getLogger().info("[LootChest] "+msg);
-			}else{
-				msg = Utils.color(msg);
-				Bukkit.getConsoleSender().sendMessage("[LootChest] "+msg);
+			Map<String, String> replace = new HashMap<>(
+					Map.of(
+						"&0",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.BLACK).boldOff().toString(),
+						"&1",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.BLUE).boldOff().toString(),
+						"&2",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.GREEN).boldOff().toString(),
+						"&3",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.CYAN).boldOff().toString(),
+						"&4",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.RED).boldOff().toString(),
+						"&5",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.MAGENTA).boldOff().toString(),
+						"&6",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.YELLOW).boldOff().toString(),
+						"&7",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.WHITE).boldOff().toString(),
+						"&8",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.BLACK).bold().toString(),
+						"&9",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.BLUE).bold().toString()
+					)
+			);
+			replace.putAll(
+				Map.of(
+					"&a",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.GREEN).bold().toString(),
+					"&b",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.CYAN).bold().toString(),
+					"&c",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.RED).bold().toString(),
+					"&d",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.MAGENTA).bold().toString(),
+					"&e",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.YELLOW).bold().toString(),
+					"&f",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.WHITE).bold().toString(),
+					"&l",Ansi.ansi().a(Attribute.BLINK_SLOW).toString(),
+					"&m",Ansi.ansi().a(Attribute.STRIKETHROUGH_ON).toString(),
+					"&n",Ansi.ansi().a(Attribute.UNDERLINE).toString()
+						)
+			);
+			// use replace to replace all the keys from the map with their values
+			for (Map.Entry<String, String> entry : replace.entrySet()) {
+				msg = msg.replace(entry.getKey(), entry.getValue().toString());
 			}
+			//add reset to the end of the message
+			msg = msg + Ansi.ansi().a(Attribute.RESET).toString();
+			Bukkit.getLogger().info("[LootChest] "+msg);
 		}
 	}
     
@@ -121,9 +143,6 @@ public class Main extends JavaPlugin {
         	logInfo("&cConfig or data files couldn't be initialized, the plugin will stop.");
         	return;
         }
-		if(getVersion() >7){
-			this.getServer().getPluginManager().registerEvents(new Armorstand(), this);
-		}
 		this.getServer().getPluginManager().registerEvents(new DeleteListener(), this);
 		this.getServer().getPluginManager().registerEvents(new InventoryListeners(), this);
 		LootchestCommand cmd =  new LootchestCommand();

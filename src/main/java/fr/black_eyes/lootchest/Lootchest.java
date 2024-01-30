@@ -136,7 +136,7 @@ public class Lootchest {
 	/**
 	 * @return the hologram object attached to this lootchest
 	 */
-	@Getter private Hologram hologram;
+	@Getter private LootChestHologram hologram;
 
 	@Getter @Setter private long protectionTime;
 
@@ -218,7 +218,7 @@ public class Lootchest {
 		direction = configFiles.getData().getString("chests." + naming + ".direction");
 		lastreset = configFiles.getData().getLong("chests." + name + ".lastreset");
 		
-		hologram = new Hologram(this);
+		hologram = new LootChestHologram(this);
 	}
 	
 	
@@ -265,7 +265,7 @@ public class Lootchest {
 		((InventoryHolder) chest.getLocation().getBlock().getState()).getInventory().clear();
 		chest.getLocation().getBlock().setType(Material.AIR);
 		protectionTime = Main.configs.defaultRespawnProtection;
-		hologram = new Hologram(this);
+		hologram = new LootChestHologram(this);
 	}
 	
 	

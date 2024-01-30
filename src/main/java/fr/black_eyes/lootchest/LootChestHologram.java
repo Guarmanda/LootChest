@@ -4,12 +4,15 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
-
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.Entity;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import com.github.unldenis.hologram.Hologram;
+import com.github.unldenis.hologram.HologramPool;
+import com.github.unldenis.hologram.line.Line;
+import com.github.unldenis.hologram.line.TextLine;
+import com.github.unldenis.hologram.line.hologram.TextSequentialLoader;
 
 import lombok.Getter;
 
@@ -18,7 +21,19 @@ import lombok.Getter;
  * @author Valentin
  *
  */
-public class Hologram {
+public class LootChestHologram {
+
+	private static HologramPool pool;
+	
+	private static HologramPool getPool() {
+		if(pool == null) {
+			pool = new HologramPool((Plugin)Main.getInstance(), 1200);
+		}
+		return pool;
+	}
+
+	private Hologram hologram;
+
 	//represents all the null names that can be given to an hologram to not create an holo
 	private static List<String> NULL_NAME = new ArrayList<String>(
 			Arrays.asList("\"\"" ,"\" \"" ,"null" ,"" ," " ,"_" ,"none")
@@ -33,11 +48,10 @@ public class Hologram {
 	@Getter private Location location;
 	private Lootchest chest;
 	private BukkitRunnable runnable;
-	private UUID uuid;
 	/**
 	 * @param chest the chest linked with this holo
 	 */
-	public Hologram(Lootchest chest) {
+	public LootChestHologram(Lootchest chest) {
 		this.chest = chest;
 		this.location = chest.getActualLocation();
 	}
@@ -50,7 +64,7 @@ public class Hologram {
 	public void setLoc(Location loca) {
 		if(Main.getVersion()>7 && Main.configs.UseHologram){
 			Location loc2 = loca.clone();
-			loc2.add(0.5, Main.configs.Hologram_distance_to_chest, 0.5);
+			loc2.add(0.5, Main.configs.Hologram_distance_to_chest-1.75, 0.5);
 			this.location = loc2;
 			remove();
 			this.setText(chest.getHolo());
@@ -81,10 +95,11 @@ public class Hologram {
 				runnable.cancel();
 				runnable = null;
 			}
-			Entity as = getArmorstand();
+			if(hologram == null) return;
+			Hologram as = getHologram();
 			if(as!=null) {
-				as.remove();
-				uuid=null;
+				pool.remove(as);
+				hologram = null;
 			}
 		}
 	}
@@ -93,39 +108,34 @@ public class Hologram {
 	 * @param name The text displayed by the hologram
 	 */
 	public void setText(String name) {
-		text = name;
-		org.bukkit.entity.ArmorStand as = getArmorstand();
-		if((as == null || as.isDead()) && !NULL_NAME.contains(text)) {
-			as = createArmorStand();
-		}
-		if(!NULL_NAME.contains(text)) {
-			name = Utils.color(text);
-			as.setCustomName(name);
+		if(!NULL_NAME.contains(name)) {
+			hologram = getHologram();
+			setName(Utils.color(name));
 		}else {
 			remove();
 		}
+	}
+
+	/**
+	 * Manage hologram lines to display / change its name
+	 * @param name
+	 */
+	private void setName(String name){
+		hologram.getLines().clear();
+		Line line = new Line((Plugin)Main.getInstance());
+		// compose an TextLine hologram
+		TextLine textLine = new TextLine(line, name, null, false);
+		hologram.load(textLine);
 	}
 	
 	/**
 	 * @return Creates the hologram as an invisible armorstand
 	 */
-	private org.bukkit.entity.ArmorStand createArmorStand() {
-		org.bukkit.entity.ArmorStand as = (org.bukkit.entity.ArmorStand) location.getWorld().spawnEntity(location, org.bukkit.entity.EntityType.ARMOR_STAND); //Spawn the ArmorStand
-		uuid = as.getUniqueId();
-		as.setCustomNameVisible(true); //This makes the text appear no matter if your looking at the entity or not
-
-		as.setGravity(false); //Make sure it doesn't fall
-		as.setCanPickupItems(false); //I'm not sure what happens if you leave this as it is, but you might as well disable it
-		//This makes the text appear no matter if your looking at the entity or not
-		as.setVisible(false); //Makes the ArmorStand invisible
-	 	as.setArms(false);
-	 	as.setBasePlate(false);
-	 	as.setSmall(true);
-	 	//setMarker function does not exist in early 1.8 versions
-	 	if(!org.bukkit.Bukkit.getVersion().contains("1.8)")) {
-	 		as.setMarker(true);
-		}
-	 	return as;
+	private Hologram createHologram() {
+		Hologram holo =  new Hologram((Plugin)Main.getInstance(), location, new TextSequentialLoader());
+		getPool().takeCareOf(holo);
+		hologram = holo;
+		return holo;
 	}
 	
 	/**
@@ -135,7 +145,7 @@ public class Hologram {
 	private void startShowTime() {
 		runnable = new BukkitRunnable() {
     		public void run() {
-    			Entity as = getArmorstand();
+    			Hologram as = getHologram();
     			long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime()/1000;
     			long secondes = chest.getTime()*60;
     			long tempsenregistre = chest.getLastreset()/1000;
@@ -143,10 +153,10 @@ public class Hologram {
     			long secs = secondes%60;
     			long mins = (secondes%3600)/60; 
     			long hours = secondes/3600;
-    			String hologram = Main.configs.TIMER_Format;
-    			if(hours <1) hologram = hologram.replace("%Hours", "").replace("%Hsep", "");
-    			if(mins <1) hologram = hologram.replace("%Minutes", "").replace("%Msep", "");
-    			hologram = hologram.replace("%Hours", hours+"").replace("%Hsep", Main.configs.TIMER_H_Sep)
+    			String text = Main.configs.TIMER_Format;
+    			if(hours <1) text = text.replace("%Hours", "").replace("%Hsep", "");
+    			if(mins <1) text = text.replace("%Minutes", "").replace("%Msep", "");
+    			text = text.replace("%Hours", hours+"").replace("%Hsep", Main.configs.TIMER_H_Sep)
     					.replace("%Minutes", mins+"").replace("%Msep", Main.configs.TIMER_M_Sep)
     					.replace("%Seconds", secs+"").replace("%Ssep", Main.configs.TIMER_S_Sep)
     					.replace("%Hologram", text);
@@ -154,7 +164,7 @@ public class Hologram {
     				runnable.cancel();
     			}else {
 					//replace with paragraph character
-    				as.setCustomName(Utils.color(hologram));
+    				setName(Utils.color(text));
     			}
     			if(secondes<=0) {
     				runnable.cancel();
@@ -168,39 +178,11 @@ public class Hologram {
 	/**
 	 * @return The armorstand entity involved in the hologram
 	 */
-	private org.bukkit.entity.ArmorStand getArmorstand() {
-		if(uuid==null) {
-			for(Entity ent : location.getWorld().getEntities()) {
-				if(ent instanceof org.bukkit.entity.ArmorStand && ent.getLocation().distance(location) <0.1) {
-					return (org.bukkit.entity.ArmorStand)ent;
-				}
-			}
-			return null;
+	private Hologram getHologram() {
+		if(hologram==null) {
+			createHologram();
 		}
-		location.getWorld().loadChunk(location.getChunk());
-		Entity ent = null;
-		if(Bukkit.getVersion().contains("1.7") ||Bukkit.getVersion().contains("1.8") ) {
-			ent = getEntityByUniqueId(uuid);
-		}
-		else {
-			ent = org.bukkit.Bukkit.getEntity(uuid) ;
-		}
-		if(ent!=null) {
-			return (org.bukkit.entity.ArmorStand)ent;
-		}
-		return null;
+		return hologram;
 	}
 	
-	/**
-	 * Get back the holo entity to edit/kill it
-	 * @param uniqueId the id of the armostand entity
-	 * @return the entity if found
-	 */
-	public Entity getEntityByUniqueId(UUID uniqueId) {
-		for (Entity entity : location.getWorld().getEntities()) {
-			if (entity.getUniqueId().equals(uniqueId))
-				return entity;
-			}
-	    return null;
-	}
 }

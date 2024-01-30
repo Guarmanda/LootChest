@@ -8,8 +8,8 @@
   <packaging>jar</packaging>
   <properties>
     <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
   </properties>
   <repositories>
     <repository>
@@ -40,8 +40,36 @@
       <id>spigot-repo2</id>
       <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
     </repository>
+    <repository>
+      <id>dmulloy2-repo</id>
+      <url>https://repo.dmulloy2.net/repository/public/</url>
+    </repository>
   </repositories>
   <dependencies>
+    <dependency>
+        <groupId>com.github.placeholderapi</groupId>
+        <artifactId>placeholderapi</artifactId>
+        <version>2.11.5</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>com.comphenix.protocol</groupId>
+        <artifactId>ProtocolLib</artifactId>
+        <version>5.1.0</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>net.kyori</groupId>
+        <artifactId>adventure-api</artifactId>
+        <version>4.15.0</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.fusesource.jansi</groupId>
+        <artifactId>jansi</artifactId>
+        <version>2.4.1</version>
+        <scope>provided</scope>
+    </dependency>
     <dependency>
         <groupId>com.destroystokyo.paper</groupId>
         <artifactId>paper-api</artifactId>
@@ -120,7 +148,6 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
-
 </project>
 
 

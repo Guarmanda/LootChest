@@ -51,7 +51,8 @@ final class ParticleTypes {
 
             return new DefaultParticleType(Particle.valueOf(name.toUpperCase(Locale.ROOT)));
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid or unsupported particle type: " + name);
+            System.out.println("Unknown particle: " + name + " for server version " + Bukkit.getServer().getVersion());
+            return null;
         }
     }
 
