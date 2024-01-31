@@ -108,7 +108,7 @@ public class InventoryListeners implements Listener {
     }
 	
 	
-	//gère le menu de création du coffre
+	//gï¿½re le menu de crï¿½ation du coffre
     @EventHandler
     public void onClick(final InventoryClickEvent e) {
         if (e.getInventory() == null || e.getWhoClicked() == null || e.getCurrentItem() == null || !(e.getWhoClicked() instanceof Player)) {
@@ -170,7 +170,8 @@ public class InventoryListeners implements Listener {
         		menu.invcopy(player, lc,j);
         		return;
         	}
-        	String copyChest = e.getCurrentItem().getItemMeta().getDisplayName().replace("§6", "");
+			// TODO: test this feature, weird character
+        	String copyChest = e.getCurrentItem().getItemMeta().getDisplayName().replace("ï¿½6", "");
         	
         	utils.copychest(Main.getInstance().getLootChest().get(copyChest), Main.getInstance().getLootChest().get(chestName));
         	player.closeInventory();
