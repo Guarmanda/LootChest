@@ -42,7 +42,7 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 	 private Main main;
 	 
 	//variables for command completion
-	private static final String[] completions0 = {"removeallholo", "locate", "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "setprotection", "reload", "list", "setpos", "give", "randomspawn", "tp", "settime","togglefall", "getname"};
+	private static final String[] completions0 = { "locate", "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "setprotection", "reload", "list", "setpos", "give", "randomspawn", "tp", "settime","togglefall", "getname"};
 	
 	//following args must be followed by chest names
 	private static final List<String> argsFollowedByChest = new ArrayList<>(
@@ -231,10 +231,6 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 					else if (l!=null){
 						Utils.msg(sender, "commandGetName", cheststr, l.getName());
 					}
-				}
-				else if(args[0].equalsIgnoreCase("removeallholo")) {
-					int cpt = utils.killOldHolograms(false);
-					Utils.msg(sender, "removedHolograms", "[Number]", cpt +"");
 				}
 				else if(args[0].equalsIgnoreCase("respawnall")) {
 		

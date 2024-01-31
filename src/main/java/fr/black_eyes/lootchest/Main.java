@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -290,9 +289,6 @@ public class Main extends JavaPlugin {
 		    			logInfo("&cCouldn't load chest "+keys +" : the world " + configFiles.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
 					}
 		    	}
-				if(getVersion()>7) {
-					utils.killOldHolograms(true);
-				}
 				
 				logInfo("Loaded "+lootChest.size() + " Lootchests in "+((new Timestamp(System.currentTimeMillis())).getTime()-current) + " miliseconds");
 				logInfo("Starting LootChest timers asynchronously...");
@@ -392,12 +388,6 @@ public class Main extends JavaPlugin {
       	configFiles.getLang().set("help", help);
       	configFiles.saveLang();        	
       }
-      if(!configFiles.getLang().getStringList("help").toString().contains("removeAllHolo")){
-    	List<String> help = configFiles.getLang().getStringList("help");
-    	help.add("&a/lc removeAllHolo &b: removes only bugged LootChest holograms without chest under them");
-    	configFiles.getLang().set("help", help);
-    	configFiles.saveLang();        	
-      }
 	  if(!configFiles.getLang().getStringList("help").toString().contains("setprotection")){
     	List<String> help = configFiles.getLang().getStringList("help");
     	help.add("&a/lc setprotection <name> <time> &b: set the spawn protection time in seconds for a chest");
@@ -407,6 +397,17 @@ public class Main extends JavaPlugin {
 	  if(!configFiles.getLang().getStringList("help").toString().contains("copy")){
     	List<String> help = configFiles.getLang().getStringList("help");
     	help.add("&a/lc copy <name> <name> &b: copy a chest into another");
+    	configFiles.getLang().set("help", help);
+    	configFiles.saveLang();        	
+      }
+	  //remove useless command
+	  if(configFiles.getLang().getStringList("help").toString().contains("removeAllHolo")){
+    	List<String> help = configFiles.getLang().getStringList("help");
+    	//get line and remove it
+		int index = help.stream().filter(s -> s.contains("removeAllHolo")).findFirst().map(s -> help.indexOf(s)).orElse(-1);
+		if(index!=-1) {
+			help.remove(index);
+		}
     	configFiles.getLang().set("help", help);
     	configFiles.saveLang();        	
       }

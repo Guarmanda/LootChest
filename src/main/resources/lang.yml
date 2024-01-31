@@ -27,7 +27,6 @@ playerTookChest: '&6Oh no! &b[Player] &6found the chest &b[Chest] &6and took eve
 disabledChestRadius: '&cYou disabled random spawn for chest [Chest]'
 commandGetName: '&6Your''e looking the chest &b[Chest]'
 editedChestType: '&aEdited type of chest &b[Chest]'
-removedHolograms: '&aSuccessfully removed &b[Number] LootChest holograms.'
 CantOpenLootchestBecauseMonster: '&cYou can''t open this chest while there is [Number] monsters nearby'
 locate_command:
   main_message: "&6Location of loot chests:"
@@ -91,7 +90,6 @@ help:
   - '&a/lc togglefall <name> &b: enable/disable the fall effect for a chest'
   - '&a/lc getname &b: get the name of the targeted LootChest'
   - '&a/lc locate &b: gives locations of all chests that haves natural respawn message enabled'
-  - '&a/lc removeAllHolo &b: removes only bugged LootChest holograms without chest under them'
   - '&a/lc setprotection <name> <time> &b: set the spawn protection time in seconds for a chest'
   - '&a/lc copy <name> <name> &b: copy a chest into another'
 

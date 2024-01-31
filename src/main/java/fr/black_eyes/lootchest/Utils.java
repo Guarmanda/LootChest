@@ -414,40 +414,6 @@ public class Utils  {
 		configFiles.saveData();
 	}
 	
-	public int killOldHolograms(boolean all) {
-		int cpt = 0;
-		List<String> holograms = new ArrayList<String>();
-		Main.getInstance().getLootChest().values().forEach(lc -> {
-			lc.getActualLocation().getWorld().loadChunk(lc.getActualLocation().getChunk());
-			holograms.add(Utils.color(lc.getHolo()));
-		});
-		for(World world : Bukkit.getWorlds()) {
-			for(Entity ent : world.getEntities()) {
-				if(ent instanceof org.bukkit.entity.ArmorStand) {
-					//remove is set to true if the entity name contains hologram text
-					boolean remove = false;
-					for(String holo:holograms) {
-						if(ent.getCustomName() != null && holo !=null && ent.getCustomName().contains(holo)) {
-							remove = true;
-							break;
-						}
-					}
-					Location loc = ent.getLocation();
-					loc = loc.subtract(0, Main.configs.Hologram_distance_to_chest, 0);
-					//if the block under holo is a chest or if we want to remove all holo (at startup)
-					if((!Mat.isALootChestBlock(loc.getBlock()) || all) &&remove) {
-						ent.remove();
-						cpt++;
-					}
-				}
-			}
-		}
-		if(all) {
-			main.logInfo("Removed "+cpt+" holograms");
-		}
-		return cpt;
-	}
-	
 	public  Location getRandomPosition(String name) {
 		if(!configFiles.getData().isSet("chests." + name + ".randomPosition.x")) {
 			return null;
