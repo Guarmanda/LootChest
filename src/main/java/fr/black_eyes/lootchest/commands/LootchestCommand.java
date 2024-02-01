@@ -108,6 +108,9 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 					else if (Main.getInstance().getLootChest().containsKey(args[1])){
 						Utils.msg(sender, "chestAlreadyExist", cheststr, args[1]);
 					}
+					else if(Utils.isLootChest(chest.getLocation()) != null) {
+						Utils.msg(sender, "blockIsAlreadyLootchest", cheststr, args[1]);
+					}
 					else {
 						Main.getInstance().getLootChest().put(args[1], new Lootchest(chest, args[1]));
 						Main.getInstance().getLootChest().get(args[1]).spawn( true);

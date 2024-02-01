@@ -28,6 +28,7 @@ disabledChestRadius: '&cYou disabled random spawn for chest [Chest]'
 commandGetName: '&6Your''e looking the chest &b[Chest]'
 editedChestType: '&aEdited type of chest &b[Chest]'
 CantOpenLootchestBecauseMonster: '&cYou can''t open this chest while there is [Number] monsters nearby'
+blockIsAlreadyLootchest: '&cThis block is already a LootChest!'
 locate_command:
   main_message: "&6Location of loot chests:"
   chest_list: "- &b[Chest]&6: [x], [y], [z] in world [world]"

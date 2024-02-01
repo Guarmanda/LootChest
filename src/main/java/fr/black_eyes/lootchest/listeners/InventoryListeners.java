@@ -170,7 +170,6 @@ public class InventoryListeners implements Listener {
         		menu.invcopy(player, lc,j);
         		return;
         	}
-			// TODO: test this feature, weird character
         	String copyChest = e.getCurrentItem().getItemMeta().getDisplayName().replace("�6", "");
         	
         	utils.copychest(Main.getInstance().getLootChest().get(copyChest), Main.getInstance().getLootChest().get(chestName));

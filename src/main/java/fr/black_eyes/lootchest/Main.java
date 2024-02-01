@@ -342,6 +342,7 @@ public class Main extends JavaPlugin {
       configFiles.setLang("locate_command.chest_list", "- &b[Chest]&6: [x], [y], [z] in world [world]");
       configFiles.setLang("removedHolograms", "&aSuccessfully removed &b[Number] LootChest holograms.");
       configFiles.setLang("CantOpenLootchestBecauseMonster", "&cYou can't open this chest while there is [Number] monsters nearby");
+	  configFiles.setLang("blockIsAlreadyLootchest", "&cThis block is already a LootChest!");
       if (configFiles.getLang().isSet("help.line1")) {
           final List<String> tab = new ArrayList<String>();
           for (int i = 1; i <= 17; ++i) {
