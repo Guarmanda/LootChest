@@ -16,6 +16,10 @@ import org.holoeasy.hologram.Hologram;
 import org.holoeasy.hologram.TextSequentialLoader;
 import org.holoeasy.line.TextLine;
 import org.holoeasy.pool.IHologramPool;
+
+import com.github.unldenis.hologram.HologramPool;
+import com.github.unldenis.hologram.line.Line;
+
 import lombok.Getter;
 
 /**
@@ -98,6 +102,16 @@ public class LootChestHologram {
 	}
 
 	private static IHologramPool pool;
+
+	//for 1.8
+	private static HologramPool pool1_8;
+
+	private static HologramPool getPool1_8() {
+		if(pool1_8 == null) {
+			pool1_8 = new HologramPool((Plugin)Main.getInstance(), 1200);
+		}
+		return pool1_8;
+	}
 	
 	private static IHologramPool getPool() {
 		if(pool == null) {
@@ -107,6 +121,7 @@ public class LootChestHologram {
 	}
 
 	private Hologram hologram;
+	private com.github.unldenis.hologram.Hologram hologram1_8;
 
 	
 	/**
@@ -118,11 +133,14 @@ public class LootChestHologram {
 				runnable.cancel();
 				runnable = null;
 			}
-			if(hologram == null) return;
-			Hologram as = getHologram();
-			if(as!=null) {
-				pool.remove(as.getKey());
+			if(hologram == null && hologram1_8 == null) return;
+			if(Main.getVersion()>8 && hologram!=null) {
+				pool.remove(hologram.getKey());
 				hologram = null;
+			}
+			else if(hologram1_8!=null && Main.getVersion()==8) {
+				getPool1_8().remove(hologram1_8);
+				hologram1_8 = null;
 			}
 		}
 	}
@@ -132,7 +150,7 @@ public class LootChestHologram {
 	 */
 	public void setText(String name) {
 		if(!NULL_NAME.contains(name)) {
-			hologram = getHologram();
+			getHologram();
 			setLine(Utils.color(name));
 		}else {
 			remove();
@@ -145,28 +163,45 @@ public class LootChestHologram {
 	 */
 	private void setLine(String name){
 		// compose a TextLine hologram
-		TextLine textLine = new TextLine((Plugin)Main.getInstance(), name, null, false);
-		hologram.load(textLine);
+		if(Main.getVersion()>8) {
+			TextLine textLine = new TextLine((Plugin)Main.getInstance(), name, null, false);
+			hologram.load(textLine);
+		}
+		else {
+			Line line = new Line((Plugin)Main.getInstance());
+			com.github.unldenis.hologram.line.TextLine textLine = new com.github.unldenis.hologram.line.TextLine(line, name, null, false);
+			hologram1_8.load(textLine);
+		}
 	}
 	
 	/**
 	 * @return Creates the hologram 
 	 */
-	private Hologram createHologram() {
-		HologramKey key = new HologramKey(getPool(), chest.getName());
-		Hologram holo =  new Hologram(key, location, new TextSequentialLoader());
-		hologram = holo;
-		return holo;
+	private Object createHologram() {
+		if(Main.getVersion()>8){
+			HologramKey key = new HologramKey(getPool(), chest.getName());
+			hologram =  new Hologram(key, location, new TextSequentialLoader());
+			return hologram;
+		}
+		else {
+			hologram1_8 =  new com.github.unldenis.hologram.Hologram((Plugin)Main.getInstance(), location, new com.github.unldenis.hologram.line.hologram.TextSequentialLoader());
+			getPool1_8().takeCareOf(hologram1_8);
+			return hologram1_8;
+		}
+		
 	}
 
 	/**
 	 * @return The hologram
 	 */
-	private Hologram getHologram() {
-		if(hologram==null) {
+	private Object getHologram() {
+		if(hologram==null && hologram1_8==null) {
 			createHologram();
 		}
-		return hologram;
+		if(Main.getVersion()>8)
+			return hologram;
+		else
+			return hologram1_8;
 	}
 	
 	/**
@@ -176,7 +211,7 @@ public class LootChestHologram {
 	private void startShowTime() {
 		runnable = new BukkitRunnable() {
     		public void run() {
-    			Hologram as = getHologram();
+    			Object as = getHologram();
     			long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime()/1000;
     			long secondes = chest.getTime()*60;
     			long tempsenregistre = chest.getLastreset()/1000;
