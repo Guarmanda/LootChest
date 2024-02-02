@@ -45,7 +45,29 @@ public class Main extends JavaPlugin {
 	@Getter private Utils utils;
 	@Getter private Boolean useArmorStands;
 	@Getter private Menu menu;
-	private static int version;
+	private static int version = 0;
+	Map<String, String> replace = new HashMap<String, String>(){{
+		put("&0",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.BLACK).boldOff().toString());
+		put("&1",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.BLUE).boldOff().toString());
+		put("&2",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.GREEN).boldOff().toString());
+		put("&3",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.CYAN).boldOff().toString());
+		put("&4",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.RED).boldOff().toString());
+		put("&5",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.MAGENTA).boldOff().toString());
+		put("&6",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.YELLOW).boldOff().toString());
+		put("&7",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.WHITE).boldOff().toString());
+		put("&8",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.BLACK).bold().toString());
+		put("&9",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.BLUE).bold().toString());
+		put("&a",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.GREEN).bold().toString());
+		put("&b",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.CYAN).bold().toString());
+		put("&c",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.RED).bold().toString());
+		put("&d",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.MAGENTA).bold().toString());
+		put("&e",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.YELLOW).bold().toString());
+		put("&f",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.WHITE).bold().toString());
+		put("&l",Ansi.ansi().a(Attribute.BLINK_SLOW).toString());
+		put("&m",Ansi.ansi().a(Attribute.STRIKETHROUGH_ON).toString());
+		put("&n",Ansi.ansi().a(Attribute.UNDERLINE).toString());
+	}};
+
 	
 	//the way holograms are working changed a lot since 2.2.4. 
 	//If user just done the update, this will be auto set to true by detecting a lacking config option
@@ -66,33 +88,6 @@ public class Main extends JavaPlugin {
 	 */
     public void logInfo(String msg) {
     	if(configFiles.getConfig() ==null || !configFiles.getConfig().isSet("ConsoleMessages") || configFiles.getConfig().getBoolean("ConsoleMessages")) {
-			Map<String, String> replace = new HashMap<>(
-					Map.of(
-						"&0",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.BLACK).boldOff().toString(),
-						"&1",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.BLUE).boldOff().toString(),
-						"&2",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.GREEN).boldOff().toString(),
-						"&3",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.CYAN).boldOff().toString(),
-						"&4",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.RED).boldOff().toString(),
-						"&5",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.MAGENTA).boldOff().toString(),
-						"&6",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.YELLOW).boldOff().toString(),
-						"&7",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.WHITE).boldOff().toString(),
-						"&8",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.BLACK).bold().toString(),
-						"&9",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.BLUE).bold().toString()
-					)
-			);
-			replace.putAll(
-				Map.of(
-					"&a",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.GREEN).bold().toString(),
-					"&b",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.CYAN).bold().toString(),
-					"&c",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.RED).bold().toString(),
-					"&d",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.MAGENTA).bold().toString(),
-					"&e",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.YELLOW).bold().toString(),
-					"&f",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.WHITE).bold().toString(),
-					"&l",Ansi.ansi().a(Attribute.BLINK_SLOW).toString(),
-					"&m",Ansi.ansi().a(Attribute.STRIKETHROUGH_ON).toString(),
-					"&n",Ansi.ansi().a(Attribute.UNDERLINE).toString()
-						)
-			);
 			// use replace to replace all the keys from the map with their values
 			for (Map.Entry<String, String> entry : replace.entrySet()) {
 				msg = msg.replace(entry.getKey(), entry.getValue().toString());
@@ -226,19 +221,27 @@ public class Main extends JavaPlugin {
 		if(Main.getVersion() > 7){
 			new BukkitRunnable() {
 				public void run() {
-					float radius = (float) configs.PART_radius;
-					float speed = (float)configs.PART_speed;
-					int number = configs.PART_number;
-					if (configs.PART_enable) {
-						for(Map.Entry<Location, Particle> entry: part.entrySet()) {
-							Boolean loaded = entry.getKey().getWorld().isChunkLoaded((int)entry.getKey().getX()/16, (int)entry.getKey().getZ()/16) ;
-							if (loaded) {
-								new Thread(() -> {
-									if(entry.getValue()!=null)
-										entry.getValue().display(radius, radius, radius, speed, number, entry.getKey(), entry.getKey().getWorld().getPlayers());
-								}).start();
+					try{
+						float radius = (float) configs.PART_radius;
+						float speed = (float)configs.PART_speed;
+						int number = configs.PART_number;
+						if (configs.PART_enable) {
+							for(Map.Entry<Location, Particle> entry: part.entrySet()) {
+								Boolean loaded = entry.getKey().getWorld().isChunkLoaded((int)entry.getKey().getX()/16, (int)entry.getKey().getZ()/16) ;
+								if (loaded) {
+									new Thread(() -> {
+										if(entry.getValue()!=null)
+											try{
+												entry.getValue().display(radius, radius, radius, speed, number, entry.getKey(), entry.getKey().getWorld().getPlayers());
+											}catch(Exception e) {
+												// concurrent modification exception, just ignore it
+											}
+									}).start();
+								}
 							}
 						}
+					}catch(Exception e) {
+						// concurrent modification exception, just ignore it
 					}
 				}
 			}.runTaskTimer(this, 0, configs.PART_respawn_ticks);

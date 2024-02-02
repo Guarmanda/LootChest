@@ -3,17 +3,19 @@ package fr.black_eyes.lootchest;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import com.github.unldenis.hologram.Hologram;
-import com.github.unldenis.hologram.HologramPool;
-import com.github.unldenis.hologram.line.Line;
-import com.github.unldenis.hologram.line.TextLine;
-import com.github.unldenis.hologram.line.hologram.TextSequentialLoader;
-
+import org.holoeasy.HoloEasy;
+import org.holoeasy.config.HologramKey;
+import org.holoeasy.hologram.Hologram;
+import org.holoeasy.hologram.TextSequentialLoader;
+import org.holoeasy.line.TextLine;
+import org.holoeasy.pool.IHologramPool;
 import lombok.Getter;
 
 /**
@@ -23,21 +25,31 @@ import lombok.Getter;
  */
 public class LootChestHologram {
 
-	private static HologramPool pool;
-	
-	private static HologramPool getPool() {
-		if(pool == null) {
-			pool = new HologramPool((Plugin)Main.getInstance(), 1200);
-		}
-		return pool;
-	}
-
-	private Hologram hologram;
-
 	//represents all the null names that can be given to an hologram to not create an holo
 	private static List<String> NULL_NAME = new ArrayList<String>(
 			Arrays.asList("\"\"" ,"\" \"" ,"null" ,"" ," " ,"_" ,"none")
 			); 
+
+	/**
+	 * Holograms dont spawn at same height on each version, so we need to modify the y position
+	 * Key is the version, value is the y modifier
+	 * @return the yPosModifier
+	 */
+	private static Map<Integer, Double> yPosModifier = new HashMap<Integer, Double>(){{
+		put(8, -1.0);
+		put(9, -1.8);
+		put(10, -1.8);
+		put(11, -1.8);
+		put(12, -1.8);
+		put(13, -1.8);
+		put(14, -1.8);
+		put(15, -1.8);
+		put(16, -1.8);
+		put(17, -1.8);
+		put(18, -1.8);
+		put(19, -1.8);
+		put(20, -1.8);
+	}};
 	/**
 	 * @return the text displayed by the hologram
 	 */
@@ -64,7 +76,7 @@ public class LootChestHologram {
 	public void setLoc(Location loca) {
 		if(Main.getVersion()>7 && Main.configs.UseHologram){
 			Location loc2 = loca.clone();
-			loc2.add(0.5, Main.configs.Hologram_distance_to_chest-1.75, 0.5);
+			loc2.add(0.5, Main.configs.Hologram_distance_to_chest+  yPosModifier.getOrDefault(Main.getVersion(), -1.0), 0.5);
 			this.location = loc2;
 			remove();
 			this.setText(chest.getHolo());
@@ -85,6 +97,17 @@ public class LootChestHologram {
 		}
 	}
 
+	private static IHologramPool pool;
+	
+	private static IHologramPool getPool() {
+		if(pool == null) {
+			pool = HoloEasy.startPool((Plugin)Main.getInstance(), 1200);
+		}
+		return pool;
+	}
+
+	private Hologram hologram;
+
 	
 	/**
 	 * Kills the hologram
@@ -98,7 +121,7 @@ public class LootChestHologram {
 			if(hologram == null) return;
 			Hologram as = getHologram();
 			if(as!=null) {
-				pool.remove(as);
+				pool.remove(as.getKey());
 				hologram = null;
 			}
 		}
@@ -110,7 +133,7 @@ public class LootChestHologram {
 	public void setText(String name) {
 		if(!NULL_NAME.contains(name)) {
 			hologram = getHologram();
-			setName(Utils.color(name));
+			setLine(Utils.color(name));
 		}else {
 			remove();
 		}
@@ -120,22 +143,30 @@ public class LootChestHologram {
 	 * Manage hologram lines to display / change its name
 	 * @param name
 	 */
-	private void setName(String name){
-		hologram.getLines().clear();
-		Line line = new Line((Plugin)Main.getInstance());
-		// compose an TextLine hologram
-		TextLine textLine = new TextLine(line, name, null, false);
+	private void setLine(String name){
+		// compose a TextLine hologram
+		TextLine textLine = new TextLine((Plugin)Main.getInstance(), name, null, false);
 		hologram.load(textLine);
 	}
 	
 	/**
-	 * @return Creates the hologram as an invisible armorstand
+	 * @return Creates the hologram 
 	 */
 	private Hologram createHologram() {
-		Hologram holo =  new Hologram((Plugin)Main.getInstance(), location, new TextSequentialLoader());
-		getPool().takeCareOf(holo);
+		HologramKey key = new HologramKey(getPool(), chest.getName());
+		Hologram holo =  new Hologram(key, location, new TextSequentialLoader());
 		hologram = holo;
 		return holo;
+	}
+
+	/**
+	 * @return The hologram
+	 */
+	private Hologram getHologram() {
+		if(hologram==null) {
+			createHologram();
+		}
+		return hologram;
 	}
 	
 	/**
@@ -164,7 +195,7 @@ public class LootChestHologram {
     				runnable.cancel();
     			}else {
 					//replace with paragraph character
-    				setName(Utils.color(text));
+    				setLine(Utils.color(text));
     			}
     			if(secondes<=0) {
     				runnable.cancel();
@@ -172,17 +203,6 @@ public class LootChestHologram {
 	    	}
 	    };
 	    runnable.runTaskTimer(Main.getInstance(), 0, 20);
-	}
-	
-	
-	/**
-	 * @return The armorstand entity involved in the hologram
-	 */
-	private Hologram getHologram() {
-		if(hologram==null) {
-			createHologram();
-		}
-		return hologram;
 	}
 	
 }

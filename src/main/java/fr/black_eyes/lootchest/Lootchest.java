@@ -542,6 +542,7 @@ public class Lootchest {
 	 */
 	public void setHolo(String text) {
 		holo = text;
+		hologram.remove();
 		hologram.setText(holo);
 	}
 
