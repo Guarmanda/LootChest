@@ -2,8 +2,8 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>fr.black_eyes.lootchest</groupId>
   <artifactId>LootChest</artifactId>
-  <version>2.3.7</version>
-  <name>LootChest</name>
+  <version>2.3.8</version>
+  <name>LootChest-without-dependencies</name>
   <description>Create higly customizable lootboxes for your minecraft server</description>
   <packaging>jar</packaging>
   <properties>
@@ -14,26 +14,22 @@
   <build>
    <finalName>LootChest</finalName>
    <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>1.6</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <artifactSet>
-                                <includes>
-                                   <include>com.github.unldenis:holoeasy</include>
-                                </includes>
-                            </artifactSet>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+    <plugin>
+      <artifactId>maven-assembly-plugin</artifactId>
+      <executions>
+          <execution>
+              <phase>package</phase>
+              <goals><goal>single</goal></goals>
+          </execution>
+      </executions>
+      <configuration>
+          <descriptorRefs>
+              <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <finalName>LootChest</finalName>
+          <appendAssemblyId>false</appendAssemblyId>
+      </configuration>
+  </plugin>
         </plugins>
  </build>
   <repositories>
@@ -67,10 +63,10 @@
     </repository>
   </repositories>
   <dependencies>
-      <dependency>
-        <groupId>com.github.unldenis</groupId>
-        <artifactId>holoeasy</artifactId>
-        <version>3.1.0</version>
+    <dependency>
+      <groupId>com.github.unldenis</groupId>
+      <artifactId>holoeasy</artifactId>
+      <version>3.1.1</version>
     </dependency>
     <dependency>
         <groupId>com.github.placeholderapi</groupId>
@@ -132,6 +128,7 @@
 	    <groupId>com.github.TechFortress</groupId>
 	    <artifactId>GriefPrevention</artifactId>
 	    <version>16.11.6</version>
+      <scope>provided</scope>
 	  </dependency>
     <dependency>
         <groupId>com.massivecraft</groupId>

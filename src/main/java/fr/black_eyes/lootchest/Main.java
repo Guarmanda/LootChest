@@ -316,6 +316,7 @@ public class Main extends JavaPlugin {
    * These lines are done to update config and language files without erasing options that are already set
    */
   private void updateOldConfig() {
+	  configFiles.setConfig("Max_Filled_Slots_By_Default", 0);
 	  configFiles.setConfig("SaveDataFileDuringReload", true);
 	  configFiles.setConfig("respawn_protection_time_in_second_by_default", 0);
 	  configFiles.setConfig("allow_spawning_on_water", false);
@@ -346,6 +347,9 @@ public class Main extends JavaPlugin {
       configFiles.setLang("removedHolograms", "&aSuccessfully removed &b[Number] LootChest holograms.");
       configFiles.setLang("CantOpenLootchestBecauseMonster", "&cYou can't open this chest while there is [Number] monsters nearby");
 	  configFiles.setLang("blockIsAlreadyLootchest", "&cThis block is already a LootChest!");
+	  configFiles.setLang("editedMaxFilledSlots", "&aYou edited the max filled slots of chest &b[Chest]");
+	  configFiles.setLang("copiedChest", "&6You copied the chest &b[Chest1] &6into the chest &b[Chest2]");
+
       if (configFiles.getLang().isSet("help.line1")) {
           final List<String> tab = new ArrayList<String>();
           for (int i = 1; i <= 17; ++i) {
@@ -401,6 +405,12 @@ public class Main extends JavaPlugin {
 	  if(!configFiles.getLang().getStringList("help").toString().contains("copy")){
     	List<String> help = configFiles.getLang().getStringList("help");
     	help.add("&a/lc copy <name> <name> &b: copy a chest into another");
+    	configFiles.getLang().set("help", help);
+    	configFiles.saveLang();        	
+      }
+	  if(!configFiles.getLang().getStringList("help").toString().contains("maxfilledslots")){
+    	List<String> help = configFiles.getLang().getStringList("help");
+    	help.add("&a/lc maxfilledslots <name> <number> &b: set the max filled slots of a chest");
     	configFiles.getLang().set("help", help);
     	configFiles.saveLang();        	
       }

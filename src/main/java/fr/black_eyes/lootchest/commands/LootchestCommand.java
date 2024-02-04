@@ -42,11 +42,11 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 	 private Main main;
 	 
 	//variables for command completion
-	private static final String[] completions0 = { "locate", "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "setprotection", "reload", "list", "setpos", "give", "randomspawn", "tp", "settime","togglefall", "getname"};
+	private static final String[] completions0 = {"maxfilledslots", "locate", "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "setprotection", "reload", "list", "setpos", "give", "randomspawn", "tp", "settime","togglefall", "getname"};
 	
 	//following args must be followed by chest names
 	private static final List<String> argsFollowedByChest = new ArrayList<>(
-			Arrays.asList("copy","randomspawn", "edit", "respawn", "remove", "setholo", "setpos", "tp", "give", "settime", "togglefall", "setprotection")
+			Arrays.asList("copy","randomspawn", "edit", "respawn", "remove", "setholo", "setpos", "tp", "give", "settime", "togglefall", "setprotection", "maxfilledslots")
 			);
 		private static final List<String> args2FollowedByChest = new ArrayList<>(
 			Arrays.asList("copy")
@@ -382,6 +382,13 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 					utils.copychest(Main.getInstance().getLootChest().get(args[2]), lc);
 					Utils.msg(sender, "copiedChest", "[Chest1]", Main.getInstance().getLootChest().get(args[2]).getName(), "[Chest2]", lc.getName());
 
+				}else if (args[0].equalsIgnoreCase("maxFilledSlots")){
+					Integer maxFilledSlots = Integer.parseInt(args[2]);
+					if(maxFilledSlots >= 0) {
+						lc.setMaxFilledSlots(maxFilledSlots);
+					}
+					utils.updateData(lc);
+					Utils.msg(sender, "editedMaxFilledSlots", cheststr, args[1]);
 				}
 				
 				

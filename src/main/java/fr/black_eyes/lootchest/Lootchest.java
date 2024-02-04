@@ -142,6 +142,7 @@ public class Lootchest {
 
 	@Getter @Setter private BukkitRunnable respawnTask;
 	
+	@Getter @Setter private Integer maxFilledSlots;
 	
 	/**
 	 * Function used in Main / reload for chest loading
@@ -161,6 +162,11 @@ public class Lootchest {
 				case "BARREL": type = Mat.BARREL; break;
 				default: type = Mat.CHEST; break;
 			}
+		}
+		if(!configFiles.getData().isSet("chests."+naming+".maxFilledSlots")){
+			maxFilledSlots = Main.configs.default_maxFilledSlots;
+		}else{
+			maxFilledSlots = configFiles.getData().getInt("chests."+naming+".maxFilledSlots");
 		}
 		name = naming;
 		Integer[] chancesInit = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -248,6 +254,7 @@ public class Lootchest {
 		if(inve.getSize() >27) {
 			main.logInfo("&cDo not use double chests to create chests! Only half of the inventory of the chest was registered.");
 		}
+		maxFilledSlots = Main.configs.default_maxFilledSlots;
 		fall =  Main.configs.FALL_Enabled;
 		respawn_cmd =  Main.configs.NOTE_command_e;
 		respawn_natural =  Main.configs.NOTE_natural_e;
@@ -304,6 +311,7 @@ public class Lootchest {
 		if(randomLoc != null) {
 			utils.setRandomPosition(name, randomLoc);
 		}
+		configFiles.getData().set("chests." + name + ".maxFilledSlots", maxFilledSlots);
 
 	}
 

@@ -20,7 +20,8 @@ FALL_Height,
 PART_number,
 Radius_Without_Monsters_For_Opening_Chest,
 PART_respawn_ticks,
-defaultRespawnProtection;
+defaultRespawnProtection,
+default_maxFilledSlots;
 
 public Boolean saveDataFileDuringReload, 
 use_players_locations_for_randomspawn,
@@ -106,6 +107,7 @@ public Config(FileConfiguration config) {
 	PART_number = config.getInt("Particles.number");
 	PART_respawn_ticks = config.getInt("Particles.respawn_ticks");
 	Radius_Without_Monsters_For_Opening_Chest= config.getInt("Radius_Without_Monsters_For_Opening_Chest");
+	default_maxFilledSlots = config.getInt("Max_Filled_Slots_By_Default");
 
 	saveDataFileDuringReload = config.getBoolean("SaveDataFileDuringReload");
 	allow_spawning_on_water = config.getBoolean("allow_spawning_on_water");

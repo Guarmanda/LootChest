@@ -54,6 +54,8 @@ WorldBorder_Check_For_Spawn: true
 Destroy_Naturally_Instead_Of_Removing_Chest: true
     #Well if you make dungeons, you may prefer players to kill monsters before looting everything
 Radius_Without_Monsters_For_Opening_Chest: 0
+    #How many slots can be filled in a chest before it stops filling with items
+Max_Filled_Slots_By_Default: 0
     #Here comes the funny part :)
 Fall_Effect:
       #the block is on an armorstand's head, so it would be 1 or 2 blocks above the chest, and not really on it

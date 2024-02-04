@@ -29,6 +29,7 @@ commandGetName: '&6Your''e looking the chest &b[Chest]'
 editedChestType: '&aEdited type of chest &b[Chest]'
 CantOpenLootchestBecauseMonster: '&cYou can''t open this chest while there is [Number] monsters nearby'
 blockIsAlreadyLootchest: '&cThis block is already a LootChest!'
+editedMaxFilledSlots: '&aYou edited the max filled slots of chest &b[Chest]'
 locate_command:
   main_message: "&6Location of loot chests:"
   chest_list: "- &b[Chest]&6: [x], [y], [z] in world [world]"
@@ -93,6 +94,7 @@ help:
   - '&a/lc locate &b: gives locations of all chests that haves natural respawn message enabled'
   - '&a/lc setprotection <name> <time> &b: set the spawn protection time in seconds for a chest'
   - '&a/lc copy <name> <name> &b: copy a chest into another'
+  - '&a/lc maxfilledslots <name> <number> &b: set the max filled slots of a chest'
 
 
 

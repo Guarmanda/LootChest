@@ -196,17 +196,20 @@ public class Utils  {
     }
 	
 	//to fill a chest or give chest to player
-    public static void fillInventory(Lootchest name, final Inventory inv, final boolean clear, final Player p) {
+    public static void fillInventory(Lootchest lc, final Inventory inv, final boolean clear, final Player p) {
         if (clear) {
             inv.clear();
         }
-        for (int i=0; i<27; i++){
-        	if(name.getInv().getItem(i) != null && !name.getInv().getItem(i).getType().equals(Material.AIR)) {
-	            final ItemStack item = name.getInv().getItem(i);
+		List<Integer> full_slots = new ArrayList<>();
+
+		//&& (lc.getMaxFilledSlots() == 0 || lc.getMaxFilledSlots() > full_slots)
+        for (int i=0; i<27 ; i++){
+        	if(lc.getInv().getItem(i) != null && !lc.getInv().getItem(i).getType().equals(Material.AIR)) {
+	            final ItemStack item = lc.getInv().getItem(i);
 	            final int slot = i;
 	            final int percent = ThreadLocalRandom.current().nextInt(0, 101);
-	            if (percent <= name.chances[i]) {
-	            	
+	            if (percent <= lc.chances[i]) {
+					full_slots.add(slot);
 	                if (inv.getItem(slot) == null || inv.getItem(slot).getType() == Material.AIR) {
 	                    inv.setItem(slot, item);
 	                }
@@ -219,6 +222,18 @@ public class Utils  {
 	            }
         	}
         }
+
+		//while full_slots >= lc.getMaxFilledSlots(), we remove a random item from the chest
+		if(lc.getMaxFilledSlots() > 0) {
+			while(full_slots.size() > lc.getMaxFilledSlots()) {
+				int index = ThreadLocalRandom.current().nextInt(0, full_slots.size());
+				int slot = full_slots.get(index);
+				if(inv.getItem(slot) != null && inv.getItem(slot).getType() != Material.AIR) {
+					inv.setItem(slot, new ItemStack(Material.AIR));
+					full_slots.remove(index);
+				}
+			}
+		}
     }
 	
 	
