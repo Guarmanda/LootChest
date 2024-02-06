@@ -324,6 +324,8 @@ public class Main extends JavaPlugin {
       configFiles.setConfig("PreventHopperPlacingUnderLootChest", true);
       configFiles.setConfig("respawn_notify.per_world_message", true);
       configFiles.setConfig("respawn_notify.message_on_chest_take", true);
+	  configFiles.setConfig("respawn_notify.respawn_all_with_command_in_world.enabled", true);
+	  configFiles.setConfig("respawn_notify.respawn_all_with_command_in_world.message", "&6All chests where forced to respawn in world [World]!\n&6Get them guys!");
       configFiles.setConfig("Minimum_Number_Of_Players_For_Natural_Spawning", 0);
       configFiles.setConfig("use_players_locations_for_randomspawn", false);
       configFiles.setConfig("Cooldown_Before_Plugin_Start", 0);
@@ -384,6 +386,8 @@ public class Main extends JavaPlugin {
       configFiles.setConfig("Destroy_Naturally_Instead_Of_Removing_Chest", true);
       configFiles.setLang("Menu.time.notInfinite", "&6Reactivate respawn time");
       configFiles.setLang("commandGetName", "&6Your'e looking the chest &b[Chest]");
+	  configFiles.setLang("worldDoesntExist", "&cThe world [World] doesn't exist!");
+	  configFiles.setLang("AllChestsReloadedInWorld", "&aAll chests reloaded in world [World]!");
       if(!configFiles.getLang().getStringList("help").toString().contains("getname")){
       	List<String> help = configFiles.getLang().getStringList("help");
       	help.add("&a/lc getname &b: get the name of the targeted LootChest");
@@ -404,7 +408,7 @@ public class Main extends JavaPlugin {
       }
 	  if(!configFiles.getLang().getStringList("help").toString().contains("copy")){
     	List<String> help = configFiles.getLang().getStringList("help");
-    	help.add("&a/lc copy <name> <name> &b: copy a chest into another");
+    	help.add("&a/lc copy <source> <dest> &b: copy a chest into another");
     	configFiles.getLang().set("help", help);
     	configFiles.saveLang();        	
       }

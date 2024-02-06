@@ -42,7 +42,7 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 	 private Main main;
 	 
 	//variables for command completion
-	private static final String[] completions0 = {"maxfilledslots", "locate", "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "setprotection", "reload", "list", "setpos", "give", "randomspawn", "tp", "settime","togglefall", "getname"};
+	private static final String[] completions0 = {"copy","maxfilledslots", "locate", "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "setprotection", "reload", "list", "setpos", "give", "randomspawn", "tp", "settime","togglefall", "getname"};
 	
 	//following args must be followed by chest names
 	private static final List<String> argsFollowedByChest = new ArrayList<>(
@@ -75,7 +75,7 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 			if (args.length > 0 && !hasPerm(sender, args[0])) {
 				return false;
 			}
-			if (args.length>1 && !Main.getInstance().getLootChest().containsKey(args[1]) && !args[0].equalsIgnoreCase("create")){
+			if (args.length>1 && !Main.getInstance().getLootChest().containsKey(args[1]) && !args[0].equalsIgnoreCase("create") && !args[0].equalsIgnoreCase("respawnall")){
 				Utils.msg(sender, "chestDoesntExist", cheststr, args[1]);
 				return false;
 			}else if(args.length>1 && !args[0].equalsIgnoreCase("create")){
@@ -187,11 +187,38 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 								Utils.sendMultilineMessage(message, p);							
 							}
 						}
-					}
-					
-					
+					}				
 					break;
-				
+				case "respawnall":
+					//get arg 1 and check if it is a world 
+					World w = Bukkit.getWorld(args[1]);
+					if(w == null) {
+						Utils.msg(sender, "worldDoesntExist", "[World]", args[1]);
+					}
+					else{
+						for (final Lootchest l : Main.getInstance().getLootChest().values()) {
+							if(l.getWorld().equals(args[1])) {
+								Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
+									Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
+										l.spawn( true) ;
+									}, 0L);
+								}, 5L);
+							}
+						}
+						if(Main.configs.NOTE_allcmd_world_e ) {
+							if(Main.configs.NOTE_bungee_broadcast) {
+								BungeeChannel.bungeeBroadcast(Utils.color(Main.configs.NOTE_allcmd_msg_world));
+							}else {
+								for(World wo : Bukkit.getWorlds()) {
+									for(Player p : wo.getPlayers()) {
+										Utils.sendMultilineMessage(Main.configs.NOTE_allcmd_msg_world.replace("[World]", args[1]) , p);
+									}
+								}
+							}
+						}
+						Utils.msg(sender, "AllChestsReloadedInWorld", "[World]", args[1]);
+					}
+					break;
 
 
 				default:
@@ -379,8 +406,8 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 						Utils.msg(sender, "chestDoesntExist", cheststr, args[2]);
 						return false;
 					}
-					utils.copychest(Main.getInstance().getLootChest().get(args[2]), lc);
-					Utils.msg(sender, "copiedChest", "[Chest1]", Main.getInstance().getLootChest().get(args[2]).getName(), "[Chest2]", lc.getName());
+					utils.copychest(lc,Main.getInstance().getLootChest().get(args[2]));
+					Utils.msg(sender, "copiedChest", "[Chest1]",lc.getName(), "[Chest2]", args[2]);
 
 				}else if (args[0].equalsIgnoreCase("maxFilledSlots")){
 					Integer maxFilledSlots = Integer.parseInt(args[2]);
@@ -462,6 +489,13 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 			}
 			return completions;
 		
+		}
+		else if(args.length == 2 && args[0].equalsIgnoreCase("respawnall")) {
+			final List<String> completions = new ArrayList<>();
+			for(World w : Bukkit.getWorlds()) {
+				if(w.getName().toLowerCase().startsWith(args[1].toLowerCase())) completions.add(w.getName());
+			}
+			return completions;
 		}
 		return null;
 	}

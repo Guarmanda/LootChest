@@ -100,3 +100,6 @@ respawn_notify:
   respawn_all_with_command:
     enabled: true 
     message: '&6All chests where forced to respawn!\n&6Get them guys!' 
+  respawn_all_with_command_in_world:
+    enabled: true 
+    message: '&6All chests where forced to respawn in world [World]!\n&6Get them guys!'

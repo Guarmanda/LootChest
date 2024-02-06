@@ -30,6 +30,8 @@ editedChestType: '&aEdited type of chest &b[Chest]'
 CantOpenLootchestBecauseMonster: '&cYou can''t open this chest while there is [Number] monsters nearby'
 blockIsAlreadyLootchest: '&cThis block is already a LootChest!'
 editedMaxFilledSlots: '&aYou edited the max filled slots of chest &b[Chest]'
+worldDoesntExist: '&cThe world [World] doesn''t exist!'
+AllChestsReloadedInWorld: '&aAll chests were respawned in world [World]!'
 locate_command:
   main_message: "&6Location of loot chests:"
   chest_list: "- &b[Chest]&6: [x], [y], [z] in world [world]"
@@ -60,7 +62,7 @@ Menu:
     enable_take_message:  '&cMessage on chest take is disabled. Click to &aENABLE &cit'  
   chances:
     name: '&1Item chances of chest [Chest]'
-    lore: '&aLeft click: +1||&aright: -1||&ashift+right: -10||&ashift+left: +10||&atab+right: -50'
+    lore: '&aLeft click: +1||&aright: -1||&ashift+right: -10||&ashift+left: +10||&amiddle: -50%'
   items:
     name: '&1Items in chest [Chest]'
   time:
@@ -79,7 +81,7 @@ help:
   - '&a/lc edit <name> &b: Open editing menu'
   - '&a/lc help &b: Guess it'
   - '&a/lc respawn <name> &b: respawn a chest'
-  - '&a/lc respawnall &b: respawn all chests'
+  - '&a/lc respawnall [world] &b: respawn all chests, optionally in a specific world'
   - '&a/lc remove <name> &b: removes the given chest'
   - '&a/lc setholo <name> <text> &b: set hologram of given chest'
   - '&a/lc reload &b: reloads the plugin'
@@ -93,9 +95,5 @@ help:
   - '&a/lc getname &b: get the name of the targeted LootChest'
   - '&a/lc locate &b: gives locations of all chests that haves natural respawn message enabled'
   - '&a/lc setprotection <name> <time> &b: set the spawn protection time in seconds for a chest'
-  - '&a/lc copy <name> <name> &b: copy a chest into another'
+  - '&a/lc copy <source> <dest> &b: copy a chest into another'
   - '&a/lc maxfilledslots <name> <number> &b: set the max filled slots of a chest'
-
-
-
- 

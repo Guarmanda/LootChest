@@ -47,7 +47,8 @@ NOTE_allcmd_e,
 WorldBorder_Check_For_Spawn,
 Destroy_Naturally_Instead_Of_Removing_Chest,
 TIMER_Show_Timer,
-allow_spawning_on_water;
+allow_spawning_on_water,
+NOTE_allcmd_world_e;
 
 public String FALL_Optionnal_Color_If_Block_Is_Wool,
 PART_default_particle,
@@ -55,6 +56,7 @@ FALL_Block,
 NOTE_natural_msg,
 NOTE_command_msg,
 NOTE_allcmd_msg,
+NOTE_allcmd_msg_world,
 TIMER_H_Sep,
 TIMER_M_Sep,
 TIMER_S_Sep,
@@ -130,6 +132,7 @@ public Config(FileConfiguration config) {
 	NOTE_natural_e = config.getBoolean("respawn_notify.natural_respawn.enabled");
 	NOTE_command_e = config.getBoolean("respawn_notify.respawn_with_command.enabled");
 	NOTE_allcmd_e = config.getBoolean("respawn_notify.respawn_all_with_command.enabled");
+	NOTE_allcmd_world_e = config.getBoolean("respawn_notify.respawn_all_with_command_in_world.enabled");
 	Protect_From_Explosions = config.getBoolean("Protect_From_Explosions");
 	WorldBorder_Check_For_Spawn = config.getBoolean("WorldBorder_Check_For_Spawn") && !Bukkit.getVersion().contains("1.7");
 	Destroy_Naturally_Instead_Of_Removing_Chest = config.getBoolean("Destroy_Naturally_Instead_Of_Removing_Chest");
@@ -142,6 +145,7 @@ public Config(FileConfiguration config) {
 	NOTE_natural_msg = config.getString("respawn_notify.natural_respawn.message");
 	NOTE_command_msg = config.getString("respawn_notify.respawn_with_command.message");
 	NOTE_allcmd_msg = config.getString("respawn_notify.respawn_all_with_command.message");
+	NOTE_allcmd_msg_world = config.getString("respawn_notify.respawn_all_with_command_in_world.message");
 	TIMER_H_Sep = config.getString("Timer_on_hologram.Hours_Separator");
 	TIMER_M_Sep = config.getString("Timer_on_hologram.Minutes_Separator");
 	TIMER_S_Sep = config.getString("Timer_on_hologram.Seconds_Separator");

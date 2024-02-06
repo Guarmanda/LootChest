@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
@@ -22,6 +21,7 @@ import fr.black_eyes.lootchest.Menu;
 import fr.black_eyes.lootchest.Utils;
 import fr.black_eyes.lootchest.commands.LootchestCommand;
 import fr.black_eyes.lootchest.particles.Particle;
+import net.md_5.bungee.api.ChatColor;
 
 public class InventoryListeners implements Listener {
 	
@@ -170,7 +170,7 @@ public class InventoryListeners implements Listener {
         		menu.invcopy(player, lc,j);
         		return;
         	}
-        	String copyChest = e.getCurrentItem().getItemMeta().getDisplayName().replace("�6", "");
+        	String copyChest = e.getCurrentItem().getItemMeta().getDisplayName().replace(ChatColor.GOLD.toString(), "");
         	
         	utils.copychest(Main.getInstance().getLootChest().get(copyChest), Main.getInstance().getLootChest().get(chestName));
         	player.closeInventory();
@@ -233,8 +233,8 @@ public class InventoryListeners implements Listener {
 	        	if(meta.hasLore()) {
 	        		List<String> lore = meta.getLore();
 	        		Integer chance = Integer.parseInt(lore.get(getLoreLine(lore)).replaceAll("%", ""));
-	        			if(e.getAction() == InventoryAction.PICKUP_HALF && chance >50) {
-	        				chance-= 50;
+	        			if(e.getClick() == ClickType.MIDDLE && chance >50) {
+	        				chance/=2;
 	        			}
 	        			else if(e.getClick() == ClickType.SHIFT_LEFT && chance <91) {
 	        				chance+= 10;
