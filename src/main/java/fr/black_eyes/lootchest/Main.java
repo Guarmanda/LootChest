@@ -316,6 +316,13 @@ public class Main extends JavaPlugin {
    * These lines are done to update config and language files without erasing options that are already set
    */
   private void updateOldConfig() {
+	// hotfix
+	// in chances.lore, replace all % by nothing
+	if(configFiles.getLang().getString("Menu.chances.lore").contains("%")) {
+		String lore = configFiles.getLang().getString("Menu.chances.lore");
+		lore = lore.replaceAll("%", "");
+		configFiles.getLang().set("Menu.chances.lore", lore);
+	}
 	  configFiles.setConfig("Max_Filled_Slots_By_Default", 0);
 	  configFiles.setConfig("SaveDataFileDuringReload", true);
 	  configFiles.setConfig("respawn_protection_time_in_second_by_default", 0);

@@ -62,7 +62,7 @@ Menu:
     enable_take_message:  '&cMessage on chest take is disabled. Click to &aENABLE &cit'  
   chances:
     name: '&1Item chances of chest [Chest]'
-    lore: '&aLeft click: +1||&aright: -1||&ashift+right: -10||&ashift+left: +10||&amiddle: -50%'
+    lore: '&aLeft click: +1||&aright: -1||&ashift+right: -10||&ashift+left: +10||&amiddle: -50'
   items:
     name: '&1Items in chest [Chest]'
   time:
