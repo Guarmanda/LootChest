@@ -318,7 +318,7 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 							Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
 								Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
 										if (!l.spawn( false)) {
-											Utils.sheduleRespawn(l);
+											Utils.scheduleReSpawn(l);
 											utils.reactivateEffects(l);
 										}
 										

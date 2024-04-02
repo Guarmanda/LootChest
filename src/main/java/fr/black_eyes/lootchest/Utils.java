@@ -149,11 +149,11 @@ public class Utils  {
 
 	public static Location chooseRandomLocation(Location startingLoc, int radius){
 		int counter = 0;
-		boolean checkreg = Main.configs.Prevent_Chest_Spawn_In_Protected_Places;
-		boolean checkwb = Main.configs.WorldBorder_Check_For_Spawn;
+		boolean checkProtectedBlock = Main.configs.Prevent_Chest_Spawn_In_Protected_Places;
+		boolean checkWorldBorder = Main.configs.WorldBorder_Check_For_Spawn;
 		boolean checkWater = !Main.configs.allow_spawning_on_water;
 		Location spawnLoc = getRandomLocation(startingLoc, radius );
-		while(counter<50 && ((checkreg &&ProtectedRegions.isProtected(spawnLoc)) || (checkWater && spawnLoc.getBlock().isLiquid()) || checkwb && (isOutsideOfBorder(spawnLoc) ))) {
+		while(counter<50 && ((checkProtectedBlock &&ProtectedRegions.isProtected(spawnLoc)) || (checkWater && spawnLoc.getBlock().isLiquid()) || checkWorldBorder && (isOutsideOfBorder(spawnLoc) ))) {
 			spawnLoc = getRandomLocation(startingLoc, radius );
 			counter++;
 		}
@@ -163,8 +163,8 @@ public class Utils  {
 		}else return spawnLoc;
 	}
 	
-	public static void sheduleRespawn(Lootchest lc) {
-		long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime();
+	public static void scheduleReSpawn(Lootchest lc) {
+		long tempsActuel = (new Timestamp(System.currentTimeMillis())).getTime();
 		long minutes = lc.getTime();
 		if(minutes == 0) {
 			lc.spawn(false);
@@ -173,8 +173,8 @@ public class Utils  {
 		if( minutes<0) {
 			return;
 		}
-		long tempsenregistre = lc.getLastreset();
-		long time_to_wait = (minutes*60-((tempsactuel - tempsenregistre)/1000));
+		long tempsEnregistre = lc.getLastReset();
+		long time_to_wait = (minutes*60-((tempsActuel - tempsEnregistre)/1000));
 		//if chest should already have respawned (eg it failed to spawn and send us here), let's retry in 30 seconds
 		if(time_to_wait<0) {
 			time_to_wait = 30;
@@ -264,7 +264,7 @@ public class Utils  {
 			
 		}
 		final Location loc2 = lc.getParticleLocation();
-		for(Particle part : main.getParticules()) {
+		for(Particle part : main.getSupportedParticles()) {
 			if(lc.getParticle() != null && (""+part).contains(lc.getParticle().name())) {
 				main.getPart().put(loc2, part);
 			}
@@ -273,21 +273,25 @@ public class Utils  {
 	}
 
 	public static String getMenuName(String name, String replacement) {
-		String menuname = Utils.getMsg("Menu."+name+".name", "[Chest]", replacement);
+		String menuName = Utils.getMsg("Menu."+name+".name", "[Chest]", replacement);
 		//cut it to 32 chars max 
-		if(menuname.length()>32) {
-			menuname = menuname.substring(0, 32);
+		if(menuName.length()>32) {
+			menuName = menuName.substring(0, 32);
 		}
-		return menuname;
+		return menuName;
 	}
 	
 	//gives a random number from -max to max
 	private static int randomInt(int max) {
 		return ThreadLocalRandom.current().nextInt(0-max, max+1);
 	}
+
+	public static int randomInt(int min, int max) {
+		return ThreadLocalRandom.current().nextInt(min, max+1);
+	}
 	
-	public static Location getRandomLocation(Location startingloc, int radius) {
-		Location center = startingloc.clone();
+	public static Location getRandomLocation(Location startLocation, int radius) {
+		Location center = startLocation.clone();
 		center.setX(randomInt(radius)+center.getX());
 		center.setZ(randomInt(radius)+center.getZ());
 		center.setY(center.getWorld().getHighestBlockYAt(center));
@@ -315,7 +319,7 @@ public class Utils  {
 	/**
 	 * This function was added really recently to spigot. This comes directly from spigot sources. 
 	 * I needed it for all versions, so I had to put it here
-	 * @param yaw - A plaer yaw that wasn't normalized yet
+	 * @param yaw - A player yaw that wasn't normalized yet
 	 * @return a normalized yaw, that allows me to get the player's direction
 	 */
 	public static float normalizeYaw(float yaw) {
@@ -378,7 +382,7 @@ public class Utils  {
 
 	}
 	
-	//geting chest position from config.getData().yml
+	//getting chest position from config.getData().yml
 	public  Location getPosition(String name) {
 		if (configFiles.getData().getString("chests." + name + ".position.world") == null) {
 			main.logInfo("&cThe plugin couldn't get the world of chest &6" + name +"&c. This won't prevent the plugin to work, but the plugin may throw other errors because of that.");
@@ -393,7 +397,7 @@ public class Utils  {
 		return new Location(world, x, y, z, pitch, yaw);
 	}
 	
-	//seting chest position in config.getData().yml
+	//setting chest position in config.getData().yml
 	public  void setPosition(String name, Location loc) {
 		configFiles.getData().set("chests." + name + ".position.world", loc.getWorld().getName());
 		configFiles.getData().set("chests." + name + ".position.x", loc.getX());

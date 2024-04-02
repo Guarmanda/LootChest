@@ -16,6 +16,7 @@ import org.holoeasy.hologram.Hologram;
 import org.holoeasy.hologram.TextSequentialLoader;
 import org.holoeasy.line.TextLine;
 import org.holoeasy.pool.IHologramPool;
+import org.holoeasy.pool.KeyAlreadyExistsException;
 
 import com.github.unldenis.hologram.HologramPool;
 import com.github.unldenis.hologram.line.Line;
@@ -75,12 +76,12 @@ public class LootChestHologram {
 	/**
 	 * set the text of hologram
 	 * setting the text also create the armorstand if not created
-	 * @param loca The location to set the hologram
+	 * @param location The location to set the hologram
 	 */
-	public void setLoc(Location loca) {
+	public void setLoc(Location location) {
 		if(Main.getVersion()>7 && Main.configs.UseHologram){
-			Location loc2 = loca.clone();
-			loc2.add(0.5, Main.configs.Hologram_distance_to_chest+  yPosModifier.getOrDefault(Main.getVersion(), -1.0), 0.5);
+			Location loc2 = location.clone();
+			loc2.add(0.5, Main.configs.Hologram_distance_to_chest+  yPosModifier.getOrDefault(Main.getVersion(), -1.8), 0.5);
 			this.location = loc2;
 			remove();
 			this.setText(chest.getHolo());
@@ -179,8 +180,13 @@ public class LootChestHologram {
 	 */
 	private Object createHologram() {
 		if(Main.getVersion()>8){
-			HologramKey key = new HologramKey(getPool(), chest.getName());
-			hologram =  new Hologram(key, location, new TextSequentialLoader());
+			try{
+				hologram =  new Hologram(new HologramKey(getPool(), chest.getName()), location, new TextSequentialLoader());
+			}catch(KeyAlreadyExistsException e) {
+				Main.getInstance().getLogger().warning("Hologram key already exists, maybe an hologram was badly removed from its pool... The plugin will try to workaround this.");
+				pool.remove(new HologramKey(getPool(), chest.getName()));
+				hologram =  new Hologram(new HologramKey(getPool(), chest.getName()), location, new TextSequentialLoader());
+			}
 			return hologram;
 		}
 		else {
@@ -212,10 +218,10 @@ public class LootChestHologram {
 		runnable = new BukkitRunnable() {
     		public void run() {
     			Object as = getHologram();
-    			long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime()/1000;
+    			long tempsActuel = (new Timestamp(System.currentTimeMillis())).getTime()/1000;
     			long secondes = chest.getTime()*60;
-    			long tempsenregistre = chest.getLastreset()/1000;
-    			secondes = secondes - (tempsactuel - tempsenregistre);
+    			long tempsEnregistre = chest.getLastReset()/1000;
+    			secondes = secondes - (tempsActuel - tempsEnregistre);
     			long secs = secondes%60;
     			long mins = (secondes%3600)/60; 
     			long hours = secondes/3600;

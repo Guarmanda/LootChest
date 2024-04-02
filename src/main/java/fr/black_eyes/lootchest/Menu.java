@@ -40,9 +40,9 @@ public class Menu {
 	public  void invChances(Player p, Lootchest name) {
 		p.closeInventory();
 		LootchestCommand.editinv.put(p, name.getName());
-		String menuname = Utils.getMenuName("chances", name.getName());
-		LootchestCommand.menuName.put(p, menuname);
-		final Inventory inv = createInventory(menuname, 27);
+		String menuName = Utils.getMenuName("chances", name.getName());
+		LootchestCommand.menuName.put(p, menuName);
+		final Inventory inv = createInventory(menuName, 27);
 		for(int i = 0; i < name.getInv().getSize(); i++) {
 			if(name.getInv().getItem(i) != null && name.getInv().getItem(i).getType()!= Material.AIR) {
 				ItemStack item = name.getInv().getItem(i).clone();
@@ -67,9 +67,9 @@ public class Menu {
 	public  void invTime(Player p, Lootchest name) {
 		p.closeInventory();
 		LootchestCommand.editinv.put(p, name.getName());
-		String menuname = Utils.getMenuName("time", name.getName());
-		LootchestCommand.menuName.put(p, menuname);
-		final Inventory inv = createInventory(menuname, 27);
+		String menuName = Utils.getMenuName("time", name.getName());
+		LootchestCommand.menuName.put(p, menuName);
+		final Inventory inv = createInventory(menuName, 27);
 		if(name.getTime() != -1) {
 			inv.setItem(4, getItem(Mat.TOTEM_OF_UNDYING, Utils.getMsg("Menu.time.infinite", " ", " ")));
 		}else {
@@ -125,9 +125,9 @@ public class Menu {
 	public  void invEdit(Player p, Lootchest name) {
 		p.closeInventory();
 		LootchestCommand.editinv.put(p, name.getName());
-		String menuname = Utils.getMenuName("items", name.getName());
-		LootchestCommand.menuName.put(p, menuname);
-		final Inventory inv = createInventory(menuname, 27);
+		String menuName = Utils.getMenuName("items", name.getName());
+		LootchestCommand.menuName.put(p, menuName);
+		final Inventory inv = createInventory(menuName, 27);
 		inv.setContents(name.getInv().getContents());;
 		LootchestCommand.editinv.put(p, name.getName());
 		p.openInventory(inv);
@@ -136,14 +136,14 @@ public class Menu {
 	public  void invcopy(Player p, Lootchest chest, int j) {
 		p.closeInventory();
 		LootchestCommand.editinv.put(p, chest.getName());
-		String menuname = Utils.getMenuName("copy", chest.getName());
-		LootchestCommand.menuName.put(p, menuname);
+		String menuName = Utils.getMenuName("copy", chest.getName());
+		LootchestCommand.menuName.put(p, menuName);
 		int i = 0;
 		int nbBoxes = 0;
-		final Inventory inv = createInventory(menuname, 54);
-		Set<String> unsortedboxes = Main.getInstance().getLootChest().keySet();
+		final Inventory inv = createInventory(menuName, 54);
+		Set<String> unsortedBoxes = Main.getInstance().getLootChest().keySet();
 		SortedSet<String> boxes = new TreeSet<String>();
-		boxes.addAll(unsortedboxes);
+		boxes.addAll(unsortedBoxes);
 
 		for(String keys : boxes) {
 			if(j== 2 && nbBoxes < 53) nbBoxes++;
@@ -198,9 +198,9 @@ public class Menu {
 	public void invType(Player p, Lootchest name) {
 		p.closeInventory();
 		LootchestCommand.editinv.put(p, name.getName());
-		String menuname = Utils.getMenuName("type", name.getName());
-		LootchestCommand.menuName.put(p, menuname);
-		final Inventory inv = createInventory(menuname, 9);
+		String menuName = Utils.getMenuName("type", name.getName());
+		LootchestCommand.menuName.put(p, menuName);
+		final Inventory inv = createInventory(menuName, 9);
 		inv.setItem(0, new ItemStack(Mat.CHEST, 1));
 		inv.setItem(1, new ItemStack(Mat.TRAPPED_CHEST, 1));
 		if(Mat.BARREL!=Mat.CHEST) {
@@ -213,9 +213,9 @@ public class Menu {
 	public  void mainInv(Player p, String name) {
 		p.closeInventory();
 		LootchestCommand.editinv.put(p, name);
-		String menuname = Utils.getMenuName("main", name);
-		LootchestCommand.menuName.put(p, menuname);
-        final Inventory inv = createInventory(menuname, 36);
+		String menuName = Utils.getMenuName("main", name);
+		LootchestCommand.menuName.put(p, menuName);
+        final Inventory inv = createInventory(menuName, 36);
         inv.setItem(4, getItem(Mat.ENDER_CHEST, Utils.getMsg("Menu.main.copychest", " ", " ")));
         if(Main.configs.PART_enable) {
         	inv.setItem(11, getItem(Mat.ENDER_EYE, Utils.getMsg("Menu.main.particles", " ", " ")));
@@ -256,11 +256,11 @@ public class Menu {
 	public  void particleInv(Player p, Lootchest chest, int j) {
 		p.closeInventory();
 		LootchestCommand.editinv.put(p, chest.getName());
-		String menuname = Utils.getMenuName("particles", chest.getName());
-		LootchestCommand.menuName.put(p, menuname);
+		String menuName = Utils.getMenuName("particles", chest.getName());
+		LootchestCommand.menuName.put(p, menuName);
 		int i = 0;
 		int nbBoxes = 0;
-		final Inventory inv = createInventory(menuname, 54);
+		final Inventory inv = createInventory(menuName, 54);
 		Collection<Particle> boxes = Main.getInstance().getParticles().values();
 		//on laisse une ligne vide pour d§sactiver les particules
 		if(j==1) {

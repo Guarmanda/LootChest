@@ -34,7 +34,7 @@ import lombok.Setter;
 
 
 public class Main extends JavaPlugin {
-	@Getter private Particle particules[];
+	@Getter private Particle supportedParticles[];
 	@Getter private HashMap<Location, Long> protection = new HashMap<>();
 	@Getter private HashMap<String, Particle> particles = new HashMap<>();
 	@Getter private HashMap<Location, Particle> part = new HashMap<>();
@@ -83,7 +83,7 @@ public class Main extends JavaPlugin {
 	}
 	
 	/**
-	 * Send a message to logs with colours, only if logs are enabled in config.
+	 * Send a message to logs with colors, only if logs are enabled in config.
 	 * @param msg the message to send
 	 */
     public void logInfo(String msg) {
@@ -195,7 +195,7 @@ public class Main extends JavaPlugin {
 			configs.UseHologram = false;
 			configs.WorldBorder_Check_For_Spawn = false;
 			logInfo("&eYou're using 1.7, I disabled worldborder check because worldborder is implemented in spigot from 1.8");
-			logInfo("&eYou're using 1.7, I disabled holograms because it uses armorstands, wich are implemented in spigot from 1.8");
+			logInfo("&eYou're using 1.7, I disabled holograms because it uses armorstands, which are implemented in spigot from 1.8");
 					
 		}
         logInfo("Starting particles...");
@@ -218,50 +218,50 @@ public class Main extends JavaPlugin {
 	 * Servers with bad performances (or with 400 chests) should disable particles.
 	 */
 	private void startParticles() {
-		if(Main.getVersion() > 7){
-			new BukkitRunnable() {
-				public void run() {
-					try{
-						float radius = (float) configs.PART_radius;
-						float speed = (float)configs.PART_speed;
-						int number = configs.PART_number;
-						if (configs.PART_enable) {
-							for(Map.Entry<Location, Particle> entry: part.entrySet()) {
-								Boolean loaded = entry.getKey().getWorld().isChunkLoaded((int)entry.getKey().getX()/16, (int)entry.getKey().getZ()/16) ;
-								if (loaded) {
-									new Thread(() -> {
+		new Thread(() -> {
+			if(Main.getVersion() > 7){
+				new BukkitRunnable() {
+					public void run() {
+						try{
+							float radius = (float) configs.PART_radius;
+							float speed = (float)configs.PART_speed;
+							int number = configs.PART_number;
+							if (configs.PART_enable) {
+								for(Map.Entry<Location, Particle> entry: part.entrySet()) {
+									Boolean loaded = entry.getKey().getWorld().isChunkLoaded((int)entry.getKey().getX()/16, (int)entry.getKey().getZ()/16) ;
+									if (loaded) {	
 										if(entry.getValue()!=null)
 											try{
 												entry.getValue().display(radius, radius, radius, speed, number, entry.getKey(), entry.getKey().getWorld().getPlayers());
 											}catch(Exception e) {
 												// concurrent modification exception, just ignore it
 											}
-									}).start();
+									}
 								}
 							}
-						}
-					}catch(Exception e) {
-						// concurrent modification exception, just ignore it
-					}
-				}
-			}.runTaskTimer(this, 0, configs.PART_respawn_ticks);
-		}else{
-			new BukkitRunnable() {
-				public void run() {
-					float radius = (float) configs.PART_radius;
-					float speed = (float)configs.PART_speed;
-					int number = configs.PART_number;
-					if (configs.PART_enable) {
-						for(Map.Entry<Location, Particle> entry: part.entrySet()) {
-							Boolean loaded = entry.getKey().getWorld().isChunkLoaded((int)entry.getKey().getX()/16, (int)entry.getKey().getZ()/16) ;
-							if (loaded && entry.getValue()!=null)
-								entry.getValue().display(radius, radius, radius, speed, number, entry.getKey(), entry.getKey().getWorld().getPlayers());
-							
+						}catch(Exception e) {
+							// concurrent modification exception, just ignore it
 						}
 					}
-				}
-			}.runTaskTimer(this, 0, configs.PART_respawn_ticks);
-		}
+				}.runTaskTimer(this, 0, configs.PART_respawn_ticks);
+			}else{
+				new BukkitRunnable() {
+					public void run() {
+						float radius = (float) configs.PART_radius;
+						float speed = (float)configs.PART_speed;
+						int number = configs.PART_number;
+						if (configs.PART_enable) {
+							for(Map.Entry<Location, Particle> entry: part.entrySet()) {
+								Boolean loaded = entry.getKey().getWorld().isChunkLoaded((int)entry.getKey().getX()/16, (int)entry.getKey().getZ()/16) ;
+								if (loaded && entry.getValue()!=null)
+									entry.getValue().display(radius, radius, radius, speed, number, entry.getKey(), entry.getKey().getWorld().getPlayers());
+								
+							}
+						}
+					}
+				}.runTaskTimer(this, 0, configs.PART_respawn_ticks);
+			}
+		}).start();
 	}
     		
 	/**
@@ -269,9 +269,9 @@ public class Main extends JavaPlugin {
 	 */
 	@SuppressWarnings("deprecation") //compatibility with 1.7
 	private void loadChests() {
-		long cooldown = configs.Cooldown_Before_Plugin_Start;
-    	if(cooldown>0) 
-			logInfo("Chests will load in "+ cooldown + " seconds.");
+		long countdown = configs.Cooldown_Before_Plugin_Start;
+    	if(countdown>0) 
+			logInfo("Chests will load in "+ countdown + " seconds.");
     	
         this.getServer().getScheduler().runTaskLater(this, new Runnable() {
 
@@ -281,11 +281,11 @@ public class Main extends JavaPlugin {
 		    	long current = (new Timestamp(System.currentTimeMillis())).getTime();
 				for(String keys : configFiles.getData().getConfigurationSection("chests").getKeys(false)) {
 					String name = configFiles.getData().getString("chests." + keys + ".position.world");
-					String randomname = name;
+					String randomName = name;
 					if( configFiles.getData().getInt("chests." + keys + ".randomradius")>0) {
-						 randomname = configFiles.getData().getString("chests." + keys + ".randomPosition.world");
+						 randomName = configFiles.getData().getString("chests." + keys + ".randomPosition.world");
 					}
-					if(name != null && Utils.isWorldLoaded(randomname) && Utils.isWorldLoaded(name)) {
+					if(name != null && Utils.isWorldLoaded(randomName) && Utils.isWorldLoaded(name)) {
 						getLootChest().put(keys, new Lootchest(keys));
 					}
 					else {
@@ -299,7 +299,7 @@ public class Main extends JavaPlugin {
 					Bukkit.getScheduler().scheduleAsyncDelayedTask(instance, () -> 
 						Bukkit.getScheduler().scheduleSyncDelayedTask(instance, () -> {
 							if (!lc.spawn(false)) {
-								Utils.sheduleRespawn(lc);
+								Utils.scheduleReSpawn(lc);
 								utils.reactivateEffects(lc);
 							}
 						}, 0L)
@@ -307,7 +307,7 @@ public class Main extends JavaPlugin {
 		        }
 		    	logInfo("Plugin loaded");
 	        }
-	    }, cooldown+1 * 20);
+	    }, countdown+1 * 20);
 	}
 	
 	
@@ -504,12 +504,12 @@ public class Main extends JavaPlugin {
 				cpt++;
 			}
 		}
-		particules = new Particle[cpt];
+		supportedParticles = new Particle[cpt];
 		int i = 0;
 		for(Particle p:Particle.values()) {
 			if(p.isSupported()) {
 				particles.put(p.getName(), p);
-				particules[i++] = p;
+				supportedParticles[i++] = p;
 			}
 		}
 	}
@@ -530,9 +530,9 @@ public class Main extends JavaPlugin {
 		}
 		while( contents.contains(i+"data.yml")) {
 			if (contents.contains((i+10)+"data.yml")) {
-				Path oldbackup = Paths.get(instance.getDataFolder() +"/backups/"+ (i)+"data.yml");
+				Path oldBackup = Paths.get(instance.getDataFolder() +"/backups/"+ (i)+"data.yml");
 				try {
-					java.nio.file.Files.deleteIfExists(oldbackup);
+					java.nio.file.Files.deleteIfExists(oldBackup);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -542,9 +542,9 @@ public class Main extends JavaPlugin {
 		}
 		
 		//auto-deletion of backup to keep only the 10 last ones
-		Path oldbackup = Paths.get(instance.getDataFolder() +"/backups/"+ (i-10)+"data.yml");
+		Path oldBackup = Paths.get(instance.getDataFolder() +"/backups/"+ (i-10)+"data.yml");
 		try {
-			java.nio.file.Files.deleteIfExists(oldbackup);
+			java.nio.file.Files.deleteIfExists(oldBackup);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -74,9 +74,9 @@ public class Lootchest {
 	 * @return the last respawn date of the chest, in milliseconds.
 	 */
 	@Getter /**
-	 * @param lastreset the last respawn date of the chest, in milliseconds.
+	 * @param lastReset the last respawn date of the chest, in milliseconds.
 	 */
-	private long lastreset;
+	private long lastReset;
 	/**
 	 * @return the particle to spawn around the lootchest
 	 */
@@ -102,14 +102,14 @@ public class Lootchest {
 	 * @return the value of the take_msg boolean, which says if we should send a broadcast if the chest taken/looted by a player
 	 */
 	@Getter /**
-	 * @param take_msg boolean, which says if we should send a broadcast if the chest taken/looted by a playe
+	 * @param take_msg boolean, which says if we should send a broadcast if the chest taken/looted by a player
 	 */
 	@Setter private Boolean take_msg;
 	/**
-	 * @return the radius around the global location, to set the randm location
+	 * @return the radius around the global location, to set the random location
 	 */
 	@Getter /** 
-	 * @param radius the radius around the global location, to set the randm location
+	 * @param radius the radius around the global location, to set the random location
 	 */
 	@Setter private int radius;
 	/**
@@ -222,7 +222,7 @@ public class Lootchest {
 		take_msg =  configFiles.getData().getBoolean("chests." + naming + ".take_message");
 		world = configFiles.getData().getString("chests." + naming + ".position.world");
 		direction = configFiles.getData().getString("chests." + naming + ".direction");
-		lastreset = configFiles.getData().getLong("chests." + name + ".lastreset");
+		lastReset = configFiles.getData().getLong("chests." + name + ".lastreset");
 		
 		hologram = new LootChestHologram(this);
 	}
@@ -244,14 +244,14 @@ public class Lootchest {
 		inv = Bukkit.createInventory(null, 27);
 		Integer[] chancesInit = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 		chances = chancesInit;
-		Inventory inve =  ((InventoryHolder) chest.getState()).getInventory();
+		Inventory inventory =  ((InventoryHolder) chest.getState()).getInventory();
 		for(int i = 0 ; i < 27 ; i++) {
-			if(inve.getItem(i) != null) {
-				inv.setItem( i, inve.getItem(i));
+			if(inventory.getItem(i) != null) {
+				inv.setItem( i, inventory.getItem(i));
 				chances[i] =  Main.configs.default_item_chance;
 			}
 		}
-		if(inve.getSize() >27) {
+		if(inventory.getSize() >27) {
 			main.logInfo("&cDo not use double chests to create chests! Only half of the inventory of the chest was registered.");
 		}
 		maxFilledSlots = Main.configs.default_maxFilledSlots;
@@ -265,7 +265,7 @@ public class Lootchest {
 		holo = name;
 		time =  Main.configs.default_reset_time;
 		globalLoc =  chest.getLocation();
-		lastreset =  new Timestamp(System.currentTimeMillis()).getTime();
+		lastReset =  new Timestamp(System.currentTimeMillis()).getTime();
 	   	particle =  Particle.valueOf(Main.configs.PART_default_particle);
 	   	radius = 0;
 	   	world = chest.getWorld().getName();
@@ -302,7 +302,7 @@ public class Lootchest {
 		configFiles.getData().set("chests." + name + ".time", time);
 		configFiles.getData().set("chests." + name + ".protectionTime", protectionTime);
 		utils.setPosition(name, globalLoc);
-		configFiles.getData().set("chests." + name + ".lastreset", lastreset);
+		configFiles.getData().set("chests." + name + ".lastreset", lastReset);
 		if(particle!=null)
 			configFiles.getData().set("chests." +name+ ".particle", particle.name());
 		else
@@ -330,18 +330,18 @@ public class Lootchest {
 	 * @return true if the chunk was loaded before, false if it wasn't
 	 */
 	public boolean despawn(){
-		Location startloc = getActualLocation();
-		Boolean loaded = startloc.getWorld().isChunkLoaded((int)startloc.getX()/16, (int)startloc.getZ()/16) ;
-		if(Utils.isWorldLoaded(getWorld()) && isGoodType(startloc.getBlock())) {
-			Block chest = startloc.getBlock();
+		Location startLocation = getActualLocation();
+		Boolean loaded = startLocation.getWorld().isChunkLoaded((int)startLocation.getX()/16, (int)startLocation.getZ()/16) ;
+		if(Utils.isWorldLoaded(getWorld()) && isGoodType(startLocation.getBlock())) {
+			Block chest = startLocation.getBlock();
 			((InventoryHolder) chest.getLocation().getBlock().getState()).getInventory().clear();
 			chest.setType(Material.AIR);
 			Main.getInstance().getPart().remove(getParticleLocation());
 			hologram.remove();
 		}
-		Boolean loaded2 = startloc.getWorld().isChunkLoaded((int)startloc.getX()/16, (int)startloc.getZ()/16) ;
+		Boolean loaded2 = startLocation.getWorld().isChunkLoaded((int)startLocation.getX()/16, (int)startLocation.getZ()/16) ;
 		if(loaded != loaded2) {
-			startloc.getWorld().unloadChunk((int)startloc.getX()/16, (int)startloc.getZ()/16);
+			startLocation.getWorld().unloadChunk((int)startLocation.getX()/16, (int)startLocation.getZ()/16);
 			return false;
 		}
 		return true;
@@ -359,7 +359,7 @@ public class Lootchest {
 	private boolean checkIfTimeToRespawn(){
 		long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime();
 		long minutes = getTime()*60*1000;
-		long tempsenregistre = getLastreset();
+		long tempsenregistre = getLastReset();
 		return (tempsactuel - tempsenregistre > minutes && minutes>-1);
 	}
 
@@ -367,13 +367,13 @@ public class Lootchest {
 	 * used by spawn, spawns the chest
 	 * @param name - A Lootchest to spawn
 	 * @param block - The block concerned, where the spawn will append
-	 * @param theloc - Location of the block
+	 * @param blockLocation - Location of the block
 	 * @param force - True if respawned with a command
 	 */
-	private void createchest( Block block, Location theloc) {
+	private void createChest( Block block, Location blockLocation) {
 		block.setType(getType());
-		Inventory inve = ((InventoryHolder) block.getState()).getInventory();
-		Utils.fillInventory(this, inve, true, null);
+		Inventory inventory = ((InventoryHolder) block.getState()).getInventory();
+		Utils.fillInventory(this, inventory, true, null);
 		MaterialData data = null;
 		//if the chest isn't a barrel, we can change its direction
 		if( !(Mat.CHEST != Mat.BARREL && getType() == Mat.BARREL) && Main.getVersion()>7) {
@@ -387,15 +387,15 @@ public class Lootchest {
 		// spawn particles and hologram if needed
 		final Location loc2 = getParticleLocation();
 		if(getParticle() != null && Main.configs.PART_enable){
-			for(Particle part : Main.getInstance().getParticules()) {
+			for(Particle part : Main.getInstance().getSupportedParticles()) {
 				if((""+part).contains(getParticle().name())) {
 					Main.getInstance().getPart().put(loc2, part);
 				}
 			}
 		}
-		getHologram().setLoc(theloc);
+		getHologram().setLoc(blockLocation);
 		
-		setLastreset();
+		setLastReset();
 		if(Main.configs.save_Chest_Locations_At_Every_Spawn) {
 			saveInConfig();
 			Main.getInstance().getConfigFiles().saveData();
@@ -406,32 +406,32 @@ public class Lootchest {
 			Main.getInstance().getProtection().put(block.getLocation(), now+protectionTime*1000);
 		}
 		Bukkit.getPluginManager().callEvent(new LootChestSpawnEvent(this));
-		Utils.sheduleRespawn(this);
+		Utils.scheduleReSpawn(this);
 	}
 
-	//set le coffre et remplir son inventaire, cr§er l'holo en fonction du nom 
+	//set le coffre et remplir son inventaire, crÃÂÃÂÃÂÃÂ§er l'holo en fonction du nom 
 	//Restores the chest if it is time to do it, or if we force respawn. 
 	public boolean spawn(Boolean force) {
 		// if world is not loaded || lootchest was deleted || not enough players
 		if(!Utils.isWorldLoaded(getWorld()) || !Main.getInstance().getLootChest().containsValue(this) ) {
-			Utils.sheduleRespawn(this);
+			Utils.scheduleReSpawn(this);
 			return false;
 		}
 		// if (there's not enough player || it's not time to respawn) && we didn't force respawn
 		if( !checkIfTimeToRespawn() && !force) {
-			Utils.sheduleRespawn(this);
+			Utils.scheduleReSpawn(this);
 			return false;
 		}
 		if(!checkIfEnoughPlayers() && !force) {
-			Utils.sheduleRespawn(this);
+			Utils.scheduleReSpawn(this);
 			return false;
 		}
-		Location actualloc = getActualLocation();
-		Boolean chunk_was_loaded = actualloc.getWorld().isChunkLoaded((int)actualloc.getX()/16, (int)actualloc.getZ()/16) ;
+		Location actualLocation = getActualLocation();
+		Boolean chunk_was_loaded = actualLocation.getWorld().isChunkLoaded((int)actualLocation.getX()/16, (int)actualLocation.getZ()/16) ;
 		
 		Location globalLocation = getPosition();
 		Location spawnLoc = globalLocation.clone();
-		//if randomspawn is enabled, we get a random location in the radius
+		//if randomSpawn is enabled, we get a random location in the radius
 		if(getRadius() !=0){
 			//if this option is true, we take the location of one of online players randomly.
 			if(Main.configs.use_players_locations_for_randomspawn ) {
@@ -441,7 +441,7 @@ public class Lootchest {
 			spawnLoc = Utils.getRandomLocation(globalLocation, radius);
 			if(spawnLoc == null){
 				Main.getInstance().logInfo(Utils.color("&cThe chest " + getName() + " didn't found a good location, so that it couldn't respawn! " ));
-				Utils.sheduleRespawn(this);
+				Utils.scheduleReSpawn(this);
 				return false;
 			}
 			// whatever happens after, the chest will spawn, so we can set this
@@ -471,14 +471,14 @@ public class Lootchest {
 		}
 
 		// make the fall effect
-		final Block newblock = spawnLoc.getBlock();
+		final Block newBlock = spawnLoc.getBlock();
 		if(getFall()) {
 			int height = Main.configs.FALL_Height;
-			Location startloc = new Location(spawnLoc.getWorld(), spawnLoc.getX()+0.5, spawnLoc.getY()+height, spawnLoc.getZ()+0.5);
-			new FallingPackageEntity(startloc, chunk_was_loaded, spawnLoc);
+			Location startLocation = new Location(spawnLoc.getWorld(), spawnLoc.getX()+0.5, spawnLoc.getY()+height, spawnLoc.getZ()+0.5);
+			new FallingPackageEntity(startLocation, chunk_was_loaded, spawnLoc);
 			getHologram().remove();
 		}
-		createchest(newblock, spawnLoc);
+		createChest(newBlock, spawnLoc);
 		
 		return true;
 	}
@@ -514,14 +514,14 @@ public class Lootchest {
 
 
 	/**
-	 * @param inve
+	 * @param inventory
 	 */
-	public void setInventory(Inventory inve) {
+	public void setInventory(Inventory inventory) {
 		// if we don't clear the existing inv, removed items will still be in the chest
 		inv.clear();
-		for(int i = 0 ; i < inve.getSize() ; i++) {
-			if(inve.getItem(i) != null) {
-				inv.setItem( i, inve.getItem(i));
+		for(int i = 0 ; i < inventory.getSize() ; i++) {
+			if(inventory.getItem(i) != null) {
+				inv.setItem( i, inventory.getItem(i));
 				if(chances[i] ==0) {
 					chances[i] =  Main.configs.default_item_chance;
 				}
@@ -554,8 +554,8 @@ public class Lootchest {
 		hologram.setText(holo);
 	}
 
-	public void setLastreset() {
-		this.lastreset = (new Timestamp(System.currentTimeMillis())).getTime();
+	public void setLastReset() {
+		this.lastReset = (new Timestamp(System.currentTimeMillis())).getTime();
 	}
     
 }
