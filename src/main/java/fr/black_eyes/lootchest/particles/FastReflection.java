@@ -54,8 +54,6 @@ public final class FastReflection {
     }
 
     public static Optional<Class<?>> optionalClass(String className) {
-        System.out.println(VERSION+"");
-        System.out.println(Bukkit.getBukkitVersion());
 
         try {
             return Optional.of(Class.forName(className));
