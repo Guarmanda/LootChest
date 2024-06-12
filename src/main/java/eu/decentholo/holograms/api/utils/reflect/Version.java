@@ -49,7 +49,7 @@ public enum Version {
         CURRENT = getCurrentVersion();
     }
 
-    private static Version getCurrentVersion() {
+    public static Version getCurrentVersion() {
         return fromMinecraftVersion(CURRENT_MINECRAFT_VERSION);
     }
 

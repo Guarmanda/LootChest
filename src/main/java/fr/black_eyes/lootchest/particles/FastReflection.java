@@ -2,6 +2,8 @@ package fr.black_eyes.lootchest.particles;
 
 import org.bukkit.Bukkit;
 
+import eu.decentholo.holograms.api.utils.reflect.Version;
+
 import java.util.Optional;
 
 /**
@@ -14,9 +16,14 @@ public final class FastReflection {
     public static final String OBC_PACKAGE = "org.bukkit.craftbukkit";
     public static final String NMS_PACKAGE = "net.minecraft.server";
 
-    public static final String VERSION = Bukkit.getServer().getClass().getSimpleName().equals("CraftServer")
+    public static final String VERSION =
+    //NSM versions aren't checkable anymore since 1.20.6. But we can still use this for old versions
+        Particle.getVersion() < 20 ?
+            ( Bukkit.getServer().getClass().getSimpleName().equals("CraftServer")
             ? Bukkit.getServer().getClass().getPackage().getName().substring(OBC_PACKAGE.length() + 1)
-            : "unknown";
+            : "unknown")
+    // now for new ones:
+        : Version.getCurrentVersion().name();
 
     private FastReflection() {
         throw new UnsupportedOperationException();
@@ -49,8 +56,7 @@ public final class FastReflection {
     public static Optional<Class<?>> optionalClass(String className) {
         System.out.println(VERSION+"");
         System.out.println(Bukkit.getBukkitVersion());
-        [08:33:11 INFO]: [LootChest] [STDOUT] v1_20_R3
-        [08:33:11 INFO]: [LootChest] [STDOUT] 1.20.4-R0.1-SNAPSHOT
+
         try {
             return Optional.of(Class.forName(className));
         } catch (ClassNotFoundException e) {

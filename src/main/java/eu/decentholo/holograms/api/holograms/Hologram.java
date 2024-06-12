@@ -16,10 +16,7 @@ import eu.decentholo.holograms.api.Settings;
 import eu.decentholo.holograms.api.holograms.enums.EnumFlag;
 import eu.decentholo.holograms.api.holograms.objects.UpdatingHologramObject;
 import eu.decentholo.holograms.api.nms.NMS;
-import eu.decentholo.holograms.api.utils.DExecutor;
 import eu.decentholo.holograms.api.utils.collection.DList;
-import eu.decentholo.holograms.api.utils.config.FileConfig;
-import eu.decentholo.holograms.api.utils.location.LocationUtils;
 import eu.decentholo.holograms.api.utils.reflect.Version;
 import eu.decentholo.holograms.api.utils.scheduler.S;
 import eu.decentholo.holograms.api.utils.tick.ITicked;
@@ -31,11 +28,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -112,7 +107,7 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
 
     protected final @NonNull String name;
     protected boolean saveToFile;
-    protected final @Nullable FileConfig config;
+
     protected final @NonNull Map<UUID, Integer> viewerPages = new ConcurrentHashMap<>();
     protected final @NonNull Set<UUID> hidePlayers = ConcurrentHashMap.newKeySet();
     protected final @NonNull Set<UUID> showPlayers = ConcurrentHashMap.newKeySet();
@@ -133,7 +128,7 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
      * @param location The location of the hologram.
      */
     public Hologram(@NonNull String name, @NonNull Location location) {
-        this(name, location, true);
+        this(name, location, null, true);
     }
 
     /**
@@ -144,19 +139,9 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
      * @param saveToFile Whether the hologram should be saved to a file.
      */
     public Hologram(@NonNull String name, @NonNull Location location, boolean saveToFile) {
-        this(name, location, saveToFile ? new FileConfig(DECENT_HOLOGRAMS.getPlugin(), String.format("holograms/%s.yml", name)) : null);
+        this(name, location);
     }
 
-    /**
-     * Creates a new hologram with the given name and location. The hologram will be saved to the given file.
-     *
-     * @param name     The name of the hologram.
-     * @param location The location of the hologram.
-     * @param config   The config of the hologram.
-     */
-    public Hologram(@NonNull String name, @NonNull Location location, @Nullable FileConfig config) {
-        this(name, location, config, true);
-    }
 
     /**
      * Creates a new hologram with the given name and location.
@@ -166,12 +151,11 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
      * @param config   The config of the hologram.
      * @param enabled  Whether the hologram should be enabled.
      */
-    public Hologram(@NonNull String name, @NonNull Location location, @Nullable FileConfig config, boolean enabled) {
+    public Hologram(@NonNull String name, @NonNull Location location, @Nullable Object config, boolean enabled) {
         super(location);
         this.name = name;
-        this.config = config;
         this.enabled = enabled;
-        this.saveToFile = this.config != null;
+        this.saveToFile = false;
         this.tickCounter = new AtomicInteger();
         this.addPage();
         this.register();
@@ -222,9 +206,6 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
     @Override
     public void delete() {
         super.delete();
-        if (config != null) {
-            config.delete();
-        }
     }
 
     /**
@@ -305,41 +286,6 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
         return pages.size();
     }
 
-    /**
-     * Save this hologram to a file asynchronously.
-     *
-     * @implNote Always returns true. If the hologram is not persistent,
-     * this method just doesn't do anything.
-     */
-    public void save() {
-        if (!saveToFile) {
-            return;
-        }
-
-        DExecutor.execute(() -> {
-            try {
-                lock.tryLock(250, TimeUnit.MILLISECONDS);
-
-                config.set("location", LocationUtils.asString(getLocation(), false));
-                config.set("enabled", isEnabled());
-                config.set("permission", permission == null || permission.isEmpty() ? null : permission);
-                config.set("flags", flags.isEmpty() ? null : flags.stream().map(EnumFlag::name).collect(Collectors.toList()));
-                config.set("display-range", displayRange);
-                config.set("update-range", updateRange);
-                config.set("update-interval", updateInterval);
-                config.set("facing", facing);
-                config.set("down-origin", downOrigin);
-                config.set("pages", pages.stream().map(HologramPage::serializeToMap).collect(Collectors.toList()));
-                config.saveData();
-                config.reload();
-            } catch (InterruptedException e) {
-                // Failed to acquire lock, cancel save.
-            } finally {
-                // Prevents deadlocks
-                lock.unlock();
-            }
-        });
-    }
 
     /**
      * Create a new instance of this hologram object that's identical to this one.

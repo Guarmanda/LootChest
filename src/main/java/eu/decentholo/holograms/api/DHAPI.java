@@ -98,7 +98,7 @@ public final class DHAPI {
             }
         }
         hologram.showAll();
-        hologram.save();
+
         return hologram;
     }
 
@@ -137,7 +137,7 @@ public final class DHAPI {
         hologramLocation.setZ(location.getZ());
         hologram.setLocation(hologramLocation);
         hologram.realignLines();
-        hologram.save();
+
     }
 
     /**
@@ -230,7 +230,7 @@ public final class DHAPI {
     public static HologramLine addHologramLine(HologramPage page, String content) throws IllegalArgumentException {
         HologramLine line = new HologramLine(page, page.getNextLineLocation(), content);
         page.addLine(line);
-        page.getParent().save();
+ 
         return line;
     }
 
@@ -282,7 +282,7 @@ public final class DHAPI {
         }
         HologramLine line = new HologramLine(page, oldLine.getLocation().clone(), content);
         page.insertLine(index, line);
-        page.getParent().save();
+  
         return line;
     }
 
@@ -326,7 +326,7 @@ public final class DHAPI {
             throw new IllegalArgumentException("Given page index is out of bounds for the hologram.");
         }
         HologramLine line = page.removeLine(lineIndex);
-        hologram.save();
+  
         return line;
     }
 

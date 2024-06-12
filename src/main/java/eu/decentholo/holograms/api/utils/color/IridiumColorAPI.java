@@ -4,10 +4,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.decentholo.holograms.api.Settings;
 import eu.decentholo.holograms.api.utils.color.caching.LruCache;
-import eu.decentholo.holograms.api.utils.color.patterns.GradientPattern;
-import eu.decentholo.holograms.api.utils.color.patterns.Pattern;
-import eu.decentholo.holograms.api.utils.color.patterns.RainbowPattern;
-import eu.decentholo.holograms.api.utils.color.patterns.SolidPattern;
+
 import eu.decentholo.holograms.api.utils.reflect.ReflectMethod;
 import eu.decentholo.holograms.api.utils.reflect.Version;
 import net.md_5.bungee.api.ChatColor;
@@ -49,12 +46,7 @@ public class IridiumColorAPI {
             .put(new Color(16777215), ChatColor.getByChar('f'))
             .build();
 
-    /**
-     * Cached result of patterns.
-     *
-     * @since 1.0.2
-     */
-    private static final List<Pattern> PATTERNS = Arrays.asList(new GradientPattern(), new SolidPattern(), new RainbowPattern());
+
 
     /**
      * Processes a string to add color to it.
@@ -70,9 +62,7 @@ public class IridiumColorAPI {
             return result;
         }
         String input = string;
-        for (Pattern pattern : PATTERNS) {
-            string = pattern.process(string);
-        }
+       
         string = ChatColor.translateAlternateColorCodes('&', string);
         LRU_CACHE.put(input, string);
         return string;

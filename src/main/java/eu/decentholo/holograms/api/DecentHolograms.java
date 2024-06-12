@@ -7,7 +7,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 
-import eu.decentholo.holograms.api.features.FeatureManager;
 import eu.decentholo.holograms.api.holograms.Hologram;
 import eu.decentholo.holograms.api.holograms.HologramManager;
 import eu.decentholo.holograms.api.listeners.PlayerListener;
@@ -37,7 +36,6 @@ public final class DecentHolograms {
 
     private final JavaPlugin plugin;
     private HologramManager hologramManager;
-    private FeatureManager featureManager;
 
 
     private Ticker ticker;
@@ -71,7 +69,6 @@ public final class DecentHolograms {
 
         this.ticker = new Ticker();
         this.hologramManager = new HologramManager(this);
-        this.featureManager = new FeatureManager();
 
 
         PluginManager pm = Bukkit.getPluginManager();
@@ -82,7 +79,6 @@ public final class DecentHolograms {
     }
 
     void disable() {
-        this.featureManager.destroy();
         this.hologramManager.destroy();
         this.ticker.destroy();
 
@@ -102,7 +98,6 @@ public final class DecentHolograms {
     public void reload() {
 
         this.hologramManager.reload();
-        this.featureManager.reload();
 
         EventFactory.handleReloadEvent();
     }
