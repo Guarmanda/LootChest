@@ -47,6 +47,10 @@ public final class FastReflection {
     }
 
     public static Optional<Class<?>> optionalClass(String className) {
+        System.out.println(VERSION+"");
+        System.out.println(Bukkit.getBukkitVersion());
+        [08:33:11 INFO]: [LootChest] [STDOUT] v1_20_R3
+        [08:33:11 INFO]: [LootChest] [STDOUT] 1.20.4-R0.1-SNAPSHOT
         try {
             return Optional.of(Class.forName(className));
         } catch (ClassNotFoundException e) {

@@ -20,6 +20,8 @@ import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 import org.spigotmc.SpigotConfig;
 
+import eu.decentholo.holograms.DecentHologramsPlugin;
+import eu.decentholo.holograms.api.DecentHolograms;
 import fr.black_eyes.lootchest.commands.LootchestCommand;
 import fr.black_eyes.lootchest.listeners.DeleteListener;
 import fr.black_eyes.lootchest.listeners.InventoryListeners;
@@ -45,6 +47,8 @@ public class Main extends JavaPlugin {
 	@Getter private Utils utils;
 	@Getter private Boolean useArmorStands;
 	@Getter private Menu menu;
+	@Getter private DecentHologramsPlugin hologramPlugin;
+	@Getter private DecentHolograms hologramImpl;
 	private static int version = 0;
 	Map<String, String> replace = new HashMap<String, String>(){{
 		put("&0",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.BLACK).boldOff().toString());
@@ -77,6 +81,7 @@ public class Main extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
+		hologramPlugin.onDisable();
 		utils.updateData();
 		backUp();
 		logInfo("&aBacked up data file in case of crash");
@@ -115,7 +120,15 @@ public class Main extends JavaPlugin {
 	 */
 	public static int getVersion() {
 		if(version == 0) {
-			version = Integer.parseInt((Bukkit.getBukkitVersion().split("-")[0]).split("[.]")[1]);
+			String complete_ver = Bukkit.getBukkitVersion().split("-")[0];
+			int first_digits = Integer.parseInt(complete_ver.split("[.]")[1]);
+			int second_digits = Integer.parseInt(complete_ver.split("[.]")[2]);
+			if(first_digits > 20  || (first_digits == 20 && second_digits >=6 )){
+				version = first_digits * 10 + second_digits;
+			}
+			else{
+				version = first_digits;
+			}
 		}
 		return version;
 	}
@@ -123,6 +136,12 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		setInstance(this);
+		if(hologramPlugin == null) {
+			hologramPlugin = new DecentHologramsPlugin();
+		}
+		hologramPlugin.onLoad(this);
+		hologramImpl = hologramPlugin.onEnable();
+		
 		configFiles = new Files();
 		lootChest = new HashMap<>();
 		utils = new Utils();

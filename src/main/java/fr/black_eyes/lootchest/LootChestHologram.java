@@ -8,19 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Location;
-import org.bukkit.plugin.Plugin;
+
 import org.bukkit.scheduler.BukkitRunnable;
-import org.holoeasy.HoloEasy;
-import org.holoeasy.config.HologramKey;
-import org.holoeasy.hologram.Hologram;
-import org.holoeasy.hologram.TextSequentialLoader;
-import org.holoeasy.line.TextLine;
-import org.holoeasy.pool.IHologramPool;
-import org.holoeasy.pool.KeyAlreadyExistsException;
 
-import com.github.unldenis.hologram.HologramPool;
-import com.github.unldenis.hologram.line.Line;
-
+import eu.decentholo.holograms.api.DHAPI;
+import eu.decentholo.holograms.api.holograms.Hologram;
 import lombok.Getter;
 
 /**
@@ -41,19 +33,19 @@ public class LootChestHologram {
 	 * @return the yPosModifier
 	 */
 	private static Map<Integer, Double> yPosModifier = new HashMap<Integer, Double>(){{
-		put(8, -1.0);
-		put(9, -1.8);
-		put(10, -1.8);
-		put(11, -1.8);
-		put(12, -1.8);
-		put(13, -1.8);
-		put(14, -1.8);
-		put(15, -1.8);
-		put(16, -1.8);
-		put(17, -1.8);
-		put(18, -1.8);
-		put(19, -1.8);
-		put(20, -1.8);
+		put(8,  0.6);
+		put(9,  0.5);
+		put(10, 0.5);
+		put(11, 0.5);
+		put(12, 0.5);
+		put(13, 0.5);
+		put(14, 0.5);
+		put(15, 0.5);
+		put(16, 0.5);
+		put(17, 0.5);
+		put(18, 0.5);
+		put(19, 0.5);
+		put(20, 0.5);
 	}};
 	/**
 	 * @return the text displayed by the hologram
@@ -81,7 +73,7 @@ public class LootChestHologram {
 	public void setLoc(Location location) {
 		if(Main.getVersion()>7 && Main.configs.UseHologram){
 			Location loc2 = location.clone();
-			loc2.add(0.5, Main.configs.Hologram_distance_to_chest+  yPosModifier.getOrDefault(Main.getVersion(), -1.8), 0.5);
+			loc2.add(0.5, Main.configs.Hologram_distance_to_chest+  yPosModifier.getOrDefault(Main.getVersion(), 0.5), 0.5);
 			this.location = loc2;
 			remove();
 			this.setText(chest.getHolo());
@@ -102,27 +94,9 @@ public class LootChestHologram {
 		}
 	}
 
-	private static IHologramPool pool;
 
-	//for 1.8
-	private static HologramPool pool1_8;
-
-	private static HologramPool getPool1_8() {
-		if(pool1_8 == null) {
-			pool1_8 = new HologramPool((Plugin)Main.getInstance(), 1200);
-		}
-		return pool1_8;
-	}
-	
-	private static IHologramPool getPool() {
-		if(pool == null) {
-			pool = HoloEasy.startPool((Plugin)Main.getInstance(), 1200);
-		}
-		return pool;
-	}
 
 	private Hologram hologram;
-	private com.github.unldenis.hologram.Hologram hologram1_8;
 
 	
 	/**
@@ -134,15 +108,11 @@ public class LootChestHologram {
 				runnable.cancel();
 				runnable = null;
 			}
-			if(hologram == null && hologram1_8 == null) return;
-			if(Main.getVersion()>8 && hologram!=null) {
-				pool.remove(hologram.getKey());
+			if(hologram!=null) {
+				hologram.destroy();
 				hologram = null;
 			}
-			else if(hologram1_8!=null && Main.getVersion()==8) {
-				getPool1_8().remove(hologram1_8);
-				hologram1_8 = null;
-			}
+
 		}
 	}
 	
@@ -150,6 +120,7 @@ public class LootChestHologram {
 	 * @param name The text displayed by the hologram
 	 */
 	public void setText(String name) {
+		if(!(Main.getVersion()>7) || !Main.configs.UseHologram) return;
 		if(!NULL_NAME.contains(name)) {
 			getHologram();
 			setLine(Utils.color(name));
@@ -163,51 +134,29 @@ public class LootChestHologram {
 	 * @param name
 	 */
 	private void setLine(String name){
-		// compose a TextLine hologram
-		if(Main.getVersion()>8) {
-			TextLine textLine = new TextLine((Plugin)Main.getInstance(), name, null, false);
-			hologram.load(textLine);
-		}
-		else {
-			Line line = new Line((Plugin)Main.getInstance());
-			com.github.unldenis.hologram.line.TextLine textLine = new com.github.unldenis.hologram.line.TextLine(line, name, null, false);
-			hologram1_8.load(textLine);
-		}
+		if(!hologram.getPage(0).getLines().isEmpty())
+			DHAPI.removeHologramLine(hologram, 0);
+		DHAPI.addHologramLine(hologram, 0, name);
 	}
 	
 	/**
 	 * @return Creates the hologram 
 	 */
-	private Object createHologram() {
-		if(Main.getVersion()>8){
-			try{
-				hologram =  new Hologram(new HologramKey(getPool(), chest.getName()), location, new TextSequentialLoader());
-			}catch(KeyAlreadyExistsException e) {
-				Main.getInstance().getLogger().warning("Hologram key already exists, maybe an hologram was badly removed from its pool... The plugin will try to workaround this.");
-				pool.remove(new HologramKey(getPool(), chest.getName()));
-				hologram =  new Hologram(new HologramKey(getPool(), chest.getName()), location, new TextSequentialLoader());
-			}
-			return hologram;
-		}
-		else {
-			hologram1_8 =  new com.github.unldenis.hologram.Hologram((Plugin)Main.getInstance(), location, new com.github.unldenis.hologram.line.hologram.TextSequentialLoader());
-			getPool1_8().takeCareOf(hologram1_8);
-			return hologram1_8;
-		}
+	private Hologram createHologram() {
+		hologram = DHAPI.createHologram(chest.getName(), location);
+		return hologram;
 		
 	}
 
 	/**
 	 * @return The hologram
 	 */
-	private Object getHologram() {
-		if(hologram==null && hologram1_8==null) {
+	private Hologram getHologram() {
+		if(hologram==null) {
 			createHologram();
 		}
-		if(Main.getVersion()>8)
-			return hologram;
-		else
-			return hologram1_8;
+		return hologram;
+	
 	}
 	
 	/**

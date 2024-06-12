@@ -1,6 +1,5 @@
 package fr.black_eyes.lootchest.particles;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -22,18 +21,13 @@ public interface ParticleData {
 
     static BlockData createBlockData(Material material, byte legacyData) {
         Objects.requireNonNull(material, "material");
-        if (!ParticleTypes.MODERN) {
-            return new BlockData(new MaterialData(material, legacyData));
-        }
+        return new BlockData(new MaterialData(material, legacyData));
 
-        return new BlockData(Bukkit.createBlockData(material));
     }
 
     static DustOptions createDustOptions(Color color, float size) {
         Objects.requireNonNull(color, "color");
-        if (ParticleTypes.DUST_OPTIONS_CLASS == null) {
-            return new DustOptions(color);
-        }
+
 
         return new DustOptions(new Particle.DustOptions(color, size));
     }

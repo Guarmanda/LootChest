@@ -154,7 +154,13 @@ public class FallingPackageEntity extends PackageEntity {
     }
     
     private void summonUpdateFireworks() {
-            final Firework fw = (Firework)this.world.spawnEntity(goodLocation(), EntityType.FIREWORK);
+
+            final Firework fw; 
+            if(Main.getVersion()<206) {
+                fw = (Firework)this.world.spawnEntity(goodLocation(), EntityType.valueOf("FIREWORK"));
+            }else {
+                fw = (Firework)this.world.spawnEntity(goodLocation(), EntityType.valueOf("FIREWORK_ROCKET"));
+            }
             final FireworkMeta fwm = fw.getFireworkMeta();
             fwm.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL).withColor(Color.RED).withColor(Color.WHITE).build());
             fwm.setPower(1);
@@ -169,7 +175,12 @@ public class FallingPackageEntity extends PackageEntity {
     }
     
     private void summonSpawnFireworks() {
-            final Firework fw = (Firework)this.world.spawnEntity(goodLocation(), EntityType.FIREWORK);
+            final Firework fw; 
+            if(Main.getVersion()<206) {
+                fw = (Firework)this.world.spawnEntity(goodLocation(), EntityType.valueOf("FIREWORK"));
+            }else {
+                fw = (Firework)this.world.spawnEntity(goodLocation(), EntityType.valueOf("FIREWORK_ROCKET"));
+            }
             final FireworkMeta fwm = fw.getFireworkMeta();
             fwm.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE).withColor(Color.RED).withColor(Color.WHITE).build());
             fwm.setPower(1);

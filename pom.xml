@@ -8,8 +8,8 @@
   <packaging>jar</packaging>
   <properties>
     <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+
+    <maven.compiler.release>9</maven.compiler.release>
   </properties>
   <build>
    <finalName>LootChest</finalName>
@@ -64,11 +64,6 @@
   </repositories>
   <dependencies>
     <dependency>
-      <groupId>com.github.unldenis</groupId>
-      <artifactId>holoeasy</artifactId>
-      <version>3.1.1</version>
-    </dependency>
-    <dependency>
         <groupId>com.github.placeholderapi</groupId>
         <artifactId>placeholderapi</artifactId>
         <version>2.11.5</version>
@@ -83,7 +78,7 @@
     <dependency>
         <groupId>net.kyori</groupId>
         <artifactId>adventure-api</artifactId>
-        <version>4.15.0</version>
+        <version>4.17.0</version>
         <scope>provided</scope>
     </dependency>
     <dependency>
@@ -95,7 +90,7 @@
 <dependency>
     <groupId>io.papermc.paper</groupId>
     <artifactId>paper-api</artifactId>
-    <version>1.20.4-R0.1-SNAPSHOT</version>
+    <version>1.20.6-R0.1-SNAPSHOT</version>
     <scope>provided</scope>
 </dependency>
     <dependency>
@@ -168,8 +163,21 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.24</version>
+      <version>1.18.32</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-buffer</artifactId>
+        <version>4.1.110.Final</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-handler</artifactId>
+        <version>4.1.110.Final</version>
+        <scope>provided</scope>
+    </dependency>
+
   </dependencies>
 </project>
