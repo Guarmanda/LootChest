@@ -438,7 +438,7 @@ public class Lootchest {
 				globalLocation = Utils.chooseRandomPlayer(getWorld());
 				globalLocation = globalLocation!=null?globalLocation:spawnLoc.clone();
 			}
-			spawnLoc = Utils.getRandomLocation(globalLocation, radius);
+			spawnLoc = Utils.chooseRandomLocation(globalLocation, radius);
 			if(spawnLoc == null){
 				Main.getInstance().logInfo(Utils.color("&cThe chest " + getName() + " didn't found a good location, so that it couldn't respawn! " ));
 				Utils.scheduleReSpawn(this);
