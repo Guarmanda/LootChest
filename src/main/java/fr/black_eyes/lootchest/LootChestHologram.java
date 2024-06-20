@@ -103,7 +103,7 @@ public class LootChestHologram {
 	 * Kills the hologram
 	 */
 	public void remove() {
-		if(Main.getVersion()>7){
+		if(Main.getVersion()>7 && Main.configs.UseHologram) {
 			if(runnable != null) {
 				runnable.cancel();
 				runnable = null;

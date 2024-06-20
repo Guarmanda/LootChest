@@ -8,7 +8,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -18,11 +17,9 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.command.CommandSender;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import fr.black_eyes.lootchest.particles.Particle;
 
 @SuppressWarnings("deprecation")
 public class Utils  {
@@ -87,7 +84,7 @@ public class Utils  {
 	* @param chest1 the chest to copy
 	* @param chest2 the chest to copy to
 	*/
-	public void copychest(Lootchest chest1, Lootchest chest2) {
+	public static void copychest(Lootchest chest1, Lootchest chest2) {
 		chest2.despawn();
 		chest2.setHolo(chest1.getHolo());
 		chest2.chances = chest1.chances.clone();
@@ -100,7 +97,7 @@ public class Utils  {
 		chest2.setRespawn_natural(chest1.getRespawn_natural());
 		chest2.setTake_msg(chest1.getTake_msg());
 		chest2.setRadius(chest1.getRadius());
-		updateData(chest2);
+		chest2.updateData();
 		chest2.spawn(true);
 	}
 	
@@ -110,24 +107,6 @@ public class Utils  {
 	//chest creation and registering
 
 	
-	
-	//fonction pour changer la position d'un coffre
-	//function to change a chest location
-	public void changepos(Lootchest name, Location loc3) {
-		name.despawn();
-		name.setWorld(loc3.getWorld().getName());
-		name.setGlobalLoc(loc3);
-		name.spawn(true);
-	}
-	
-	//deletes a chest
-	//supprimes un coffre
-	public static void deleteChest(Lootchest lc) {
-		lc.despawn();
-		Main.getInstance().getLootChest().remove(lc.getName());
-		
-	}
-
 	/**
 	 * choose a player location to spawn a chest. If no players online, return null
 	 * @param world the LootChest's world
@@ -237,40 +216,7 @@ public class Utils  {
     }
 	
 	
-	public void reactivateEffects(Lootchest lc) {
 
-		Location loc = lc.getActualLocation();
-		//if the lootchest isn't here, let's not spawn particles or anything
-		if(!lc.isGoodType(loc.getBlock())) {
-			return;
-		}
-		lc.getHologram().setLoc(loc);
-		if(Main.getVersion()>7 && lc.getFall() && Main.configs.FALL_Let_Block_Above_Chest_After_Fall){
-			Location arm = loc.clone();
-			arm.add(0.5, 2, 0.5);
-			Material mat = Material.valueOf(Main.configs.FALL_Block);
-			Entity ent = loc.getWorld().spawnEntity(arm, org.bukkit.entity.EntityType.ARMOR_STAND);
-			
-			
-			((org.bukkit.entity.ArmorStand) ent).setVisible(false); //Makes the ArmorStand invisible
-		 	((org.bukkit.entity.ArmorStand) ent).setHelmet(new ItemStack(mat, 1));
-	        if (Main.getVersion()<13) {
-			 	if(mat.equals(Material.valueOf("WOOL"))) {
-			 		((org.bukkit.entity.ArmorStand) ent).setHelmet(new ItemStack(mat, 1, DyeColor.valueOf(Main.configs.FALL_Optionnal_Color_If_Block_Is_Wool).getDyeData()));
-			 	}
-		 	}
-		 	((org.bukkit.entity.ArmorStand) ent).setBasePlate(false);
-		 	((org.bukkit.entity.ArmorStand) ent).setGravity(true);
-			
-		}
-		final Location loc2 = lc.getParticleLocation();
-		for(Particle part : main.getSupportedParticles()) {
-			if(lc.getParticle() != null && (""+part).contains(lc.getParticle().name())) {
-				main.getPart().put(loc2, part);
-			}
-		}
-		
-	}
 
 	public static String getMenuName(String name, String replacement) {
 		String menuName = Utils.getMsg("Menu."+name+".name", "[Chest]", replacement);
@@ -421,17 +367,14 @@ public class Utils  {
 		}
 	}
 	
-	public void updateData() {
+	public static void saveAllChests() {
 		for(Lootchest lc : Main.getInstance().getLootChest().values()) {
 			lc.saveInConfig();
 		}
-		configFiles.saveData();
+		Main.getInstance().getConfigFiles().saveData();
 	}
 	
-	public void updateData(Lootchest lc) {
-		lc.saveInConfig();
-		configFiles.saveData();
-	}
+
 	
 	public  Location getRandomPosition(String name) {
 		if(!configFiles.getData().isSet("chests." + name + ".randomPosition.x")) {
@@ -454,7 +397,7 @@ public class Utils  {
 		return players;
 	}
 	
-	public int numberOfPlayersAroundLocation(Location loc, int radius) {
+	public static int numberOfPlayersAroundLocation(Location loc, int radius) {
 		int cpt = 0;
 		for (Player players : loc.getWorld().getPlayers()) 
             if (loc.distanceSquared(players.getLocation()) <= radius) 
@@ -463,7 +406,7 @@ public class Utils  {
 	}
 
 	
-	public List<Player> getPlayersAroundLocation(Location loc, int radius) {
+	public static List<Player> getPlayersAroundLocation(Location loc, int radius) {
 		List<Player> list = new ArrayList<>();
 		for (Player players : loc.getWorld().getPlayers()) 
             if (loc.distanceSquared(players.getLocation()) <= radius) 
@@ -476,7 +419,7 @@ public class Utils  {
 	 * @param chest a chest Block
 	 * @return the direction of the chest
 	 */
-	public  String getDirection(Block chest) {
+	public static String getDirection(Block chest) {
 		if(Main.getVersion() ==7) {
 			return "NORTH";
 		}

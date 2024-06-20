@@ -29,12 +29,10 @@ public class InventoryListeners implements Listener {
 
 
 	private  Menu menu;
-	private  Utils utils;
 	 private Main main;
 	 public InventoryListeners() {
-			 main = Main.getInstance();
-			menu = main.getMenu();
-			utils = main.getUtils();
+		main = Main.getInstance();
+		menu = main.getMenu();
 	 }
 
 	//gère la modification des coffres
@@ -63,7 +61,7 @@ public class InventoryListeners implements Listener {
         if (menuName.equals(Utils.getMenuName("items", chest))) {
         	Lootchest lc = Main.getInstance().getLootChest().get(chest);
 			lc.setInventory(e.getInventory());
-			utils.updateData(lc);
+			lc.updateData();
 			menu.mainInv(p, chest);
         }
 
@@ -75,7 +73,7 @@ public class InventoryListeners implements Listener {
 					 lc.setChance(i, Integer.parseInt(lore.get(getLoreLine(lore)).replace("%", "")));
 				}
 			}
-			utils.updateData(lc);
+			lc.updateData();
 			menu.mainInv(p, chest);
         }
         
@@ -96,7 +94,7 @@ public class InventoryListeners implements Listener {
 			if(inv.getItem(22).getItemMeta().getDisplayName().equals("Respawn time: infinite")) {
 				lc.setTime( -1);
 			}
-			utils.updateData(lc);
+			lc.updateData();
 			menu.mainInv(p, chest);
         }else if( menuName.equals(Utils.getMenuName("type", chest))) {
 			menu.mainInv(p, chest);
@@ -146,7 +144,7 @@ public class InventoryListeners implements Listener {
         	}
         	Location loc = lc.getParticleLocation();
 			main.getPart().put(loc, part);
-			utils.updateData(lc);
+			lc.updateData();
 			Utils.msg(player, "editedParticle", "[Chest]", chestName);
         }
         
@@ -156,7 +154,7 @@ public class InventoryListeners implements Listener {
 			e.setCancelled(true);
 			Lootchest lc = Main.getInstance().getLootChest().get(chestName);
 			lc.setType(e.getCurrentItem().getType());
-			utils.updateData(lc);
+			lc.updateData();
 			lc.spawn( true);
 			Utils.msg(player, "editedChestType", "[Chest]", chestName);
         }
@@ -172,7 +170,7 @@ public class InventoryListeners implements Listener {
         	}
         	String copyChest = e.getCurrentItem().getItemMeta().getDisplayName().replace(ChatColor.GOLD.toString(), "");
         	
-        	utils.copychest(Main.getInstance().getLootChest().get(copyChest), Main.getInstance().getLootChest().get(chestName));
+        	Utils.copychest(Main.getInstance().getLootChest().get(copyChest), Main.getInstance().getLootChest().get(chestName));
         	player.closeInventory();
 
         	Utils.msg(player, "copiedChest", "[Chest1]", copyChest, "[Chest2]", chestName);
@@ -205,22 +203,22 @@ public class InventoryListeners implements Listener {
         		case 28:
 					lc.setFall(!lc.getFall());
         			e.getInventory().setItem(28, menu.getEnabled("fall", lc.getFall()));
-        			utils.updateData(lc);
+        			lc.updateData();
         			break;
         		case 30:
 					lc.setRespawn_cmd(!lc.getRespawn_cmd());
         			e.getInventory().setItem(30, menu.getEnabled("respawn_cmd", lc.getRespawn_cmd()));
-        			utils.updateData(lc);
+        			lc.updateData();
         			break;
         		case 32:
 					lc.setRespawn_natural(!lc.getRespawn_natural());
         			e.getInventory().setItem(32, menu.getEnabled("respawn_natural",lc.getRespawn_natural()));
-        			utils.updateData(lc);
+        			lc.updateData();
         			break;
         		case 34:
 					lc.setTake_msg(!lc.getTake_msg());
         			e.getInventory().setItem(34, menu.getEnabled("take_message", lc.getTake_msg()));
-        			utils.updateData(lc);
+        			lc.updateData();
         			break;
         	}
         }

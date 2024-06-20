@@ -15,7 +15,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BlockIterator;
 
@@ -36,9 +35,7 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 	public static Map<org.bukkit.entity.Player, String> menuName = new HashMap<>();
 	private Files configFiles;
 	
-	private FileConfiguration data; 
 	 private Menu menu;
-	 private Utils utils;
 	 private Main main;
 	 
 	//variables for command completion
@@ -57,9 +54,7 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 		 	main = Main.getInstance();
 
 			configFiles = main.getConfigFiles();
-			data = configFiles.getData();
 			menu = main.getMenu();
-			utils = main.getUtils();
 	 }
 	 
 	@Override
@@ -115,7 +110,7 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 						Main.getInstance().getLootChest().put(args[1], new Lootchest(chest, args[1]));
 						Main.getInstance().getLootChest().get(args[1]).spawn( true);
 						Utils.msg(sender, "chestSuccefulySaved", cheststr, args[1]);
-						utils.updateData(Main.getInstance().getLootChest().get(args[1]));
+						Main.getInstance().getLootChest().get(args[1]).updateData();
 						editinv.put(player, args[1]);
 						menuName.put(player, Utils.getMsg("Menu.main.name", cheststr, args[1]));
 						menu.mainInv(player, args[1]);
@@ -136,9 +131,7 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 					break;	
 					
 				case "remove":
-					data.set("chests."+ lc.getName(), null);
-					configFiles.saveData();
-					Utils.deleteChest(lc);
+					lc.deleteChest();
 					Utils.msg(sender, "chestDeleted", cheststr, args[1]);
 					break;
 				case "togglefall":
@@ -150,12 +143,11 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 						lc.setFall(true);
 						Utils.msg(sender, "enabledFallEffect", cheststr, args[1]);
 					}
-					utils.updateData(lc);
+					lc.updateData();
 					break;
 				case "setpos":
 					lc.setDirection(getCardinalDirection(player));
-					utils.changepos(lc, player.getLocation().getBlock().getLocation());
-					utils.updateData(lc);
+					lc.changepos(player.getLocation().getBlock().getLocation());
 					Utils.msg(sender, "changedPosition", cheststr, args[1]);
 					break;
 				case "tp":
@@ -288,7 +280,7 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 				}
 				else if(args[0].equalsIgnoreCase("reload")) {
 					if(Config.getInstance().saveDataFileDuringReload) {
-						utils.updateData();
+						Utils.saveAllChests();
 					}else{
 						configFiles.reloadData();
 					}
@@ -319,7 +311,7 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 								Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
 										if (!l.spawn( false)) {
 											Utils.scheduleReSpawn(l);
-											utils.reactivateEffects(l);
+											l.reactivateEffects();
 										}
 										
 
@@ -351,21 +343,21 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 						
                     }
 					lc.setHolo(bc.toString());
-					utils.updateData(lc);
+					lc.updateData();
 					Utils.msg(sender, "hologram_edited", cheststr, args[1]);
 					lc.spawn(false);
 					
 				}
 				else if(args[0].equalsIgnoreCase("settime")) {
 					lc.setTime(Integer.parseInt(args[2]));
-					utils.updateData(lc);
+					lc.updateData();
 					lc.spawn( true);
 					Utils.msg(sender, "settime", cheststr, args[1]);
 				}
 				
 				else if(args[0].equalsIgnoreCase("setprotection")){
 					lc.setProtectionTime(Integer.parseInt(args[2]));
-					utils.updateData(lc);
+					lc.updateData();
 					Utils.msg(sender, "editedProtectionTime", cheststr, args[1]);
 				}
 				
@@ -396,7 +388,7 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 					}
 					lc.spawn(true);
 					
-					utils.updateData(lc);
+					lc.updateData();
 						
 					
 
@@ -406,7 +398,7 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 						Utils.msg(sender, "chestDoesntExist", cheststr, args[2]);
 						return false;
 					}
-					utils.copychest(lc,Main.getInstance().getLootChest().get(args[2]));
+					Utils.copychest(lc,Main.getInstance().getLootChest().get(args[2]));
 					Utils.msg(sender, "copiedChest", "[Chest1]",lc.getName(), "[Chest2]", args[2]);
 
 				}else if (args[0].equalsIgnoreCase("maxFilledSlots")){
@@ -414,7 +406,7 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 					if(maxFilledSlots >= 0) {
 						lc.setMaxFilledSlots(maxFilledSlots);
 					}
-					utils.updateData(lc);
+					lc.updateData();
 					Utils.msg(sender, "editedMaxFilledSlots", cheststr, args[1]);
 				}
 				

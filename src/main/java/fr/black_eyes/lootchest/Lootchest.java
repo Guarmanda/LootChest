@@ -3,20 +3,23 @@ package fr.black_eyes.lootchest;
 import java.sql.Timestamp;
 
 import org.bukkit.Bukkit;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.DirectionalContainer;
 import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import fr.black_eyes.events.LootChestSpawnEvent;
+import fr.black_eyes.api.events.LootChestSpawnEvent;
 import fr.black_eyes.lootchest.falleffect.FallingPackageEntity;
 import fr.black_eyes.lootchest.particles.Particle;
 import lombok.Getter;
@@ -235,9 +238,6 @@ public class Lootchest {
 	 * @param naming
 	 */
 	public Lootchest(Block chest, String naming){
-		Main main = Main.getInstance();
-		Utils utils = main.getUtils();
-
 		type = chest.getType();
 		taken = false;
 		name = naming;
@@ -252,7 +252,7 @@ public class Lootchest {
 			}
 		}
 		if(inventory.getSize() >27) {
-			main.logInfo("&cDo not use double chests to create chests! Only half of the inventory of the chest was registered.");
+			Main.getInstance().logInfo("&cDo not use double chests to create chests! Only half of the inventory of the chest was registered.");
 		}
 		maxFilledSlots = Main.configs.default_maxFilledSlots;
 		fall =  Main.configs.FALL_Enabled;
@@ -260,7 +260,7 @@ public class Lootchest {
 		respawn_natural =  Main.configs.NOTE_natural_e;
 		take_msg =  Main.configs.NOTE_message_on_chest_take;
 		if( !(Mat.CHEST != Mat.BARREL && chest.getType() == Mat.BARREL) ) {
-			direction = utils.getDirection(chest);
+			direction = Utils.getDirection(chest);
 		}
 		holo = name;
 		time =  Main.configs.default_reset_time;
@@ -278,9 +278,11 @@ public class Lootchest {
 	
 	
 	/**
-	 * Function used at defined time in config and at plugin stop for saving chests
+	 * Function used at defined time in config and at plugin stop for saving chests. 
+	 * This function doesn't save the config, file, it just edits the one in memory. Use "updateData" to save the chest in the file.
+	 * UpdateData already calls this function.
 	 */
-	void saveInConfig(){
+	public void saveInConfig(){
 		Main main = Main.getInstance();
 		Utils utils = main.getUtils();
 		Files configFiles = main.getConfigFiles();
@@ -370,7 +372,7 @@ public class Lootchest {
 	 * @param blockLocation - Location of the block
 	 * @param force - True if respawned with a command
 	 */
-	private void createChest( Block block, Location blockLocation) {
+	public void createchest( Block block, Location blockLocation) {
 		block.setType(getType());
 		Inventory inventory = ((InventoryHolder) block.getState()).getInventory();
 		Utils.fillInventory(this, inventory, true, null);
@@ -478,7 +480,7 @@ public class Lootchest {
 			new FallingPackageEntity(startLocation, chunk_was_loaded, spawnLoc);
 			getHologram().remove();
 		}
-		createChest(newBlock, spawnLoc);
+		createchest(newBlock, spawnLoc);
 		
 		return true;
 	}
@@ -530,6 +532,37 @@ public class Lootchest {
 	}
 
 	/**
+	 * Change a chest's location
+	 * @param loc the new location
+	 */
+	public void changepos(Location loc) {
+		despawn();
+		setWorld(loc.getWorld().getName());
+		setGlobalLoc(loc);
+		spawn(true);
+		updateData();
+	}
+
+	/**
+	 * Saves the chest in data file, in case of crash, after a modification, or before server shutdown
+	 */
+	public void updateData() {
+		saveInConfig();
+		Main.getInstance().getConfigFiles().saveData();
+	}
+	
+	/**
+	 * Deletes the chest from data file and despawns it
+	 */
+	public void deleteChest() {
+		despawn();
+		Main.getInstance().getLootChest().remove(getName());
+		Main.getInstance().getConfigFiles().getData().set("chests."+ getName(), null);
+		Main.getInstance().getConfigFiles().saveData();
+	}
+
+
+	/**
 	 * @param block
 	 * @return true if the block is the good one for the chest
 	 */
@@ -556,6 +589,45 @@ public class Lootchest {
 
 	public void setLastReset() {
 		this.lastReset = (new Timestamp(System.currentTimeMillis())).getTime();
+	}
+
+	/**
+	 * reactivates particles, after a server restart for example
+	 * @param lc
+	 */
+	public void reactivateEffects() {
+
+		Location loc = getActualLocation();
+		//if the lootchest isn't here, let's not spawn particles or anything
+		if(!isGoodType(loc.getBlock())) {
+			return;
+		}
+		getHologram().setLoc(loc);
+		if(Main.getVersion()>7 && getFall() && Main.configs.FALL_Let_Block_Above_Chest_After_Fall){
+			Location arm = loc.clone();
+			arm.add(0.5, 2, 0.5);
+			Material mat = Material.valueOf(Main.configs.FALL_Block);
+			Entity ent = loc.getWorld().spawnEntity(arm, org.bukkit.entity.EntityType.ARMOR_STAND);
+			
+			
+			((org.bukkit.entity.ArmorStand) ent).setVisible(false); //Makes the ArmorStand invisible
+		 	((org.bukkit.entity.ArmorStand) ent).setHelmet(new ItemStack(mat, 1));
+	        if (Main.getVersion()<13) {
+			 	if(mat.equals(Material.valueOf("WOOL"))) {
+			 		((org.bukkit.entity.ArmorStand) ent).setHelmet(new ItemStack(mat, 1, DyeColor.valueOf(Main.configs.FALL_Optionnal_Color_If_Block_Is_Wool).getDyeData()));
+			 	}
+		 	}
+		 	((org.bukkit.entity.ArmorStand) ent).setBasePlate(false);
+		 	((org.bukkit.entity.ArmorStand) ent).setGravity(true);
+			
+		}
+		final Location loc2 = getParticleLocation();
+		for(Particle part : Main.getInstance().getSupportedParticles()) {
+			if(getParticle() != null && (""+part).contains(getParticle().name())) {
+				Main.getInstance().getPart().put(loc2, part);
+			}
+		}
+		
 	}
     
 }

@@ -82,7 +82,7 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		hologramPlugin.onDisable();
-		utils.updateData();
+		Utils.saveAllChests();
 		backUp();
 		logInfo("&aBacked up data file in case of crash");
 	}
@@ -210,11 +210,11 @@ public class Main extends JavaPlugin {
         }
 
 		//if 1.7, disable world border check
-		if(getVersion()==7) {
+		if(getVersion()<=7) {
 			configs.UseHologram = false;
 			configs.WorldBorder_Check_For_Spawn = false;
-			logInfo("&eYou're using 1.7, I disabled worldborder check because worldborder is implemented in spigot from 1.8");
-			logInfo("&eYou're using 1.7, I disabled holograms because it uses armorstands, which are implemented in spigot from 1.8");
+			logInfo("&eYou're using 1.7 or below, I disabled worldborder check because worldborder is implemented in spigot from 1.8");
+			logInfo("&eYou're using 1.7 or below, I disabled holograms because it uses armorstands, which are implemented in spigot from 1.8");
 					
 		}
         logInfo("Starting particles...");
@@ -319,7 +319,7 @@ public class Main extends JavaPlugin {
 						Bukkit.getScheduler().scheduleSyncDelayedTask(instance, () -> {
 							if (!lc.spawn(false)) {
 								Utils.scheduleReSpawn(lc);
-								utils.reactivateEffects(lc);
+								lc.reactivateEffects();
 							}
 						}, 0L)
 					, 5L);

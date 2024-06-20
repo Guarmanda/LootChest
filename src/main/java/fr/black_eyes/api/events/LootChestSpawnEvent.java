@@ -1,4 +1,4 @@
-package fr.black_eyes.events;
+package fr.black_eyes.api.events;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
