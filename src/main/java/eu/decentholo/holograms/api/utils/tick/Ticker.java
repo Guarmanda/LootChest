@@ -3,9 +3,9 @@ package eu.decentholo.holograms.api.utils.tick;
 import java.util.concurrent.atomic.AtomicLong;
 
 import eu.decentholo.holograms.api.utils.DExecutor;
-import eu.decentholo.holograms.api.utils.Log;
 import eu.decentholo.holograms.api.utils.collection.DList;
 import eu.decentholo.holograms.api.utils.scheduler.S;
+import fr.black_eyes.lootchest.Main;
 
 public class Ticker {
 
@@ -79,7 +79,7 @@ public class Ticker {
                         try {
                             ticked.tick();
                         } catch (Exception ex) {
-                            Log.warn("Failed to tick object: %s", ex, ticked.getId());
+                            Main.getInstance().getLogger().warning("Failed to tick object: "+ ex + " "+ ticked.getId());
                         }
                     });
                 }

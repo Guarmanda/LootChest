@@ -39,7 +39,7 @@ public class BungeeUtils {
             out.writeUTF(server);
             player.sendPluginMessage(DECENT_HOLOGRAMS.getPlugin(), BUNGEE_CORD_CHANNEL, out.toByteArray());
         } catch (Exception e) {
-            Log.warn("Failed to connect player %s to server %s.", e, player.getName(), server);
+
         }
     }
 

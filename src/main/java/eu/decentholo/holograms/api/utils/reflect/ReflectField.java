@@ -2,7 +2,7 @@ package eu.decentholo.holograms.api.utils.reflect;
 
 import java.lang.reflect.Field;
 
-import eu.decentholo.holograms.api.utils.Log;
+import fr.black_eyes.lootchest.Main;
 
 public class ReflectField<T> {
 
@@ -41,7 +41,7 @@ public class ReflectField<T> {
 			this.init();
 			return (T) field.get(object);
 		} catch (Exception e) {
-			Log.error("Failed to get field value: %s", e, name);
+			Main.getInstance().getLogger().severe("Failed to get field value: "+ e +  " "+ name);
 			return null;
 		}
 	}
@@ -51,7 +51,7 @@ public class ReflectField<T> {
 			this.init();
 			field.set(object, value);
 		} catch (Exception e) {
-			Log.error("Failed to set field value: %s", e, name);
+			Main.getInstance().getLogger().severe("Failed to set field value: "+ e + " "+ name);
 		}
 	}
 

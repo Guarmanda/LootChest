@@ -3,7 +3,8 @@ package eu.decentholo.holograms.api.utils.reflect;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import eu.decentholo.holograms.api.utils.Log;
+import fr.black_eyes.lootchest.Main;
+
 
 public class ReflectConstructor {
 
@@ -23,7 +24,7 @@ public class ReflectConstructor {
             constructor = clazz.getDeclaredConstructor(parameterTypes);
             constructor.setAccessible(true);
         } catch (NoSuchMethodException e) {
-            Log.error("Failed to find constructor for class %s with parameter types %s", clazz.getName(), parameterTypes);
+            Main.getInstance().getLogger().severe("Failed to find constructor for class %s with parameter types "+ clazz.getName() + " "+ parameterTypes);
         }
     }
 
@@ -34,7 +35,7 @@ public class ReflectConstructor {
         try {
             object = constructor.newInstance(args);
         } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
-            Log.error("Failed to create new instance of class %s with parameter types %s", clazz.getName(), parameterTypes);
+            Main.getInstance().getLogger().severe("Failed to create new instance of class %s with parameter types "+ clazz.getName() +" "+ parameterTypes);
         }
         return object == null ? null : (T) object;
     }

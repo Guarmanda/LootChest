@@ -4,6 +4,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
 
 import eu.decentholo.holograms.api.utils.collection.DList;
+import fr.black_eyes.lootchest.Main;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -28,7 +29,7 @@ public class DExecutor {
                 thread.setName("DecentHolograms Thread #" + threadId.incrementAndGet());
                 thread.setPriority(Thread.NORM_PRIORITY);
                 thread.setDaemon(true);
-                thread.setUncaughtExceptionHandler((t, ex) -> Log.warn("Exception encountered in %s", ex, t.getName()));
+                thread.setUncaughtExceptionHandler((t, ex) -> Main.getInstance().getLogger().warning("Exception encountered in " +ex+ " "+ t.getName()));
                 return thread;
             });
             initialized = true;

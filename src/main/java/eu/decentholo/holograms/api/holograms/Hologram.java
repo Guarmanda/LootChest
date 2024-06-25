@@ -185,7 +185,7 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
             return;
         }
         tickCounter.incrementAndGet();
-        updateAnimationsAll();
+
     }
 
     /*
@@ -284,40 +284,6 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
      */
     public int size() {
         return pages.size();
-    }
-
-
-    /**
-     * Create a new instance of this hologram object that's identical to this one.
-     *
-     * @param name     Name of the clone.
-     * @param location Location of the clone.
-     * @param temp     True if the clone should only exist until the next reload. (Won't save to file)
-     * @return Cloned instance of this line.
-     */
-    public Hologram clone(@NonNull String name, @NonNull Location location, boolean temp) {
-        Hologram hologram = new Hologram(name, location.clone(), !temp);
-        hologram.setDownOrigin(this.isDownOrigin());
-        hologram.setPermission(this.getPermission());
-        hologram.setFacing(this.getFacing());
-        hologram.setDisplayRange(this.getDisplayRange());
-        hologram.setUpdateRange(this.getUpdateRange());
-        hologram.setUpdateInterval(this.getUpdateInterval());
-        hologram.addFlags(this.getFlags().toArray(new EnumFlag[0]));
-        hologram.setDefaultVisibleState(this.isDefaultVisibleState());
-        hologram.showPlayers.addAll(this.showPlayers);
-        hologram.hidePlayers.addAll(this.hidePlayers);
-
-        for (int i = 0; i < size(); i++) {
-            HologramPage page = getPage(i);
-            HologramPage clonePage = page.clone(hologram, i);
-            if (hologram.pages.size() > i) {
-                hologram.pages.set(i, clonePage);
-            } else {
-                hologram.pages.add(clonePage);
-            }
-        }
-        return hologram;
     }
 
    
@@ -497,34 +463,8 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
         }
     }
 
-    public void updateAnimations(@NonNull Player player) {
-        synchronized (visibilityMutex) {
-            if (hasFlag(EnumFlag.DISABLE_ANIMATIONS)) {
-                return;
-            }
 
-            performUpdateAnimations(player);
-        }
-    }
 
-    public void updateAnimationsAll() {
-        synchronized (visibilityMutex) {
-            if (isEnabled() && !hasFlag(EnumFlag.DISABLE_ANIMATIONS)) {
-                getViewerPlayers().forEach(this::performUpdateAnimations);
-            }
-        }
-    }
-
-    private void performUpdateAnimations(@NotNull Player player) {
-        if (!isVisible(player) || !isInUpdateRange(player) || isHideState(player)) {
-            return;
-        }
-
-        HologramPage page = getPage(player);
-        if (page != null) {
-            page.getLines().forEach(line -> line.updateAnimations(player));
-        }
-    }
 
     public void hide(@NonNull Player player) {
         synchronized (visibilityMutex) {

@@ -2,7 +2,7 @@ name: LootChest
 main: fr.black_eyes.lootchest.Main
 version: 2.4.1
 api-version: 1.13
-softdepend: [MultiWorld, Multiverse-Core, FabledSkyBlock, MultiverseCore, GriefPrevention, Residence, WorldGuard, Factions, FactionsX, Towny, GriefPrevention]
+softdepend: [MultiWorld, Multiverse-Core, FabledSkyBlock, MultiverseCore, GriefPrevention, Residence, WorldGuard, Factions, FactionsX, Towny]
 description: >
              Plugin for Regenerating Chests
 commands:

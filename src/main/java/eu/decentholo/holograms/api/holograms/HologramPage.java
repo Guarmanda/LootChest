@@ -1,7 +1,6 @@
 package eu.decentholo.holograms.api.holograms;
 
 import com.google.common.collect.ImmutableList;
-import eu.decentholo.holograms.api.holograms.enums.EnumFlag;
 import eu.decentholo.holograms.api.holograms.enums.HologramLineType;
 import eu.decentholo.holograms.api.holograms.objects.FlagHolder;
 import lombok.Getter;
@@ -9,10 +8,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.bukkit.Location;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter
@@ -83,27 +79,7 @@ public class HologramPage extends FlagHolder {
         return this.lines.size();
     }
 
-    @NonNull
-    public Map<String, Object> serializeToMap() {
-        Map<String, Object> map = new LinkedHashMap<>();
-        List<Map<String, Object>> linesMap = new ArrayList<>();
-        for (int i = 1; i <= this.lines.size(); i++) {
-            HologramLine line = this.lines.get(i - 1);
-            linesMap.add(line.serializeToMap());
-        }
-        map.put("lines", linesMap);
-        return map;
-    }
 
-    @NonNull
-    public HologramPage clone(@NonNull Hologram parent, int index) {
-        HologramPage page = new HologramPage(parent, index);
-        for (HologramLine line : getLines()) {
-            page.addLine(line.clone(page, page.getNextLineLocation()));
-        }
-        page.addFlags(this.getFlags().toArray(new EnumFlag[0]));
-        return page;
-    }
 
     /*
      *	Lines Methods
@@ -216,22 +192,6 @@ public class HologramPage extends FlagHolder {
             realignLines();
         }
         return line;
-    }
-
-    /**
-     * Swap two lines in this hologram page.
-     *
-     * @param index1 First line.
-     * @param index2 Second line.
-     * @return Boolean whether the operation was successful.
-     */
-    public boolean swapLines(int index1, int index2) {
-        if (index1 < 0 || index1 >= size() || index2 < 0 || index2 >= size()) {
-            return false;
-        }
-        Collections.swap(this.lines, index1, index2);
-        realignLines();
-        return true;
     }
 
     /**

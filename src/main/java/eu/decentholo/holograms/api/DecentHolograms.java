@@ -14,9 +14,9 @@ import eu.decentholo.holograms.api.listeners.WorldListener;
 import eu.decentholo.holograms.api.nms.NMS;
 import eu.decentholo.holograms.api.utils.BungeeUtils;
 import eu.decentholo.holograms.api.utils.DExecutor;
-import eu.decentholo.holograms.api.utils.Log;
 import eu.decentholo.holograms.api.utils.reflect.Version;
 import eu.decentholo.holograms.api.utils.tick.Ticker;
+import fr.black_eyes.lootchest.Main;
 
 import java.io.File;
 import java.util.logging.Logger;
@@ -54,8 +54,8 @@ public final class DecentHolograms {
     void load() {
         // Check if NMS version is supported
         if (Version.CURRENT == null) {
-            Log.error("Unsupported server version: %s", Bukkit.getServer().getVersion());
-            Log.error("Plugin will be disabled.");
+            Main.getInstance().getLogger().warning("Unsupported server version: " +Bukkit.getServer().getVersion());
+            Main.getInstance().getLogger().warning("Plugin will be disabled.");
             Bukkit.getPluginManager().disablePlugin(plugin);
         }
     }
