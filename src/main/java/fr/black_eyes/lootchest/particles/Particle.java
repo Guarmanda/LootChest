@@ -195,6 +195,8 @@ public enum Particle {
 				second_digits = Integer.parseInt(complete_ver.split("[.]")[2]);
 			if(second_digits != -1 && (first_digits > 20  || (first_digits == 20 && second_digits >=6 ))){
 				version = first_digits * 10 + second_digits;
+			}else if (first_digits > 20){
+				version = first_digits * 10;
 			}
 			else{
 				version = first_digits;

@@ -39,7 +39,7 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 	 private Main main;
 	 
 	//variables for command completion
-	private static final String[] completions0 = {"copy","maxfilledslots", "locate", "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "setprotection", "reload", "list", "setpos", "give", "randomspawn", "tp", "settime","togglefall", "getname"};
+	private static final String[] completions0 = {"despawnall", "copy","maxfilledslots", "locate", "create", "edit", "help", "respawn", "respawnall", "remove", "setholo", "setprotection", "reload", "list", "setpos", "give", "randomspawn", "tp", "settime","togglefall", "getname"};
 	
 	//following args must be followed by chest names
 	private static final List<String> argsFollowedByChest = new ArrayList<>(
@@ -212,6 +212,25 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 						Utils.msg(sender, "AllChestsReloadedInWorld", "[World]", args[1]);
 					}
 					break;
+				case "despawnall":
+					//get arg 1 and check if it is a world 
+					World w2 = Bukkit.getWorld(args[1]);
+					if(w2 == null) {
+						Utils.msg(sender, "worldDoesntExist", "[World]", args[1]);
+					}
+					else{
+						for (final Lootchest l : Main.getInstance().getLootChest().values()) {
+							if(l.getWorld().equals(args[1])) {
+								Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
+									Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
+										l.spawn( false, true) ;
+									}, 0L);
+								}, 5L);
+							}
+						}
+						Utils.msg(sender, "AllChestsDespawnedInWorld", "[World]", args[1]);
+					}
+					break;
 
 
 				default:
@@ -278,6 +297,18 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 						}
 					}
 					Utils.msg(sender, "AllChestsReloaded", " ", " ");
+				}
+				else if(args[0].equalsIgnoreCase("despawnall")) {
+		
+					for (final Lootchest l : Main.getInstance().getLootChest().values()) {
+						Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
+								Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
+									l.spawn( false, true) ;
+
+								}, 0L);
+						}, 5L);
+			        }
+					Utils.msg(sender, "AllChestsDespawned", " ", " ");
 				}
 				else if(args[0].equalsIgnoreCase("reload")) {
 					if(Config.getInstance().saveDataFileDuringReload) {

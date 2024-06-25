@@ -130,6 +130,8 @@ public class Main extends JavaPlugin {
 				second_digits = Integer.parseInt(complete_ver.split("[.]")[2]);
 			if(second_digits != -1 && (first_digits > 20  || (first_digits == 20 && second_digits >=6 ))){
 				version = first_digits * 10 + second_digits;
+			}else if (first_digits > 20){
+				version = first_digits * 10;
 			}
 			else{
 				version = first_digits;
@@ -415,6 +417,8 @@ public class Main extends JavaPlugin {
     	  killOldHolograms = true;
       }
       configFiles.setConfig("Destroy_Naturally_Instead_Of_Removing_Chest", true);
+	  configFiles.setLang("AllChestsDespawned", "&aAll chests were despawned!");
+	  configFiles.setLang("AllChestsDespawnedInWorld", "&aAll chests were despawned in world [World]!");
       configFiles.setLang("Menu.time.notInfinite", "&6Reactivate respawn time");
       configFiles.setLang("commandGetName", "&6Your'e looking the chest &b[Chest]");
 	  configFiles.setLang("worldDoesntExist", "&cThe world [World] doesn't exist!");
@@ -425,6 +429,12 @@ public class Main extends JavaPlugin {
       	configFiles.getLang().set("help", help);
       	configFiles.saveLang();
       }
+	  if(!configFiles.getLang().getStringList("help").toString().contains("despawnall")){
+		List<String> help = configFiles.getLang().getStringList("help");
+		help.add("&a/lc despawnall [world] &b: despawns all chests, optionally in a specific world");
+		configFiles.getLang().set("help", help);
+		configFiles.saveLang();
+	}
       if(!configFiles.getLang().getStringList("help").toString().contains("locate")){
       	List<String> help = configFiles.getLang().getStringList("help");
       	help.add("&a/lc locate &b: gives locations of all chests that haves natural respawn message enabled");

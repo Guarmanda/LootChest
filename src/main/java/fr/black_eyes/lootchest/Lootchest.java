@@ -242,7 +242,8 @@ public class Lootchest {
 		taken = false;
 		name = naming;
 		inv = Bukkit.createInventory(null, 27);
-		Integer[] chances = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+		Integer[] initChances = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+		this.chances = initChances;
 		Inventory inventory =  ((InventoryHolder) chest.getState()).getInventory();
 		for(int i = 0 ; i < 27 ; i++) {
 			if(inventory.getItem(i) != null) {
@@ -279,14 +280,15 @@ public class Lootchest {
 		taken = false;
 		this.name = name;
 		inv = Bukkit.createInventory(null, 27);
-		Integer[] chances = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+		Integer[] initChances = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+		this.chances = initChances;
 		for (int i = 0; i < 27; i++) {
 			if (lc.getInv().getItem(i) != null) {
 				inv.setItem(i, lc.getInv().getItem(i));
 				chances[i] = lc.getChances()[i];
 			}
 		}
-		chances = lc.getChances();
+		chances = lc.getChances().clone();
 		maxFilledSlots = lc.getMaxFilledSlots();
 		fall = lc.getFall();
 		respawn_cmd = lc.getRespawn_cmd();
@@ -437,20 +439,42 @@ public class Lootchest {
 		Utils.scheduleReSpawn(this);
 	}
 
-	//set le coffre et remplir son inventaire, crÃÂÃÂÃÂÃÂ§er l'holo en fonction du nom 
-	//Restores the chest if it is time to do it, or if we force respawn. 
-	public boolean spawn(Boolean force) {
+	/**
+	 * Executes the spawn function, despawning the chest only if we force it to respawn
+	 * @param forceRespawn Forces the chest to respawn, even if it's not time to respawn
+	 */
+	public Boolean spawn(Boolean forceRespawn){
+		if (forceRespawn){
+			return spawn(forceRespawn, true);
+		}
+		else
+			return spawn(forceRespawn, false);
+	}
+
+	/**
+	 * Spawns the chest, with its hologram and particles, checking if it's time to respawn, 
+	 * if there's enough players, if the world is loaded, finding a good location, etc.
+	 * 
+	 * @param forceSpawn Forces the chest to respawn, even if it's not time to respawn
+	 * @param forceDespawn Forces the chest to despawn, even if it's not time to respawn
+	 * @return
+	 */
+	public boolean spawn(Boolean forceSpawn, Boolean forceDespawn) {
+		if(forceDespawn) {
+			despawn();
+			setLastReset();
+		}
 		// if world is not loaded || lootchest was deleted || not enough players
 		if(!Utils.isWorldLoaded(getWorld()) || !Main.getInstance().getLootChest().containsValue(this) ) {
 			Utils.scheduleReSpawn(this);
 			return false;
 		}
 		// if (there's not enough player || it's not time to respawn) && we didn't force respawn
-		if( !checkIfTimeToRespawn() && !force) {
+		if( !checkIfTimeToRespawn() && !forceSpawn) {
 			Utils.scheduleReSpawn(this);
 			return false;
 		}
-		if(!checkIfEnoughPlayers() && !force) {
+		if(!checkIfEnoughPlayers() && !forceSpawn) {
 			Utils.scheduleReSpawn(this);
 			return false;
 		}
@@ -480,7 +504,7 @@ public class Lootchest {
 		despawn();
 
 		// handle natural spawning messages - command respawn messages are handled in command class
-		if(!force && getRespawn_natural() ) {
+		if(!forceSpawn && getRespawn_natural() ) {
 			String natural_msg = Utils.color((((Main.configs.NOTE_natural_msg.replace("[Chest]", holo)).replace("[x]", spawnLoc.getX()+"")).replace("[y]", spawnLoc.getY()+"")).replace("[z]", spawnLoc.getZ()+"").replace("[World]", world));
 			if(Main.configs.NOTE_bungee_broadcast) {
 				BungeeChannel.bungeeBroadcast(natural_msg);

@@ -1,6 +1,7 @@
 package fr.black_eyes.api;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 import org.bukkit.block.Block;
 
@@ -11,6 +12,14 @@ import fr.black_eyes.lootchest.Utils;
 
 public class LootChestAPI {
 
+    /**
+     * Generates a random name for a lootchest
+     * @return
+     */
+    public static String generateName(){
+        UUID uuid = UUID.randomUUID();
+        return uuid.toString();
+    }
 
     /**
      * Get all lootchests loaded within lootchest plugin
@@ -41,8 +50,8 @@ public class LootChestAPI {
             return null;
         }
         if (!checkNameAvalability(name)) {
-            Main.getInstance().getLogger().warning("The name is already taken! No chest will be created.");
-            return null;
+            Main.getInstance().getLogger().warning("The name is already taken! A random name will be generated.");
+            name = generateName();
         }
         return new Lootchest(chest,name);
     }
@@ -95,10 +104,16 @@ public class LootChestAPI {
         Utils.copychest(lc, secondLc);
     }
 
+    /**
+     * Copies an existing lootchest to a new lootchest, specifying the name of this chest
+     * @param lc
+     * @param newName
+     * @return
+     */
     public static Lootchest copyToNewChest(Lootchest lc, String newName) {
         if (!checkNameAvalability(newName)) {
-            Main.getInstance().getLogger().warning("The name is already taken! No chest will be created.");
-            return null;
+            Main.getInstance().getLogger().warning("The name is already taken! A random name will be generated.");
+            newName = generateName();
         }
         return new Lootchest(lc, newName);
     }

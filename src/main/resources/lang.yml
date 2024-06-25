@@ -9,6 +9,7 @@ chestDoesntExist: '&cThe chest [Chest] &cdoesn''t exist!'
 chestAlreadyExist: '&cThe chest [Chest] &calready exists!'
 succesfulyRespawnedChest: '&aThe chest [Chest] &awas respawned!'
 AllChestsReloaded: '&aAll chests were respawned!'
+AllChestsReloadedInWorld: '&aAll chests were respawned in world [World]!'
 editedParticle: '&aEdited particle of chest &b[Chest]!'
 hologram_edited: '&aEdited hologram of chest &b[Chest]!'
 PluginReloaded: '&aConfig file, lang, and chest data were reloaded'
@@ -31,7 +32,8 @@ CantOpenLootchestBecauseMonster: '&cYou can''t open this chest while there is [N
 blockIsAlreadyLootchest: '&cThis block is already a LootChest!'
 editedMaxFilledSlots: '&aYou edited the max filled slots of chest &b[Chest]'
 worldDoesntExist: '&cThe world [World] doesn''t exist!'
-AllChestsReloadedInWorld: '&aAll chests were respawned in world [World]!'
+AllChestsDespawned: '&aAll chests were despawned!'
+AllChestsDespawnedInWorld: '&aAll chests were respawned in world [World]!'
 locate_command:
   main_message: "&6Location of loot chests:"
   chest_list: "- &b[Chest]&6: [x], [y], [z] in world [world]"
@@ -81,7 +83,8 @@ help:
   - '&a/lc edit <name> &b: Open editing menu'
   - '&a/lc help &b: Guess it'
   - '&a/lc respawn <name> &b: respawn a chest'
-  - '&a/lc respawnall [world] &b: respawn all chests, optionally in a specific world'
+  - '&a/lc respawnall [world] &b: respawns all chests, optionally in a specific world'
+  - '&a/lc despawnall [world] &b: despawns all chests, optionally in a specific world'
   - '&a/lc remove <name> &b: removes the given chest'
   - '&a/lc setholo <name> <text> &b: set hologram of given chest'
   - '&a/lc reload &b: reloads the plugin'
