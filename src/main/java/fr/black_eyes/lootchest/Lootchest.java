@@ -242,8 +242,7 @@ public class Lootchest {
 		taken = false;
 		name = naming;
 		inv = Bukkit.createInventory(null, 27);
-		Integer[] chancesInit = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-		chances = chancesInit;
+		Integer[] chances = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 		Inventory inventory =  ((InventoryHolder) chest.getState()).getInventory();
 		for(int i = 0 ; i < 27 ; i++) {
 			if(inventory.getItem(i) != null) {
@@ -275,7 +274,34 @@ public class Lootchest {
 		hologram = new LootChestHologram(this);
 	}
 	
-	
+	public Lootchest(Lootchest lc, String name){
+		type = lc.getType();
+		taken = false;
+		this.name = name;
+		inv = Bukkit.createInventory(null, 27);
+		Integer[] chances = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+		for (int i = 0; i < 27; i++) {
+			if (lc.getInv().getItem(i) != null) {
+				inv.setItem(i, lc.getInv().getItem(i));
+				chances[i] = lc.getChances()[i];
+			}
+		}
+		chances = lc.getChances();
+		maxFilledSlots = lc.getMaxFilledSlots();
+		fall = lc.getFall();
+		respawn_cmd = lc.getRespawn_cmd();
+		respawn_natural = lc.getRespawn_natural();
+		take_msg = lc.getTake_msg();
+		direction = lc.getDirection();
+		holo = lc.getHolo();
+		time = lc.getTime();
+		globalLoc = lc.getPosition();
+		particle = lc.getParticle();
+		radius = lc.getRadius();
+		world = lc.getWorld();
+		protectionTime = lc.getProtectionTime();
+		hologram = new LootChestHologram(this);
+	}
 	
 	/**
 	 * Function used at defined time in config and at plugin stop for saving chests. 
@@ -540,7 +566,6 @@ public class Lootchest {
 		setWorld(loc.getWorld().getName());
 		setGlobalLoc(loc);
 		spawn(true);
-		updateData();
 	}
 
 	/**

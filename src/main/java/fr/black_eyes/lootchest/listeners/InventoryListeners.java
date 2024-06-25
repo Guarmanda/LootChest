@@ -171,6 +171,7 @@ public class InventoryListeners implements Listener {
         	String copyChest = e.getCurrentItem().getItemMeta().getDisplayName().replace(ChatColor.GOLD.toString(), "");
         	
         	Utils.copychest(Main.getInstance().getLootChest().get(copyChest), Main.getInstance().getLootChest().get(chestName));
+			Main.getInstance().getLootChest().get(chestName).updateData();
         	player.closeInventory();
 
         	Utils.msg(player, "copiedChest", "[Chest1]", copyChest, "[Chest2]", chestName);

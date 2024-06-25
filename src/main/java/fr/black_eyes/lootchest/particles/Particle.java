@@ -179,7 +179,10 @@ public enum Particle {
 
 
 	/**
-	 * Returns the version of your server (1.x)
+	 * Returns the version of your server (the x in 1.x)
+	 * For versions >= 1.20.6, it returns for example 126 for 1.20.6, 
+	 * because many things changed in 1.20.6, and that's the first minor 
+	 * version that has so much impacts compared to its major version
 	 * 
 	 * @return The version number
 	 */
@@ -187,8 +190,10 @@ public enum Particle {
 		if(version == 0) {
 			String complete_ver = Bukkit.getBukkitVersion().split("-")[0];
 			int first_digits = Integer.parseInt(complete_ver.split("[.]")[1]);
-			int second_digits = Integer.parseInt(complete_ver.split("[.]")[2]);
-			if(first_digits > 20  || (first_digits == 20 && second_digits >=6 )){
+			int second_digits = -1;
+			if(complete_ver.split("[.]").length>2)
+				second_digits = Integer.parseInt(complete_ver.split("[.]")[2]);
+			if(second_digits != -1 && (first_digits > 20  || (first_digits == 20 && second_digits >=6 ))){
 				version = first_digits * 10 + second_digits;
 			}
 			else{

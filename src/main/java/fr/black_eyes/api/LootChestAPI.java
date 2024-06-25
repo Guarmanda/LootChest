@@ -40,6 +40,10 @@ public class LootChestAPI {
             Main.getInstance().getLogger().warning("The block is not a chest! No chest will be created.");
             return null;
         }
+        if (!checkNameAvalability(name)) {
+            Main.getInstance().getLogger().warning("The name is already taken! No chest will be created.");
+            return null;
+        }
         return new Lootchest(chest,name);
     }
 
@@ -83,6 +87,23 @@ public class LootChestAPI {
     }
 
     /**
+     * Copies an existing lootchest to another existing lootchest
+     * @param lc
+     * @param newName
+     */
+    public static void copyToExistingChest(Lootchest lc, Lootchest secondLc) {
+        Utils.copychest(lc, secondLc);
+    }
+
+    public static Lootchest copyToNewChest(Lootchest lc, String newName) {
+        if (!checkNameAvalability(newName)) {
+            Main.getInstance().getLogger().warning("The name is already taken! No chest will be created.");
+            return null;
+        }
+        return new Lootchest(lc, newName);
+    }
+
+    /**
      * Saves the lootchest in data file, but it is already done automatically on shutdown, except if the lootchest wasn't added to the lootchest plugin
      * @param lc The lootchest
      */
@@ -95,5 +116,9 @@ public class LootChestAPI {
      */
     public static void saveAllLootChests() {
         Utils.saveAllChests();
+    }
+
+    private static boolean checkNameAvalability(String name) {
+        return !getAllLootChests().containsKey(name);
     }
 }

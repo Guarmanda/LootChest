@@ -148,6 +148,7 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 				case "setpos":
 					lc.setDirection(getCardinalDirection(player));
 					lc.changepos(player.getLocation().getBlock().getLocation());
+					lc.updateData();
 					Utils.msg(sender, "changedPosition", cheststr, args[1]);
 					break;
 				case "tp":
@@ -398,7 +399,9 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 						Utils.msg(sender, "chestDoesntExist", cheststr, args[2]);
 						return false;
 					}
-					Utils.copychest(lc,Main.getInstance().getLootChest().get(args[2]));
+					Lootchest copy = Main.getInstance().getLootChest().get(args[2]);
+					Utils.copychest(lc,copy);
+					copy.updateData();
 					Utils.msg(sender, "copiedChest", "[Chest1]",lc.getName(), "[Chest2]", args[2]);
 
 				}else if (args[0].equalsIgnoreCase("maxFilledSlots")){

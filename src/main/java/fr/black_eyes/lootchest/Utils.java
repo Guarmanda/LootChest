@@ -97,7 +97,6 @@ public class Utils  {
 		chest2.setRespawn_natural(chest1.getRespawn_natural());
 		chest2.setTake_msg(chest1.getTake_msg());
 		chest2.setRadius(chest1.getRadius());
-		chest2.updateData();
 		chest2.spawn(true);
 	}
 	
