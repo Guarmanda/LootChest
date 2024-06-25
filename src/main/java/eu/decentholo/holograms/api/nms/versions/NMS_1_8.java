@@ -72,19 +72,6 @@ public class NMS_1_8 extends NMS {
     }
 
     @Override
-    public void showFakeEntity(Player player, Location location, EntityType entityType, int entityId) {
-        Validate.notNull(entityType);
-        showFakeEntity(player, location, getEntityTypeId(entityType), entityId);
-    }
-
-    @Override
-    public void showFakeEntityLiving(Player player, Location location, EntityType entityType, int entityId) {
-        Object dataWatcher = DATA_WATCHER_CONSTRUCTOR.newInstance(ENTITY_CLASS.cast(null));
-        DATA_WATCHER_A_METHOD.invoke(dataWatcher, 15, (byte) 0);
-        showFakeEntityLiving(player, location, getEntityTypeId(entityType), entityId, dataWatcher);
-    }
-
-    @Override
     public void showFakeEntityArmorStand(Player player, Location location, int entityId, boolean invisible, boolean small, boolean clickable) {
         Object dataWatcher = DATA_WATCHER_CONSTRUCTOR.newInstance(ENTITY_CLASS.cast(null));
         DATA_WATCHER_A_METHOD.invoke(dataWatcher, 0, (byte) (invisible ? 0x20 : 0x00)); // Invisible
@@ -107,18 +94,6 @@ public class NMS_1_8 extends NMS {
     }
 
     @Override
-    public void updateFakeEntityItem(Player player, ItemStack itemStack, int entityId) {
-        Validate.notNull(player);
-        Validate.notNull(itemStack);
-
-        Object nmsItemStack = CRAFT_ITEM_NMS_COPY_METHOD.invokeStatic(itemStack);
-        Object dataWatcher = DATA_WATCHER_CONSTRUCTOR.newInstance(ENTITY_CLASS.cast(null));
-        if (nmsItemStack == null || dataWatcher == null) return;
-        DATA_WATCHER_A_METHOD.invoke(dataWatcher, 10, nmsItemStack);
-        sendPacket(player, PACKET_ENTITY_METADATA_CONSTRUCTOR.newInstance(entityId, dataWatcher, true));
-    }
-
-    @Override
     public void teleportFakeEntity(Player player, Location location, int entityId) {
         Validate.notNull(player);
         Validate.notNull(location);
@@ -135,27 +110,6 @@ public class NMS_1_8 extends NMS {
         sendPacket(player, teleport);
     }
 
-    @Override
-    public void helmetFakeEntity(Player player, ItemStack itemStack, int entityId) {
-        Validate.notNull(player);
-        Validate.notNull(itemStack);
-        Object nmsItemStack = CRAFT_ITEM_NMS_COPY_METHOD.invokeStatic(itemStack);
-        if (nmsItemStack == null) return;
-        Object packet = PACKET_ENTITY_EQUIPMENT_CONSTRUCTOR.newInstance(entityId, 4, nmsItemStack);
-        if (packet == null) return;
-        sendPacket(player, packet);
-    }
-
-    @Override
-    public void attachFakeEntity(Player player, int vehicleId, int entityId) {
-        Validate.notNull(player);
-        Object packet = PACKET_ATTACH_ENTITY_CONSTRUCTOR.newInstance();
-        if (packet == null) return;
-        ReflectionUtil.setFieldValue(packet, "a", 0);
-        ReflectionUtil.setFieldValue(packet, "b", entityId);
-        ReflectionUtil.setFieldValue(packet, "c", vehicleId);
-        sendPacket(player, packet);
-    }
 
     @SuppressWarnings("RedundantCast")
     @Override

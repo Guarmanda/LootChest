@@ -12,16 +12,13 @@ import eu.decentholo.holograms.api.nms.NMS;
 import eu.decentholo.holograms.api.utils.Common;
 import eu.decentholo.holograms.api.utils.Log;
 import eu.decentholo.holograms.api.utils.PAPI;
-import eu.decentholo.holograms.api.utils.entity.DecentEntityType;
-import eu.decentholo.holograms.api.utils.entity.HologramEntity;
-import eu.decentholo.holograms.api.utils.reflect.Version;
+
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -133,7 +129,7 @@ public class HologramLine extends HologramObject {
     private double height;
     private String content;
     private String text;
-    private HologramEntity entity;
+
 
     private volatile boolean containsAnimations;
     private volatile boolean containsPlaceholders;
@@ -205,14 +201,8 @@ public class HologramLine extends HologramObject {
      */
     public void parseContent() {
         HologramLineType prevType = type;
-        String contentU = content.toUpperCase(Locale.ROOT);
-        if (contentU.startsWith("#ENTITY:")) {
-            type = HologramLineType.ENTITY;
-            entity = new HologramEntity(content.substring("#ENTITY:".length()));
-            height = NMS.getInstance().getEntityHeight(entity.getType()) + 0.15;
-            setOffsetY(-(height + (Version.afterOrEqual(13) ? 0.1 : 0.2)));
-            return;
-        } else {
+
+
             type = HologramLineType.TEXT;
             if (prevType != type) {
                 height = Settings.DEFAULT_HEIGHT_TEXT;
@@ -220,7 +210,7 @@ public class HologramLine extends HologramObject {
             text = parseCustomReplacements();
 
             containsPlaceholders = PAPI.containsPlaceholders(text);
-        }
+        
         setOffsetY(type.getOffsetY());
     }
 
@@ -389,26 +379,12 @@ public class HologramLine extends HologramObject {
                 continue;
             }
             if (!isVisible(player) && canShow(player) && isInDisplayRange(player)) {
-                switch (type) {
-                    case TEXT:
+
                         nms.showFakeEntityArmorStand(player, getLocation(), entityIds[0], true, true, false);
                         nms.updateFakeEntityCustomName(player, getText(player, true), entityIds[0]);
-                        break;
-                    case ENTITY:
-                        EntityType entityType = new HologramEntity(PAPI.setPlaceholders(player, getEntity().getContent())).getType();
-                        if (entityType == null || !DecentEntityType.isAllowed(entityType)) break;
-                        nms.showFakeEntityArmorStand(player, getLocation(), entityIds[0], true, true, false);
+                        
 
-                        if (entity.getType().isAlive()) {
-                            nms.showFakeEntityLiving(player, getLocation(), entityType, entityIds[1]);
-                        } else {
-                            nms.showFakeEntity(player, getLocation(), entityType, entityIds[1]);
-                        }
-                        nms.attachFakeEntity(player, entityIds[0], entityIds[1]);
-                        break;
-                    default:
-                        break;
-                }
+                
                 viewers.add(player.getUniqueId());
             }
         }
@@ -450,12 +426,7 @@ public class HologramLine extends HologramObject {
         }
         List<Player> playerList = getPlayers(true, players);
         for (Player player : playerList) {
-            if (type == HologramLineType.ENTITY && updateRotation) {
-                this.hide();
-                this.show();
-            } else {
-                NMS.getInstance().teleportFakeEntity(player, getLocation(), entityIds[0]);
-            }
+            NMS.getInstance().teleportFakeEntity(player, getLocation(), entityIds[0]);
         }
     }
 

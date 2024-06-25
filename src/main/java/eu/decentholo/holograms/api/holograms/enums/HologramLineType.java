@@ -8,9 +8,7 @@ import lombok.Getter;
 @Getter
 public enum HologramLineType {
 	UNKNOWN(0, 0),
-	TEXT(-0.5d, -2.45d),
-
-	ENTITY(0, -1.5d);
+	TEXT(-0.5d, -2.45d);
 
 	private final double offsetY;
 	private final double clickableOffsetY;

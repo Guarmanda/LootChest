@@ -15,10 +15,8 @@ import eu.decentholo.holograms.api.nms.NMS;
 import eu.decentholo.holograms.api.utils.BungeeUtils;
 import eu.decentholo.holograms.api.utils.DExecutor;
 import eu.decentholo.holograms.api.utils.Log;
-import eu.decentholo.holograms.api.utils.event.EventFactory;
 import eu.decentholo.holograms.api.utils.reflect.Version;
 import eu.decentholo.holograms.api.utils.tick.Ticker;
-import eu.decentholo.holograms.event.DecentHologramsReloadEvent;
 
 import java.io.File;
 import java.util.logging.Logger;
@@ -99,7 +97,7 @@ public final class DecentHolograms {
 
         this.hologramManager.reload();
 
-        EventFactory.handleReloadEvent();
+  
     }
 
     @Contract(pure = true)

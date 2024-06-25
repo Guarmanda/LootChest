@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import eu.decentholo.holograms.api.holograms.enums.EnumFlag;
 import eu.decentholo.holograms.api.holograms.enums.HologramLineType;
 import eu.decentholo.holograms.api.holograms.objects.FlagHolder;
-import eu.decentholo.holograms.api.nms.NMS;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -180,7 +179,7 @@ public class HologramPage extends FlagHolder {
 
         line.setContent(content);
 
-        if (line.getType() != previousType || line.getType() == HologramLineType.ENTITY) {
+        if (line.getType() != previousType ) {
             line.hide();
             line.show();
             realignLines();
@@ -257,24 +256,6 @@ public class HologramPage extends FlagHolder {
     @NonNull
     public List<HologramLine> getLines() {
         return ImmutableList.copyOf(lines);
-    }
-
-    public int getClickableEntityId(int index) {
-        if (index >= clickableEntityIds.size()) {
-            clickableEntityIds.add(NMS.getInstance().getFreeEntityId());
-        }
-        return clickableEntityIds.get(index);
-    }
-
-    public boolean hasEntity(final int eid) {
-        return clickableEntityIds.contains(eid) || lines.stream().anyMatch(line -> {
-            for (int entityId : line.getEntityIds()) {
-                if (entityId == eid) {
-                    return true;
-                }
-            }
-            return false;
-        });
     }
 
  

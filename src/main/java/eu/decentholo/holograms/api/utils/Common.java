@@ -4,7 +4,7 @@ import lombok.experimental.UtilityClass;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.CommandSender;
 
-import eu.decentholo.holograms.api.utils.color.IridiumColorAPI;
+
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -46,7 +46,7 @@ public class Common {
      */
 
     public static String colorize(String string) {
-        return IridiumColorAPI.process(string);
+        return string;
     }
 
     public static List<String> colorize(List<String> list) {
@@ -55,7 +55,7 @@ public class Common {
     }
 
     public static String stripColors(String string) {
-        return ChatColor.stripColor(IridiumColorAPI.stripColorFormatting(string));
+        return ChatColor.stripColor(string);
     }
 
     /*

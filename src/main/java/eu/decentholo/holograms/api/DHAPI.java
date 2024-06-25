@@ -288,9 +288,7 @@ public final class DHAPI {
 
  
 
-    private static boolean cannotBeUpdated(HologramLineType lineType) {
-        return lineType == HologramLineType.ENTITY;
-    }
+
 
 
 
