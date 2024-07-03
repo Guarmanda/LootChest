@@ -1,6 +1,5 @@
 package eu.decentholo.holograms.api.holograms.objects;
 
-import com.google.common.collect.ImmutableSet;
 
 import eu.decentholo.holograms.api.holograms.DisableCause;
 import lombok.Getter;
@@ -106,40 +105,6 @@ public abstract class HologramObject extends FlagHolder {
     @NonNull
     public DisableCause getDisableCause() {
         return cause;
-    }
-
-    /*
-     *	Location Methods
-     */
-
-    /**
-     * Set facing direction of this hologram.
-     *
-     * @param facing New facing direction of this hologram.
-     */
-    public void setFacing(float facing) {
-        this.facing = facing;
-        this.location.setYaw(facing);
-    }
-
-    public void setLocation(@NonNull Location location) {
-        this.location = location;
-        this.location.setYaw(facing);
-        this.location.setPitch(0.0f);
-    }
-
-    /*
-     *	Viewer Methods
-     */
-
-    /**
-     * Get all players that currently see this hologram.
-     *
-     * @return Set of all players that currently see this hologram.
-     */
-    @NonNull
-    public Set<UUID> getViewers() {
-        return ImmutableSet.copyOf(viewers);
     }
 
     /**

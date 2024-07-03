@@ -91,7 +91,7 @@ help:
   - '&a/lc list &b: list all chests'
   - '&a/lc setpos &b: edit the position of a chest'
   - '&a/lc give <name> <player>&b: gives the chest <name> to player <player>'
-  - '&a/lc settime <name> &b: sets the respawn time of a chest in seconds'
+  - '&a/lc settime <name> &b: sets the respawn time of a chest in minutes'
   - '&a/lc randomspawn <name> <radius> &b: make a chest respawn randomly in the specified radius (0 to disable)'
   - '&a/lc tp <name> &b: teleports you to a chest'
   - '&a/lc togglefall <name> &b: enable/disable the fall effect for a chest'

@@ -1,7 +1,6 @@
 package eu.decentholo.holograms.api.holograms;
 
 import com.google.common.collect.ImmutableList;
-import eu.decentholo.holograms.api.holograms.enums.HologramLineType;
 import eu.decentholo.holograms.api.holograms.objects.FlagHolder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -59,16 +58,7 @@ public class HologramPage extends FlagHolder {
         return height;
     }
 
-    @NonNull
-    public Location getCenter() {
-        Location center = parent.getLocation().clone();
-        if (parent.isDownOrigin()) {
-            center.add(0, getHeight() / 2, 0);
-        } else {
-            center.subtract(0, getHeight() / 2, 0);
-        }
-        return center;
-    }
+
 
     /**
      * Get hologram size. (Number of lines)
@@ -121,47 +111,6 @@ public class HologramPage extends FlagHolder {
         return true;
     }
 
-    /**
-     * Insert a new line into this hologram page.
-     *
-     * @param index Index of the new line.
-     * @param line  New line.
-     * @return Boolean whether the operation was successful.
-     */
-    public boolean insertLine(int index, @NonNull HologramLine line) {
-        if (index < 0 || index >= size()) {
-            return false;
-        }
-        lines.add(index, line);
-        parent.getViewerPlayers(this.index).forEach(line::show);
-        realignLines();
-        return true;
-    }
-
-    /**
-     * Set new content of a line in this hologram page.
-     *
-     * @param index   Index of the line.
-     * @param content Line's new content.
-     * @return Boolean whether the operation was successful.
-     */
-    public boolean setLine(int index, @NonNull String content) {
-        HologramLine line = getLine(index);
-        if (line == null) {
-            return false;
-        }
-
-        HologramLineType previousType = line.getType();
-
-        line.setContent(content);
-
-        if (line.getType() != previousType ) {
-            line.hide();
-            line.show();
-            realignLines();
-        }
-        return true;
-    }
 
     /**
      * Get line on a specified index in this hologram page.

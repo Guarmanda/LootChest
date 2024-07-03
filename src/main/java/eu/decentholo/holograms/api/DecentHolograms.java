@@ -5,8 +5,6 @@ import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.Contract;
-
 import eu.decentholo.holograms.api.holograms.Hologram;
 import eu.decentholo.holograms.api.holograms.HologramManager;
 import eu.decentholo.holograms.api.listeners.PlayerListener;
@@ -17,9 +15,6 @@ import eu.decentholo.holograms.api.utils.DExecutor;
 import eu.decentholo.holograms.api.utils.reflect.Version;
 import eu.decentholo.holograms.api.utils.tick.Ticker;
 import fr.black_eyes.lootchest.Main;
-
-import java.io.File;
-import java.util.logging.Logger;
 
 /**
  * This is the main class of DecentHolograms. It contains all the methods
@@ -100,14 +95,5 @@ public final class DecentHolograms {
   
     }
 
-    @Contract(pure = true)
-    public File getDataFolder() {
-        return plugin.getDataFolder();
-    }
-
-    @Contract(pure = true)
-    public Logger getLogger() {
-        return plugin.getLogger();
-    }
 
 }
