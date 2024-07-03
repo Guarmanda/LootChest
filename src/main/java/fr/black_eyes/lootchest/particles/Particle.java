@@ -57,7 +57,7 @@ public enum Particle {
 	//DUST_COLOR_TRANSITION(Material.GLOWSTONE_DUST, 17),
 	DUST_PLUME(Material.GLOWSTONE_DUST, 20),
 	EFFECT(Mat.DIAMOND, 206),
-	ELDER_GUARDIAN5(Mat.ELDER_GUARDIAN_SPAWN_EGG, 206),
+	ELDER_GUARDIAN(Mat.ELDER_GUARDIAN_SPAWN_EGG, 206),
 	ENCHANT(Mat.ENCHANTING_TABLE, 206),
 	ENCHANTED_HIT(Mat.ENCHANTED_BOOK, 206),
 	//ENTITY_EFFECT(Material.DIAMOND, 206),
@@ -254,6 +254,8 @@ public enum Particle {
 		if(hasProperty(ParticleProperty.DELETED_IN_1_13) && getVersion() >12)
 			return false;
 		if(hasProperty(ParticleProperty.DELETED_IN_1_18) && getVersion() >17)
+			return false;
+		if(hasProperty(ParticleProperty.DELETED_IN_1_20_6) && getVersion() > 126)
 			return false;
 		if (requiredVersion == -1) 
 			return true;

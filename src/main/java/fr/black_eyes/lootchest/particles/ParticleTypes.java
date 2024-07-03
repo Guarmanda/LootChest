@@ -51,7 +51,7 @@ final class ParticleTypes {
 
             return new DefaultParticleType(Particle.valueOf(name.toUpperCase(Locale.ROOT)));
         } catch (IllegalArgumentException e) {
-            System.out.println("Unknown particle: " + name + " for server version " + Bukkit.getServer().getVersion());
+            Bukkit.getLogger().warning("Unknown particle: " + name + " for server version " + Bukkit.getServer().getVersion());
             return null;
         }
     }
