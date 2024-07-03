@@ -219,7 +219,7 @@ public class HologramLine extends HologramObject {
             if (parent != null && parent.getParent().isHideState(player)) {
                 continue;
             }
-            if (!isVisible(player) && canShow(player) && isInDisplayRange(player)) {
+            if (!isVisible(player) && isInDisplayRange(player)) {
 
                         nms.showFakeEntityArmorStand(player, getLocation(), entityIds[0], true, true, false);
                         nms.updateFakeEntityCustomName(player, getText(player, true), entityIds[0]);
@@ -250,6 +250,24 @@ public class HologramLine extends HologramObject {
                 String updatedText = getText(player, true);
                 if (!updatedText.equals(lastText)) {
                     lastTextMap.put(uuid, updatedText);
+                    nms.updateFakeEntityCustomName(player, updatedText, entityIds[0]);
+                }
+            } 
+        }
+    }
+
+    public void updateWithTextForAllViewers(String text){
+        this.text = text;
+        List<Player> playerList = getPlayers(true);
+        NMS nms = NMS.getInstance();
+        for (Player player : playerList) {
+            if (type == HologramLineType.TEXT) {
+                UUID uuid = player.getUniqueId();
+                String lastText = lastTextMap.get(uuid);
+                String updatedText = text;
+                if (!updatedText.equals(lastText)) {
+                    lastTextMap.put(uuid, updatedText);
+                    playerTextMap.put(uuid, updatedText);
                     nms.updateFakeEntityCustomName(player, updatedText, entityIds[0]);
                 }
             } 
@@ -327,9 +345,6 @@ public class HologramLine extends HologramObject {
         return super.hasFlag(flag) || (parent != null && parent.getParent().hasFlag(flag));
     }
 
-    @Override
-    public boolean canShow(@NonNull Player player) {
-        return super.canShow(player) && (parent == null || parent.getParent().canShow(player));
-    }
+    
 
 }

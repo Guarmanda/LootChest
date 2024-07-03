@@ -120,6 +120,7 @@ public class LootChestHologram {
 	 * @param name The text displayed by the hologram
 	 */
 	public void setText(String name) {
+		text = name;
 		if(!(Main.getVersion()>7) || !Main.configs.UseHologram) return;
 		if(!NULL_NAME.contains(name)) {
 			getHologram();
@@ -133,16 +134,25 @@ public class LootChestHologram {
 	 * Manage hologram lines to display / change its name
 	 * @param name
 	 */
-	private void setLine(String name){
-		if(!hologram.getPage(0).getLines().isEmpty())
-			DHAPI.removeHologramLine(hologram, 0);
-		DHAPI.addHologramLine(hologram, 0, name);
+	private void setLine(String text){
+		if(hologram.getPage(0).getLines().isEmpty()) {
+			DHAPI.addHologramLine(hologram, 0, text);
+		}
+		else{
+			//DHAPI.removeHologramLine(hologram, 0);
+			//DHAPI.addHologramLine(hologram, 0, text);
+			hologram.getPage(0).getLine(0).setContent(text);
+			hologram.getPage(0).getLine(0).updateWithTextForAllViewers(text);
+			//hologram.getPage(0).removeLine(0);
+			//DHAPI.addHologramLine(hologram, 0, text);
+		}
 	}
 	
 	/**
 	 * @return Creates the hologram 
 	 */
 	private Hologram createHologram() {
+		text = chest.getHolo();
 		hologram = DHAPI.createHologram(chest.getName(), location);
 		return hologram;
 		
@@ -166,7 +176,7 @@ public class LootChestHologram {
 	private void startShowTime() {
 		runnable = new BukkitRunnable() {
     		public void run() {
-    			Object as = getHologram();
+    			Hologram holo = getHologram();
     			long tempsActuel = (new Timestamp(System.currentTimeMillis())).getTime()/1000;
     			long secondes = chest.getTime()*60;
     			long tempsEnregistre = chest.getLastReset()/1000;
@@ -180,8 +190,8 @@ public class LootChestHologram {
     			text = text.replace("%Hours", hours+"").replace("%Hsep", Main.configs.TIMER_H_Sep)
     					.replace("%Minutes", mins+"").replace("%Msep", Main.configs.TIMER_M_Sep)
     					.replace("%Seconds", secs+"").replace("%Ssep", Main.configs.TIMER_S_Sep)
-    					.replace("%Hologram", text);
-    			if(as ==null) {
+    					.replace("%Hologram", getText());
+    			if(holo ==null) {
     				runnable.cancel();
     			}else {
 					//replace with paragraph character

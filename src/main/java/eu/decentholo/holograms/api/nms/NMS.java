@@ -12,7 +12,6 @@ import io.netty.channel.ChannelPipeline;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Field;
 

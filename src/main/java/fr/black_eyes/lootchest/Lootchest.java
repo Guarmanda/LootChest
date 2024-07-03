@@ -443,7 +443,7 @@ public class Lootchest {
 	 * Executes the spawn function, despawning the chest only if we force it to respawn
 	 * @param forceRespawn Forces the chest to respawn, even if it's not time to respawn
 	 */
-	public Boolean spawn(Boolean forceRespawn){
+	public boolean spawn(Boolean forceRespawn){
 		if (forceRespawn){
 			return spawn(forceRespawn, true);
 		}
@@ -528,7 +528,6 @@ public class Lootchest {
 			int height = Main.configs.FALL_Height;
 			Location startLocation = new Location(spawnLoc.getWorld(), spawnLoc.getX()+0.5, spawnLoc.getY()+height, spawnLoc.getZ()+0.5);
 			new FallingPackageEntity(startLocation, chunk_was_loaded, spawnLoc);
-			getHologram().remove();
 		}
 		createchest(newBlock, spawnLoc);
 		

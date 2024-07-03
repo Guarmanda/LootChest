@@ -108,19 +108,6 @@ public abstract class HologramObject extends FlagHolder {
         return cause;
     }
 
-    /**
-     * Check whether the given player is allowed to see this hologram object.
-     *
-     * @param player Given player.
-     * @return Boolean whether the given player is allowed to see this hologram object.
-     */
-    public boolean canShow(Player player) {
-        if (permission == null || permission.trim().isEmpty()) {
-            return true;
-        }
-        return player != null && player.hasPermission(permission);
-    }
-
     /*
      *	Location Methods
      */

@@ -398,7 +398,7 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
                 return false;
             }
             HologramPage page = getPage(pageIndex);
-            if (page != null && page.size() > 0 && canShow(player) && isInDisplayRange(player)) {
+            if (page != null && page.size() > 0  && isInDisplayRange(player)) {
                 // First hide the current page
                 HologramPage currentPage = getPage(player);
                 if (currentPage != null) {

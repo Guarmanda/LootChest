@@ -189,6 +189,7 @@ public class HologramPage extends FlagHolder {
         HologramLine line = lines.remove(index);
         if (line != null) {
             line.destroy();
+            line.hide();
             realignLines();
         }
         return line;
