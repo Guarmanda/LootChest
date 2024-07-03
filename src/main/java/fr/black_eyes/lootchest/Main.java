@@ -16,8 +16,8 @@ import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Attribute;
+import fr.black_eyes.lootchest.colors.Ansi;
+import fr.black_eyes.lootchest.colors.Ansi.Attribute;
 import org.spigotmc.SpigotConfig;
 
 import eu.decentholo.holograms.DecentHologramsPlugin;
