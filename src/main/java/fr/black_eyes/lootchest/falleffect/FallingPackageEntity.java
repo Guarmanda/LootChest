@@ -113,7 +113,10 @@ public class FallingPackageEntity extends PackageEntity {
         }
 		else if (this.world.getBlockAt(LocationUtils.offset(((Entity) this.blocky).getLocation(), 0.0, -1.0, 0.0)).getType() == Material.AIR) {
             ++this.counter;
-			Main.getInstance().getParticles().get("SMOKE_NORMAL").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation(), (float)50.0);
+            if(Main.getVersion() >= 206)
+                Main.getInstance().getParticles().get("SMOKE").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation(), (float)50.0);
+            else
+			    Main.getInstance().getParticles().get("SMOKE_NORMAL").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation(), (float)50.0);
 			
             if (((Entity) this.blocky).isDead()) {
                 final Location oldLoc = ((Entity) this.blocky).getLocation();

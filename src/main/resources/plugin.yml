@@ -1,6 +1,7 @@
 name: LootChest
 main: fr.black_eyes.lootchest.Main
-version: 2.4.1
+version: 2.4.2
+author: Black_Eyes
 api-version: 1.13
 softdepend: [MultiWorld, Multiverse-Core, FabledSkyBlock, MultiverseCore, GriefPrevention, Residence, WorldGuard, Factions, FactionsX, Towny]
 description: >

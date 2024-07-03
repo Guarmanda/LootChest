@@ -38,7 +38,7 @@ public class DeleteListener implements Listener  {
 	
 
 	private static HashMap<Player, Location> openInvs = new HashMap<>();
-	//g§re la destruction d'un coffre au niveau des hologrames
+	//gï¿½re la destruction d'un coffre au niveau des hologrames
 	
 	
 	
@@ -127,7 +127,7 @@ public class DeleteListener implements Listener  {
     			}
     			if(keys.getTake_msg()&&!keys.getTaken()){
     				keys.setTaken(true);
-	    			String msg = Main.getInstance().getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "§");
+	    			String msg = Main.getInstance().getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "ï¿½");
 	    			if(Main.configs.NOTE_bungee_broadcast) {
 						BungeeChannel.bungeeBroadcast(msg);
 					}
@@ -190,7 +190,7 @@ public class DeleteListener implements Listener  {
     			Player p = e.getPlayer();
     			if(keys.getTake_msg() && !keys.getTaken()){
     				keys.setTaken(true);
-	    			String msg = Main.getInstance().getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "§");
+	    			String msg = Main.getInstance().getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "ï¿½");
 	    			if(Main.configs.NOTE_bungee_broadcast) {
 						BungeeChannel.bungeeBroadcast(msg);
 					}
@@ -292,5 +292,28 @@ public class DeleteListener implements Listener  {
 	    	}
     	}
     }
+
+	// if a chest is placed around a lootchest, the event has to be canceled
+	@EventHandler
+	public void onBlockPlace(BlockPlaceEvent e) {
+		Block block = e.getBlock();
+		if (Mat.isALootChestBlock(block)) {
+			for (int x = -1; x <= 1; x++) {
+				for (int y = -1; y <= 1; y++) {
+					for (int z = -1; z <= 1; z++) {
+						Block b = block.getRelative(x, y, z);
+						Lootchest lc = Utils.isLootChest(b.getLocation());
+						if (lc != null && !(x==0 && z==0)) {
+							if(lc.getProtectionTime() != 0) {
+								e.setCancelled(true);
+								return;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 
 }
