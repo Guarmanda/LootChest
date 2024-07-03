@@ -21,7 +21,6 @@ final class ParticleTypes {
     static final Map<Class<?>, Class<?>> DATA_ADAPTERS = new HashMap<>();
     static final boolean LEGACY = !FastReflection.optionalClass("org.bukkit.Particle").isPresent();
 
-    static final ParticleData.DustOptions DEFAULT_DUST_OPTIONS = ParticleData.createDustOptions(Color.RED, 1);
 
     static {
         DATA_ADAPTERS.put(MaterialData.class, ParticleData.BlockData.class);
@@ -128,9 +127,7 @@ final class ParticleTypes {
                     return new Particle.DustOptions((Color) data, 1);
                 }
 
-                if (data == null) {
-                    return DEFAULT_DUST_OPTIONS.data;
-                }
+        
             }
 
             if (dataType == BLOCK_DATA_CLASS && data instanceof MaterialData) {

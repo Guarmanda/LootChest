@@ -25,12 +25,6 @@ public interface ParticleData {
 
     }
 
-    static DustOptions createDustOptions(Color color, float size) {
-        Objects.requireNonNull(color, "color");
-
-
-        return new DustOptions(new Particle.DustOptions(color, size));
-    }
 
     static DustTransition createDustTransition(Color fromColor, Color toColor, float size) {
           return DustTransition.EMPTY;
