@@ -143,11 +143,13 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		setInstance(this);
-		if(hologramPlugin == null) {
+		if(hologramPlugin == null && getVersion() > 7){
 			hologramPlugin = new DecentHologramsPlugin();
 		}
-		hologramPlugin.onLoad(this);
-		hologramImpl = hologramPlugin.onEnable();
+		if (getVersion() > 7){
+			hologramPlugin.onLoad(this);
+			hologramImpl = hologramPlugin.onEnable();
+		}
 		
 		configFiles = new Files();
 		lootChest = new HashMap<>();
