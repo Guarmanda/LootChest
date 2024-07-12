@@ -460,6 +460,7 @@ public class Lootchest {
 	 * @return
 	 */
 	public boolean spawn(Boolean forceSpawn, Boolean forceDespawn) {
+		if(time == 0) time = -1;
 		if(forceDespawn) {
 			despawn();
 			setLastReset();
