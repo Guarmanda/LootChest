@@ -127,7 +127,7 @@ public class DeleteListener implements Listener  {
     			}
     			if(keys.getTake_msg()&&!keys.getTaken()){
     				keys.setTaken(true);
-	    			String msg = Main.getInstance().getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "�");
+	    			String msg = Utils.color(Main.getInstance().getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()));
 	    			if(Main.configs.NOTE_bungee_broadcast) {
 						BungeeChannel.bungeeBroadcast(msg);
 					}
@@ -190,7 +190,7 @@ public class DeleteListener implements Listener  {
     			Player p = e.getPlayer();
     			if(keys.getTake_msg() && !keys.getTaken()){
     				keys.setTaken(true);
-	    			String msg = Main.getInstance().getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()).replace("&", "�");
+	    			String msg = Utils.color(Main.getInstance().getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()));
 	    			if(Main.configs.NOTE_bungee_broadcast) {
 						BungeeChannel.bungeeBroadcast(msg);
 					}
