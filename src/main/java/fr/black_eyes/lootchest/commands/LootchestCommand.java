@@ -70,7 +70,7 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 			if (args.length > 0 && !hasPerm(sender, args[0])) {
 				return false;
 			}
-			if (args.length>1 && !Main.getInstance().getLootChest().containsKey(args[1]) && !args[0].equalsIgnoreCase("create") && !args[0].equalsIgnoreCase("respawnall")){
+			if (args.length>1 && !Main.getInstance().getLootChest().containsKey(args[1]) && !args[0].equalsIgnoreCase("create") && !args[0].equalsIgnoreCase("respawnall") && !args[0].equalsIgnoreCase("despawnall")){
 				Utils.msg(sender, "chestDoesntExist", cheststr, args[1]);
 				return false;
 			}else if(args.length>1 && !args[0].equalsIgnoreCase("create")){
