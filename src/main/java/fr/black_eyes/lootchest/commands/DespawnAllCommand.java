@@ -36,6 +36,6 @@ public class DespawnAllCommand extends SubCommand {
 	
 	@Override
 	public String getUsage() {
-		return "/lc edit <chestname>";
+		return "/lc despawnall <world>";
 	}
 }

@@ -29,24 +29,15 @@ public abstract class SubCommand {
 	public SubCommand(String name, int argCount) {
 		this.name = name.toLowerCase();
 		this.argCount = argCount;
+		this.permission = "lootchest." + name;
 		aliases = new HashSet<>();
 		aliases.add(this.name);
-		
 		asyncExecutes = new HashSet<>();
 		executeCallbacks = new HashMap<>();
 	}
 	
 	public String getPermission() {
 		return permission;
-	}
-	
-	/**
-	 * Sets a permission required to execute the command
-	 *
-	 * @param permission name of permission
-	 */
-	public void setPermission(String permission) {
-		this.permission = permission;
 	}
 	
 	public void setPlayerRequired(boolean value) {
