@@ -14,7 +14,12 @@ import org.bukkit.entity.Player;
 public class ReloadCommand extends SubCommand {
 	
 	public ReloadCommand() {
-		super("reload", 1);
+		super("reload", 0);
+	}
+	
+	@Override
+	public String getUsage() {
+		return "/lc reload";
 	}
 	
 	@Override
@@ -62,10 +67,5 @@ public class ReloadCommand extends SubCommand {
 			}
 		}
 		Utils.msg(sender, "PluginReloaded", " ", " ");
-	}
-	
-	@Override
-	public String getUsage() {
-		return "/lc edit <chestname>";
 	}
 }

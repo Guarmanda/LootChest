@@ -8,11 +8,18 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+
 public class CopyCommand extends SubCommand {
 	
 	public CopyCommand() {
 		super("copy", 2);
 		setPlayerRequired(true);
+	}
+	
+	@Override
+	public String getUsage() {
+		return "/lc copy <from chest> <to chest>";
 	}
 	
 	@Override
@@ -33,7 +40,7 @@ public class CopyCommand extends SubCommand {
 	}
 	
 	@Override
-	public String getUsage() {
-		return "/lc copy <from chest> <to chest>";
+	public List<String> getTabList(String[] args) {
+		return LootchestCommand.getChestNames();
 	}
 }

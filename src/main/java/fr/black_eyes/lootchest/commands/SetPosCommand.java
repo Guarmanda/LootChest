@@ -7,11 +7,19 @@ import fr.black_eyes.lootchest.Utils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class SetPosCommand extends SubCommand {
 	
 	public SetPosCommand() {
 		super("setpos", 1);
 		setPlayerRequired(true);
+	}
+	
+	@Override
+	public String getUsage() {
+		return "/lc setpos <chestname>";
 	}
 	
 	@Override
@@ -29,7 +37,10 @@ public class SetPosCommand extends SubCommand {
 	}
 	
 	@Override
-	public String getUsage() {
-		return "/lc edit <chestname>";
+	public List<String> getTabList(String[] args) {
+		if (args.length == 1) {
+			return LootchestCommand.getChestNames();
+		}
+		return new LinkedList<>();
 	}
 }

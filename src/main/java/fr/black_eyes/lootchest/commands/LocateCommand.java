@@ -8,10 +8,17 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+
 public class LocateCommand extends SubCommand {
 	
 	public LocateCommand() {
 		super("locate", 0);
+	}
+	
+	@Override
+	public String getUsage() {
+		return "/lc locate";
 	}
 	
 	@Override
@@ -27,7 +34,7 @@ public class LocateCommand extends SubCommand {
 	}
 	
 	@Override
-	public String getUsage() {
-		return "/lc locate";
+	public List<String> getTabList(String[] args) {
+		return LootchestCommand.getChestNames();
 	}
 }

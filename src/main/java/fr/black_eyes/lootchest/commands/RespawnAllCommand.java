@@ -8,8 +8,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.generator.WorldInfo;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,7 +17,12 @@ import java.util.stream.Collectors;
 public class RespawnAllCommand extends SubCommand {
 	
 	public RespawnAllCommand() {
-		super("respawnall", 0);
+		super("respawnall", 1);
+	}
+	
+	@Override
+	public String getUsage() {
+		return "/lc edit <chestname>";
 	}
 	
 	@Override
@@ -50,15 +55,16 @@ public class RespawnAllCommand extends SubCommand {
 		Utils.msg(sender, "AllChestsReloadedInWorld", "[World]", args[1]);
 	}
 	
-	@Override
-	public String getUsage() {
-		return "/lc edit <chestname>";
-	}
 	
 	@Override
-	public List<String> getTabList(String[] arguments) {
-		if (arguments.length <= 1) {
-			return Bukkit.getWorlds().stream().map(WorldInfo::getName).collect(Collectors.toList());
+	public List<String> getTabList(String[] args) {
+		if (args.length <= 1) {
+			final List<String> completions = new ArrayList<>();
+			
+			for (World w : Bukkit.getWorlds()) {
+				completions.add(w.getName());
+			}
+			return completions;
 		}
 		return new LinkedList<>();
 	}

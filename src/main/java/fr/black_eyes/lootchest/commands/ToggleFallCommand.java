@@ -6,10 +6,18 @@ import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
 import org.bukkit.command.CommandSender;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class ToggleFallCommand extends SubCommand {
 	
 	public ToggleFallCommand() {
 		super("togglefall", 1);
+	}
+	
+	@Override
+	public String getUsage() {
+		return "/lc togglefall <chestname>";
 	}
 	
 	@Override
@@ -31,7 +39,7 @@ public class ToggleFallCommand extends SubCommand {
 	}
 	
 	@Override
-	public String getUsage() {
-		return "/lc edit <chestname>";
+	public List<String> getTabList(String[] args) {
+		return LootchestCommand.getChestNames();
 	}
 }

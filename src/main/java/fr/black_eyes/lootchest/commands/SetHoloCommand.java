@@ -9,11 +9,18 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 public class SetHoloCommand extends SubCommand {
 	
 	public SetHoloCommand() {
 		super("setholo", 2);
+	}
+	
+	@Override
+	public String getUsage() {
+		return "/lc setholo <chestname> <holotext> ...";
 	}
 	
 	@Override
@@ -35,7 +42,10 @@ public class SetHoloCommand extends SubCommand {
 	}
 	
 	@Override
-	public String getUsage() {
-		return "/lc setholo <chestname> <holotext> ...";
+	public List<String> getTabList(String[] args) {
+		if (args.length == 1) {
+			return LootchestCommand.getChestNames();
+		}
+		return new LinkedList<>();
 	}
 }

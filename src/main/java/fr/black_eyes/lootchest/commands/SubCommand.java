@@ -40,6 +40,10 @@ public abstract class SubCommand {
 		return permission;
 	}
 	
+	public int getArgCount() {
+		return argCount;
+	}
+	
 	public void setPlayerRequired(boolean value) {
 		this.isPlayerRequired = value;
 	}
@@ -92,7 +96,7 @@ public abstract class SubCommand {
 	 */
 	public abstract String getUsage();
 	
-	public List<String> getTabList(String[] arguments) {
+	public List<String> getTabList(String[] args) {
 		return new LinkedList<>();
 	}
 }

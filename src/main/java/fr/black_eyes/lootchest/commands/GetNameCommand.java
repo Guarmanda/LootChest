@@ -20,6 +20,11 @@ public class GetNameCommand extends SubCommand {
 	}
 	
 	@Override
+	public String getUsage() {
+		return "/lc getname";
+	}
+	
+	@Override
 	protected void onCommand(CommandSender sender, String[] args) {
 		Player player = (Player) sender;
 		Block chest;
@@ -39,12 +44,6 @@ public class GetNameCommand extends SubCommand {
 			Utils.msg(sender, "commandGetName", Constants.cheststr, lc.getName());
 			return;
 		}
-//		if (lc == null || !lc.isGoodType(chest)) {
 		Utils.msg(sender, "notAChest", " ", " ");
-	}
-	
-	@Override
-	public String getUsage() {
-		return "/lc edit <chestname>";
 	}
 }

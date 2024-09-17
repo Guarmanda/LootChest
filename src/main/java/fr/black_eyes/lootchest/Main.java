@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import fr.black_eyes.lootchest.commands.CommandHandler;
+import fr.black_eyes.lootchest.commands.CopyCommand;
 import fr.black_eyes.lootchest.commands.CreateCommand;
 import fr.black_eyes.lootchest.commands.DespawnAllCommand;
 import fr.black_eyes.lootchest.commands.EditCommand;
@@ -264,6 +265,7 @@ public class Main extends JavaPlugin {
 	
 	private void registerCommands(LootchestCommand baseCommand) {
 		CommandHandler cmdHandler = new CommandHandler(this, "lootchest");
+		cmdHandler.addSubCommand(new CopyCommand());
 		cmdHandler.addSubCommand(new CreateCommand(baseCommand));
 		cmdHandler.addSubCommand(new DespawnAllCommand());
 		cmdHandler.addSubCommand(new EditCommand(baseCommand));

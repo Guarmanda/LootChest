@@ -7,10 +7,19 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class DespawnAllCommand extends SubCommand {
 	
 	public DespawnAllCommand() {
 		super("despawnall", 1);
+	}
+	
+	@Override
+	public String getUsage() {
+		return "/lc despawnall <world>";
 	}
 	
 	@Override
@@ -35,7 +44,12 @@ public class DespawnAllCommand extends SubCommand {
 	}
 	
 	@Override
-	public String getUsage() {
-		return "/lc despawnall <world>";
+	public List<String> getTabList(String[] args) {
+		final List<String> completions = new ArrayList<>();
+		
+		for (World w : Bukkit.getWorlds()) {
+			completions.add(w.getName());
+		}
+		return completions;
 	}
 }

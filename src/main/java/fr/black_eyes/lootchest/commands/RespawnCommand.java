@@ -10,10 +10,18 @@ import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class RespawnCommand extends SubCommand {
 	
 	public RespawnCommand() {
 		super("respawn", 1);
+	}
+	
+	@Override
+	public String getUsage() {
+		return "/lc edit <chestname>";
 	}
 	
 	@Override
@@ -46,7 +54,7 @@ public class RespawnCommand extends SubCommand {
 	}
 	
 	@Override
-	public String getUsage() {
-		return "/lc edit <chestname>";
+	public List<String> getTabList(String[] args) {
+		return LootchestCommand.getChestNames();
 	}
 }

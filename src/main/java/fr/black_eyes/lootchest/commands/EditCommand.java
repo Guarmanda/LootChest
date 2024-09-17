@@ -6,6 +6,8 @@ import fr.black_eyes.lootchest.Utils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+
 public class EditCommand extends SubCommand {
 	
 	private final LootchestCommand lootchestCommand;
@@ -14,6 +16,11 @@ public class EditCommand extends SubCommand {
 		super("edit", 1);
 		setPlayerRequired(true);
 		this.lootchestCommand = lootchestCommand;
+	}
+	
+	@Override
+	public String getUsage() {
+		return "/lc edit <chestname>";
 	}
 	
 	@Override
@@ -28,7 +35,7 @@ public class EditCommand extends SubCommand {
 	}
 	
 	@Override
-	public String getUsage() {
-		return "/lc edit <chestname>";
+	public List<String> getTabList(String[] args) {
+		return LootchestCommand.getChestNames();
 	}
 }

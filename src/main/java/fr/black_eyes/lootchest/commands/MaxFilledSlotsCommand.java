@@ -8,11 +8,19 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class MaxFilledSlotsCommand extends SubCommand {
 	
 	public MaxFilledSlotsCommand() {
-		super("maxfilledslots", 0);
+		super("maxfilledslots", 2);
 		setPlayerRequired(true);
+	}
+	
+	@Override
+	public String getUsage() {
+		return "/lc maxfilledslots <chestname> <slotnumber>";
 	}
 	
 	@Override
@@ -36,7 +44,10 @@ public class MaxFilledSlotsCommand extends SubCommand {
 	}
 	
 	@Override
-	public String getUsage() {
-		return "/lc maxfilledslots <chestname> <slotnumber>";
+	public List<String> getTabList(String[] args) {
+		if (args.length == 1) {
+			return LootchestCommand.getChestNames();
+		}
+		return new LinkedList<>();
 	}
 }

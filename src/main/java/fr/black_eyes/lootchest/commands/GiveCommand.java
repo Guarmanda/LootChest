@@ -8,10 +8,19 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 public class GiveCommand extends SubCommand {
 	
 	public GiveCommand() {
-		super("give", 1);
+		super("give", 2);
+	}
+	
+	@Override
+	public String getUsage() {
+		return "/lc give <chestname> <player>";
 	}
 	
 	@Override
@@ -28,14 +37,18 @@ public class GiveCommand extends SubCommand {
 			Utils.msg(sender, "PlayerIsNotOnline", "[Player]", playerName);
 		}
 		else {
-			Utils.msg(sender, "giveto", Constants.cheststr, args[1], "[Player]", playerName);
+			Utils.msg(sender, "giveto", Constants.cheststr, chestName, "[Player]", playerName);
 			Utils.msg(player, "givefrom", Constants.cheststr, chestName, "[Player]", sender.getName());
 			Utils.fillInventory(lc, player.getInventory(), false, player);
 		}
 	}
 	
 	@Override
-	public String getUsage() {
-		return "/lc give <chestname> <player>";
+	public List<String> getTabList(String[] args) {
+		Bukkit.broadcastMessage(args.length + "");
+		if (args.length == 1) {
+			return LootchestCommand.getChestNames();
+		}
+		return new LinkedList<>();
 	}
 }

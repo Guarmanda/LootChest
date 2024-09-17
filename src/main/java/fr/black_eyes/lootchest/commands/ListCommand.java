@@ -8,6 +8,9 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class ListCommand extends SubCommand {
 	
 	public ListCommand() {
@@ -15,12 +18,13 @@ public class ListCommand extends SubCommand {
 	}
 	
 	@Override
-	protected void onCommand(CommandSender sender, String[] args) {
-		Utils.msg(sender, "ListCommand", "[List]", String.join(" ", Main.getInstance().getLootChest().keySet()));
+	public String getUsage() {
+		return "/lc list";
 	}
 	
 	@Override
-	public String getUsage() {
-		return "/lc list";
+	protected void onCommand(CommandSender sender, String[] args) {
+		List<String> sorted =  Main.getInstance().getLootChest().keySet().stream().sorted().collect(Collectors.toList());
+		Utils.msg(sender, "ListCommand", "[List]", String.join(" ", sorted));
 	}
 }

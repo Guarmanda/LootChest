@@ -24,6 +24,11 @@ public class CreateCommand extends SubCommand {
 	}
 	
 	@Override
+	public String getUsage() {
+		return "/lc create <chestname>";
+	}
+	
+	@Override
 	protected void onCommand(CommandSender sender, String[] args) {
 		Player player = (Player) sender;
 		Block chest;
@@ -56,10 +61,5 @@ public class CreateCommand extends SubCommand {
 			Main.getInstance().getLootChest().get(chestName).updateData();
 			lootchestCommand.openMenu(player, chestName);
 		}
-	}
-	
-	@Override
-	public String getUsage() {
-		return "/lc create <chestname>";
 	}
 }

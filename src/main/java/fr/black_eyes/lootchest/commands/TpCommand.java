@@ -8,6 +8,9 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class TpCommand extends SubCommand {
 	
 	public TpCommand() {
@@ -16,20 +19,26 @@ public class TpCommand extends SubCommand {
 	}
 	
 	@Override
+	public String getUsage() {
+		return "/lc tp <chestname>";
+	}
+	
+	@Override
 	protected void onCommand(CommandSender sender, String[] args) {
 		Player player = (Player) sender;
-		Lootchest lc = Main.getInstance().getLootChest().get(args[0]);
+		String chestName = args[0];
+		Lootchest lc = Main.getInstance().getLootChest().get(chestName);
 		if (lc == null){
-			Utils.msg(sender, "chestDoesntExist", Constants.cheststr, args[1]);
+			Utils.msg(sender, "chestDoesntExist", Constants.cheststr, chestName);
 			return;
 		}
 		Location loc = lc.getActualLocation();
 		player.teleport(loc);
-		Utils.msg(sender, "teleportedToChest", Constants.cheststr, args[1]);
+		Utils.msg(sender, "teleportedToChest", Constants.cheststr, chestName);
 	}
 	
 	@Override
-	public String getUsage() {
-		return "/lc edit <chestname>";
+	public List<String> getTabList(String[] args) {
+		return LootchestCommand.getChestNames();
 	}
 }

@@ -6,10 +6,18 @@ import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
 import org.bukkit.command.CommandSender;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class RandomSpawnCommand extends SubCommand {
 	
 	public RandomSpawnCommand() {
 		super("randomspawn", 2);
+	}
+	
+	@Override
+	public String getUsage() {
+		return "/lc randomspawn <chestname> <radius>";
 	}
 	
 	@Override
@@ -37,7 +45,10 @@ public class RandomSpawnCommand extends SubCommand {
 	}
 	
 	@Override
-	public String getUsage() {
-		return "/lc randomspawn <chestname> <radius>";
+	public List<String> getTabList(String[] args) {
+		if (args.length == 1) {
+			return LootchestCommand.getChestNames();
+		}
+		return new LinkedList<>();
 	}
 }

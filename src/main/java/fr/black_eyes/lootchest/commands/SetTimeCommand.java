@@ -8,10 +8,18 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class SetTimeCommand extends SubCommand {
 	
 	public SetTimeCommand() {
 		super("settime", 2);
+	}
+	
+	@Override
+	public String getUsage() {
+		return "/lc settime <chestname> <seconds>";
 	}
 	
 	@Override
@@ -29,7 +37,10 @@ public class SetTimeCommand extends SubCommand {
 	}
 	
 	@Override
-	public String getUsage() {
-		return "/lc settime <chestname> <seconds>";
+	public List<String> getTabList(String[] args) {
+		if (args.length == 1) {
+			return LootchestCommand.getChestNames();
+		}
+		return new LinkedList<>();
 	}
 }
