@@ -6,7 +6,6 @@ import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
 import org.bukkit.command.CommandSender;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class RemoveCommand extends SubCommand {
@@ -31,6 +30,7 @@ public class RemoveCommand extends SubCommand {
 		lc.deleteChest();
 		Utils.msg(sender, "chestDeleted", Constants.cheststr, chestName);
 	}
+	
 	@Override
 	public List<String> getTabList(String[] args) {
 		return LootchestCommand.getChestNames();

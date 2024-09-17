@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * A command with no defined way of execution (not arguments or sub commands)
+ * Abstract class for implementing logic for a sub command
  */
 public abstract class SubCommand {
 	
@@ -48,18 +48,7 @@ public abstract class SubCommand {
 		this.isPlayerRequired = value;
 	}
 	
-	/**
-	 * Executes the implemented functionality of this command if permissions and player requirements are met
-	 * Runs the callback after finishing, which might be asynchronously later.
-	 *
-	 * @param sender being that executed this command
-	 * @param args   further arguments input behind the command name
-	 */
 	public void execute(CommandSender sender, String[] args) {
-		if (getPermission() != null && !sender.hasPermission(getPermission())) {
-			sender.sendMessage(ChatColor.RED + "You do not have the permission for this command!");
-			return;
-		}
 		if (isPlayerRequired && !(sender instanceof Player)) {
 			sender.sendMessage(ChatColor.RED + "Please, run this command in-game");
 			return;
@@ -72,10 +61,7 @@ public abstract class SubCommand {
 	}
 	
 	/**
-	 * Executes the functionality of the command
-	 *
-	 * @param sender being that executed this command
-	 * @param args   further arguments input after the command name
+	 * Method to overwrite to hanlde sub command execution with arguments
 	 */
 	protected abstract void onCommand(CommandSender sender, String[] args);
 	
@@ -91,9 +77,6 @@ public abstract class SubCommand {
 		return aliases.contains(alias);
 	}
 	
-	/**
-	 * Returns the pattern how to use this command
-	 */
 	public abstract String getUsage();
 	
 	public List<String> getTabList(String[] args) {

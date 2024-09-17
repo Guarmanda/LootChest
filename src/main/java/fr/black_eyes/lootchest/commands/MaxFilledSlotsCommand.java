@@ -4,9 +4,7 @@ import fr.black_eyes.lootchest.Constants;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
-import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -26,17 +24,17 @@ public class MaxFilledSlotsCommand extends SubCommand {
 	@Override
 	protected void onCommand(CommandSender sender, String[] args) {
 		Lootchest lc = Main.getInstance().getLootChest().get(args[0]);
-		if (lc == null){
+		if (lc == null) {
 			Utils.msg(sender, "chestDoesntExist", Constants.cheststr, args[0]);
 			return;
 		}
 		int maxFilledSlots;
 		try {
 			maxFilledSlots = Integer.parseInt(args[1]);
-		}catch (NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			return;
 		}
-		if(maxFilledSlots >= 0) {
+		if (maxFilledSlots >= 0) {
 			lc.setMaxFilledSlots(maxFilledSlots);
 		}
 		lc.updateData();

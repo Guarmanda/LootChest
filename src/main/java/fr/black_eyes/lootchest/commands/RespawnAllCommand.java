@@ -12,7 +12,6 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class RespawnAllCommand extends SubCommand {
 	
@@ -29,25 +28,25 @@ public class RespawnAllCommand extends SubCommand {
 	protected void onCommand(CommandSender sender, String[] args) {
 		String worldName = args[0];
 		World w = Bukkit.getWorld(worldName);
-		if(w == null) {
+		if (w == null) {
 			Utils.msg(sender, "worldDoesntExist", "[World]", worldName);
 			return;
 		}
 		for (final Lootchest l : Main.getInstance().getLootChest().values()) {
-			if(!l.getWorld().equals(worldName)) {
+			if (!l.getWorld().equals(worldName)) {
 				continue;
 			}
 			Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
 				Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
-					l.spawn( true) ;
+					l.spawn(true);
 				}, 0L);
 			}, 5L);
 		}
-		if(Main.configs.NOTE_allcmd_world_e ) {
-			if(Main.configs.NOTE_bungee_broadcast) {
+		if (Main.configs.NOTE_allcmd_world_e) {
+			if (Main.configs.NOTE_bungee_broadcast) {
 				BungeeChannel.bungeeBroadcast(Utils.color(Main.configs.NOTE_allcmd_msg_world));
-			}else {
-				for(Player p : Bukkit.getOnlinePlayers()) {
+			} else {
+				for (Player p : Bukkit.getOnlinePlayers()) {
 					Utils.sendMultilineMessage(Main.configs.NOTE_allcmd_msg_world.replace("[World]", worldName), p);
 				}
 			}

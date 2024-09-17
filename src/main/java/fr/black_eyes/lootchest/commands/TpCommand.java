@@ -8,7 +8,6 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class TpCommand extends SubCommand {
@@ -28,7 +27,7 @@ public class TpCommand extends SubCommand {
 		Player player = (Player) sender;
 		String chestName = args[0];
 		Lootchest lc = Main.getInstance().getLootChest().get(chestName);
-		if (lc == null){
+		if (lc == null) {
 			Utils.msg(sender, "chestDoesntExist", Constants.cheststr, chestName);
 			return;
 		}

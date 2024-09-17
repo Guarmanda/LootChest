@@ -2,9 +2,7 @@ package fr.black_eyes.lootchest.commands;
 
 import fr.black_eyes.lootchest.Constants;
 import fr.black_eyes.lootchest.Lootchest;
-import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -40,7 +38,7 @@ public class GetNameCommand extends SubCommand {
 		chest = lastBlock;
 		Lootchest lc = Utils.isLootChest(chest.getLocation());
 		
-		if (lc!=null){
+		if (lc != null) {
 			Utils.msg(sender, "commandGetName", Constants.cheststr, lc.getName());
 			return;
 		}

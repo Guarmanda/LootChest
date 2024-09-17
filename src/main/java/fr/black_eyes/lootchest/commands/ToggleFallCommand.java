@@ -6,7 +6,6 @@ import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
 import org.bukkit.command.CommandSender;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class ToggleFallCommand extends SubCommand {

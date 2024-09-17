@@ -4,9 +4,7 @@ import fr.black_eyes.lootchest.Constants;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
-import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +24,7 @@ public class SetProtectionCommand extends SubCommand {
 	protected void onCommand(CommandSender sender, String[] args) {
 		String chestName = args[0];
 		Lootchest lc = Main.getInstance().getLootChest().get(chestName);
-		if (lc == null){
+		if (lc == null) {
 			Utils.msg(sender, "chestDoesntExist", Constants.cheststr, chestName);
 			return;
 		}

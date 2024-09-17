@@ -26,7 +26,7 @@ public class SetPosCommand extends SubCommand {
 	protected void onCommand(CommandSender sender, String[] args) {
 		Player player = (Player) sender;
 		Lootchest lc = Main.getInstance().getLootChest().get(args[0]);
-		if (lc == null){
+		if (lc == null) {
 			Utils.msg(sender, "chestDoesntExist", Constants.cheststr, args[1]);
 			return;
 		}

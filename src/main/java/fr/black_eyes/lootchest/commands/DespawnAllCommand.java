@@ -9,7 +9,6 @@ import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DespawnAllCommand extends SubCommand {
 	
@@ -26,17 +25,17 @@ public class DespawnAllCommand extends SubCommand {
 	protected void onCommand(CommandSender sender, String[] args) {
 		String worldName = args[0];
 		World w2 = Bukkit.getWorld(worldName);
-		if(w2 == null) {
+		if (w2 == null) {
 			Utils.msg(sender, "worldDoesntExist", "[World]", worldName);
 			return;
 		}
 		for (final Lootchest l : Main.getInstance().getLootChest().values()) {
-			if(!l.getWorld().equals(worldName)) {
+			if (!l.getWorld().equals(worldName)) {
 				continue;
 			}
 			Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
 				Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
-					l.spawn( false, true) ;
+					l.spawn(false, true);
 				}, 0L);
 			}, 5L);
 		}

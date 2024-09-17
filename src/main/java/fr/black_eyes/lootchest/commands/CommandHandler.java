@@ -2,7 +2,6 @@ package fr.black_eyes.lootchest.commands;
 
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
-import org.apache.logging.log4j.util.Strings;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -17,12 +16,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Takes care of executing any registered command when it is being called
+ * Handles the execution of a command and delegates all logic to registered subcommands
  */
 public class CommandHandler implements CommandExecutor, TabCompleter {
 	
 	private final Set<SubCommand> commands;
 	
+	/**
+	 * @param baseCommand name of the plugin command to handle (the command directly after the /)
+	 */
 	public CommandHandler(JavaPlugin plugin, String baseCommand) {
 		this.commands = new HashSet<>();
 		plugin.getCommand(baseCommand).setExecutor(this);
@@ -33,6 +35,9 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 		commands.add(command);
 	}
 	
+	/**
+	 * Looks up which subcommand was called as first argument and executes it
+	 */
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (args.length < 1) {
@@ -43,6 +48,9 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 		
 		for (SubCommand command : commands) {
 			if (command.matchesAlias(subCmdName)) {
+				if (!hasPerm(sender, command.getPermission())) {
+					return true;
+				}
 				command.execute(sender, Arrays.copyOfRange(args, 1, args.length));
 				return true;
 			}
@@ -51,6 +59,9 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 		return true;
 	}
 	
+	/**
+	 * Looks up which subcommand was tabbed as first argument and returns its tab list
+	 */
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
 		String subCommandName = args[0].toLowerCase();
@@ -68,11 +79,11 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 			if (command.getPermission() != null && !sender.hasPermission(command.getPermission())) {
 				continue;
 			}
-			if (command.getArgCount() < args.length-1) {
+			if (command.getArgCount() < args.length - 1) {
 				continue;
 			}
 			String lastArg = args[args.length - 1].toLowerCase();
-			return command.getTabList(Arrays.copyOfRange(args, 0, args.length-1)).stream()
+			return command.getTabList(Arrays.copyOfRange(args, 0, args.length - 1)).stream()
 					.filter(s -> s.toLowerCase().startsWith(lastArg))
 					.collect(Collectors.toList());
 		}
@@ -81,8 +92,16 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 	
 	public void displayhelp(CommandSender p) {
 		List<String> help = Main.getInstance().getConfigFiles().getLang().getStringList("help");
-		for(int i=0; i<help.size();i++) {
+		for (int i = 0; i < help.size(); i++) {
 			p.sendMessage(Utils.color(help.get(i)));
 		}
+	}
+	
+	private boolean hasPerm(CommandSender sender, String permission) {
+		if (!sender.hasPermission(permission) && !sender.hasPermission("lootchest.admin") && !sender.hasPermission("lootchest.*")) {
+			Utils.msg(sender, "noPermission", "[Permission]", "lootchest." + permission);
+			return false;
+		}
+		return true;
 	}
 }

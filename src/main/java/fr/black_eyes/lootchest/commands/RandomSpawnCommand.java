@@ -24,19 +24,19 @@ public class RandomSpawnCommand extends SubCommand {
 	protected void onCommand(CommandSender sender, String[] args) {
 		String chestName = args[0];
 		Lootchest lc = Main.getInstance().getLootChest().get(chestName);
-		if (lc == null){
+		if (lc == null) {
 			Utils.msg(sender, "chestDoesntExist", Constants.cheststr, chestName);
 			return;
 		}
 		int newradius = Integer.parseInt(args[1]);
 		newradius = Math.max(newradius, 0);
 		lc.setRadius(newradius);
-		if(newradius> 0) {
+		if (newradius > 0) {
 			Utils.msg(sender, "chestRadiusSet", Constants.cheststr, chestName);
 		}
 		
 		lc.despawn();
-		if(newradius == 0) {
+		if (newradius == 0) {
 			lc.setRandomLoc(null);
 			Utils.msg(sender, "disabledChestRadius", Constants.cheststr, chestName);
 		}
