@@ -15,7 +15,7 @@ import java.util.UUID;
 /**
  * A command with no defined way of execution (not arguments or sub commands)
  */
-public abstract class SimpleCommand {
+public abstract class SubCommand {
 	
 	private final String name;
 	private final int argCount;
@@ -26,7 +26,7 @@ public abstract class SimpleCommand {
 	Map<UUID, Runnable> executeCallbacks;
 	Set<UUID> asyncExecutes;
 	
-	public SimpleCommand(String name, int argCount) {
+	public SubCommand(String name, int argCount) {
 		this.name = name.toLowerCase();
 		this.argCount = argCount;
 		aliases = new HashSet<>();
@@ -45,14 +45,12 @@ public abstract class SimpleCommand {
 	 *
 	 * @param permission name of permission
 	 */
-	public SimpleCommand setPermission(String permission) {
+	public void setPermission(String permission) {
 		this.permission = permission;
-		return this;
 	}
 	
-	public SimpleCommand setPlayerRequired(boolean value) {
+	public void setPlayerRequired(boolean value) {
 		this.isPlayerRequired = value;
-		return this;
 	}
 	
 	/**
@@ -102,10 +100,6 @@ public abstract class SimpleCommand {
 	 * Returns the pattern how to use this command
 	 */
 	public abstract String getUsage();
-	
-	public void sendUsage(CommandSender sender) {
-		sender.sendMessage(getUsage());
-	}
 	
 	public List<String> getTabList(String[] arguments) {
 		return new LinkedList<>();

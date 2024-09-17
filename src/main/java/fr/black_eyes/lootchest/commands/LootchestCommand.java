@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import fr.black_eyes.lootchest.Constants;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -57,6 +59,12 @@ public class LootchestCommand implements CommandExecutor, TabCompleter  {
 			menu = main.getMenu();
 	 }
 	 
+	public void openMenu(Player player, String menuName) {
+		editinv.put(player, menuName);
+		LootchestCommand.menuName.put(player, Utils.getMsg("Menu.main.name", Constants.cheststr, menuName));
+		menu.mainInv(player, menuName);
+	}
+	
 	@Override
 	@SuppressWarnings("deprecation") //compatibility with 1.7
 	public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {

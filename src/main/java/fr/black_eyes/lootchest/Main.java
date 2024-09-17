@@ -11,6 +11,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import fr.black_eyes.lootchest.commands.CommandHandler;
+import fr.black_eyes.lootchest.commands.CreateCommand;
+import fr.black_eyes.lootchest.commands.DespawnAllCommand;
+import fr.black_eyes.lootchest.commands.EditCommand;
+import fr.black_eyes.lootchest.commands.GetNameCommand;
+import fr.black_eyes.lootchest.commands.LocateCommand;
+import fr.black_eyes.lootchest.commands.ReloadCommand;
+import fr.black_eyes.lootchest.commands.RemoveCommand;
+import fr.black_eyes.lootchest.commands.RespawnAllCommand;
+import fr.black_eyes.lootchest.commands.RespawnCommand;
+import fr.black_eyes.lootchest.commands.SetPosCommand;
+import fr.black_eyes.lootchest.commands.ToggleFallCommand;
+import fr.black_eyes.lootchest.commands.TpCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -167,9 +180,11 @@ public class Main extends JavaPlugin {
         }
 		this.getServer().getPluginManager().registerEvents(new DeleteListener(), this);
 		this.getServer().getPluginManager().registerEvents(new InventoryListeners(), this);
+		
 		LootchestCommand cmd =  new LootchestCommand();
-        this.getCommand("lootchest").setExecutor(cmd);
-        this.getCommand("lootchest").setTabCompleter(cmd);
+		registerCommands(cmd);
+//        this.getCommand("lootchest").setExecutor(cmd);
+//        this.getCommand("lootchest").setTabCompleter(cmd);
         super.onEnable();
         
         
@@ -240,6 +255,21 @@ public class Main extends JavaPlugin {
         
 	}
 	
+	private void registerCommands(LootchestCommand baseCommand) {
+		CommandHandler cmdHandler = new CommandHandler(this, "lootchest");
+		cmdHandler.addSubCommand(new CreateCommand(baseCommand));
+		cmdHandler.addSubCommand(new DespawnAllCommand());
+		cmdHandler.addSubCommand(new EditCommand(baseCommand));
+		cmdHandler.addSubCommand(new GetNameCommand());
+		cmdHandler.addSubCommand(new LocateCommand());
+		cmdHandler.addSubCommand(new ReloadCommand());
+		cmdHandler.addSubCommand(new RemoveCommand());
+		cmdHandler.addSubCommand(new RespawnAllCommand());
+		cmdHandler.addSubCommand(new RespawnCommand());
+		cmdHandler.addSubCommand(new SetPosCommand());
+		cmdHandler.addSubCommand(new ToggleFallCommand());
+		cmdHandler.addSubCommand(new TpCommand());
+	}
 	
 	/**
 	 * Loop all chests every 1/4 of second (configurable in config.yml) and spawns particles around it.
