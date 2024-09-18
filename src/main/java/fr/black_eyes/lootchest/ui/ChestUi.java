@@ -1,5 +1,6 @@
 package fr.black_eyes.lootchest.ui;
 
+import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
 import fr.black_eyes.lootchest.Utils;
 import org.bukkit.Bukkit;
@@ -9,7 +10,10 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -69,9 +73,18 @@ public class ChestUi {
 	}
 	
 	protected ItemStack nameItem(Material mat, String name) {
+		return nameItem(mat, name, "");
+	}
+	
+	protected ItemStack nameItem(Material mat, String name, String lore) {
 		ItemStack item = new ItemStack(mat);
 		ItemMeta meta = item.getItemMeta();
 		meta.setDisplayName(name);
+		
+		if (!lore.isEmpty()) {
+			List<String> loreList = Arrays.asList(lore.split("\\|\\|"));
+			meta.setLore(loreList);
+		}
 		item.setItemMeta(meta);
 		return item;
 	}

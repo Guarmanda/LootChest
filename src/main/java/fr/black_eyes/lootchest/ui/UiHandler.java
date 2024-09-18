@@ -1,6 +1,7 @@
 package fr.black_eyes.lootchest.ui;
 
 import fr.black_eyes.lootchest.Lootchest;
+import fr.black_eyes.lootchest.ui.menu.CopyMenu;
 import fr.black_eyes.lootchest.ui.menu.MainMenu;
 import fr.black_eyes.lootchest.ui.menu.ParticleMenu;
 import org.bukkit.entity.Player;
@@ -35,16 +36,18 @@ public class UiHandler {
 	}
 	
 	public void openUi(Player player, UiType type, Lootchest chest) {
+		UUID playerId = player.getUniqueId();
 		switch (type) {
 			case MAIN:
-				playerUis.put(player.getUniqueId(), new MainMenu(chest, this).open(player));
+				playerUis.put(playerId, new MainMenu(chest, this).open(player));
 				break;
 			case COPY:
+				playerUis.put(playerId, new CopyMenu(chest).open(player));
 				break;
 			case TYPE:
 				break;
 			case PARTICLE:
-				playerUis.put(player.getUniqueId(), new ParticleMenu(chest).open(player));
+				playerUis.put(playerId, new ParticleMenu(chest).open(player));
 				break;
 			case EDIT:
 				break;
