@@ -14,6 +14,10 @@ public class UiHandler {
 	
 	private final Map<UUID, ChestUi> playerUis;
 	
+	public boolean hasPlayerOpenUi(Player player) {
+		return playerUis.containsKey(player.getUniqueId());
+	}
+	
 	public enum UiType {
 		MAIN, COPY, TYPE, PARTICLE, EDIT, TIME, CHANCES
 	}
@@ -31,12 +35,18 @@ public class UiHandler {
 	public void openUi(Player player, UiType type, Lootchest chest) {
 		switch (type) {
 			case MAIN:
+				playerUis.put(player.getUniqueId(), new MainMenu(chest, this).open(player));
+				break;
 			case COPY:
+				break;
 			case TYPE:
+				break;
 			case PARTICLE:
+				playerUis.put(player.getUniqueId(), new ParticleMenu(chest).open(player));
+				break;
 			case EDIT:
+				break;
 			case TIME:
-			default:
 				break;
 		}
 	}

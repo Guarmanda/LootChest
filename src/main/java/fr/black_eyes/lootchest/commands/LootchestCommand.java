@@ -1,9 +1,9 @@
 package fr.black_eyes.lootchest.commands;
 
-import fr.black_eyes.lootchest.Constants;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Menu;
 import fr.black_eyes.lootchest.Utils;
+import fr.black_eyes.lootchest.menu.UiHandler;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -16,16 +16,20 @@ public class LootchestCommand {
 	public static Map<org.bukkit.entity.Player, String> menuName = new HashMap<>();
 	
 	private Menu menu;
+	private final UiHandler uiHandler;
 	
-	public LootchestCommand() {
+	public LootchestCommand(UiHandler uiHandler) {
+		this.uiHandler = uiHandler;
 		menu = Main.getInstance().getMenu();
 	}
 	
 	public void openMenu(Player player, String menuName) {
-		editinv.put(player, menuName);
-		LootchestCommand.menuName.put(player, Utils.getMsg("Menu.main.name", Constants.cheststr, menuName));
-		menu.mainInv(player, menuName);
+//		editinv.put(player, menuName);
+//		LootchestCommand.menuName.put(player, Utils.getMsg("Menu.main.name", Constants.cheststr, menuName));
+//		menu.mainInv(player, menuName);
+		uiHandler.openUi(player, UiHandler.UiType.MAIN, Main.getInstance().getLootChest().get(menuName));
 	}
+	
 	
 	public static String getCardinalDirection(Player player) {
 		float rotation = Utils.normalizeYaw(player.getLocation().getYaw());

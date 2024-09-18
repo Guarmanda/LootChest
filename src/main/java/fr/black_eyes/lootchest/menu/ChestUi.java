@@ -50,8 +50,9 @@ public class ChestUi {
 		}
 	}
 	
-	public void open(Player player) {
+	public ChestUi open(Player player) {
 		player.openInventory(inventory);
+		return this;
 	}
 	
 	public void clear() {

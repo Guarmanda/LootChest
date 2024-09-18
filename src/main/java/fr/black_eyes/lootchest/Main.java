@@ -32,9 +32,12 @@ import fr.black_eyes.lootchest.commands.SetProtectionCommand;
 import fr.black_eyes.lootchest.commands.SetTimeCommand;
 import fr.black_eyes.lootchest.commands.ToggleFallCommand;
 import fr.black_eyes.lootchest.commands.TpCommand;
+import fr.black_eyes.lootchest.listeners.UiListener;
+import fr.black_eyes.lootchest.menu.UiHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import fr.black_eyes.lootchest.colors.Ansi;
@@ -45,7 +48,6 @@ import eu.decentholo.holograms.DecentHologramsPlugin;
 import eu.decentholo.holograms.api.DecentHolograms;
 import fr.black_eyes.lootchest.commands.LootchestCommand;
 import fr.black_eyes.lootchest.listeners.DeleteListener;
-import fr.black_eyes.lootchest.listeners.InventoryListeners;
 import fr.black_eyes.lootchest.particles.Particle;
 import lombok.Getter;
 import lombok.Setter;
@@ -186,10 +188,14 @@ public class Main extends JavaPlugin {
         	logInfo("&cConfig or data files couldn't be initialized, the plugin will stop.");
         	return;
         }
-		this.getServer().getPluginManager().registerEvents(new DeleteListener(), this);
-		this.getServer().getPluginManager().registerEvents(new InventoryListeners(), this);
 		
-		LootchestCommand cmd =  new LootchestCommand();
+		UiHandler uiHandler = new UiHandler();
+		PluginManager pluginManager = Bukkit.getPluginManager();
+		pluginManager.registerEvents(new DeleteListener(), this);
+		pluginManager.registerEvents(new UiListener(uiHandler), this);
+//		pluginManager.registerEvents(new InventoryListeners(), this);
+		
+		LootchestCommand cmd =  new LootchestCommand(uiHandler);
 		registerCommands(cmd);
 //        this.getCommand("lootchest").setExecutor(cmd);
 //        this.getCommand("lootchest").setTabCompleter(cmd);
