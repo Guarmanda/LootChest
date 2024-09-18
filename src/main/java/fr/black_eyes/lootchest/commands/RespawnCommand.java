@@ -10,27 +10,18 @@ import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.List;
+import java.util.Arrays;
 
 public class RespawnCommand extends SubCommand {
 	
 	public RespawnCommand() {
-		super("respawn", 1);
-	}
-	
-	@Override
-	public String getUsage() {
-		return "/lc respawn <chestname>";
+		super("respawn", Arrays.asList(ArgType.LOOTCHEST));
 	}
 	
 	@Override
 	protected void onCommand(CommandSender sender, String[] args) {
-		String chestName = args[0];
+		String chestName = args[1];
 		Lootchest lc = Main.getInstance().getLootChest().get(chestName);
-		if (lc == null) {
-			Utils.msg(sender, "chestDoesntExist", Constants.cheststr, chestName);
-			return;
-		}
 		lc.spawn(true);
 		Utils.msg(sender, "succesfulyRespawnedChest", Constants.cheststr, chestName);
 		if (lc.getRespawn_cmd()) {
@@ -49,10 +40,5 @@ public class RespawnCommand extends SubCommand {
 				}
 			}
 		}
-	}
-	
-	@Override
-	public List<String> getTabList(String[] args) {
-		return LootchestCommand.getChestNames();
 	}
 }

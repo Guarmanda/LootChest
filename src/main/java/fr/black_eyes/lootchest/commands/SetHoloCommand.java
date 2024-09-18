@@ -7,18 +7,16 @@ import fr.black_eyes.lootchest.Utils;
 import org.bukkit.command.CommandSender;
 
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 
 public class SetHoloCommand extends SubCommand {
 	
 	public SetHoloCommand() {
-		super("setholo", 2);
+		super("setholo", Arrays.asList(ArgType.LOOTCHEST, ArgType.STRING));
 	}
 	
 	@Override
 	public String getUsage() {
-		return "/lc setholo <chestname> <holotext> ...";
+		return "/lc setholo <chestname> <holotext>/none";
 	}
 	
 	@Override
@@ -26,24 +24,12 @@ public class SetHoloCommand extends SubCommand {
 		if (!Main.getInstance().getConfig().getBoolean("UseHologram")) {
 			return;
 		}
-		String chestName = args[0];
+		String chestName = args[1];
 		Lootchest lc = Main.getInstance().getLootChest().get(chestName);
-		if (lc == null) {
-			Utils.msg(sender, "chestDoesntExist", Constants.cheststr, chestName);
-			return;
-		}
-		String holoText = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+		String holoText = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
 		lc.setHolo(holoText);
 		lc.updateData();
 		Utils.msg(sender, "hologram_edited", Constants.cheststr, chestName);
 		lc.spawn(false);
-	}
-	
-	@Override
-	public List<String> getTabList(String[] args) {
-		if (args.length == 1) {
-			return LootchestCommand.getChestNames();
-		}
-		return new LinkedList<>();
 	}
 }

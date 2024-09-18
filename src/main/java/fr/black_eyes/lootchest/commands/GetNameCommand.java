@@ -12,14 +12,9 @@ import org.bukkit.util.BlockIterator;
 public class GetNameCommand extends SubCommand {
 	
 	public GetNameCommand() {
-		super("getname", 0);
+		super("getname");
 		setPlayerRequired(true);
 		
-	}
-	
-	@Override
-	public String getUsage() {
-		return "/lc getname";
 	}
 	
 	@Override

@@ -6,9 +6,7 @@ import fr.black_eyes.lootchest.Menu;
 import fr.black_eyes.lootchest.Utils;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -41,9 +39,5 @@ public class LootchestCommand {
 			return "WEST";
 		}
 		return null;
-	}
-	
-	public static List<String> getChestNames() {
-		return new ArrayList<>(Main.getInstance().getLootChest().keySet());
 	}
 }

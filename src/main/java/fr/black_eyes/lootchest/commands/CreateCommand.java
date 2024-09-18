@@ -5,6 +5,9 @@ import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
 import fr.black_eyes.lootchest.Utils;
+
+import java.util.Arrays;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -17,22 +20,16 @@ public class CreateCommand extends SubCommand {
 	private final LootchestCommand lootchestCommand;
 	
 	public CreateCommand(LootchestCommand lootchestCommand) {
-		super("create", 1);
+		super("create", Arrays.asList(ArgType.STRING));
 		setPlayerRequired(true);
-		
 		this.lootchestCommand = lootchestCommand;
-	}
-	
-	@Override
-	public String getUsage() {
-		return "/lc create <chestname>";
 	}
 	
 	@Override
 	protected void onCommand(CommandSender sender, String[] args) {
 		Player player = (Player) sender;
 		Block chest;
-		String chestName = args[0];
+		String chestName = args[1];
 		
 		BlockIterator iter = new BlockIterator(player, 10);
 		Block lastBlock = iter.next();

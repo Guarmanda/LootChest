@@ -6,33 +6,19 @@ import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
 import org.bukkit.command.CommandSender;
 
-import java.util.List;
+import java.util.Arrays;
 
 public class RemoveCommand extends SubCommand {
 	
 	public RemoveCommand() {
-		super("remove", 1);
-	}
-	
-	@Override
-	public String getUsage() {
-		return "/lc edit <chestname>";
+		super("remove", Arrays.asList(ArgType.LOOTCHEST));
 	}
 	
 	@Override
 	protected void onCommand(CommandSender sender, String[] args) {
-		String chestName = args[0];
+		String chestName = args[1];
 		Lootchest lc = Main.getInstance().getLootChest().get(chestName);
-		if (lc == null) {
-			Utils.msg(sender, "chestDoesntExist", Constants.cheststr, chestName);
-			return;
-		}
 		lc.deleteChest();
 		Utils.msg(sender, "chestDeleted", Constants.cheststr, chestName);
-	}
-	
-	@Override
-	public List<String> getTabList(String[] args) {
-		return LootchestCommand.getChestNames();
 	}
 }

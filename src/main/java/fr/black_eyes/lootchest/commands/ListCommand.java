@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 public class ListCommand extends SubCommand {
 	
 	public ListCommand() {
-		super("list", 0);
+		super("list");
 	}
 	
 	@Override

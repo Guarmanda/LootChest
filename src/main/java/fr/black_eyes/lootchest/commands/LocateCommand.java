@@ -11,7 +11,7 @@ import org.bukkit.command.CommandSender;
 public class LocateCommand extends SubCommand {
 	
 	public LocateCommand() {
-		super("locate", 0);
+		super("locate");
 	}
 	
 	@Override

@@ -423,6 +423,7 @@ public class Main extends JavaPlugin {
       configFiles.setLang("Menu.main.enable_respawn_cmd", "&cCommand-respawn message is disabled. Click to &aENABLE &cit");
       configFiles.setLang("Menu.main.type", "&1Select Chest Item");
       configFiles.setLang("Menu.type.name", "&1Select Chest Item");
+	  configFiles.setLang("notAnInteger", "&c[Number] is not an integer!");
       configFiles.setLang("Menu.main.enable_take_message", "&cMessage on chest take is disabled. Click to &aENABLE &cit");
       configFiles.setLang("locate_command.main_message",  "&6Location of loot chests:");
       configFiles.setLang("editedChestType", "&aEdited type of chest &b[Chest]");

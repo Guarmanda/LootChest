@@ -6,13 +6,12 @@ import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
 import org.bukkit.command.CommandSender;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Arrays;
 
 public class RandomSpawnCommand extends SubCommand {
 	
 	public RandomSpawnCommand() {
-		super("randomspawn", 2);
+		super("randomspawn", Arrays.asList(ArgType.LOOTCHEST, ArgType.INTEGER));
 	}
 	
 	@Override
@@ -22,13 +21,9 @@ public class RandomSpawnCommand extends SubCommand {
 	
 	@Override
 	protected void onCommand(CommandSender sender, String[] args) {
-		String chestName = args[0];
+		String chestName = args[1];
 		Lootchest lc = Main.getInstance().getLootChest().get(chestName);
-		if (lc == null) {
-			Utils.msg(sender, "chestDoesntExist", Constants.cheststr, chestName);
-			return;
-		}
-		int newradius = Integer.parseInt(args[1]);
+		int newradius = Integer.parseInt(args[2]);
 		newradius = Math.max(newradius, 0);
 		lc.setRadius(newradius);
 		if (newradius > 0) {
@@ -42,13 +37,5 @@ public class RandomSpawnCommand extends SubCommand {
 		}
 		lc.spawn(true);
 		lc.updateData();
-	}
-	
-	@Override
-	public List<String> getTabList(String[] args) {
-		if (args.length == 1) {
-			return LootchestCommand.getChestNames();
-		}
-		return new LinkedList<>();
 	}
 }

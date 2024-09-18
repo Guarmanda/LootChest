@@ -9,7 +9,6 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,7 +50,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 				if (!hasPerm(sender, command.getPermission())) {
 					return true;
 				}
-				command.execute(sender, Arrays.copyOfRange(args, 1, args.length));
+				command.execute(sender, args);
 				return true;
 			}
 		}
@@ -83,7 +82,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 				continue;
 			}
 			String lastArg = args[args.length - 1].toLowerCase();
-			return command.getTabList(Arrays.copyOfRange(args, 0, args.length - 1)).stream()
+			return command.getTabList(args).stream()
 					.filter(s -> s.toLowerCase().startsWith(lastArg))
 					.collect(Collectors.toList());
 		}

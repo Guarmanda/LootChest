@@ -6,26 +6,17 @@ import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
 import org.bukkit.command.CommandSender;
 
-import java.util.List;
+import java.util.Arrays;
 
 public class ToggleFallCommand extends SubCommand {
 	
 	public ToggleFallCommand() {
-		super("togglefall", 1);
-	}
-	
-	@Override
-	public String getUsage() {
-		return "/lc togglefall <chestname>";
+		super("togglefall", Arrays.asList(ArgType.LOOTCHEST));
 	}
 	
 	@Override
 	protected void onCommand(CommandSender sender, String[] args) {
-		Lootchest lc = Main.getInstance().getLootChest().get(args[0]);
-		if (lc == null) {
-			Utils.msg(sender, "chestDoesntExist", Constants.cheststr, args[1]);
-			return;
-		}
+		Lootchest lc = Main.getInstance().getLootChest().get(args[1]);
 		boolean fall = lc.getFall();
 		if (fall) {
 			lc.setFall(false);
@@ -35,10 +26,5 @@ public class ToggleFallCommand extends SubCommand {
 			Utils.msg(sender, "enabledFallEffect", Constants.cheststr, args[1]);
 		}
 		lc.updateData();
-	}
-	
-	@Override
-	public List<String> getTabList(String[] args) {
-		return LootchestCommand.getChestNames();
 	}
 }
