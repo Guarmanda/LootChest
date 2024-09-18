@@ -52,7 +52,7 @@ public class TimeMenu extends ChestUi {
 		
 		days = clamp(days + dDays, 0, 99);
 		hours = clamp(hours + dHours, 0, 23);
-		minutes = clamp(minutes + dMinutes, 0, 60);
+		minutes = clamp(minutes + dMinutes, 0, 59);
 		chest.setTime(days * 1440 + hours * 60 + minutes);
 		updateTimeDial();
 	}
