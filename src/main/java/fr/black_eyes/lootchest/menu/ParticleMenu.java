@@ -5,7 +5,9 @@ import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
 import fr.black_eyes.lootchest.Utils;
 import fr.black_eyes.lootchest.particles.Particle;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 
@@ -42,20 +44,28 @@ public class ParticleMenu extends ChestUi {
 		
 		while (currentParticleIdx < particles.size() && currentSlot < pageSize) {
 			Particle particle = particles.get(currentParticleIdx);
-			setItem(currentSlot, nameItem(particle.getMat(), particle.getReadableName()), p -> chest.setParticle(particle));
+			setItem(currentSlot, nameItem(particle.getMat(), particle.getReadableName()), p -> changeParticle(chest, particle, p));
 			currentParticleIdx++;
 			currentSlot++;
 		}
 		if (pageIdx == 0) {
-			setItem(4, nameItem(Mat.BARRIER, "Disable particles"), p -> chest.setParticle(null));
+			setItem(4, nameItem(Mat.BARRIER, "Disable particles"), p -> changeParticle(chest, null, p));
 		}
 		if (pageIdx > 0) {
 			String prevPageLabel = Utils.getMsg("Menu.particles.page", "[Number]", "" + pageIdx);
-			setItem(prevPageSlot, nameItem(Material.PAPER, prevPageLabel), player -> loadPage(pageIdx - 1));
+			setItem(prevPageSlot, nameItem(Material.PAPER, prevPageLabel), p -> loadPage(pageIdx - 1));
 		}
 		if (pageIdx < pageCount - 1) {
 			String nextPageLabel = Utils.getMsg("Menu.particles.page", "[Number]", "" + (pageIdx + 2));
-			setItem(nextPageSlot, nameItem(Material.PAPER, nextPageLabel), player -> loadPage(pageIdx + 1));
+			setItem(nextPageSlot, nameItem(Material.PAPER, nextPageLabel), p -> loadPage(pageIdx + 1));
 		}
+	}
+	
+	private void changeParticle(Lootchest chest, Particle particle, Player player) {
+		chest.setParticle(particle);
+		chest.updateData();
+		Location loc = chest.getParticleLocation();
+		Main.getInstance().getPart().put(loc, particle);
+		Utils.msg(player, "editedParticle", "[Chest]", chest.getName());
 	}
 }
