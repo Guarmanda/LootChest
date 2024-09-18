@@ -1,4 +1,4 @@
-package fr.black_eyes.lootchest.menu;
+package fr.black_eyes.lootchest.ui;
 
 import fr.black_eyes.lootchest.Mat;
 import fr.black_eyes.lootchest.Utils;

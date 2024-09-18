@@ -33,7 +33,7 @@ import fr.black_eyes.lootchest.commands.SetTimeCommand;
 import fr.black_eyes.lootchest.commands.ToggleFallCommand;
 import fr.black_eyes.lootchest.commands.TpCommand;
 import fr.black_eyes.lootchest.listeners.UiListener;
-import fr.black_eyes.lootchest.menu.UiHandler;
+import fr.black_eyes.lootchest.ui.UiHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;

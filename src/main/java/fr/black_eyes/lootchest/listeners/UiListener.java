@@ -1,6 +1,6 @@
 package fr.black_eyes.lootchest.listeners;
 
-import fr.black_eyes.lootchest.menu.UiHandler;
+import fr.black_eyes.lootchest.ui.UiHandler;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

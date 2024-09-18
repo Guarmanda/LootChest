@@ -1,6 +1,8 @@
-package fr.black_eyes.lootchest.menu;
+package fr.black_eyes.lootchest.ui;
 
 import fr.black_eyes.lootchest.Lootchest;
+import fr.black_eyes.lootchest.ui.menu.MainMenu;
+import fr.black_eyes.lootchest.ui.menu.ParticleMenu;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;

@@ -1,9 +1,11 @@
-package fr.black_eyes.lootchest.menu;
+package fr.black_eyes.lootchest.ui.menu;
 
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
 import fr.black_eyes.lootchest.Utils;
+import fr.black_eyes.lootchest.ui.ChestUi;
+import fr.black_eyes.lootchest.ui.UiHandler;
 
 public class MainMenu extends ChestUi {
 	

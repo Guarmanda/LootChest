@@ -1,4 +1,4 @@
-package fr.black_eyes.lootchest.menu;
+package fr.black_eyes.lootchest.ui;
 
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 public abstract class PagedChestUi extends ChestUi {
 	
-	private List<Map.Entry<ItemStack, Consumer<Player>>> contents;
+	private final List<Map.Entry<ItemStack, Consumer<Player>>> contents;
 	
 	public PagedChestUi(int rows, String title) {
 		super(rows, title);

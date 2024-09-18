@@ -3,7 +3,7 @@ package fr.black_eyes.lootchest.commands;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Menu;
 import fr.black_eyes.lootchest.Utils;
-import fr.black_eyes.lootchest.menu.UiHandler;
+import fr.black_eyes.lootchest.ui.UiHandler;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
