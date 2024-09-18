@@ -10,6 +10,10 @@ import fr.black_eyes.lootchest.ui.UiHandler;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 /**
  * A menu to change the particle effect surrounding a loot chest
  */
@@ -32,7 +36,9 @@ public class ParticleMenu extends PagedChestUi {
 			}
 		}
 		//add items for all other particle effects
-		for (Particle particle : Main.getInstance().getParticles().values()) {
+		List<Particle> particles = new ArrayList<>(Main.getInstance().getParticles().values());
+		particles.sort(Comparator.comparing(Particle::getReadableName));
+		for (Particle particle : particles) {
 			addContent(nameItem(particle.getMat(), particle.getReadableName()), p -> changeParticle(chest, particle, p));
 		}
 	}
