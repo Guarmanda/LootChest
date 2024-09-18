@@ -42,15 +42,15 @@ public class ChancesMenu extends ChestUi {
 	}
 
 	@Override
-	public void onClickSlot(Player player, int slot, ClickType type) {
+	public boolean onClickSlot(Player player, int slot, ClickType type) {
 		ItemStack item = getItem(slot);
 
 		if (item == null || item.getType() == Material.AIR) {
-			return;
+			return true;
 		}
 		ItemMeta meta = item.getItemMeta();
 		if (!meta.hasLore()) {
-			return;
+			return true;
 		}
 		Integer chance = chest.getChances()[slot];
 		switch (type) {
@@ -76,5 +76,6 @@ public class ChancesMenu extends ChestUi {
 		meta.setLore(lore);
 		item.setItemMeta(meta);
 		chest.setChance(slot, chance);
+		return true;
 	}
 }

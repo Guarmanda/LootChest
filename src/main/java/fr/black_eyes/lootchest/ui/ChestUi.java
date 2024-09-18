@@ -60,8 +60,15 @@ public class ChestUi {
 	public void changeItem(int slot, ItemStack item) {
 		inventory.setItem(slot, item);
 	}
-	
-	public void onClickSlot(Player player, int slot, ClickType type) {
+
+	protected ItemStack[] getContents() {
+		return inventory.getContents();
+	}
+	protected void setContents(ItemStack[] contents) {
+		inventory.setContents(contents);
+	}
+
+	public boolean onClickSlot(Player player, int slot, ClickType type) {
 		//execute right click action if explicitly listed
 		if (rightClickActions.containsKey(slot)) {
 			if (type == ClickType.RIGHT) {
@@ -73,7 +80,10 @@ public class ChestUi {
 		} else if (clickActions.containsKey(slot)) {
 			clickActions.get(slot).accept(player);
 		}
+		return true;
 	}
+
+	public void onClose() {}
 	
 	public ChestUi open(Player player) {
 		player.openInventory(inventory);
