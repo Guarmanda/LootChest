@@ -382,7 +382,7 @@ public class Lootchest {
 	 */
 	private static boolean checkIfEnoughPlayers(){
 		Integer num = Main.configs.Minimum_Number_Of_Players_For_Natural_Spawning;
-		int players = Utils.getPlayersOnServer();
+		int players = Utils.getPlayerCount();
 		return (players >= num); 
 	}
 

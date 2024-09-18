@@ -43,9 +43,11 @@ public class GiveCommand extends SubCommand {
 	
 	@Override
 	public List<String> getTabList(String[] args) {
-		Bukkit.broadcastMessage(args.length + "");
 		if (args.length == 1) {
 			return LootchestCommand.getChestNames();
+		}
+		if (args.length == 2) {
+			return Utils.getPlayersOnline().stream().map(Player::getName).collect(LinkedList::new, LinkedList::add, LinkedList::addAll);
 		}
 		return new LinkedList<>();
 	}

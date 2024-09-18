@@ -18,7 +18,7 @@ public class DespawnAllCommand extends SubCommand {
 	
 	@Override
 	public String getUsage() {
-		return "/lc despawnall <world>";
+		return "/lc despawnall [world]";
 	}
 	
 	@Override

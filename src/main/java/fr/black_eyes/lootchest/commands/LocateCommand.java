@@ -7,7 +7,6 @@ import fr.black_eyes.lootchest.Utils;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
-import java.util.List;
 
 public class LocateCommand extends SubCommand {
 	
@@ -32,8 +31,5 @@ public class LocateCommand extends SubCommand {
 		}
 	}
 	
-	@Override
-	public List<String> getTabList(String[] args) {
-		return LootchestCommand.getChestNames();
-	}
+
 }

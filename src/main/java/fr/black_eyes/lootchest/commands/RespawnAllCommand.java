@@ -21,7 +21,7 @@ public class RespawnAllCommand extends SubCommand {
 	
 	@Override
 	public String getUsage() {
-		return "/lc edit <chestname>";
+		return "/lc respawnall [world]";
 	}
 	
 	@Override

@@ -20,7 +20,7 @@ public class RespawnCommand extends SubCommand {
 	
 	@Override
 	public String getUsage() {
-		return "/lc edit <chestname>";
+		return "/lc respawn <chestname>";
 	}
 	
 	@Override
