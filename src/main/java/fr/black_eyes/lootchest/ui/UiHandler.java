@@ -7,6 +7,7 @@ import fr.black_eyes.lootchest.ui.menu.CopyMenu;
 import fr.black_eyes.lootchest.ui.menu.MainMenu;
 import fr.black_eyes.lootchest.ui.menu.ParticleMenu;
 import fr.black_eyes.lootchest.ui.menu.TimeMenu;
+import fr.black_eyes.lootchest.ui.menu.TypeMenu;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -67,6 +68,7 @@ public class UiHandler {
 				playerUis.put(playerId, new CopyMenu(chest, this).open(player));
 				break;
 			case TYPE:
+				playerUis.put(playerId, new TypeMenu(chest, this).open(player));
 				break;
 			case PARTICLE:
 				playerUis.put(playerId, new ParticleMenu(chest, this).open(player));
