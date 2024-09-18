@@ -9,6 +9,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * A menu to change the time it takes for a loot chest to respawn
+ */
 public class TimeMenu extends ChestUi {
 	
 	private final Lootchest chest;
@@ -19,6 +22,7 @@ public class TimeMenu extends ChestUi {
 		this.chest = chest;
 		this.uiHandler = uiHandler;
 
+		//add time control items to add or subtract different time units to the chest time
 		setItem(4, new ItemStack(Mat.TOTEM_OF_UNDYING), p -> toggleTime());
 		setItem(9, new ItemStack(Mat.BARRIER), p -> addTime(10, 0, 0), p -> addTime(-10, 0, 0));
 		setItem(10, new ItemStack(Mat.BARRIER), p -> addTime(1, 0, 0), p -> addTime(-1, 0, 0));
@@ -58,7 +62,7 @@ public class TimeMenu extends ChestUi {
 	}
 	
 	/**
-	 * Displays the chest's time in days, hours & minutes withe items as digits
+	 * Displays the chest's time in days, hours & minutes with items as digits in the UI
 	 */
 	private void updateTimeDial() {
 		long time = chest.getTime();
@@ -75,11 +79,21 @@ public class TimeMenu extends ChestUi {
 				String.format("Respawn time: %d days, %d hours, %d minutes.", days, hours, minutes);
 		setItem(22, nameItem(Mat.SIGN, timeInfo), null);
 	}
-	
+
+	/**
+	 * Displays a two-digit number in the UI with 2 items
+	 * @param number the number to display
+	 * @param startSlot the slot to start displaying the number (second slot will be to the right)
+	 * @param mat the material to use for the number items
+	 * @param langKey the config key for the message use for the item name
+	 */
 	private void displayNumber(int number, int startSlot, Material mat, String langKey) {
+		//extract the digits from the number
 		int digit1 = number / 10 % 10;
 		int digit2 = number % 10;
+
 		String name = Utils.getMsg(langKey);
+		//display the digits as items in the UI with the material or a barrier if the digit is 0
 		changeItem(startSlot, digit1 > 0 ? nameItem(mat, name, digit1) : nameItem(Mat.BARRIER, name));
 		changeItem(startSlot + 1, digit2 > 0 ? nameItem(mat, name, digit2) : nameItem(Mat.BARRIER, name));
 	}

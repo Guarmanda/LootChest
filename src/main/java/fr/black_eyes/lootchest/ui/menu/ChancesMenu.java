@@ -13,6 +13,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 
+/**
+ * A menu to change the chances of each item to be spawned in a loot chest
+ */
 public class ChancesMenu extends ChestUi {
 
 	private final Lootchest chest;
@@ -30,6 +33,9 @@ public class ChancesMenu extends ChestUi {
 		return super.open(player);
 	}
 
+	/**
+	 * Displays all chest items in the UI with their respective chances
+	 */
 	private void loadChestItems() {
 		Inventory chestInv = chest.getInv();
 		String lore = Utils.getMsg("Menu.chances.lore", "[Chest]", chest.getName());
@@ -56,6 +62,7 @@ public class ChancesMenu extends ChestUi {
 			return true;
 		}
 		Integer chance = chest.getChances()[slot];
+		//adds or subtracts the chance based on the click type
 		switch (type) {
 			case MIDDLE:
 				chance /= 2;
@@ -73,6 +80,7 @@ public class ChancesMenu extends ChestUi {
 				chance -= 1;
 				break;
 		}
+		//updates the item's chance and the item in the UI
 		chance = Math.max(1, Math.min(100, chance));
 		List<String> lore = meta.getLore();
 		lore.set(lore.size() - 1, chance + "%");

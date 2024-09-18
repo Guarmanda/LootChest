@@ -10,6 +10,9 @@ import fr.black_eyes.lootchest.ui.UiHandler;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+/**
+ * A menu to change the particle effect surrounding a loot chest
+ */
 public class ParticleMenu extends PagedChestUi {
 	
 	private final Lootchest chest;

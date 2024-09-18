@@ -12,6 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+/**
+ * An extension of the ChestUi class that allows for displaying a paged list
+ * of items with respective click actions.
+ */
 public abstract class PagedChestUi extends ChestUi {
 	
 	private final List<Map.Entry<ItemStack, Consumer<Player>>> contents;
@@ -24,7 +28,10 @@ public abstract class PagedChestUi extends ChestUi {
 	protected void addContent(ItemStack item, Consumer<Player> action) {
 		contents.add(new AbstractMap.SimpleEntry<>(item, action));
 	}
-	
+
+	/**
+	 * Returns the number of pages required to display all items
+	 */
 	private int getPageCount() {
 		int particleCount = Main.getInstance().getParticles().size() + 9;
 		int pageSize = (getRows() - 1) * 9;
@@ -44,7 +51,8 @@ public abstract class PagedChestUi extends ChestUi {
 		
 		int prevPageSlot = getRows() * 9 - 9;
 		int nextPageSlot = getRows() * 9 - 1;
-		
+
+		//fill the page with items up to the second last row
 		while (currentItemIdx < contents.size() && currentSlot < pageSize) {
 			Map.Entry<ItemStack, Consumer<Player>> content = contents.get(currentItemIdx);
 			if (content.getKey() != null) {
@@ -53,6 +61,7 @@ public abstract class PagedChestUi extends ChestUi {
 			currentItemIdx++;
 			currentSlot++;
 		}
+		//add page navigation items to the last row
 		if (pageIdx > 0) {
 			String prevPageLabel = Utils.getMsg("Menu.particles.page", "[Number]", "" + pageIdx);
 			setItem(prevPageSlot, nameItem(Material.PAPER, prevPageLabel), p -> loadPage(pageIdx - 1));

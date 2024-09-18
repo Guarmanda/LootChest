@@ -15,6 +15,10 @@ public class UiListener implements Listener {
 		this.uiHandler = uiHandler;
 	}
 
+	/**
+	 * Delegates the click event to the UiHandler to take care of the player's
+	 * interaction with the UI
+	 */
 	@EventHandler
 	public void onUiClick(InventoryClickEvent event) {
 		Player player = (Player) event.getWhoClicked();
@@ -24,6 +28,9 @@ public class UiListener implements Listener {
 		}
 	}
 
+	/**
+	 * Inform the UiHandler that the player has closed the UI
+	 */
 	@EventHandler
 	public void onUiClose(InventoryCloseEvent event) {
 		Player player = (Player) event.getPlayer();

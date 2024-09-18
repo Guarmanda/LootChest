@@ -18,37 +18,55 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Class that creates and manages command UI that can be opened by right-clicking the maze wand.
+ * Handles the opening and closing of UIs for players and delegating interactions with the UIs
  */
 public class UiHandler {
 	
 	private final Map<UUID, ChestUi> playerUis;
 	private final JavaPlugin plugin;
 
+	/**
+	 * Enum for the different types of UIs that can be opened
+	 */
 	public enum UiType {
 		MAIN, COPY, TYPE, PARTICLE, EDIT, TIME, CHANCES;
 
 	}
+
 	public UiHandler(JavaPlugin plugin) {
 		this.playerUis = new HashMap<>();
 		this.plugin = plugin;
 	}
 
+	/**
+	 * Returns true if the player is listed as currently having a UI open
+	 */
 	public boolean hasPlayerOpenUi(Player player) {
 		return playerUis.containsKey(player.getUniqueId());
 	}
 
+	/**
+	 * Delegates the click event to the respective UI to handle the player's interaction with the UI
+	 * @return true if the click event should be cancelled
+	 */
 	public boolean handleClick(Player player, int slot, ClickType type) {
 		UUID playerId = player.getUniqueId();
 		return playerUis.get(playerId).onClickSlot(player, slot, type);
 	}
 
+	/**
+	 * Inform the UI that the player has closed the UI
+	 */
 	public void handleClose(Player player) {
 		UUID playerId = player.getUniqueId();
 		playerUis.get(playerId).onClose(player);
 		playerUis.remove(playerId);
 	}
 
+	/**
+	 * Opens the specified UI for the player with a delay
+	 * @param delay ticks to wait before opening the UI
+	 */
 	public void openUi(Player player, UiType type, Lootchest chest, long delay) {
 		new BukkitRunnable() {
 			@Override
@@ -58,6 +76,9 @@ public class UiHandler {
 		}.runTaskLater(plugin, delay);
 	}
 
+	/**
+	 * Opens the specified UI for the player
+	 */
 	public void openUi(Player player, UiType type, Lootchest chest) {
 		UUID playerId = player.getUniqueId();
 		switch (type) {
@@ -83,8 +104,5 @@ public class UiHandler {
 				playerUis.put(playerId, new ChancesMenu(chest, this).open(player));
 		}
 	}
-	
-	public void remove(UUID playerId) {
-		playerUis.remove(playerId);
-	}
+
 }

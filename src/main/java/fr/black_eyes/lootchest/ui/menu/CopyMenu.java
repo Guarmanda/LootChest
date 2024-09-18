@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * A menu to copy the properties of another loot chest
+ */
 public class CopyMenu extends PagedChestUi {
 	
 	private final Lootchest chest;
@@ -47,7 +50,7 @@ public class CopyMenu extends PagedChestUi {
 			addContent(item, p -> copyChest(p, otherChest));
 		}
 	}
-	
+
 	public void copyChest(Player player, Lootchest copyChest) {
 		Utils.copychest(copyChest, chest);
 		Main.getInstance().getLootChest().get(chest.getName()).updateData();

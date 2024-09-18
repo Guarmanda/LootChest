@@ -8,6 +8,9 @@ import fr.black_eyes.lootchest.ui.ChestUi;
 import fr.black_eyes.lootchest.ui.UiHandler;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * The main menu for a loot chest with items to open other menus and toggle settings
+ */
 public class MainMenu extends ChestUi {
 	
 	public MainMenu(Lootchest chest, UiHandler uiHandler) {
@@ -52,6 +55,9 @@ public class MainMenu extends ChestUi {
 		lc.updateData();
 	}
 
+	/**
+	 * Returns an "enabled" or "disabled" item based on the state
+	 */
 	protected ItemStack getToggleItem(String path, Boolean state) {
 		if (state) {
 			return nameItem(Mat.EMERALD_BLOCK, Utils.getMsg("Menu.main.disable_" + path));

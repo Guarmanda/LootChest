@@ -9,6 +9,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * A menu to change the material of a loot chest
+ */
 public class TypeMenu extends ChestUi {
 
 	private final Lootchest chest;
