@@ -11,6 +11,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import fr.black_eyes.lootchest.commands.CommandHandler;
+import fr.black_eyes.lootchest.commands.CopyCommand;
+import fr.black_eyes.lootchest.commands.CreateCommand;
+import fr.black_eyes.lootchest.commands.DespawnAllCommand;
+import fr.black_eyes.lootchest.commands.EditCommand;
+import fr.black_eyes.lootchest.commands.GetNameCommand;
+import fr.black_eyes.lootchest.commands.GiveCommand;
+import fr.black_eyes.lootchest.commands.ListCommand;
+import fr.black_eyes.lootchest.commands.LocateCommand;
+import fr.black_eyes.lootchest.commands.MaxFilledSlotsCommand;
+import fr.black_eyes.lootchest.commands.RandomSpawnCommand;
+import fr.black_eyes.lootchest.commands.ReloadCommand;
+import fr.black_eyes.lootchest.commands.RemoveCommand;
+import fr.black_eyes.lootchest.commands.RespawnAllCommand;
+import fr.black_eyes.lootchest.commands.RespawnCommand;
+import fr.black_eyes.lootchest.commands.SetHoloCommand;
+import fr.black_eyes.lootchest.commands.SetPosCommand;
+import fr.black_eyes.lootchest.commands.SetProtectionCommand;
+import fr.black_eyes.lootchest.commands.SetTimeCommand;
+import fr.black_eyes.lootchest.commands.ToggleFallCommand;
+import fr.black_eyes.lootchest.commands.TpCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -167,9 +188,11 @@ public class Main extends JavaPlugin {
         }
 		this.getServer().getPluginManager().registerEvents(new DeleteListener(), this);
 		this.getServer().getPluginManager().registerEvents(new InventoryListeners(), this);
+		
 		LootchestCommand cmd =  new LootchestCommand();
-        this.getCommand("lootchest").setExecutor(cmd);
-        this.getCommand("lootchest").setTabCompleter(cmd);
+		registerCommands(cmd);
+//        this.getCommand("lootchest").setExecutor(cmd);
+//        this.getCommand("lootchest").setTabCompleter(cmd);
         super.onEnable();
         
         
@@ -240,6 +263,29 @@ public class Main extends JavaPlugin {
         
 	}
 	
+	private void registerCommands(LootchestCommand baseCommand) {
+		CommandHandler cmdHandler = new CommandHandler(this, "lootchest");
+		cmdHandler.addSubCommand(new CopyCommand());
+		cmdHandler.addSubCommand(new CreateCommand(baseCommand));
+		cmdHandler.addSubCommand(new DespawnAllCommand());
+		cmdHandler.addSubCommand(new EditCommand(baseCommand));
+		cmdHandler.addSubCommand(new GetNameCommand());
+		cmdHandler.addSubCommand(new GiveCommand());
+		cmdHandler.addSubCommand(new ListCommand());
+		cmdHandler.addSubCommand(new LocateCommand());
+		cmdHandler.addSubCommand(new MaxFilledSlotsCommand());
+		cmdHandler.addSubCommand(new RandomSpawnCommand());
+		cmdHandler.addSubCommand(new ReloadCommand());
+		cmdHandler.addSubCommand(new RemoveCommand());
+		cmdHandler.addSubCommand(new RespawnAllCommand());
+		cmdHandler.addSubCommand(new RespawnCommand());
+		cmdHandler.addSubCommand(new SetHoloCommand());
+		cmdHandler.addSubCommand(new SetPosCommand());
+		cmdHandler.addSubCommand(new SetProtectionCommand());
+		cmdHandler.addSubCommand(new SetTimeCommand());
+		cmdHandler.addSubCommand(new ToggleFallCommand());
+		cmdHandler.addSubCommand(new TpCommand());
+	}
 	
 	/**
 	 * Loop all chests every 1/4 of second (configurable in config.yml) and spawns particles around it.
@@ -377,6 +423,7 @@ public class Main extends JavaPlugin {
       configFiles.setLang("Menu.main.enable_respawn_cmd", "&cCommand-respawn message is disabled. Click to &aENABLE &cit");
       configFiles.setLang("Menu.main.type", "&1Select Chest Item");
       configFiles.setLang("Menu.type.name", "&1Select Chest Item");
+	  configFiles.setLang("notAnInteger", "&c[Number] is not an integer!");
       configFiles.setLang("Menu.main.enable_take_message", "&cMessage on chest take is disabled. Click to &aENABLE &cit");
       configFiles.setLang("locate_command.main_message",  "&6Location of loot chests:");
       configFiles.setLang("editedChestType", "&aEdited type of chest &b[Chest]");

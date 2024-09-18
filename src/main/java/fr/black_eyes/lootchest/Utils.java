@@ -389,10 +389,22 @@ public class Utils  {
 	}
 
 	
-	public static int getPlayersOnServer() {
+	public static int getPlayerCount() {
 		int players = 0;
 		for(World w : Bukkit.getWorlds())
 			players+=  w.getPlayers().size();
+		return players;
+	}
+
+	/**
+	 * Get all players online
+	 * This method was made for version compatibility reasons (1.7-1.21)
+	 * @return a list of all players online
+	 */
+	public static List<Player> getPlayersOnline() {
+		List<Player> players = new ArrayList<>();
+		for(World w : Bukkit.getWorlds())
+			players.addAll(w.getPlayers());
 		return players;
 	}
 	
