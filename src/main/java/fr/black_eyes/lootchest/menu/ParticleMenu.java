@@ -8,56 +8,31 @@ import fr.black_eyes.lootchest.particles.Particle;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
-public class ParticleMenu extends ChestUi {
+public class ParticleMenu extends PagedChestUi {
 	
 	Lootchest chest;
 	
 	public ParticleMenu(Lootchest chest) {
 		super(6, Utils.getMenuName("particles", chest.getName()));
 		this.chest = chest;
-		loadPage(0);
-	}
-	
-	private int getPageCount() {
-		int particleCount = Main.getInstance().getParticles().size() + 9;
-		int pageSize = (getRows() - 1) * 9;
-		return (int) Math.max(1, Math.ceil((float) particleCount / pageSize));
-	}
-	
-	private void loadPage(int pageIdx) {
-		clear();
-		int pageCount = getPageCount();
-		int pageSize = (getRows() - 1) * 9;
 		
-		if (pageIdx < 0 || pageIdx >= pageCount) {
-			return;
+		for (int i = 0; i < 9; ++i) {
+			if (i == 4) {
+				addContent(nameItem(Mat.BARRIER, "Disable particles"), p -> changeParticle(chest, null, p));
+			} else {
+				addContent(null, null);
+			}
 		}
-		int currentSlot = pageIdx == 0 ? 9 : 0;
-		int currentParticleIdx = pageIdx == 0 ? 0 : pageIdx * pageSize - 9;
-		
-		ArrayList<Particle> particles = new ArrayList<>(Main.getInstance().getParticles().values());
-		int prevPageSlot = (getRows() - 1) * 9;
-		int nextPageSlot = getRows() * 9 - 1;
-		
-		while (currentParticleIdx < particles.size() && currentSlot < pageSize) {
-			Particle particle = particles.get(currentParticleIdx);
-			setItem(currentSlot, nameItem(particle.getMat(), particle.getReadableName()), p -> changeParticle(chest, particle, p));
-			currentParticleIdx++;
-			currentSlot++;
-		}
-		if (pageIdx == 0) {
-			setItem(4, nameItem(Mat.BARRIER, "Disable particles"), p -> changeParticle(chest, null, p));
-		}
-		if (pageIdx > 0) {
-			String prevPageLabel = Utils.getMsg("Menu.particles.page", "[Number]", "" + pageIdx);
-			setItem(prevPageSlot, nameItem(Material.PAPER, prevPageLabel), p -> loadPage(pageIdx - 1));
-		}
-		if (pageIdx < pageCount - 1) {
-			String nextPageLabel = Utils.getMsg("Menu.particles.page", "[Number]", "" + (pageIdx + 2));
-			setItem(nextPageSlot, nameItem(Material.PAPER, nextPageLabel), p -> loadPage(pageIdx + 1));
+		for (Particle particle : Main.getInstance().getParticles().values()) {
+			addContent(nameItem(particle.getMat(), particle.getReadableName()), p -> changeParticle(chest, particle, p));
 		}
 	}
 	
