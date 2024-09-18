@@ -25,14 +25,14 @@ public class RespawnCommand extends SubCommand {
 	
 	@Override
 	protected void onCommand(CommandSender sender, String[] args) {
-		Player player = (Player) sender;
-		Lootchest lc = Main.getInstance().getLootChest().get(args[0]);
+		String chestName = args[0];
+		Lootchest lc = Main.getInstance().getLootChest().get(chestName);
 		if (lc == null) {
-			Utils.msg(sender, "chestDoesntExist", Constants.cheststr, args[1]);
+			Utils.msg(sender, "chestDoesntExist", Constants.cheststr, chestName);
 			return;
 		}
 		lc.spawn(true);
-		Utils.msg(sender, "succesfulyRespawnedChest", Constants.cheststr, args[1]);
+		Utils.msg(sender, "succesfulyRespawnedChest", Constants.cheststr, chestName);
 		if (lc.getRespawn_cmd()) {
 			Block block = lc.getActualLocation().getBlock();
 			String holo = lc.getHolo();

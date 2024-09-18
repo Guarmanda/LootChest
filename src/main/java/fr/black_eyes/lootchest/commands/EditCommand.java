@@ -31,7 +31,7 @@ public class EditCommand extends SubCommand {
 			Utils.msg(sender, "chestDoesntExist", Constants.cheststr, chestName);
 			return;
 		}
-		lootchestCommand.openMenu(player, args[0]);
+		lootchestCommand.openMenu(player, chestName);
 	}
 	
 	@Override
