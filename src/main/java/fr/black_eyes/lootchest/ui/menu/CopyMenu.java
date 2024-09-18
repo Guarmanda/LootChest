@@ -6,6 +6,7 @@ import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
 import fr.black_eyes.lootchest.Utils;
 import fr.black_eyes.lootchest.ui.PagedChestUi;
+import fr.black_eyes.lootchest.ui.UiHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -17,11 +18,13 @@ import java.util.List;
 public class CopyMenu extends PagedChestUi {
 	
 	private final Lootchest chest;
-	
-	public CopyMenu(Lootchest chest) {
+	private final UiHandler uiHandler;
+
+	public CopyMenu(Lootchest chest, UiHandler uiHandler) {
 		super(6, Utils.getMenuName("copy", chest.getName()));
 		this.chest = chest;
-		
+		this.uiHandler = uiHandler;
+
 		Files configFiles = Main.getInstance().getConfigFiles();
 		List<Lootchest> chests = new ArrayList<>(Main.getInstance().getLootChest().values());
 		chests.sort(Comparator.comparing(Lootchest::getName));
@@ -49,5 +52,10 @@ public class CopyMenu extends PagedChestUi {
 		Utils.copychest(copyChest, chest);
 		Main.getInstance().getLootChest().get(chest.getName()).updateData();
 		Utils.msg(player, "copiedChest", "[Chest1]", copyChest.getName(), "[Chest2]", chest.getName());
+	}
+
+	@Override
+	public void onClose(Player player) {
+		uiHandler.openUi(player, UiHandler.UiType.MAIN, chest, 2);
 	}
 }

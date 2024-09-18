@@ -83,7 +83,7 @@ public class ChestUi {
 		return true;
 	}
 
-	public void onClose() {}
+	public void onClose(Player player) {}
 	
 	public ChestUi open(Player player) {
 		player.openInventory(inventory);

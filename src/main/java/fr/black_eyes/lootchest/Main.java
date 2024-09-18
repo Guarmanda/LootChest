@@ -189,7 +189,7 @@ public class Main extends JavaPlugin {
         	return;
         }
 		
-		UiHandler uiHandler = new UiHandler();
+		UiHandler uiHandler = new UiHandler(this);
 		PluginManager pluginManager = Bukkit.getPluginManager();
 		pluginManager.registerEvents(new DeleteListener(), this);
 		pluginManager.registerEvents(new UiListener(uiHandler), this);

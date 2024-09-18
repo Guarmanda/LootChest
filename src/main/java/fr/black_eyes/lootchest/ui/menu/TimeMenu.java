@@ -4,17 +4,21 @@ import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Mat;
 import fr.black_eyes.lootchest.Utils;
 import fr.black_eyes.lootchest.ui.ChestUi;
+import fr.black_eyes.lootchest.ui.UiHandler;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class TimeMenu extends ChestUi {
 	
 	private final Lootchest chest;
-	
-	public TimeMenu(Lootchest chest) {
+	private final UiHandler uiHandler;
+
+	public TimeMenu(Lootchest chest, UiHandler uiHandler) {
 		super(3, Utils.getMenuName("time", chest.getName()));
 		this.chest = chest;
-		
+		this.uiHandler = uiHandler;
+
 		setItem(4, new ItemStack(Mat.TOTEM_OF_UNDYING), p -> toggleTime());
 		setItem(9, new ItemStack(Mat.BARRIER), p -> addTime(10, 0, 0), p -> addTime(-10, 0, 0));
 		setItem(10, new ItemStack(Mat.BARRIER), p -> addTime(1, 0, 0), p -> addTime(-1, 0, 0));
@@ -79,4 +83,9 @@ public class TimeMenu extends ChestUi {
 		changeItem(startSlot, digit1 > 0 ? nameItem(mat, name, digit1) : nameItem(Mat.BARRIER, name));
 		changeItem(startSlot + 1, digit2 > 0 ? nameItem(mat, name, digit2) : nameItem(Mat.BARRIER, name));
 	}
+
+	@Override
+	public void onClose(Player player) {
+		uiHandler.openUi(player, UiHandler.UiType.MAIN, chest, 2);
+	}   
 }

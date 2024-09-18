@@ -3,6 +3,7 @@ package fr.black_eyes.lootchest.ui.menu;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Utils;
 import fr.black_eyes.lootchest.ui.ChestUi;
+import fr.black_eyes.lootchest.ui.UiHandler;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -15,10 +16,12 @@ import java.util.List;
 public class ChancesMenu extends ChestUi {
 
 	private final Lootchest chest;
+	private final UiHandler uiHandler;
 
-	public ChancesMenu(Lootchest chest) {
+	public ChancesMenu(Lootchest chest, UiHandler uiHandler) {
 		super(3, Utils.getMenuName("chances", chest.getName()));
 		this.chest = chest;
+		this.uiHandler = uiHandler;
 	}
 
 	@Override
@@ -77,5 +80,10 @@ public class ChancesMenu extends ChestUi {
 		item.setItemMeta(meta);
 		chest.setChance(slot, chance);
 		return true;
+	}
+
+	@Override
+	public void onClose(Player player) {
+		uiHandler.openUi(player, UiHandler.UiType.MAIN, chest, 2);
 	}
 }
