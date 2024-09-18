@@ -4,7 +4,9 @@ import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.ui.menu.CopyMenu;
 import fr.black_eyes.lootchest.ui.menu.MainMenu;
 import fr.black_eyes.lootchest.ui.menu.ParticleMenu;
+import fr.black_eyes.lootchest.ui.menu.TimeMenu;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,9 +32,9 @@ public class UiHandler {
 		//create template ui to clone
 	}
 	
-	public void handleClick(Player player, int slot) {
+	public void handleClick(Player player, int slot, ClickType type) {
 		UUID playerId = player.getUniqueId();
-		playerUis.get(playerId).onClickSlot(player, slot);
+		playerUis.get(playerId).onClickSlot(player, slot, type);
 	}
 	
 	public void openUi(Player player, UiType type, Lootchest chest) {
@@ -52,6 +54,7 @@ public class UiHandler {
 			case EDIT:
 				break;
 			case TIME:
+				playerUis.put(playerId, new TimeMenu(chest).open(player));
 				break;
 		}
 	}

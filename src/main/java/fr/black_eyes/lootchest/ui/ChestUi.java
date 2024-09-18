@@ -1,16 +1,15 @@
 package fr.black_eyes.lootchest.ui;
 
-import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
 import fr.black_eyes.lootchest.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +22,7 @@ public class ChestUi {
 	private final int rows;
 	private final Inventory inventory;
 	private final Map<Integer, Consumer<Player>> clickActions;
+	private final Map<Integer, Consumer<Player>> rightClickActions;
 	
 	
 	public ChestUi(int rows, String title) {
@@ -30,26 +30,47 @@ public class ChestUi {
 		this.rows = rows;
 		inventory = Bukkit.createInventory(null, rows * 9, title);
 		clickActions = new HashMap<>();
+		rightClickActions = new HashMap<>();
 	}
 	
 	public int getRows() {
 		return rows;
 	}
 	
-	public void setItem(int slot, ItemStack item, Consumer<Player> clickAction) {
+	public void setItem(int slot, ItemStack item, Consumer<Player> leftClickAction, Consumer<Player> rightClickAction) {
 		if (slot < 0 || slot >= rows * 9) {
 			throw new IllegalArgumentException(String.format("%d is outside 0 and %d inventory slots", slot, rows * 9 - 1));
 		}
 		inventory.setItem(slot, item);
-		clickActions.put(slot, clickAction);
+		clickActions.put(slot, leftClickAction);
+		rightClickActions.put(slot, rightClickAction);
+	}
+	
+	public void setItem(int slot, ItemStack item, Consumer<Player> clickAction) {
+		setItem(slot, item, clickAction, null);
+	}
+	
+	protected ItemStack getItem(int slot) {
+		if (slot < 0 || slot >= rows * 9) {
+			throw new IllegalArgumentException(String.format("%d is outside 0 and %d inventory slots", slot, rows * 9 - 1));
+		}
+		return inventory.getItem(slot);
 	}
 	
 	public void changeItem(int slot, ItemStack item) {
 		inventory.setItem(slot, item);
 	}
 	
-	public void onClickSlot(Player player, int slot) {
-		if (clickActions.containsKey(slot)) {
+	public void onClickSlot(Player player, int slot, ClickType type) {
+		//execute right click action if explicitly listed
+		if (rightClickActions.containsKey(slot)) {
+			if (type == ClickType.RIGHT) {
+				rightClickActions.get(slot).accept(player);
+			} else if (type == ClickType.LEFT) {
+				clickActions.get(slot).accept(player);
+			}
+		//otherwise do action with any mouse click
+		} else if (clickActions.containsKey(slot)) {
 			clickActions.get(slot).accept(player);
 		}
 	}
@@ -64,20 +85,16 @@ public class ChestUi {
 		clickActions.clear();
 	}
 	
-	@Override
-	protected ChestUi clone() {
-		ChestUi clone = new ChestUi(rows, title);
-		clone.inventory.setContents(inventory.getContents());
-		clone.clickActions.putAll(clickActions);
-		return clone;
-	}
-	
 	protected ItemStack nameItem(Material mat, String name) {
-		return nameItem(mat, name, "");
+		return nameItem(mat, name, 1, "");
 	}
 	
-	protected ItemStack nameItem(Material mat, String name, String lore) {
-		ItemStack item = new ItemStack(mat);
+	protected ItemStack nameItem(Material mat, String name, int amount) {
+		return nameItem(mat, name, amount, "");
+	}
+	
+	protected ItemStack nameItem(Material mat, String name, int amount, String lore) {
+		ItemStack item = new ItemStack(mat, amount);
 		ItemMeta meta = item.getItemMeta();
 		meta.setDisplayName(name);
 		

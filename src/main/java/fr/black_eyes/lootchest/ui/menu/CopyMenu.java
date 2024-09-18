@@ -40,7 +40,7 @@ public class CopyMenu extends PagedChestUi {
 			} else {
 				world = Bukkit.getWorld(otherChest.getWorld()).getName();
 			}
-			ItemStack item = nameItem(Mat.CHEST, Utils.color("&6" + otherName), Utils.color("&bHologram: &6" + holoName + "||&bWorld: &6" + world + "||&bEffect: &6" + effect));
+			ItemStack item = nameItem(Mat.CHEST, Utils.color("&6" + otherName), 1, Utils.color("&bHologram: &6" + holoName + "||&bWorld: &6" + world + "||&bEffect: &6" + effect));
 			addContent(item, p -> copyChest(p, otherChest));
 		}
 	}

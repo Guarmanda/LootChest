@@ -19,7 +19,7 @@ public class UiListener implements Listener {
 		Player player = (Player) event.getWhoClicked();
 		if (uiHandler.hasPlayerOpenUi(player)) {
 			event.setCancelled(true);
-			uiHandler.handleClick(player, event.getSlot());
+			uiHandler.handleClick(player, event.getSlot(), event.getClick());
 		}
 	}
 }
