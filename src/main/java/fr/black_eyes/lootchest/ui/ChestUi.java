@@ -94,10 +94,13 @@ public class ChestUi {
 	}
 	
 	protected ItemStack nameItem(Material mat, String name, int amount, String lore) {
-		ItemStack item = new ItemStack(mat, amount);
+		return renameItem(new ItemStack(mat, amount), name, lore);
+	}
+
+	protected ItemStack renameItem(ItemStack item, String name, String lore) {
 		ItemMeta meta = item.getItemMeta();
 		meta.setDisplayName(name);
-		
+
 		if (!lore.isEmpty()) {
 			List<String> loreList = Arrays.asList(lore.split("\\|\\|"));
 			meta.setLore(loreList);
@@ -105,7 +108,6 @@ public class ChestUi {
 		item.setItemMeta(meta);
 		return item;
 	}
-	
 	protected ItemStack getToggleItem(String path, Boolean name) {
 		if (name) {
 			return nameItem(Mat.EMERALD_BLOCK, Utils.getMsg("Menu.main.disable_" + path));

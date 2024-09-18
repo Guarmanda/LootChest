@@ -1,6 +1,7 @@
 package fr.black_eyes.lootchest.ui;
 
 import fr.black_eyes.lootchest.Lootchest;
+import fr.black_eyes.lootchest.ui.menu.ChancesMenu;
 import fr.black_eyes.lootchest.ui.menu.CopyMenu;
 import fr.black_eyes.lootchest.ui.menu.MainMenu;
 import fr.black_eyes.lootchest.ui.menu.ParticleMenu;
@@ -56,6 +57,8 @@ public class UiHandler {
 			case TIME:
 				playerUis.put(playerId, new TimeMenu(chest).open(player));
 				break;
+			case CHANCES:
+				playerUis.put(playerId, new ChancesMenu(chest).open(player));
 		}
 	}
 	
