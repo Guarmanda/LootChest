@@ -118,11 +118,4 @@ public class ChestUi {
 		item.setItemMeta(meta);
 		return item;
 	}
-	protected ItemStack getToggleItem(String path, Boolean name) {
-		if (name) {
-			return nameItem(Mat.EMERALD_BLOCK, Utils.getMsg("Menu.main.disable_" + path));
-		} else {
-			return nameItem(Mat.REDSTONE_BLOCK, Utils.getMsg("Menu.main.enable_" + path));
-		}
-	}
 }

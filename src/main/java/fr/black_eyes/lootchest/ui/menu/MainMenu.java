@@ -6,25 +6,26 @@ import fr.black_eyes.lootchest.Mat;
 import fr.black_eyes.lootchest.Utils;
 import fr.black_eyes.lootchest.ui.ChestUi;
 import fr.black_eyes.lootchest.ui.UiHandler;
+import org.bukkit.inventory.ItemStack;
 
 public class MainMenu extends ChestUi {
 	
-	public MainMenu(Lootchest lc, UiHandler uiHandler) {
-		super(4, "--- pls insert chestname? ---");
-		setItem(4, nameItem(Mat.ENDER_CHEST, Utils.getMsg("Menu.main.copychest")), p -> uiHandler.openUi(p, UiHandler.UiType.COPY, lc));
+	public MainMenu(Lootchest chest, UiHandler uiHandler) {
+		super(4, Utils.getMenuName("main", chest.getName()));
+		setItem(4, nameItem(Mat.ENDER_CHEST, Utils.getMsg("Menu.main.copychest")), p -> uiHandler.openUi(p, UiHandler.UiType.COPY, chest));
 		
 		if (Main.getInstance().getConfig().getBoolean("Particles.enable")) {
-			setItem(11, nameItem(Mat.ENDER_EYE, Utils.getMsg("Menu.main.particles")), p -> uiHandler.openUi(p, UiHandler.UiType.PARTICLE, lc));
+			setItem(11, nameItem(Mat.ENDER_EYE, Utils.getMsg("Menu.main.particles")), p -> uiHandler.openUi(p, UiHandler.UiType.PARTICLE, chest));
 		}
-		setItem(9, nameItem(Mat.NOTE_BLOCK, Utils.getMsg("Menu.main.type")), p -> uiHandler.openUi(p, UiHandler.UiType.TYPE, lc));
-		setItem(13, nameItem(Mat.CHEST, Utils.getMsg("Menu.main.content")), p -> uiHandler.openUi(p, UiHandler.UiType.EDIT, lc));
-		setItem(15, nameItem(Mat.CLOCK, Utils.getMsg("Menu.main.respawnTime")), p -> uiHandler.openUi(p, UiHandler.UiType.TIME, lc));
-		setItem(22, nameItem(Mat.DIAMOND, Utils.getMsg("Menu.main.chances")), p -> uiHandler.openUi(p, UiHandler.UiType.CHANCES, lc));
+		setItem(9, nameItem(Mat.NOTE_BLOCK, Utils.getMsg("Menu.main.type")), p -> uiHandler.openUi(p, UiHandler.UiType.TYPE, chest));
+		setItem(13, nameItem(Mat.CHEST, Utils.getMsg("Menu.main.content")), p -> uiHandler.openUi(p, UiHandler.UiType.EDIT, chest));
+		setItem(15, nameItem(Mat.CLOCK, Utils.getMsg("Menu.main.respawnTime")), p -> uiHandler.openUi(p, UiHandler.UiType.TIME, chest));
+		setItem(22, nameItem(Mat.DIAMOND, Utils.getMsg("Menu.main.chances")), p -> uiHandler.openUi(p, UiHandler.UiType.CHANCES, chest));
 		
-		setItem(28, getToggleItem("fall", lc.getFall()), p -> toggleFall(lc));
-		setItem(30, getToggleItem("respawn_cmd", lc.getRespawn_cmd()), p -> toggleRespawnNatural(lc));
-		setItem(32, getToggleItem("respawn_natural", lc.getRespawn_natural()), p -> toggleRespawnNatural(lc));
-		setItem(34, getToggleItem("take_message", lc.getTake_msg()), p -> toggleTakeMsg(lc));
+		setItem(28, getToggleItem("fall", chest.getFall()), p -> toggleFall(chest));
+		setItem(30, getToggleItem("respawn_cmd", chest.getRespawn_cmd()), p -> toggleRespawnCmd(chest));
+		setItem(32, getToggleItem("respawn_natural", chest.getRespawn_natural()), p -> toggleRespawnNatural(chest));
+		setItem(34, getToggleItem("take_message", chest.getTake_msg()), p -> toggleTakeMsg(chest));
 	}
 	
 	private void toggleFall(Lootchest lc) {
@@ -40,7 +41,7 @@ public class MainMenu extends ChestUi {
 	}
 	
 	private void toggleRespawnNatural(Lootchest lc) {
-		lc.setRespawn_cmd(!lc.getRespawn_cmd());
+		lc.setRespawn_natural(!lc.getRespawn_natural());
 		changeItem(32, getToggleItem("respawn_natural", lc.getRespawn_natural()));
 		lc.updateData();
 	}
@@ -49,5 +50,13 @@ public class MainMenu extends ChestUi {
 		lc.setTake_msg(!lc.getTake_msg());
 		setItem(34, getToggleItem("take_message", lc.getTake_msg()), p -> toggleTakeMsg(lc));
 		lc.updateData();
+	}
+
+	protected ItemStack getToggleItem(String path, Boolean state) {
+		if (state) {
+			return nameItem(Mat.EMERALD_BLOCK, Utils.getMsg("Menu.main.disable_" + path));
+		} else {
+			return nameItem(Mat.REDSTONE_BLOCK, Utils.getMsg("Menu.main.enable_" + path));
+		}
 	}
 }
