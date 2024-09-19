@@ -5,9 +5,8 @@ import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
 import fr.black_eyes.lootchest.Utils;
-
+import fr.black_eyes.lootchest.ui.UiHandler;
 import java.util.Arrays;
-
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -17,12 +16,12 @@ import org.bukkit.util.BlockIterator;
 
 public class CreateCommand extends SubCommand {
 	
-	private final LootchestCommand lootchestCommand;
-	
-	public CreateCommand(LootchestCommand lootchestCommand) {
+	private final UiHandler uiHandler;
+	public CreateCommand(UiHandler uiHandler) {
 		super("create", Arrays.asList(ArgType.STRING));
 		setPlayerRequired(true);
-		this.lootchestCommand = lootchestCommand;
+
+		this.uiHandler = uiHandler;
 	}
 	
 	@Override
@@ -50,11 +49,12 @@ public class CreateCommand extends SubCommand {
 		} else if (Utils.isLootChest(chest.getLocation()) != null) {
 			Utils.msg(sender, "blockIsAlreadyLootchest", Constants.cheststr, chestName);
 		} else {
-			Main.getInstance().getLootChest().put(chestName, new Lootchest(chest, chestName));
-			Main.getInstance().getLootChest().get(chestName).spawn(true);
+			Lootchest newChest = new Lootchest(chest, chestName);
+			Main.getInstance().getLootChest().put(chestName, newChest);
+			newChest.spawn(true);
+			newChest.updateData();
 			Utils.msg(sender, "chestSuccefulySaved", Constants.cheststr, chestName);
-			Main.getInstance().getLootChest().get(chestName).updateData();
-			lootchestCommand.openMenu(player, chestName);
+			uiHandler.openUi(player, UiHandler.UiType.MAIN, newChest);
 		}
 	}
 }

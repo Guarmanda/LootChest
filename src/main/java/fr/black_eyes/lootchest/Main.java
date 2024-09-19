@@ -32,9 +32,12 @@ import fr.black_eyes.lootchest.commands.SetProtectionCommand;
 import fr.black_eyes.lootchest.commands.SetTimeCommand;
 import fr.black_eyes.lootchest.commands.ToggleFallCommand;
 import fr.black_eyes.lootchest.commands.TpCommand;
+import fr.black_eyes.lootchest.listeners.UiListener;
+import fr.black_eyes.lootchest.ui.UiHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import fr.black_eyes.lootchest.colors.Ansi;
@@ -45,7 +48,6 @@ import eu.decentholo.holograms.DecentHologramsPlugin;
 import eu.decentholo.holograms.api.DecentHolograms;
 import fr.black_eyes.lootchest.commands.LootchestCommand;
 import fr.black_eyes.lootchest.listeners.DeleteListener;
-import fr.black_eyes.lootchest.listeners.InventoryListeners;
 import fr.black_eyes.lootchest.particles.Particle;
 import lombok.Getter;
 import lombok.Setter;
@@ -67,7 +69,6 @@ public class Main extends JavaPlugin {
 	@Getter private Files configFiles;
 	@Getter private Utils utils;
 	@Getter private Boolean useArmorStands;
-	@Getter private Menu menu;
 	@Getter private DecentHologramsPlugin hologramPlugin;
 	@Getter private DecentHolograms hologramImpl;
 	private static int version = 0;
@@ -175,7 +176,6 @@ public class Main extends JavaPlugin {
 		configFiles = new Files();
 		lootChest = new HashMap<>();
 		utils = new Utils();
-		menu = new Menu();
 		useArmorStands = true;
 		//initialisation des matériaux dans toutes les verions du jeu
         //initializing materials in all game versions, to allow cross-version compatibility
@@ -186,15 +186,11 @@ public class Main extends JavaPlugin {
         	logInfo("&cConfig or data files couldn't be initialized, the plugin will stop.");
         	return;
         }
-		this.getServer().getPluginManager().registerEvents(new DeleteListener(), this);
-		this.getServer().getPluginManager().registerEvents(new InventoryListeners(), this);
 		
-		LootchestCommand cmd =  new LootchestCommand();
-		registerCommands(cmd);
-//        this.getCommand("lootchest").setExecutor(cmd);
-//        this.getCommand("lootchest").setTabCompleter(cmd);
+		UiHandler uiHandler = new UiHandler(this);
+		registerEvents(uiHandler);
+		registerCommands(uiHandler);
         super.onEnable();
-        
         
         //In many versions, I add some text an config option. These lines are done to update config and language files without erasing options that are already set
         updateOldConfig();
@@ -262,13 +258,19 @@ public class Main extends JavaPlugin {
     	loadChests();
         
 	}
-	
-	private void registerCommands(LootchestCommand baseCommand) {
+
+	private void registerEvents(UiHandler uiHandler) {
+		PluginManager pluginManager = Bukkit.getPluginManager();
+		pluginManager.registerEvents(new DeleteListener(), this);
+		pluginManager.registerEvents(new UiListener(uiHandler), this);
+	}
+
+	private void registerCommands(UiHandler uiHandler) {
 		CommandHandler cmdHandler = new CommandHandler(this, "lootchest");
 		cmdHandler.addSubCommand(new CopyCommand());
-		cmdHandler.addSubCommand(new CreateCommand(baseCommand));
+		cmdHandler.addSubCommand(new CreateCommand(uiHandler));
 		cmdHandler.addSubCommand(new DespawnAllCommand());
-		cmdHandler.addSubCommand(new EditCommand(baseCommand));
+		cmdHandler.addSubCommand(new EditCommand(uiHandler));
 		cmdHandler.addSubCommand(new GetNameCommand());
 		cmdHandler.addSubCommand(new GiveCommand());
 		cmdHandler.addSubCommand(new ListCommand());
