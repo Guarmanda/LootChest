@@ -11,42 +11,44 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import fr.black_eyes.lootchest.commands.CommandHandler;
-import fr.black_eyes.lootchest.commands.CopyCommand;
-import fr.black_eyes.lootchest.commands.CreateCommand;
-import fr.black_eyes.lootchest.commands.DespawnAllCommand;
-import fr.black_eyes.lootchest.commands.EditCommand;
-import fr.black_eyes.lootchest.commands.GetNameCommand;
-import fr.black_eyes.lootchest.commands.GiveCommand;
-import fr.black_eyes.lootchest.commands.ListCommand;
-import fr.black_eyes.lootchest.commands.LocateCommand;
-import fr.black_eyes.lootchest.commands.MaxFilledSlotsCommand;
-import fr.black_eyes.lootchest.commands.RandomSpawnCommand;
-import fr.black_eyes.lootchest.commands.ReloadCommand;
-import fr.black_eyes.lootchest.commands.RemoveCommand;
-import fr.black_eyes.lootchest.commands.RespawnAllCommand;
-import fr.black_eyes.lootchest.commands.RespawnCommand;
-import fr.black_eyes.lootchest.commands.SetHoloCommand;
-import fr.black_eyes.lootchest.commands.SetPosCommand;
-import fr.black_eyes.lootchest.commands.SetProtectionCommand;
-import fr.black_eyes.lootchest.commands.SetTimeCommand;
-import fr.black_eyes.lootchest.commands.ToggleFallCommand;
-import fr.black_eyes.lootchest.commands.TpCommand;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import fr.black_eyes.lootchest.colors.Ansi;
-import fr.black_eyes.lootchest.colors.Ansi.Attribute;
 import org.spigotmc.SpigotConfig;
 
 import eu.decentholo.holograms.DecentHologramsPlugin;
 import eu.decentholo.holograms.api.DecentHolograms;
-import fr.black_eyes.lootchest.commands.LootchestCommand;
+import fr.black_eyes.lootchest.colors.Ansi;
+import fr.black_eyes.lootchest.colors.Ansi.Attribute;
+import fr.black_eyes.lootchest.commands.CommandHandler;
+import fr.black_eyes.lootchest.commands.commands.CopyCommand;
+import fr.black_eyes.lootchest.commands.commands.CreateCommand;
+import fr.black_eyes.lootchest.commands.commands.DespawnAllCommand;
+import fr.black_eyes.lootchest.commands.commands.EditCommand;
+import fr.black_eyes.lootchest.commands.commands.GetNameCommand;
+import fr.black_eyes.lootchest.commands.commands.GiveCommand;
+import fr.black_eyes.lootchest.commands.commands.ListCommand;
+import fr.black_eyes.lootchest.commands.commands.LocateCommand;
+import fr.black_eyes.lootchest.commands.commands.MaxFilledSlotsCommand;
+import fr.black_eyes.lootchest.commands.commands.RandomSpawnCommand;
+import fr.black_eyes.lootchest.commands.commands.ReloadCommand;
+import fr.black_eyes.lootchest.commands.commands.RemoveCommand;
+import fr.black_eyes.lootchest.commands.commands.RespawnAllCommand;
+import fr.black_eyes.lootchest.commands.commands.RespawnCommand;
+import fr.black_eyes.lootchest.commands.commands.SetHoloCommand;
+import fr.black_eyes.lootchest.commands.commands.SetPosCommand;
+import fr.black_eyes.lootchest.commands.commands.SetProtectionCommand;
+import fr.black_eyes.lootchest.commands.commands.SetTimeCommand;
+import fr.black_eyes.lootchest.commands.commands.ToggleFallCommand;
+import fr.black_eyes.lootchest.commands.commands.TpCommand;
 import fr.black_eyes.lootchest.listeners.DeleteListener;
-import fr.black_eyes.lootchest.listeners.InventoryListeners;
+import fr.black_eyes.lootchest.listeners.UiListener;
 import fr.black_eyes.lootchest.particles.Particle;
+import fr.black_eyes.lootchest.ui.UiHandler;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -67,7 +69,6 @@ public class Main extends JavaPlugin {
 	@Getter private Files configFiles;
 	@Getter private Utils utils;
 	@Getter private Boolean useArmorStands;
-	@Getter private Menu menu;
 	@Getter private DecentHologramsPlugin hologramPlugin;
 	@Getter private DecentHolograms hologramImpl;
 	private static int version = 0;
@@ -171,11 +172,18 @@ public class Main extends JavaPlugin {
 			hologramPlugin.onLoad(this);
 			hologramImpl = hologramPlugin.onEnable();
 		}
+
+		int pluginId = 21246; // <-- Replace with the id of your plugin!
+		try{ 
+       		new Metrics(this, pluginId);
+			logInfo("Metrics started");
+		}catch (NoClassDefFoundError e) {
+			//if metrics can't be loaded, it's not a big deal
+		}					
 		
 		configFiles = new Files();
 		lootChest = new HashMap<>();
 		utils = new Utils();
-		menu = new Menu();
 		useArmorStands = true;
 		//initialisation des matériaux dans toutes les verions du jeu
         //initializing materials in all game versions, to allow cross-version compatibility
@@ -186,15 +194,11 @@ public class Main extends JavaPlugin {
         	logInfo("&cConfig or data files couldn't be initialized, the plugin will stop.");
         	return;
         }
-		this.getServer().getPluginManager().registerEvents(new DeleteListener(), this);
-		this.getServer().getPluginManager().registerEvents(new InventoryListeners(), this);
 		
-		LootchestCommand cmd =  new LootchestCommand();
-		registerCommands(cmd);
-//        this.getCommand("lootchest").setExecutor(cmd);
-//        this.getCommand("lootchest").setTabCompleter(cmd);
+		UiHandler uiHandler = new UiHandler(this);
+		registerEvents(uiHandler);
+		registerCommands(uiHandler);
         super.onEnable();
-        
         
         //In many versions, I add some text an config option. These lines are done to update config and language files without erasing options that are already set
         updateOldConfig();
@@ -262,13 +266,19 @@ public class Main extends JavaPlugin {
     	loadChests();
         
 	}
-	
-	private void registerCommands(LootchestCommand baseCommand) {
+
+	private void registerEvents(UiHandler uiHandler) {
+		PluginManager pluginManager = Bukkit.getPluginManager();
+		pluginManager.registerEvents(new DeleteListener(), this);
+		pluginManager.registerEvents(new UiListener(uiHandler), this);
+	}
+
+	private void registerCommands(UiHandler uiHandler) {
 		CommandHandler cmdHandler = new CommandHandler(this, "lootchest");
 		cmdHandler.addSubCommand(new CopyCommand());
-		cmdHandler.addSubCommand(new CreateCommand(baseCommand));
+		cmdHandler.addSubCommand(new CreateCommand(uiHandler));
 		cmdHandler.addSubCommand(new DespawnAllCommand());
-		cmdHandler.addSubCommand(new EditCommand(baseCommand));
+		cmdHandler.addSubCommand(new EditCommand(uiHandler));
 		cmdHandler.addSubCommand(new GetNameCommand());
 		cmdHandler.addSubCommand(new GiveCommand());
 		cmdHandler.addSubCommand(new ListCommand());
@@ -347,41 +357,37 @@ public class Main extends JavaPlugin {
     	if(countdown>0) 
 			logInfo("Chests will load in "+ countdown + " seconds.");
     	
-        this.getServer().getScheduler().runTaskLater(this, new Runnable() {
-
-			@Override
-            public void run() {
-		    	logInfo("Loading chests...");
-		    	long current = (new Timestamp(System.currentTimeMillis())).getTime();
-				for(String keys : configFiles.getData().getConfigurationSection("chests").getKeys(false)) {
-					String name = configFiles.getData().getString("chests." + keys + ".position.world");
-					String randomName = name;
-					if( configFiles.getData().getInt("chests." + keys + ".randomradius")>0) {
-						 randomName = configFiles.getData().getString("chests." + keys + ".randomPosition.world");
-					}
-					if(name != null && Utils.isWorldLoaded(randomName) && Utils.isWorldLoaded(name)) {
-						getLootChest().put(keys, new Lootchest(keys));
-					}
-					else {
-		    			logInfo("&cCouldn't load chest "+keys +" : the world " + configFiles.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
-					}
-		    	}
-				
-				logInfo("Loaded "+lootChest.size() + " Lootchests in "+((new Timestamp(System.currentTimeMillis())).getTime()-current) + " miliseconds");
-				logInfo("Starting LootChest timers asynchronously...");
-				for (final Lootchest lc : lootChest.values()) {
-					Bukkit.getScheduler().scheduleAsyncDelayedTask(instance, () -> 
-						Bukkit.getScheduler().scheduleSyncDelayedTask(instance, () -> {
-							if (!lc.spawn(false)) {
-								Utils.scheduleReSpawn(lc);
-								lc.reactivateEffects();
-							}
-						}, 0L)
-					, 5L);
-		        }
-		    	logInfo("Plugin loaded");
-	        }
-	    }, countdown+1 * 20);
+        this.getServer().getScheduler().runTaskLater(this, () -> {
+            logInfo("Loading chests...");
+            long current = (new Timestamp(System.currentTimeMillis())).getTime();
+            for(String keys : configFiles.getData().getConfigurationSection("chests").getKeys(false)) {
+                String name = configFiles.getData().getString("chests." + keys + ".position.world");
+                String randomName = name;
+                if( configFiles.getData().getInt("chests." + keys + ".randomradius")>0) {
+                    randomName = configFiles.getData().getString("chests." + keys + ".randomPosition.world");
+                }
+                if(name != null && Utils.isWorldLoaded(randomName) && Utils.isWorldLoaded(name)) {
+                    getLootChest().put(keys, new Lootchest(keys));
+                }
+                else {
+                    logInfo("&cCouldn't load chest "+keys +" : the world " + configFiles.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
+                }
+            }
+            
+            logInfo("Loaded "+lootChest.size() + " Lootchests in "+((new Timestamp(System.currentTimeMillis())).getTime()-current) + " miliseconds");
+            logInfo("Starting LootChest timers asynchronously...");
+            for (final Lootchest lc : lootChest.values()) {
+                Bukkit.getScheduler().scheduleAsyncDelayedTask(instance, () ->
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(instance, () -> {
+                            if (!lc.spawn(false)) {
+                                Utils.scheduleReSpawn(lc);
+                                lc.reactivateEffects();
+                            }
+                        }, 0L)
+                        , 5L);
+            }
+            logInfo("Plugin loaded");
+                }, countdown+1 * 20);
 	}
 	
 	
@@ -412,6 +418,7 @@ public class Main extends JavaPlugin {
       configFiles.setConfig("Cooldown_Before_Plugin_Start", 0);
       configFiles.setConfig("Prevent_Chest_Spawn_In_Protected_Places", false);
       configFiles.setConfig("WorldBorder_Check_For_Spawn", true);
+	  configFiles.setConfig("EnableLootin", false);
 	  configFiles.setLang("CantBreakBlockBecauseProtected", "&cYou have to wait [Time] seconds to loot that chest!");
 	  configFiles.setLang("editedProtectionTime", "&aYou edited the protection time of chest [Chest]");
       configFiles.setLang("Menu.main.disable_fall", "&aFall effect is enabled. Click to &cDISABLE &ait");
@@ -435,7 +442,7 @@ public class Main extends JavaPlugin {
 	  configFiles.setLang("copiedChest", "&6You copied the chest &b[Chest1] &6into the chest &b[Chest2]");
 
       if (configFiles.getLang().isSet("help.line1")) {
-          final List<String> tab = new ArrayList<String>();
+          final List<String> tab = new ArrayList<>();
           for (int i = 1; i <= 17; ++i) {
               if (configFiles.getLang().getString("help.line" + i) != null) {
                   tab.add(configFiles.getLang().getString("help.line" + i));

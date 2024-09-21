@@ -1,11 +1,13 @@
-package fr.black_eyes.lootchest.commands;
-
-import fr.black_eyes.lootchest.Main;
-import fr.black_eyes.lootchest.Utils;
-import org.bukkit.command.CommandSender;
+package fr.black_eyes.lootchest.commands.commands;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.bukkit.command.CommandSender;
+
+import fr.black_eyes.lootchest.Main;
+import fr.black_eyes.lootchest.Utils;
+import fr.black_eyes.lootchest.commands.SubCommand;
 
 public class ListCommand extends SubCommand {
 	

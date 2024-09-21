@@ -1,12 +1,15 @@
-package fr.black_eyes.lootchest.commands;
+package fr.black_eyes.lootchest.commands.commands;
+
+import java.util.Arrays;
+
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
-
-import java.util.Arrays;
+import fr.black_eyes.lootchest.commands.ArgType;
+import fr.black_eyes.lootchest.commands.SubCommand;
 
 public class DespawnAllCommand extends SubCommand {
 	

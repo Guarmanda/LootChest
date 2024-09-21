@@ -48,7 +48,8 @@ WorldBorder_Check_For_Spawn,
 Destroy_Naturally_Instead_Of_Removing_Chest,
 TIMER_Show_Timer,
 allow_spawning_on_water,
-NOTE_allcmd_world_e;
+NOTE_allcmd_world_e,
+lootin;
 
 public String FALL_Optionnal_Color_If_Block_Is_Wool,
 PART_default_particle,
@@ -137,6 +138,7 @@ public Config(FileConfiguration config) {
 	WorldBorder_Check_For_Spawn = config.getBoolean("WorldBorder_Check_For_Spawn") && !Bukkit.getVersion().contains("1.7");
 	Destroy_Naturally_Instead_Of_Removing_Chest = config.getBoolean("Destroy_Naturally_Instead_Of_Removing_Chest");
 	TIMER_Show_Timer = config.getBoolean("Timer_on_hologram.Show_Timer_On_Hologram");
+	lootin = config.getBoolean("EnableLootin");
 
 	
 	FALL_Optionnal_Color_If_Block_Is_Wool = config.getString("Fall_Effect.Optionnal_Color_If_Block_Is_Wool");

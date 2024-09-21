@@ -1,15 +1,18 @@
-package fr.black_eyes.lootchest.commands;
+package fr.black_eyes.lootchest.commands.commands;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import fr.black_eyes.lootchest.BungeeChannel;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.Arrays;
+import fr.black_eyes.lootchest.commands.ArgType;
+import fr.black_eyes.lootchest.commands.SubCommand;
 
 public class RespawnAllCommand extends SubCommand {
 	
