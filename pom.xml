@@ -116,6 +116,13 @@
         <systemPath>${project.basedir}/requirements/Factions.jar</systemPath>
     </dependency>
         <dependency>
+        <groupId>com.github.sachin.lootin</groupId>
+        <artifactId>lootin</artifactId>
+        <version>10.6</version>
+        <scope>system</scope>
+        <systemPath>${project.basedir}/requirements/Lootin.jar</systemPath>
+    </dependency>
+        <dependency>
         <groupId>com.massivecraft</groupId>
         <artifactId>massivecore</artifactId>
         <version>2.14.0</version>

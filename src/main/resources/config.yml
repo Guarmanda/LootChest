@@ -2,6 +2,8 @@
 CheckForUpdates: true
     #Info messages at plugin startup
 ConsoleMessages: true
+    # Looting is a plugin that allows all players to loot the same chest
+EnableLootin: false
     #Some people have troubles about worlds loading before my plugin: in fact, chests located in unloaded worlds aren't loaded.
     #Let's fi this with this option. Cooldown is in second.
 Cooldown_Before_Plugin_Start: 0

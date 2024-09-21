@@ -1,6 +1,11 @@
 package fr.black_eyes.lootchest.ui;
 
-import lombok.Getter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -9,18 +14,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
+import lombok.Getter;
 
 /**
  * A custom inventory UI that allows for actions to be assigned to each slot.
  */
 public class ChestUi {
 
-	private final String title;
 	@Getter
 	private final int rows;
 	private final Inventory inventory;
@@ -28,7 +28,6 @@ public class ChestUi {
 	private final Map<Integer, Consumer<Player>> rightClickActions;
 
 	public ChestUi(int rows, String title) {
-		this.title = title;
 		this.rows = rows;
 		inventory = Bukkit.createInventory(null, rows * 9, title);
 		clickActions = new HashMap<>();

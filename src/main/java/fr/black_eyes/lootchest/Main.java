@@ -25,26 +25,26 @@ import eu.decentholo.holograms.api.DecentHolograms;
 import fr.black_eyes.lootchest.colors.Ansi;
 import fr.black_eyes.lootchest.colors.Ansi.Attribute;
 import fr.black_eyes.lootchest.commands.CommandHandler;
-import fr.black_eyes.lootchest.commands.CopyCommand;
-import fr.black_eyes.lootchest.commands.CreateCommand;
-import fr.black_eyes.lootchest.commands.DespawnAllCommand;
-import fr.black_eyes.lootchest.commands.EditCommand;
-import fr.black_eyes.lootchest.commands.GetNameCommand;
-import fr.black_eyes.lootchest.commands.GiveCommand;
-import fr.black_eyes.lootchest.commands.ListCommand;
-import fr.black_eyes.lootchest.commands.LocateCommand;
-import fr.black_eyes.lootchest.commands.MaxFilledSlotsCommand;
-import fr.black_eyes.lootchest.commands.RandomSpawnCommand;
-import fr.black_eyes.lootchest.commands.ReloadCommand;
-import fr.black_eyes.lootchest.commands.RemoveCommand;
-import fr.black_eyes.lootchest.commands.RespawnAllCommand;
-import fr.black_eyes.lootchest.commands.RespawnCommand;
-import fr.black_eyes.lootchest.commands.SetHoloCommand;
-import fr.black_eyes.lootchest.commands.SetPosCommand;
-import fr.black_eyes.lootchest.commands.SetProtectionCommand;
-import fr.black_eyes.lootchest.commands.SetTimeCommand;
-import fr.black_eyes.lootchest.commands.ToggleFallCommand;
-import fr.black_eyes.lootchest.commands.TpCommand;
+import fr.black_eyes.lootchest.commands.commands.CopyCommand;
+import fr.black_eyes.lootchest.commands.commands.CreateCommand;
+import fr.black_eyes.lootchest.commands.commands.DespawnAllCommand;
+import fr.black_eyes.lootchest.commands.commands.EditCommand;
+import fr.black_eyes.lootchest.commands.commands.GetNameCommand;
+import fr.black_eyes.lootchest.commands.commands.GiveCommand;
+import fr.black_eyes.lootchest.commands.commands.ListCommand;
+import fr.black_eyes.lootchest.commands.commands.LocateCommand;
+import fr.black_eyes.lootchest.commands.commands.MaxFilledSlotsCommand;
+import fr.black_eyes.lootchest.commands.commands.RandomSpawnCommand;
+import fr.black_eyes.lootchest.commands.commands.ReloadCommand;
+import fr.black_eyes.lootchest.commands.commands.RemoveCommand;
+import fr.black_eyes.lootchest.commands.commands.RespawnAllCommand;
+import fr.black_eyes.lootchest.commands.commands.RespawnCommand;
+import fr.black_eyes.lootchest.commands.commands.SetHoloCommand;
+import fr.black_eyes.lootchest.commands.commands.SetPosCommand;
+import fr.black_eyes.lootchest.commands.commands.SetProtectionCommand;
+import fr.black_eyes.lootchest.commands.commands.SetTimeCommand;
+import fr.black_eyes.lootchest.commands.commands.ToggleFallCommand;
+import fr.black_eyes.lootchest.commands.commands.TpCommand;
 import fr.black_eyes.lootchest.listeners.DeleteListener;
 import fr.black_eyes.lootchest.listeners.UiListener;
 import fr.black_eyes.lootchest.particles.Particle;
@@ -174,7 +174,12 @@ public class Main extends JavaPlugin {
 		}
 
 		int pluginId = 21246; // <-- Replace with the id of your plugin!
-       	new Metrics(this, pluginId);
+		try{ 
+       		new Metrics(this, pluginId);
+			logInfo("Metrics started");
+		}catch (NoClassDefFoundError e) {
+			//if metrics can't be loaded, it's not a big deal
+		}					
 		
 		configFiles = new Files();
 		lootChest = new HashMap<>();
@@ -413,6 +418,7 @@ public class Main extends JavaPlugin {
       configFiles.setConfig("Cooldown_Before_Plugin_Start", 0);
       configFiles.setConfig("Prevent_Chest_Spawn_In_Protected_Places", false);
       configFiles.setConfig("WorldBorder_Check_For_Spawn", true);
+	  configFiles.setConfig("EnableLootin", false);
 	  configFiles.setLang("CantBreakBlockBecauseProtected", "&cYou have to wait [Time] seconds to loot that chest!");
 	  configFiles.setLang("editedProtectionTime", "&aYou edited the protection time of chest [Chest]");
       configFiles.setLang("Menu.main.disable_fall", "&aFall effect is enabled. Click to &cDISABLE &ait");
