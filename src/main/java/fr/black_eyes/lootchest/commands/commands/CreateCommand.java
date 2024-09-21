@@ -13,10 +13,11 @@ import fr.black_eyes.lootchest.Constants;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
-import fr.black_eyes.lootchest.Utils;
+import fr.black_eyes.lootchest.LootChestUtils;
 import fr.black_eyes.lootchest.commands.ArgType;
 import fr.black_eyes.lootchest.commands.SubCommand;
 import fr.black_eyes.lootchest.ui.UiHandler;
+import fr.black_eyes.simpleJavaPlugin.Utils;
 
 public class CreateCommand extends SubCommand {
 	
@@ -46,11 +47,11 @@ public class CreateCommand extends SubCommand {
 		chest = lastBlock;
 		if (!Mat.isALootChestBlock(chest)) {
 			Utils.msg(sender, "notAChest", " ", " ");
-		} else if (Utils.isEmpty(((InventoryHolder) chest.getState()).getInventory())) {
+		} else if (LootChestUtils.isEmpty(((InventoryHolder) chest.getState()).getInventory())) {
 			Utils.msg(sender, "chestIsEmpy", " ", " ");
 		} else if (Main.getInstance().getLootChest().containsKey(chestName)) {
 			Utils.msg(sender, "chestAlreadyExist", Constants.cheststr, chestName);
-		} else if (Utils.isLootChest(chest.getLocation()) != null) {
+		} else if (LootChestUtils.isLootChest(chest.getLocation()) != null) {
 			Utils.msg(sender, "blockIsAlreadyLootchest", Constants.cheststr, chestName);
 		} else {
 			Lootchest newChest = new Lootchest(chest, chestName);

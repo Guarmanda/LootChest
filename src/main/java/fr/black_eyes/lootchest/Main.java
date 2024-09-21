@@ -1,12 +1,8 @@
 package fr.black_eyes.lootchest;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,14 +12,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.spigotmc.SpigotConfig;
 
 import eu.decentholo.holograms.DecentHologramsPlugin;
 import eu.decentholo.holograms.api.DecentHolograms;
-import fr.black_eyes.lootchest.colors.Ansi;
-import fr.black_eyes.lootchest.colors.Ansi.Attribute;
 import fr.black_eyes.lootchest.commands.CommandHandler;
 import fr.black_eyes.lootchest.commands.commands.CopyCommand;
 import fr.black_eyes.lootchest.commands.commands.CreateCommand;
@@ -49,6 +42,10 @@ import fr.black_eyes.lootchest.listeners.DeleteListener;
 import fr.black_eyes.lootchest.listeners.UiListener;
 import fr.black_eyes.lootchest.particles.Particle;
 import fr.black_eyes.lootchest.ui.UiHandler;
+import fr.black_eyes.simpleJavaPlugin.Files;
+import fr.black_eyes.simpleJavaPlugin.SimpleJavaPlugin;
+import fr.black_eyes.simpleJavaPlugin.Updater;
+import fr.black_eyes.simpleJavaPlugin.Utils;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -58,7 +55,7 @@ import lombok.Setter;
 
 
 
-public class Main extends JavaPlugin {
+public class Main extends SimpleJavaPlugin {
 	@Getter private Particle supportedParticles[];
 	@Getter private HashMap<Location, Long> protection = new HashMap<>();
 	@Getter private HashMap<String, Particle> particles = new HashMap<>();
@@ -66,33 +63,11 @@ public class Main extends JavaPlugin {
 	@Setter public static Config configs;
 	@Getter private HashMap<String, Lootchest> lootChest;
 	@Getter @Setter private static Main instance;
-	@Getter private Files configFiles;
-	@Getter private Utils utils;
+	@Getter private LootChestUtils utils;
 	@Getter private Boolean useArmorStands;
 	@Getter private DecentHologramsPlugin hologramPlugin;
 	@Getter private DecentHolograms hologramImpl;
 	private static int version = 0;
-	Map<String, String> replace = new HashMap<String, String>(){{
-		put("&0",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.BLACK).boldOff().toString());
-		put("&1",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.BLUE).boldOff().toString());
-		put("&2",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.GREEN).boldOff().toString());
-		put("&3",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.CYAN).boldOff().toString());
-		put("&4",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.RED).boldOff().toString());
-		put("&5",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.MAGENTA).boldOff().toString());
-		put("&6",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.YELLOW).boldOff().toString());
-		put("&7",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.WHITE).boldOff().toString());
-		put("&8",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.BLACK).bold().toString());
-		put("&9",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.BLUE).bold().toString());
-		put("&a",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.GREEN).bold().toString());
-		put("&b",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.CYAN).bold().toString());
-		put("&c",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.RED).bold().toString());
-		put("&d",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.MAGENTA).bold().toString());
-		put("&e",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.YELLOW).bold().toString());
-		put("&f",Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.WHITE).bold().toString());
-		put("&l",Ansi.ansi().a(Attribute.BLINK_SLOW).toString());
-		put("&m",Ansi.ansi().a(Attribute.STRIKETHROUGH_ON).toString());
-		put("&n",Ansi.ansi().a(Attribute.UNDERLINE).toString());
-	}};
 
 	
 	//the way holograms are working changed a lot since 2.2.4. 
@@ -103,26 +78,9 @@ public class Main extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
+		super.onDisable();
 		hologramPlugin.onDisable();
-		Utils.saveAllChests();
-		backUp();
-		logInfo("&aBacked up data file in case of crash");
-	}
-	
-	/**
-	 * Send a message to logs with colors, only if logs are enabled in config.
-	 * @param msg the message to send
-	 */
-    public void logInfo(String msg) {
-    	if(configFiles.getConfig() ==null || !configFiles.getConfig().isSet("ConsoleMessages") || configFiles.getConfig().getBoolean("ConsoleMessages")) {
-			// use replace to replace all the keys from the map with their values
-			for (Map.Entry<String, String> entry : replace.entrySet()) {
-				msg = msg.replace(entry.getKey(), entry.getValue().toString());
-			}
-			//add reset to the end of the message
-			msg = msg + Ansi.ansi().a(Attribute.RESET).toString();
-			Bukkit.getLogger().info("[LootChest] "+msg);
-		}
+		LootChestUtils.saveAllChests();
 	}
     
     /**
@@ -165,6 +123,7 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		setInstance(this);
+
 		if(hologramPlugin == null && getVersion() > 7){
 			hologramPlugin = new DecentHologramsPlugin();
 		}
@@ -173,37 +132,36 @@ public class Main extends JavaPlugin {
 			hologramImpl = hologramPlugin.onEnable();
 		}
 
+		lootChest = new HashMap<>();
+		useArmorStands = true;
+		//initialisation des matÃ©riaux dans toutes les verions du jeu
+        //initializing materials in all game versions, to allow cross-version compatibility
+        Mat.init_materials();
+		
+
+        //In many versions, I add some text an config option. These lines are done to update config and language files without erasing options that are already set
+		super.onEnable();
+		if(configFiles.getLang() == null) {
+			Utils.logInfo("&cConfig or data files couldn't be initialized, the plugin will stop.");
+			return;
+		}
+		Utils.logInfo("config files loaded");
+		Utils.logInfo("Server version: 1." + getVersion() );
+		updateOldConfig();
+		configFiles.reloadConfig();
+		utils = new LootChestUtils();
+
 		int pluginId = 21246; // <-- Replace with the id of your plugin!
 		try{ 
        		new Metrics(this, pluginId);
-			logInfo("Metrics started");
+			Utils.logInfo("Metrics started");
 		}catch (NoClassDefFoundError e) {
 			//if metrics can't be loaded, it's not a big deal
-		}					
-		
-		configFiles = new Files();
-		lootChest = new HashMap<>();
-		utils = new Utils();
-		useArmorStands = true;
-		//initialisation des matériaux dans toutes les verions du jeu
-        //initializing materials in all game versions, to allow cross-version compatibility
-        Mat.init_materials();
-		logInfo("Server version: 1." + getVersion() );
-		logInfo("Loading config files...");
-		if(!configFiles.initFiles()) {
-        	logInfo("&cConfig or data files couldn't be initialized, the plugin will stop.");
-        	return;
-        }
-		
+		}		
+
 		UiHandler uiHandler = new UiHandler(this);
 		registerEvents(uiHandler);
 		registerCommands(uiHandler);
-        super.onEnable();
-        
-        //In many versions, I add some text an config option. These lines are done to update config and language files without erasing options that are already set
-        updateOldConfig();
-        configFiles.saveConfig();
-        configFiles.saveLang();
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         this.getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new BungeeChannel());
 
@@ -217,8 +175,8 @@ public class Main extends JavaPlugin {
 	        	if(org.bukkit.Bukkit.getServer().spigot().getPaperConfig().isSet("world-settings.default.armor-stands-tick")
 		        	&& !org.bukkit.Bukkit.getServer().spigot().getPaperConfig().getBoolean("world-settings.default.armor-stands-tick")) {
 		        		useArmorStands = false;
-		        		logInfo("&eYou disabled 'armor-stands-tick' in paper.yml. ArmorStands will not have gravity, so fall effect will use falling blocks instead! Some blocks can't be used as falling blocks. If so, only fireworks will show!");
-		        		logInfo("&eIf no blocks are spawned with the fireworks, use another type of block for fall-effect in config.yml or enable 'armor-stands-tick' in paper.yml");
+		        		Utils.logInfo("&eYou disabled 'armor-stands-tick' in paper.yml. ArmorStands will not have gravity, so fall effect will use falling blocks instead! Some blocks can't be used as falling blocks. If so, only fireworks will show!");
+		        		Utils.logInfo("&eIf no blocks are spawned with the fireworks, use another type of block for fall-effect in config.yml or enable 'armor-stands-tick' in paper.yml");
 		        	
 	        	}
         	}catch(NoSuchMethodError e) {}
@@ -230,8 +188,8 @@ public class Main extends JavaPlugin {
 
 		//If we enabled bungee broadcast but we aren't on a bungee server, not any message will show
         if(!hasBungee() && configs.NOTE_bungee_broadcast) {
-    		logInfo("&cYou enaled bungee broadcast in config but you didn't enable bungeecord in spigot config!");
-    		logInfo("&cSo if this server isn't in a bungee network, no messages will be sent at all on chest spawn!");
+    		Utils.logInfo("&cYou enaled bungee broadcast in config but you didn't enable bungeecord in spigot config!");
+    		Utils.logInfo("&cSo if this server isn't in a bungee network, no messages will be sent at all on chest spawn!");
         }
  
         if( !useArmorStands && Main.configs.FALL_Block.equals("CHEST")) {
@@ -241,19 +199,19 @@ public class Main extends JavaPlugin {
         
 
         if(configs.CheckForUpdates) {
-        	logInfo("Checking for update...");
-        	 new Updater(this);
+        	Utils.logInfo("Checking for update...");
+        	new Updater(this, "lootchest.61564");
         }
 
 		//if 1.7, disable world border check
 		if(getVersion()<=7) {
 			configs.UseHologram = false;
 			configs.WorldBorder_Check_For_Spawn = false;
-			logInfo("&eYou're using 1.7 or below, I disabled worldborder check because worldborder is implemented in spigot from 1.8");
-			logInfo("&eYou're using 1.7 or below, I disabled holograms because it uses armorstands, which are implemented in spigot from 1.8");
+			Utils.logInfo("&eYou're using 1.7 or below, I disabled worldborder check because worldborder is implemented in spigot from 1.8");
+			Utils.logInfo("&eYou're using 1.7 or below, I disabled holograms because it uses armorstands, which are implemented in spigot from 1.8");
 					
 		}
-        logInfo("Starting particles...");
+        Utils.logInfo("Starting particles...");
         
         //Initialization of particles values, it doesn't spawn them but is used in spawning
     	initParticles();
@@ -355,10 +313,10 @@ public class Main extends JavaPlugin {
 	private void loadChests() {
 		long countdown = configs.Cooldown_Before_Plugin_Start;
     	if(countdown>0) 
-			logInfo("Chests will load in "+ countdown + " seconds.");
+			Utils.logInfo("Chests will load in "+ countdown + " seconds.");
     	
         this.getServer().getScheduler().runTaskLater(this, () -> {
-            logInfo("Loading chests...");
+            Utils.logInfo("Loading chests...");
             long current = (new Timestamp(System.currentTimeMillis())).getTime();
             for(String keys : configFiles.getData().getConfigurationSection("chests").getKeys(false)) {
                 String name = configFiles.getData().getString("chests." + keys + ".position.world");
@@ -366,27 +324,27 @@ public class Main extends JavaPlugin {
                 if( configFiles.getData().getInt("chests." + keys + ".randomradius")>0) {
                     randomName = configFiles.getData().getString("chests." + keys + ".randomPosition.world");
                 }
-                if(name != null && Utils.isWorldLoaded(randomName) && Utils.isWorldLoaded(name)) {
+                if(name != null && LootChestUtils.isWorldLoaded(randomName) && LootChestUtils.isWorldLoaded(name)) {
                     getLootChest().put(keys, new Lootchest(keys));
                 }
                 else {
-                    logInfo("&cCouldn't load chest "+keys +" : the world " + configFiles.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
+                    Utils.logInfo("&cCouldn't load chest "+keys +" : the world " + configFiles.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
                 }
             }
             
-            logInfo("Loaded "+lootChest.size() + " Lootchests in "+((new Timestamp(System.currentTimeMillis())).getTime()-current) + " miliseconds");
-            logInfo("Starting LootChest timers asynchronously...");
+            Utils.logInfo("Loaded "+lootChest.size() + " Lootchests in "+((new Timestamp(System.currentTimeMillis())).getTime()-current) + " miliseconds");
+            Utils.logInfo("Starting LootChest timers asynchronously...");
             for (final Lootchest lc : lootChest.values()) {
                 Bukkit.getScheduler().scheduleAsyncDelayedTask(instance, () ->
                         Bukkit.getScheduler().scheduleSyncDelayedTask(instance, () -> {
                             if (!lc.spawn(false)) {
-                                Utils.scheduleReSpawn(lc);
+                                LootChestUtils.scheduleReSpawn(lc);
                                 lc.reactivateEffects();
                             }
                         }, 0L)
                         , 5L);
             }
-            logInfo("Plugin loaded");
+            Utils.logInfo("Plugin loaded");
                 }, countdown+1 * 20);
 	}
 	
@@ -602,51 +560,6 @@ public class Main extends JavaPlugin {
 				supportedParticles[i++] = p;
 			}
 		}
-	}
-	
-	/**
-	 * Creates a backup of data.yml, which is sometimes lost by plugin users in some rare cases.
-	 */
-	public void backUp() {
-		File directoryPath = new File(instance.getDataFolder() + "/backups/");
-		if(!directoryPath.exists()) {
-			directoryPath.mkdir();
-		}
-		List<String> contents = Arrays.asList(directoryPath.list());
-		int i=0;
-		//finding valid backup name
-		if(!contents.isEmpty()) {
-			while( !contents.contains(i+"data.yml")) i++;
-		}
-		while( contents.contains(i+"data.yml")) {
-			if (contents.contains((i+10)+"data.yml")) {
-				Path oldBackup = Paths.get(instance.getDataFolder() +"/backups/"+ (i)+"data.yml");
-				try {
-					java.nio.file.Files.deleteIfExists(oldBackup);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				i+=9;
-			}
-			i++;
-		}
-		
-		//auto-deletion of backup to keep only the 10 last ones
-		Path oldBackup = Paths.get(instance.getDataFolder() +"/backups/"+ (i-10)+"data.yml");
-		try {
-			java.nio.file.Files.deleteIfExists(oldBackup);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		//backing up
-		Path source = Paths.get(instance.getDataFolder() + "/data.yml");
-	    Path target = Paths.get(instance.getDataFolder() + "/backups/"+i+"data.yml");
-	    try {
-	    	java.nio.file.Files.copy(source, target);
-	    } catch (IOException e1) {
-	        e1.printStackTrace();
-	    }
 	}
 
 

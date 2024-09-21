@@ -1,7 +1,7 @@
 package fr.black_eyes.lootchest.commands;
 
 import fr.black_eyes.lootchest.Main;
-import fr.black_eyes.lootchest.Utils;
+import fr.black_eyes.simpleJavaPlugin.Utils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

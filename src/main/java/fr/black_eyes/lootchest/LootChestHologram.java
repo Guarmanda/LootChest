@@ -13,6 +13,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import eu.decentholo.holograms.api.DHAPI;
 import eu.decentholo.holograms.api.holograms.Hologram;
+import fr.black_eyes.simpleJavaPlugin.Utils;
 import lombok.Getter;
 
 /**
@@ -23,7 +24,7 @@ import lombok.Getter;
 public class LootChestHologram {
 
 	//represents all the null names that can be given to an hologram to not create an holo
-	private static List<String> NULL_NAME = new ArrayList<String>(
+	private static final List<String> NULL_NAME = new ArrayList<>(
 			Arrays.asList("\"\"" ,"\" \"" ,"null" ,"" ," " ,"_" ,"none")
 			); 
 
@@ -32,7 +33,7 @@ public class LootChestHologram {
 	 * Key is the version, value is the y modifier
 	 * @return the yPosModifier
 	 */
-	private static Map<Integer, Double> yPosModifier = new HashMap<Integer, Double>(){{
+	private static final Map<Integer, Double> yPosModifier = new HashMap<Integer, Double>(){{
 		put(8,  0.6);
 		put(9,  0.5);
 		put(10, 0.5);

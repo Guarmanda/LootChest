@@ -13,15 +13,13 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.util.Vector;
-import fr.black_eyes.lootchest.Files;
 import fr.black_eyes.lootchest.Main;
 import org.bukkit.Material;
 import org.bukkit.Location;
 import org.bukkit.World;
 
 public class FallingPackageEntity extends PackageEntity {
-	Main instance = Main.getInstance();
-	Files configFiles = instance.getConfigFiles();
+
 
     World world;
     Location startLoc;

@@ -3,9 +3,11 @@ package fr.black_eyes.lootchest.ui.menu;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
-import fr.black_eyes.lootchest.Utils;
+import fr.black_eyes.lootchest.LootChestUtils;
 import fr.black_eyes.lootchest.ui.ChestUi;
 import fr.black_eyes.lootchest.ui.UiHandler;
+import fr.black_eyes.simpleJavaPlugin.Utils;
+
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -14,7 +16,7 @@ import org.bukkit.inventory.ItemStack;
 public class MainMenu extends ChestUi {
 	
 	public MainMenu(Lootchest chest, UiHandler uiHandler) {
-		super(4, Utils.getMenuName("main", chest.getName()));
+		super(4, LootChestUtils.getMenuName("main", chest.getName()));
 		setItem(4, nameItem(Mat.ENDER_CHEST, Utils.getMsg("Menu.main.copychest")), p -> uiHandler.openUi(p, UiHandler.UiType.COPY, chest));
 		
 		if (Main.getInstance().getConfig().getBoolean("Particles.enable")) {

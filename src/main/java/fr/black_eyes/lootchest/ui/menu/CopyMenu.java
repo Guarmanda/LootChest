@@ -1,12 +1,13 @@
 package fr.black_eyes.lootchest.ui.menu;
 
-import fr.black_eyes.lootchest.Files;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
-import fr.black_eyes.lootchest.Utils;
+import fr.black_eyes.lootchest.LootChestUtils;
 import fr.black_eyes.lootchest.ui.PagedChestUi;
 import fr.black_eyes.lootchest.ui.UiHandler;
+import fr.black_eyes.simpleJavaPlugin.Utils;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -14,6 +15,8 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import fr.black_eyes.simpleJavaPlugin.Files;
 
 /**
  * A menu to copy the properties of another loot chest
@@ -24,7 +27,7 @@ public class CopyMenu extends PagedChestUi {
 	private final UiHandler uiHandler;
 
 	public CopyMenu(Lootchest chest, UiHandler uiHandler) {
-		super(6, Utils.getMenuName("copy", chest.getName()));
+		super(6, LootChestUtils.getMenuName("copy", chest.getName()));
 		this.chest = chest;
 		this.uiHandler = uiHandler;
 
@@ -52,7 +55,7 @@ public class CopyMenu extends PagedChestUi {
 	}
 
 	public void copyChest(Player player, Lootchest copyChest) {
-		Utils.copychest(copyChest, chest);
+		LootChestUtils.copychest(copyChest, chest);
 		Main.getInstance().getLootChest().get(chest.getName()).updateData();
 		Utils.msg(player, "copiedChest", "[Chest1]", copyChest.getName(), "[Chest2]", chest.getName());
 	}

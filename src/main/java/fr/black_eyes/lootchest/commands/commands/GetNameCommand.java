@@ -8,8 +8,9 @@ import org.bukkit.util.BlockIterator;
 
 import fr.black_eyes.lootchest.Constants;
 import fr.black_eyes.lootchest.Lootchest;
-import fr.black_eyes.lootchest.Utils;
+import fr.black_eyes.lootchest.LootChestUtils;
 import fr.black_eyes.lootchest.commands.SubCommand;
+import fr.black_eyes.simpleJavaPlugin.Utils;
 
 public class GetNameCommand extends SubCommand {
 	
@@ -33,7 +34,7 @@ public class GetNameCommand extends SubCommand {
 			break;
 		}
 		chest = lastBlock;
-		Lootchest lc = Utils.isLootChest(chest.getLocation());
+		Lootchest lc = LootChestUtils.isLootChest(chest.getLocation());
 		
 		if (lc != null) {
 			Utils.msg(sender, "commandGetName", Constants.cheststr, lc.getName());

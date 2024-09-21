@@ -7,9 +7,9 @@ import org.bukkit.command.CommandSender;
 import fr.black_eyes.lootchest.Constants;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
-import fr.black_eyes.lootchest.Utils;
 import fr.black_eyes.lootchest.commands.ArgType;
 import fr.black_eyes.lootchest.commands.SubCommand;
+import fr.black_eyes.simpleJavaPlugin.Utils;
 
 public class RandomSpawnCommand extends SubCommand {
 	

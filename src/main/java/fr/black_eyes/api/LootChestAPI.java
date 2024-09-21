@@ -5,10 +5,10 @@ import java.util.UUID;
 
 import org.bukkit.block.Block;
 
+import fr.black_eyes.lootchest.LootChestUtils;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
-import fr.black_eyes.lootchest.Utils;
 
 public class LootChestAPI {
 
@@ -101,7 +101,7 @@ public class LootChestAPI {
      * @param newName
      */
     public static void copyToExistingChest(Lootchest lc, Lootchest secondLc) {
-        Utils.copychest(lc, secondLc);
+        LootChestUtils.copychest(lc, secondLc);
     }
 
     /**
@@ -130,7 +130,7 @@ public class LootChestAPI {
      * Saves all the lootchests in data file, but it is already done automatically on shutdown
      */
     public static void saveAllLootChests() {
-        Utils.saveAllChests();
+        LootChestUtils.saveAllChests();
     }
 
     private static boolean checkNameAvalability(String name) {

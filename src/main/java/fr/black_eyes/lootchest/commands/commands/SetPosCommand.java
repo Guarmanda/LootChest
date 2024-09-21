@@ -8,9 +8,10 @@ import org.bukkit.entity.Player;
 import fr.black_eyes.lootchest.Constants;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
-import fr.black_eyes.lootchest.Utils;
+import fr.black_eyes.lootchest.LootChestUtils;
 import fr.black_eyes.lootchest.commands.ArgType;
 import fr.black_eyes.lootchest.commands.SubCommand;
+import fr.black_eyes.simpleJavaPlugin.Utils;
 
 public class SetPosCommand extends SubCommand {
 	
@@ -30,7 +31,7 @@ public class SetPosCommand extends SubCommand {
 	}
 
 	public String getCardinalDirection(Player player) {
-		float rotation = Utils.normalizeYaw(player.getLocation().getYaw());
+		float rotation = LootChestUtils.normalizeYaw(player.getLocation().getYaw());
 		if (rotation > 135.0 || rotation <= -135.0) {
 			return "NORTH";
 		} else if (rotation > -135.0 && rotation < -45.0) {
