@@ -8,7 +8,8 @@ import org.bukkit.entity.Player;
 
 import fr.black_eyes.lootchest.Constants;
 import fr.black_eyes.lootchest.Main;
-import fr.black_eyes.lootchest.Utils;
+import fr.black_eyes.simpleJavaPlugin.Utils;
+import fr.black_eyes.lootchest.LootChestUtils;
 
 public enum ArgType {
     INTEGER, PLAYER, LOOTCHEST, STRING, WORLD;
@@ -41,7 +42,7 @@ public enum ArgType {
                     return false;
                 }
             case PLAYER:
-                if(!Utils.getPlayersOnline().stream().map(Player::getName).collect(LinkedList::new, LinkedList::add, LinkedList::addAll).contains(arg)){
+                if(!LootChestUtils.getPlayersOnline().stream().map(Player::getName).collect(LinkedList::new, LinkedList::add, LinkedList::addAll).contains(arg)){
                     Utils.msg(sender, "PlayerIsNotOnline", "[Player]", arg);
                     return false;
                 }

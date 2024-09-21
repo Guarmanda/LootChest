@@ -1,11 +1,11 @@
-name: LootChest
-main: fr.black_eyes.lootchest.Main
-version: 2.4.5
+name: ${project.name}
+main: ${project.groupId}.Main
+version: ${project.version}
 author: Black_Eyes
 api-version: 1.13
 softdepend: [MultiWorld, Multiverse-Core, FabledSkyBlock, MultiverseCore, GriefPrevention, Residence, WorldGuard, Factions, FactionsX, Towny, Lootin]
 description: >
-             Plugin for Regenerating Chests
+             ${project.description}
 commands:
   lootchest:
     description: Main Command

@@ -22,6 +22,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import fr.black_eyes.api.events.LootChestSpawnEvent;
 import fr.black_eyes.lootchest.falleffect.FallingPackageEntity;
 import fr.black_eyes.lootchest.particles.Particle;
+import fr.black_eyes.simpleJavaPlugin.Files;
+import fr.black_eyes.simpleJavaPlugin.Utils;
 import lombok.Getter;
 import lombok.Setter;
 public class Lootchest {
@@ -153,8 +155,8 @@ public class Lootchest {
 	 */
 	public Lootchest(String naming) {
 		Main main = Main.getInstance();
-		Utils utils = main.getUtils();
-		Files configFiles = main.getConfigFiles();
+		LootChestUtils utils = main.getUtils();
+		Files configFiles = Main.getInstance().getConfigFiles();
 		taken = false;
 		if(!configFiles.getData().isSet("chests."+naming+".type")){
 			type = Mat.CHEST;
@@ -218,7 +220,7 @@ public class Lootchest {
 			chances[Integer.parseInt(keys)] = configFiles.getData().getInt("chests." + naming + ".chance." + keys);
 		}
 		}catch(NullPointerException e) {
-			main.logInfo("&cMaybe you changed to an older server version recently: chest inventory of "+name+" was lost :/");
+			Utils.logInfo("&cMaybe you changed to an older server version recently: chest inventory of "+name+" was lost :/");
 		}
 		respawn_cmd =  configFiles.getData().getBoolean("chests." + naming + ".respawn_cmd");
 		respawn_natural =  configFiles.getData().getBoolean("chests." + naming + ".respawn_natural");
@@ -252,7 +254,7 @@ public class Lootchest {
 			}
 		}
 		if(inventory.getSize() >27) {
-			Main.getInstance().logInfo("&cDo not use double chests to create chests! Only half of the inventory of the chest was registered.");
+			Utils.logInfo("&cDo not use double chests to create chests! Only half of the inventory of the chest was registered.");
 		}
 		maxFilledSlots = Main.configs.default_maxFilledSlots;
 		fall =  Main.configs.FALL_Enabled;
@@ -260,7 +262,7 @@ public class Lootchest {
 		respawn_natural =  Main.configs.NOTE_natural_e;
 		take_msg =  Main.configs.NOTE_message_on_chest_take;
 		if( !(Mat.CHEST != Mat.BARREL && chest.getType() == Mat.BARREL) ) {
-			direction = Utils.getDirection(chest);
+			direction = LootChestUtils.getDirection(chest);
 		}
 		holo = name;
 		time =  Main.configs.default_reset_time;
@@ -312,8 +314,8 @@ public class Lootchest {
 	 */
 	public void saveInConfig(){
 		Main main = Main.getInstance();
-		Utils utils = main.getUtils();
-		Files configFiles = main.getConfigFiles();
+		LootChestUtils utils = main.getUtils();
+		Files configFiles = Main.getInstance().getConfigFiles();
 		configFiles.getData().set("chests." + name + ".inventory", null);
 		for(int i = 0 ; i < inv.getSize() ; i++) {
 			if(inv.getItem(i) != null && inv.getItem(i).getType() != Material.AIR) {
@@ -362,7 +364,7 @@ public class Lootchest {
 	public boolean despawn(){
 		Location startLocation = getActualLocation();
 		Boolean loaded = startLocation.getWorld().isChunkLoaded((int)startLocation.getX()/16, (int)startLocation.getZ()/16) ;
-		if(Utils.isWorldLoaded(getWorld()) && isGoodType(startLocation.getBlock())) {
+		if(LootChestUtils.isWorldLoaded(getWorld()) && isGoodType(startLocation.getBlock())) {
 			Block chest = startLocation.getBlock();
 			((InventoryHolder) chest.getLocation().getBlock().getState()).getInventory().clear();
 			chest.setType(Material.AIR);
@@ -382,7 +384,7 @@ public class Lootchest {
 	 */
 	private static boolean checkIfEnoughPlayers(){
 		Integer num = Main.configs.Minimum_Number_Of_Players_For_Natural_Spawning;
-		int players = Utils.getPlayerCount();
+		int players = LootChestUtils.getPlayerCount();
 		return (players >= num); 
 	}
 
@@ -403,7 +405,7 @@ public class Lootchest {
 	public void createchest( Block block, Location blockLocation) {
 		block.setType(getType());
 		Inventory inventory = ((InventoryHolder) block.getState()).getInventory();
-		Utils.fillInventory(this, inventory, true, null);
+		LootChestUtils.fillInventory(this, inventory, true, null);
 		MaterialData data = null;
 		//if the chest isn't a barrel, we can change its direction
 		if( !(Mat.CHEST != Mat.BARREL && getType() == Mat.BARREL) && Main.getVersion()>7) {
@@ -443,7 +445,7 @@ public class Lootchest {
 			Main.getInstance().getProtection().put(block.getLocation(), now+protectionTime*1000);
 		}
 		Bukkit.getPluginManager().callEvent(new LootChestSpawnEvent(this));
-		Utils.scheduleReSpawn(this);
+		LootChestUtils.scheduleReSpawn(this);
 	}
 
 	/**
@@ -473,17 +475,17 @@ public class Lootchest {
 			setLastReset();
 		}
 		// if world is not loaded || lootchest was deleted || not enough players
-		if(!Utils.isWorldLoaded(getWorld()) || !Main.getInstance().getLootChest().containsValue(this) ) {
-			Utils.scheduleReSpawn(this);
+		if(!LootChestUtils.isWorldLoaded(getWorld()) || !Main.getInstance().getLootChest().containsValue(this) ) {
+			LootChestUtils.scheduleReSpawn(this);
 			return false;
 		}
 		// if (there's not enough player || it's not time to respawn) && we didn't force respawn
 		if( !checkIfTimeToRespawn() && !forceSpawn) {
-			Utils.scheduleReSpawn(this);
+			LootChestUtils.scheduleReSpawn(this);
 			return false;
 		}
 		if(!checkIfEnoughPlayers() && !forceSpawn) {
-			Utils.scheduleReSpawn(this);
+			LootChestUtils.scheduleReSpawn(this);
 			return false;
 		}
 		Location actualLocation = getActualLocation();
@@ -495,13 +497,13 @@ public class Lootchest {
 		if(getRadius() !=0){
 			//if this option is true, we take the location of one of online players randomly.
 			if(Main.configs.use_players_locations_for_randomspawn ) {
-				globalLocation = Utils.chooseRandomPlayer(getWorld());
+				globalLocation = LootChestUtils.chooseRandomPlayer(getWorld());
 				globalLocation = globalLocation!=null?globalLocation:spawnLoc.clone();
 			}
-			spawnLoc = Utils.chooseRandomLocation(globalLocation, radius);
+			spawnLoc = LootChestUtils.chooseRandomLocation(globalLocation, radius);
 			if(spawnLoc == null){
-				Main.getInstance().logInfo(Utils.color("&cThe chest " + getName() + " didn't found a good location, so that it couldn't respawn! " ));
-				Utils.scheduleReSpawn(this);
+				Utils.logInfo(Utils.color("&cThe chest " + getName() + " didn't found a good location, so that it couldn't respawn! " ));
+				LootChestUtils.scheduleReSpawn(this);
 				return false;
 			}
 			// whatever happens after, the chest will spawn, so we can set this

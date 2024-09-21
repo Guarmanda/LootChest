@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>fr.black_eyes.lootchest</groupId>
-  <artifactId>LootChest</artifactId>
-  <version>2.4.0</version>
-  <name>LootChest-without-dependencies</name>
+  <artifactId>${project.name}</artifactId>
+  <version>2.4.6</version>
+  <name>LootChest</name>
   <description>Create higly customizable lootboxes for your minecraft server</description>
   <packaging>jar</packaging>
   <properties>
@@ -12,8 +12,41 @@
     <maven.compiler.release>8</maven.compiler.release>
   </properties>
   <build>
-   <finalName>LootChest</finalName>
- 
+   <finalName>${project.name}</finalName>
+     <resources>
+        <!-- Default resource directory, no filtering -->
+        <resource>
+            <directory>src/main/resources</directory>
+            <filtering>false</filtering>
+        </resource>
+        <!-- Separate entry for plugin.yml with filtering enabled -->
+        <resource>
+            <directory>src/main/resources</directory>
+            <includes>
+                <include>plugin.yml</include>
+            </includes>
+            <filtering>true</filtering>
+        </resource>
+    </resources>
+    <plugins>
+      <!-- any other plugins -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+      </plugin>
+    </plugins>
  </build>
   <repositories>
     <repository>
@@ -52,22 +85,10 @@
         <version>2.11.5</version>
         <scope>provided</scope>
     </dependency>
-        <dependency>
-        <groupId>com.comphenix.protocol</groupId>
-        <artifactId>ProtocolLib</artifactId>
-        <version>5.1.0</version>
-        <scope>provided</scope>
-    </dependency>
     <dependency>
         <groupId>net.kyori</groupId>
         <artifactId>adventure-api</artifactId>
         <version>4.17.0</version>
-        <scope>provided</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.fusesource.jansi</groupId>
-        <artifactId>jansi</artifactId>
-        <version>2.4.1</version>
         <scope>provided</scope>
     </dependency>
 <dependency>
@@ -168,6 +189,10 @@
         <version>4.1.110.Final</version>
         <scope>provided</scope>
     </dependency>
-
+	<dependency>
+	    <groupId>com.github.Guarmanda</groupId>
+	    <artifactId>SimpleJavaPlugin</artifactId>
+	    <version>0.7</version>
+	</dependency>
   </dependencies>
 </project>

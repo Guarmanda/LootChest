@@ -9,9 +9,10 @@ import org.bukkit.entity.Player;
 import fr.black_eyes.lootchest.Constants;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
-import fr.black_eyes.lootchest.Utils;
+import fr.black_eyes.lootchest.LootChestUtils;
 import fr.black_eyes.lootchest.commands.ArgType;
 import fr.black_eyes.lootchest.commands.SubCommand;
+import fr.black_eyes.simpleJavaPlugin.Utils;
 
 public class GiveCommand extends SubCommand {
 	
@@ -27,6 +28,6 @@ public class GiveCommand extends SubCommand {
 		Player player = Bukkit.getPlayerExact(playerName);
 		Utils.msg(sender, "giveto", Constants.cheststr, chestName, "[Player]", playerName);
 		Utils.msg(player, "givefrom", Constants.cheststr, chestName, "[Player]", sender.getName());
-		Utils.fillInventory(lc, player.getInventory(), false, player);
+		LootChestUtils.fillInventory(lc, player.getInventory(), false, player);
 	}
 }

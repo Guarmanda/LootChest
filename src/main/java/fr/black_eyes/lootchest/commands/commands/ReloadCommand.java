@@ -4,11 +4,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 import fr.black_eyes.lootchest.Config;
-import fr.black_eyes.lootchest.Files;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
-import fr.black_eyes.lootchest.Utils;
+import fr.black_eyes.lootchest.LootChestUtils;
 import fr.black_eyes.lootchest.commands.SubCommand;
+import fr.black_eyes.simpleJavaPlugin.Files;
+import fr.black_eyes.simpleJavaPlugin.Utils;
 
 public class ReloadCommand extends SubCommand {
 	
@@ -19,9 +20,9 @@ public class ReloadCommand extends SubCommand {
 	@Override
 	protected void onCommand(CommandSender sender, String[] args) {
 		Main main = Main.getInstance();
-		Files configFiles = main.getConfigFiles();
+		Files configFiles = Main.getInstance().getConfigFiles();
 		if (Config.getInstance().saveDataFileDuringReload) {
-			Utils.saveAllChests();
+			LootChestUtils.saveAllChests();
 		} else {
 			configFiles.reloadData();
 		}
@@ -38,19 +39,19 @@ public class ReloadCommand extends SubCommand {
 			if (configFiles.getData().getInt("chests." + keys + ".randomradius") > 0) {
 				randomname = configFiles.getData().getString("chests." + keys + ".randomPosition.world");
 			}
-			if (name != null && Utils.isWorldLoaded(randomname) && Utils.isWorldLoaded(name)) {
+			if (name != null && LootChestUtils.isWorldLoaded(randomname) && LootChestUtils.isWorldLoaded(name)) {
 				Main.getInstance().getLootChest().put(keys, new Lootchest(keys));
 			} else {
-				Main.getInstance().logInfo("&cCouldn't load chest " + keys + " : the world " + configFiles.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
+				Utils.logInfo("&cCouldn't load chest " + keys + " : the world " + configFiles.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
 			}
 		}
 		
 		for (final Lootchest l : Main.getInstance().getLootChest().values()) {
-			if (Utils.isWorldLoaded(l.getWorld())) {
+			if (LootChestUtils.isWorldLoaded(l.getWorld())) {
 				Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
 					Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
 						if (!l.spawn(false)) {
-							Utils.scheduleReSpawn(l);
+							LootChestUtils.scheduleReSpawn(l);
 							l.reactivateEffects();
 						}
 						

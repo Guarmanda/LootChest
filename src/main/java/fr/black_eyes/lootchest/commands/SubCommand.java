@@ -11,8 +11,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import fr.black_eyes.lootchest.LootChestUtils;
 import fr.black_eyes.lootchest.Main;
-import fr.black_eyes.lootchest.Utils;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -102,7 +102,7 @@ public abstract class SubCommand {
 			case LOOTCHEST:
 				return new ArrayList<>(Main.getInstance().getLootChest().keySet());
 			case PLAYER:
-				return Utils.getPlayersOnline().stream().map(Player::getName).collect(LinkedList::new, LinkedList::add, LinkedList::addAll);
+				return LootChestUtils.getPlayersOnline().stream().map(Player::getName).collect(LinkedList::new, LinkedList::add, LinkedList::addAll);
 			case WORLD:
 				return Bukkit.getWorlds().stream().map(w -> w.getName()).collect(LinkedList::new, LinkedList::add, LinkedList::addAll);
 			case INTEGER:

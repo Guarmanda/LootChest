@@ -2,12 +2,10 @@ package fr.black_eyes.lootchest;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -15,68 +13,23 @@ import org.bukkit.block.Block;
 import org.bukkit.material.DirectionalContainer;
 import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.command.CommandSender;
+
+import fr.black_eyes.simpleJavaPlugin.Files;
+import fr.black_eyes.simpleJavaPlugin.Utils;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 @SuppressWarnings("deprecation")
-public class Utils  {
-	private Main main;
+public class LootChestUtils  {
 	private Files configFiles;
 
-	public Utils() {
-		main = Main.getInstance();
-		configFiles = main.getConfigFiles();
+	public LootChestUtils() {
+		configFiles = Main.getInstance().getConfigFiles();
 	}
+	
 
-	public static String color(String s){
-		return ChatColor.translateAlternateColorCodes('&', s);
-	}
-	
-	//message functions that automatically get a message from config lang file
-	public static void msg(CommandSender p, String path, String replacer, String replacement) {
-		String message = path;
-		if(Main.getInstance().getConfigFiles().getLang().isSet(path)) {
-			message = getMsg(path, replacer, replacement);
-		}
-		sendMultilineMessage(message, p);
-	}
-	
-	//message functions that automatically get a message from config lang file
-	public static void msg(CommandSender p, String path, String replacer, String replacement, String replacer2, String replacement2) {
-		String message = Main.getInstance().getConfigFiles().getLang().getString(path).replace(replacer, replacement).replace(replacer2, replacement2);
-		sendMultilineMessage(message, p);
-	}
-	
-	/*
-	 * This function is only for messages of chest spawning.
-	 * 
-	 */
-	public static void msg(CommandSender p, String path,  String r1, String r1b, String r2, String r2b, String r3, String r3b, String r4, String r4b,  String r5, String r5b) {
-		String message = path;
-		if(Main.getInstance().getConfigFiles().getLang().isSet(path)) {
-			message = Main.getInstance().getConfigFiles().getLang().getString(path);
-		}
-		message = message.replace(r1, r1b).replace(r2, r2b).replace(r3, r3b).replace(r4, r4b).replace(r5, r5b);
-		sendMultilineMessage(message, p);
-	}
-	
-	public static void sendMultilineMessage(String message, CommandSender player) {
-		List<String> msgs = Arrays.asList(message.split("\\\\n"));
-		msgs.stream().forEach(msg -> player.sendMessage(color(msg)));
-	}
-	
-	public static String getMsg(String path, String replacer, String replacement,  String replacer2, String replacement2) {
-		return color(getMsg(path, replacer, replacement).replace( replacer2, replacement2));
-	}
-	public static String getMsg(String path, String replacer, String replacement) {
-		return color(getMsg(path).replace(replacer, replacement));
-	}
-	public static String getMsg(String path) {
-		return color(Main.getInstance().getConfigFiles().getLang().getString(path));
-	}
 	
 	/**
 	* function to copy a chest
@@ -319,18 +272,18 @@ public class Utils  {
 	public static void broadcast(String message) {
 		for(World w : Bukkit.getWorlds()){
 			for(Player p : w.getPlayers()) {
-				p.sendMessage(color(message));
+				p.sendMessage(Utils.color(message));
 			}
 		}
 		//send message to even console
-		Main.getInstance().logInfo(message);
+		Utils.logInfo(message);
 
 	}
 	
 	//getting chest position from config.getData().yml
 	public  Location getPosition(String name) {
 		if (configFiles.getData().getString("chests." + name + ".position.world") == null) {
-			main.logInfo("&cThe plugin couldn't get the world of chest &6" + name +"&c. This won't prevent the plugin to work, but the plugin may throw other errors because of that.");
+			Utils.logInfo("&cThe plugin couldn't get the world of chest &6" + name +"&c. This won't prevent the plugin to work, but the plugin may throw other errors because of that.");
 			return null;
 		}
 		World world = Bukkit.getWorld(configFiles.getData().getString("chests." + name + ".position.world"));
@@ -362,7 +315,7 @@ public class Utils  {
 		configFiles.getData().set("chests." + name + ".randomPosition.pitch", loc.getPitch());
 		configFiles.getData().set("chests." + name + ".randomPosition.yaw", loc.getYaw());
 		}catch(NullPointerException e) {
-			main.logInfo(name + " " +loc.toString());
+			Utils.logInfo(name + " " +loc.toString());
 		}
 	}
 	

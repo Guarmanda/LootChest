@@ -3,10 +3,12 @@ package fr.black_eyes.lootchest.ui.menu;
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
-import fr.black_eyes.lootchest.Utils;
+import fr.black_eyes.lootchest.LootChestUtils;
 import fr.black_eyes.lootchest.particles.Particle;
 import fr.black_eyes.lootchest.ui.PagedChestUi;
 import fr.black_eyes.lootchest.ui.UiHandler;
+import fr.black_eyes.simpleJavaPlugin.Utils;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -23,7 +25,7 @@ public class ParticleMenu extends PagedChestUi {
 	private final UiHandler uiHandler;
 
 	public ParticleMenu(Lootchest chest, UiHandler uiHandler) {
-		super(6, Utils.getMenuName("particles", chest.getName()));
+		super(6, LootChestUtils.getMenuName("particles", chest.getName()));
 		this.chest = chest;
 		this.uiHandler = uiHandler;
 

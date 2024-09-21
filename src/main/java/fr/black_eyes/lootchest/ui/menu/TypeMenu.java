@@ -2,9 +2,11 @@ package fr.black_eyes.lootchest.ui.menu;
 
 import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Mat;
-import fr.black_eyes.lootchest.Utils;
+import fr.black_eyes.lootchest.LootChestUtils;
 import fr.black_eyes.lootchest.ui.ChestUi;
 import fr.black_eyes.lootchest.ui.UiHandler;
+import fr.black_eyes.simpleJavaPlugin.Utils;
+
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -18,10 +20,9 @@ public class TypeMenu extends ChestUi {
 	private final UiHandler uiHandler;
 
 	public TypeMenu(Lootchest chest, UiHandler uiHandler) {
-		super(1, Utils.getMenuName("type", chest.getName()));
+		super(1, LootChestUtils.getMenuName("type", chest.getName()));
 		this.chest = chest;
 		this.uiHandler = uiHandler;
-		;
 
 		setItem(0, new ItemStack(Mat.CHEST, 1), p -> changeChestType(p, Mat.CHEST));
 		setItem(1, new ItemStack(Mat.TRAPPED_CHEST, 1), p -> changeChestType(p, Mat.TRAPPED_CHEST));
