@@ -11,6 +11,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.spigotmc.SpigotConfig;
+
+import eu.decentholo.holograms.DecentHologramsPlugin;
+import eu.decentholo.holograms.api.DecentHolograms;
+import fr.black_eyes.lootchest.colors.Ansi;
+import fr.black_eyes.lootchest.colors.Ansi.Attribute;
 import fr.black_eyes.lootchest.commands.CommandHandler;
 import fr.black_eyes.lootchest.commands.CopyCommand;
 import fr.black_eyes.lootchest.commands.CreateCommand;
@@ -32,23 +45,10 @@ import fr.black_eyes.lootchest.commands.SetProtectionCommand;
 import fr.black_eyes.lootchest.commands.SetTimeCommand;
 import fr.black_eyes.lootchest.commands.ToggleFallCommand;
 import fr.black_eyes.lootchest.commands.TpCommand;
-import fr.black_eyes.lootchest.listeners.UiListener;
-import fr.black_eyes.lootchest.ui.UiHandler;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import fr.black_eyes.lootchest.colors.Ansi;
-import fr.black_eyes.lootchest.colors.Ansi.Attribute;
-import org.spigotmc.SpigotConfig;
-
-import eu.decentholo.holograms.DecentHologramsPlugin;
-import eu.decentholo.holograms.api.DecentHolograms;
-import fr.black_eyes.lootchest.commands.LootchestCommand;
 import fr.black_eyes.lootchest.listeners.DeleteListener;
+import fr.black_eyes.lootchest.listeners.UiListener;
 import fr.black_eyes.lootchest.particles.Particle;
+import fr.black_eyes.lootchest.ui.UiHandler;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -172,6 +172,9 @@ public class Main extends JavaPlugin {
 			hologramPlugin.onLoad(this);
 			hologramImpl = hologramPlugin.onEnable();
 		}
+
+		int pluginId = 21246; // <-- Replace with the id of your plugin!
+       	new Metrics(this, pluginId);
 		
 		configFiles = new Files();
 		lootChest = new HashMap<>();
@@ -349,41 +352,37 @@ public class Main extends JavaPlugin {
     	if(countdown>0) 
 			logInfo("Chests will load in "+ countdown + " seconds.");
     	
-        this.getServer().getScheduler().runTaskLater(this, new Runnable() {
-
-			@Override
-            public void run() {
-		    	logInfo("Loading chests...");
-		    	long current = (new Timestamp(System.currentTimeMillis())).getTime();
-				for(String keys : configFiles.getData().getConfigurationSection("chests").getKeys(false)) {
-					String name = configFiles.getData().getString("chests." + keys + ".position.world");
-					String randomName = name;
-					if( configFiles.getData().getInt("chests." + keys + ".randomradius")>0) {
-						 randomName = configFiles.getData().getString("chests." + keys + ".randomPosition.world");
-					}
-					if(name != null && Utils.isWorldLoaded(randomName) && Utils.isWorldLoaded(name)) {
-						getLootChest().put(keys, new Lootchest(keys));
-					}
-					else {
-		    			logInfo("&cCouldn't load chest "+keys +" : the world " + configFiles.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
-					}
-		    	}
-				
-				logInfo("Loaded "+lootChest.size() + " Lootchests in "+((new Timestamp(System.currentTimeMillis())).getTime()-current) + " miliseconds");
-				logInfo("Starting LootChest timers asynchronously...");
-				for (final Lootchest lc : lootChest.values()) {
-					Bukkit.getScheduler().scheduleAsyncDelayedTask(instance, () -> 
-						Bukkit.getScheduler().scheduleSyncDelayedTask(instance, () -> {
-							if (!lc.spawn(false)) {
-								Utils.scheduleReSpawn(lc);
-								lc.reactivateEffects();
-							}
-						}, 0L)
-					, 5L);
-		        }
-		    	logInfo("Plugin loaded");
-	        }
-	    }, countdown+1 * 20);
+        this.getServer().getScheduler().runTaskLater(this, () -> {
+            logInfo("Loading chests...");
+            long current = (new Timestamp(System.currentTimeMillis())).getTime();
+            for(String keys : configFiles.getData().getConfigurationSection("chests").getKeys(false)) {
+                String name = configFiles.getData().getString("chests." + keys + ".position.world");
+                String randomName = name;
+                if( configFiles.getData().getInt("chests." + keys + ".randomradius")>0) {
+                    randomName = configFiles.getData().getString("chests." + keys + ".randomPosition.world");
+                }
+                if(name != null && Utils.isWorldLoaded(randomName) && Utils.isWorldLoaded(name)) {
+                    getLootChest().put(keys, new Lootchest(keys));
+                }
+                else {
+                    logInfo("&cCouldn't load chest "+keys +" : the world " + configFiles.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
+                }
+            }
+            
+            logInfo("Loaded "+lootChest.size() + " Lootchests in "+((new Timestamp(System.currentTimeMillis())).getTime()-current) + " miliseconds");
+            logInfo("Starting LootChest timers asynchronously...");
+            for (final Lootchest lc : lootChest.values()) {
+                Bukkit.getScheduler().scheduleAsyncDelayedTask(instance, () ->
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(instance, () -> {
+                            if (!lc.spawn(false)) {
+                                Utils.scheduleReSpawn(lc);
+                                lc.reactivateEffects();
+                            }
+                        }, 0L)
+                        , 5L);
+            }
+            logInfo("Plugin loaded");
+                }, countdown+1 * 20);
 	}
 	
 	
@@ -437,7 +436,7 @@ public class Main extends JavaPlugin {
 	  configFiles.setLang("copiedChest", "&6You copied the chest &b[Chest1] &6into the chest &b[Chest2]");
 
       if (configFiles.getLang().isSet("help.line1")) {
-          final List<String> tab = new ArrayList<String>();
+          final List<String> tab = new ArrayList<>();
           for (int i = 1; i <= 17; ++i) {
               if (configFiles.getLang().getString("help.line" + i) != null) {
                   tab.add(configFiles.getLang().getString("help.line" + i));

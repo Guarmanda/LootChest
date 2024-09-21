@@ -1,5 +1,11 @@
 package fr.black_eyes.lootchest.commands;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -9,15 +15,6 @@ import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Utils;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * Abstract class for implementing logic for a sub command
@@ -30,9 +27,6 @@ public abstract class SubCommand {
 	@Setter private boolean isPlayerRequired = false;
 	@Getter private List<ArgType> requiredArgs;
 	@Getter private List<ArgType> optionalArgs;
-	
-	Map<UUID, Runnable> executeCallbacks;
-	Set<UUID> asyncExecutes;
 
 	public SubCommand(String name) {
 		init(name, new ArrayList<>(), new ArrayList<>());
@@ -52,8 +46,6 @@ public abstract class SubCommand {
 		this.permission = "lootchest." + name;
 		aliases = new HashSet<>();
 		aliases.add(this.name);
-		asyncExecutes = new HashSet<>();
-		executeCallbacks = new HashMap<>();
 		this.optionalArgs = OptionnalArgs;
 	}
 

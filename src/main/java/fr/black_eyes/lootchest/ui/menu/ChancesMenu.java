@@ -79,6 +79,8 @@ public class ChancesMenu extends ChestUi {
 			case RIGHT:
 				chance -= 1;
 				break;
+			default:
+				return true;
 		}
 		//updates the item's chance and the item in the UI
 		chance = Math.max(1, Math.min(100, chance));

@@ -1,16 +1,15 @@
 package eu.decentholo.holograms.api.utils;
 
-import lombok.experimental.UtilityClass;
-
-
-
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class Common {
 
-    public static final String NAME_REGEX = "[a-zA-Z0-9_-]+";
+    // new regex that includes chinese characters
+    public static final String NAME_REGEX = "[a-zA-Z0-9_-\\u4e00-\\u9fa5]+";
 
     public static String PREFIX;
 

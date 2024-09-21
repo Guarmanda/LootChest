@@ -1,13 +1,12 @@
 package fr.black_eyes.lootchest.commands;
 
-import fr.black_eyes.lootchest.Constants;
-import fr.black_eyes.lootchest.Main;
-import fr.black_eyes.lootchest.Utils;
-import fr.black_eyes.lootchest.ui.UiHandler;
+import java.util.Arrays;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
+import fr.black_eyes.lootchest.Main;
+import fr.black_eyes.lootchest.ui.UiHandler;
 
 public class EditCommand extends SubCommand {
 	
