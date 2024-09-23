@@ -1,19 +1,5 @@
 package eu.decentholo.holograms.api.nms.versions;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import org.apache.commons.lang.Validate;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-import eu.decentholo.holograms.api.nms.NMS;
-import eu.decentholo.holograms.api.utils.reflect.ReflectConstructor;
-import eu.decentholo.holograms.api.utils.reflect.ReflectField;
-import eu.decentholo.holograms.api.utils.reflect.ReflectMethod;
-import eu.decentholo.holograms.api.utils.reflect.ReflectionUtil;
-import eu.decentholo.holograms.api.utils.reflect.Version;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,16 +9,38 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang.Validate;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
+import eu.decentholo.holograms.api.nms.NMS;
+import eu.decentholo.holograms.api.utils.reflect.ReflectConstructor;
+import eu.decentholo.holograms.api.utils.reflect.ReflectField;
+import eu.decentholo.holograms.api.utils.reflect.ReflectMethod;
+import eu.decentholo.holograms.api.utils.reflect.ReflectionUtil;
+import eu.decentholo.holograms.api.utils.reflect.Version;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 public class NMS_1_17 extends NMS {
 
     // UTILITY
     private static final Class<?> ENTITY_CLASS;
     private static final Class<?> ENTITY_ARMOR_STAND_CLASS;
+    private static final Class<?> ENTITY_ITEM_CLASS;
+    private static final Class<?> ENUM_ITEM_SLOT_CLASS;
     private static final Class<?> ENTITY_TYPES_CLASS;
     private static final Class<?> VEC_3D_CLASS;
     private static final ReflectField<?> ENTITY_TYPES_REGISTRY_FIELD;
     private static final ReflectMethod REGISTRY_BLOCKS_FROM_ID_METHOD;
+    private static final ReflectMethod ENUM_ITEM_SLOT_FROM_NAME_METHOD;
+    private static final ReflectMethod CRAFT_ITEM_NMS_COPY_METHOD;
     private static final ReflectMethod CRAFT_CHAT_MESSAGE_FROM_STRING_METHOD;
+    private static final ReflectMethod PAIR_OF_METHOD;
     // MATH HELPER
     private static final Class<?> MATH_HELPER_CLASS;
     private static final ReflectMethod MATH_HELPER_A_METHOD;
@@ -41,6 +49,7 @@ public class NMS_1_17 extends NMS {
     private static final ReflectConstructor PACKET_DATA_SERIALIZER_CONSTRUCTOR;
     private static final ReflectMethod PACKET_DATA_SERIALIZER_WRITE_INT_METHOD;
     private static final ReflectMethod PACKET_DATA_SERIALIZER_WRITE_UUID_METHOD;
+    private static final ReflectMethod PACKET_DATA_SERIALIZER_WRITE_INTS_METHOD;
     private static final ReflectMethod PACKET_DATA_SERIALIZER_WRITE_DOUBLE_METHOD;
     private static final ReflectMethod PACKET_DATA_SERIALIZER_WRITE_BYTE_METHOD;
     private static final ReflectMethod PACKET_DATA_SERIALIZER_WRITE_SHORT_METHOD;
@@ -49,7 +58,8 @@ public class NMS_1_17 extends NMS {
     private static final ReflectConstructor PACKET_SPAWN_ENTITY_CONSTRUCTOR;
     private static final ReflectConstructor PACKET_SPAWN_ENTITY_LIVING_CONSTRUCTOR;
     private static final ReflectConstructor PACKET_ENTITY_TELEPORT_CONSTRUCTOR;
-
+    private static final ReflectConstructor PACKET_MOUNT_CONSTRUCTOR;
+    private static final ReflectConstructor PACKET_ENTITY_EQUIPMENT_CONSTRUCTOR;
     private static final ReflectConstructor PACKET_ENTITY_DESTROY_CONSTRUCTOR;
     // DATA WATCHER OBJECT
     private static final Class<?> DWO_CLASS;
@@ -59,12 +69,16 @@ public class NMS_1_17 extends NMS {
     private static final Object DWO_CUSTOM_NAME_VISIBLE;
     private static final Object DWO_ENTITY_DATA;
     private static final Object DWO_ARMOR_STAND_DATA;
+    private static final Object DWO_ITEM;
     private static final ReflectConstructor DATA_WATCHER_ITEM_CONSTRUCTOR;
+    private static final ReflectConstructor VEC_3D_CONSTRUCTOR;
     // ENTITY TYPES
     private static final ReflectMethod ENTITY_TYPES_A_METHOD;
     private static final ReflectMethod ENTITY_TYPE_GET_KEY_METHOD;
     private static final ReflectMethod REGISTRY_BLOCKS_GET_ID_METHOD;
     private static final ReflectMethod NAMESPACED_KEY_GET_KEY_METHOD;
+    private static final ReflectMethod ENTITY_TYPES_GET_SIZE_METHOD;
+    private static final ReflectField<Float> ENTITY_SIZE_HEIGHT_FIELD;
 
     private static final ReflectField<AtomicInteger> ENTITY_COUNTER_FIELD;
     private static final Object VEC_3D_A;
@@ -76,11 +90,16 @@ public class NMS_1_17 extends NMS {
         // UTILITY
         ENTITY_CLASS = ReflectionUtil.getNMClass("world.entity.Entity");
         ENTITY_ARMOR_STAND_CLASS = ReflectionUtil.getNMClass("world.entity.decoration.EntityArmorStand");
+        ENTITY_ITEM_CLASS = ReflectionUtil.getNMClass("world.entity.item.EntityItem");
+        ENUM_ITEM_SLOT_CLASS = ReflectionUtil.getNMClass("world.entity.EnumItemSlot");
         ENTITY_TYPES_CLASS = ReflectionUtil.getNMClass("world.entity.EntityTypes");
         VEC_3D_CLASS = ReflectionUtil.getNMClass("world.phys.Vec3D");
+        CRAFT_ITEM_NMS_COPY_METHOD = new ReflectMethod(ReflectionUtil.getObcClass("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class);
         CRAFT_CHAT_MESSAGE_FROM_STRING_METHOD = new ReflectMethod(ReflectionUtil.getObcClass("util.CraftChatMessage"), "fromStringOrNull", String.class);
-       // DATA WATCHER
+        PAIR_OF_METHOD = new ReflectMethod(ReflectionUtil.getClass("com.mojang.datafixers.util.Pair"), "of", Object.class, Object.class);
+        // DATA WATCHER
         DATA_WATCHER_ITEM_CONSTRUCTOR = new ReflectConstructor(DWI_CLASS, DWO_CLASS, Object.class);
+        VEC_3D_CONSTRUCTOR = new ReflectConstructor(VEC_3D_CLASS, double.class, double.class, double.class);
         if (Version.afterOrEqual(18)) {
             if (Version.afterOrEqual(Version.v1_21_R1)) {
                 ENTITY_TYPES_REGISTRY_FIELD = new ReflectField<>(ReflectionUtil.getNMClass("core.registries.BuiltInRegistries"), "f");
@@ -96,9 +115,11 @@ public class NMS_1_17 extends NMS {
                 ENTITY_TYPES_REGISTRY_FIELD = new ReflectField<>(ReflectionUtil.getNMClass("core.IRegistry"), "Z");
             }
             REGISTRY_BLOCKS_FROM_ID_METHOD = new ReflectMethod(ReflectionUtil.getNMClass("core.RegistryBlocks"), "a", int.class);
+            ENUM_ITEM_SLOT_FROM_NAME_METHOD = new ReflectMethod(ENUM_ITEM_SLOT_CLASS, "a", String.class);
         } else {
             ENTITY_TYPES_REGISTRY_FIELD = new ReflectField<>(ReflectionUtil.getNMClass("core.IRegistry"), "Y");
             REGISTRY_BLOCKS_FROM_ID_METHOD = new ReflectMethod(ReflectionUtil.getNMClass("core.RegistryBlocks"), "fromId", int.class);
+            ENUM_ITEM_SLOT_FROM_NAME_METHOD = new ReflectMethod(ENUM_ITEM_SLOT_CLASS, "fromName", String.class);
         }
         // MATH HELPER
         MATH_HELPER_CLASS = ReflectionUtil.getNMClass("util.MathHelper");
@@ -112,6 +133,7 @@ public class NMS_1_17 extends NMS {
             PACKET_DATA_SERIALIZER_WRITE_INT_METHOD = new ReflectMethod(PACKET_DATA_SERIALIZER_CLASS, "d", int.class);
         }
         PACKET_DATA_SERIALIZER_WRITE_UUID_METHOD = new ReflectMethod(PACKET_DATA_SERIALIZER_CLASS, "a", UUID.class);
+        PACKET_DATA_SERIALIZER_WRITE_INTS_METHOD = new ReflectMethod(PACKET_DATA_SERIALIZER_CLASS, "a", int[].class);
         PACKET_DATA_SERIALIZER_WRITE_DOUBLE_METHOD = new ReflectMethod(PACKET_DATA_SERIALIZER_CLASS, "writeDouble", double.class);
         PACKET_DATA_SERIALIZER_WRITE_BYTE_METHOD = new ReflectMethod(PACKET_DATA_SERIALIZER_CLASS, "writeByte", int.class);
         PACKET_DATA_SERIALIZER_WRITE_SHORT_METHOD = new ReflectMethod(PACKET_DATA_SERIALIZER_CLASS, "writeShort", int.class);
@@ -129,6 +151,10 @@ public class NMS_1_17 extends NMS {
         }
         PACKET_ENTITY_TELEPORT_CONSTRUCTOR = new ReflectConstructor(ReflectionUtil.getNMClass("network.protocol.game.PacketPlayOutEntityTeleport"),
                 PACKET_DATA_SERIALIZER_CLASS);
+        PACKET_MOUNT_CONSTRUCTOR = new ReflectConstructor(ReflectionUtil.getNMClass("network.protocol.game.PacketPlayOutMount"),
+                PACKET_DATA_SERIALIZER_CLASS);
+        PACKET_ENTITY_EQUIPMENT_CONSTRUCTOR = new ReflectConstructor(ReflectionUtil.getNMClass("network.protocol.game.PacketPlayOutEntityEquipment"),
+                int.class, List.class);
         Class<?> packetEntityDestroyClass = ReflectionUtil.getNMClass("network.protocol.game.PacketPlayOutEntityDestroy");
         if (Version.CURRENT_MINECRAFT_VERSION.equals("1.17")) {
             // So it seems that ONLY "1.17" has this constructor.
@@ -183,7 +209,11 @@ public class NMS_1_17 extends NMS {
             DWO_CUSTOM_NAME_VISIBLE = new ReflectField<>(ENTITY_CLASS, "aK").getValue(null);
             DWO_ARMOR_STAND_DATA = new ReflectField<>(ENTITY_ARMOR_STAND_CLASS, "bG").getValue(null);
         }
-
+        if (Version.afterOrEqual(Version.v1_20_R4)) {
+            DWO_ITEM = new ReflectField<>(ENTITY_ITEM_CLASS, "d").getValue(null);
+        } else {
+            DWO_ITEM = new ReflectField<>(ENTITY_ITEM_CLASS, "c").getValue(null);
+        }
         // ENTITY TYPES
         ENTITY_TYPES_A_METHOD = new ReflectMethod(ENTITY_TYPES_CLASS, "a", String.class);
         ENTITY_TYPE_GET_KEY_METHOD = new ReflectMethod(EntityType.class, "getKey");
@@ -193,6 +223,8 @@ public class NMS_1_17 extends NMS {
             REGISTRY_BLOCKS_GET_ID_METHOD = new ReflectMethod(ReflectionUtil.getNMClass("core.Registry"), "getId", Object.class);
         }
         NAMESPACED_KEY_GET_KEY_METHOD = new ReflectMethod(ReflectionUtil.getClass("org.bukkit.NamespacedKey"), "getKey");
+        ENTITY_TYPES_GET_SIZE_METHOD = new ReflectMethod(ENTITY_TYPES_CLASS, Version.afterOrEqual(Version.v1_19_R2) ? "n" : "m");
+        ENTITY_SIZE_HEIGHT_FIELD = new ReflectField<>(ReflectionUtil.getNMClass("world.entity.EntitySize"), "b");
 
         if (Version.afterOrEqual(Version.v1_20_R4)) {
             ENTITY_COUNTER_FIELD = new ReflectField<>(ENTITY_CLASS, "c");
@@ -211,7 +243,7 @@ public class NMS_1_17 extends NMS {
         return ENTITY_COUNTER_FIELD.getValue(null).addAndGet(1);
     }
 
-
+    @Override
     public int getEntityTypeId(EntityType type) {
         if (type == null) return -1;
         Object namespacedKey = ENTITY_TYPE_GET_KEY_METHOD.invoke(type);
@@ -223,12 +255,35 @@ public class NMS_1_17 extends NMS {
         }).orElse(-1);
     }
 
-    //after or equal 1.19
+    @Override
+    public float getEntityHeight(EntityType type) {
+        if (type == null) return 0.0f;
+        Object namespacedKey = ENTITY_TYPE_GET_KEY_METHOD.invoke(type);
+        String key = NAMESPACED_KEY_GET_KEY_METHOD.invoke(namespacedKey);
+        Optional<?> entityTypes = ENTITY_TYPES_A_METHOD.invokeStatic(key.toLowerCase());
+        return entityTypes.map(entityType -> {
+            Object entitySize = ENTITY_TYPES_GET_SIZE_METHOD.invoke(entityType);
+            return ENTITY_SIZE_HEIGHT_FIELD.getValue(entitySize);
+        }).orElse(0.0f);
+    }
+
+    @Override
+    public void showFakeEntity(Player player, Location location, EntityType entityType, int entityId) {
+        Validate.notNull(player);
+        Validate.notNull(location);
+        Validate.notNull(entityType);
+
+        int entityTypeId = getEntityTypeId(entityType);
+        if (entityTypeId == -1) return;
+        showFakeEntity(player, location, entityTypeId, entityId);
+    }
+
     private void showFakeEntity(Player player, Location location, int entityTypeId, int entityId) {
         Validate.notNull(player);
         Validate.notNull(location);
 
         if (Version.afterOrEqual(19)) {
+            Bukkit.getLogger().info("Hologram created here " + location.getBlockY());
             sendPacket(player, PACKET_SPAWN_ENTITY_CONSTRUCTOR.newInstance(
                     entityId,
                     UUID.randomUUID(),
@@ -239,7 +294,7 @@ public class NMS_1_17 extends NMS {
                     location.getPitch(),
                     REGISTRY_BLOCKS_FROM_ID_METHOD.invoke(ENTITY_TYPES_REGISTRY_FIELD.getValue(null), entityTypeId),
                     0,
-                    VEC_3D_A,
+                    VEC_3D_CONSTRUCTOR.newInstance(6000.0,-5300.0,2000.0),
                     location.getYaw()
             ));
         } else {
@@ -259,7 +314,21 @@ public class NMS_1_17 extends NMS {
         teleportFakeEntity(player, location, entityId);
     }
 
-    //BEFORE 1.19
+    @Override
+    public void showFakeEntityLiving(Player player, Location location, EntityType entityType, int entityId) {
+        Validate.notNull(player);
+        Validate.notNull(location);
+        Validate.notNull(entityType);
+
+        int entityTypeId = getEntityTypeId(entityType);
+        if (entityTypeId == -1) return;
+        if (Version.afterOrEqual(19)) {
+            showFakeEntity(player, location, entityTypeId, entityId);
+        } else {
+            showFakeEntityLiving(player, location, entityTypeId, entityId);
+        }
+    }
+
     private void showFakeEntityLiving(Player player, Location location, int entityTypeId, int entityId) {
         Validate.notNull(player);
         Validate.notNull(location);
@@ -321,8 +390,13 @@ public class NMS_1_17 extends NMS {
             CODEC_CLASS = ReflectionUtil.getNMClass("network.codec.StreamCodec");
             DWS_GET_CODEC_METHOD = new ReflectMethod(DWS_CLASS, "codec");
             CODEC_ENCODE_METHOD = new ReflectMethod(CODEC_CLASS, "encode", Object.class, Object.class);
-            ITEM_REGISTRY = ReflectionUtil.getFieldValue(BUILTINREGISTRIES_CLASS, "h");
-            DATA_COMPONENT_TYPE_REGISTRY = ReflectionUtil.getFieldValue(BUILTINREGISTRIES_CLASS, "as");
+            if (Version.afterOrEqual(Version.v1_21_R1)) {
+                ITEM_REGISTRY = ReflectionUtil.getFieldValue(BUILTINREGISTRIES_CLASS, "g");
+                DATA_COMPONENT_TYPE_REGISTRY = ReflectionUtil.getFieldValue(BUILTINREGISTRIES_CLASS, "aq");
+            } else {
+                ITEM_REGISTRY = ReflectionUtil.getFieldValue(BUILTINREGISTRIES_CLASS, "h");
+                DATA_COMPONENT_TYPE_REGISTRY = ReflectionUtil.getFieldValue(BUILTINREGISTRIES_CLASS, "as");
+            }
 
             DWS_SERIALIZE_METHOD = null;
             PACKET_ENTITY_METADATA_CONSTRUCTOR = new ReflectConstructor(metadataPacketClass, REGISTRY_FRIENDLY_BYTE_BUF_CLASS);
@@ -389,14 +463,21 @@ public class NMS_1_17 extends NMS {
         List<Object> dataWatcherItems = new ArrayList<>();
         dataWatcherItems.add(DATA_WATCHER_ITEM_CONSTRUCTOR.newInstance(DWO_ENTITY_DATA, (byte) (invisible ? 0x20 : 0)));
         dataWatcherItems.add(DATA_WATCHER_ITEM_CONSTRUCTOR.newInstance(DWO_ARMOR_STAND_DATA, (byte) (0x08 | (small ? 0x01 : 0) | (clickable ? 0 : 0x10))));
-        int entityTypeId = getEntityTypeId(EntityType.ARMOR_STAND);
-        if (entityTypeId == -1) return;
-        if (Version.afterOrEqual(19)) {
-            showFakeEntity(player, location, entityTypeId, entityId);
-        } else {
-            showFakeEntityLiving(player, location, entityTypeId, entityId);
-        }
+        showFakeEntityLiving(player, location, EntityType.ARMOR_STAND, entityId);
         sendEntityMetadata(player, entityId, dataWatcherItems);
+    }
+
+    @Override
+    public void showFakeEntityItem(Player player, Location location, ItemStack itemStack, int entityId) {
+        Validate.notNull(player);
+        Validate.notNull(location);
+        Validate.notNull(itemStack);
+
+        List<Object> dataWatcherItems = new ArrayList<>();
+        dataWatcherItems.add(DATA_WATCHER_ITEM_CONSTRUCTOR.newInstance(DWO_ITEM, CRAFT_ITEM_NMS_COPY_METHOD.invokeStatic(itemStack)));
+        showFakeEntity(player, location, getEntityTypeId(EntityType.ITEM), entityId);
+        sendEntityMetadata(player, entityId, dataWatcherItems);
+        teleportFakeEntity(player, location, entityId);
     }
 
     @Override
@@ -410,6 +491,15 @@ public class NMS_1_17 extends NMS {
         sendEntityMetadata(player, entityId, dataWatcherItems);
     }
 
+    @Override
+    public void updateFakeEntityItem(Player player, ItemStack itemStack, int entityId) {
+        Validate.notNull(player);
+        Validate.notNull(itemStack);
+
+        List<Object> dataWatcherItems = new ArrayList<>();
+        dataWatcherItems.add(DATA_WATCHER_ITEM_CONSTRUCTOR.newInstance(DWO_ITEM, CRAFT_ITEM_NMS_COPY_METHOD.invokeStatic(itemStack)));
+        sendEntityMetadata(player, entityId, dataWatcherItems);
+    }
 
     @Override
     public void teleportFakeEntity(Player player, Location location, int entityId) {
@@ -427,7 +517,25 @@ public class NMS_1_17 extends NMS {
         sendPacket(player, PACKET_ENTITY_TELEPORT_CONSTRUCTOR.newInstance(packetDataSerializer));
     }
 
+    @Override
+    public void helmetFakeEntity(Player player, ItemStack itemStack, int entityId) {
+        Validate.notNull(player);
+        Validate.notNull(itemStack);
 
+        List<Object> items = new ArrayList<>();
+        items.add(PAIR_OF_METHOD.invokeStatic(ENUM_ITEM_SLOT_FROM_NAME_METHOD.invokeStatic("head"), CRAFT_ITEM_NMS_COPY_METHOD.invokeStatic(itemStack)));
+        sendPacket(player, PACKET_ENTITY_EQUIPMENT_CONSTRUCTOR.newInstance(entityId, items));
+    }
+
+    @SuppressWarnings("RedundantCast")
+    @Override
+    public void attachFakeEntity(Player player, int vehicleId, int entityId) {
+        Validate.notNull(player);
+        Object packetDataSerializer = PACKET_DATA_SERIALIZER_CONSTRUCTOR.newInstance(Unpooled.buffer());
+        PACKET_DATA_SERIALIZER_WRITE_INT_METHOD.invoke(packetDataSerializer, vehicleId);
+        PACKET_DATA_SERIALIZER_WRITE_INTS_METHOD.invoke(packetDataSerializer, (Object) new int[]{entityId});
+        sendPacket(player, PACKET_MOUNT_CONSTRUCTOR.newInstance(packetDataSerializer));
+    }
 
     @SuppressWarnings("RedundantCast")
     @Override

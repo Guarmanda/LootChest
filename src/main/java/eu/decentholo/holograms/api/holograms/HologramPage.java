@@ -19,7 +19,6 @@ public class HologramPage extends FlagHolder {
 
     private int index;
     private final Hologram parent;
-    private final List<Integer> clickableEntityIds = new ArrayList<>();
     private final List<HologramLine> lines = new ArrayList<>();
 
     /*
@@ -58,7 +57,7 @@ public class HologramPage extends FlagHolder {
         return height;
     }
 
-
+    
 
     /**
      * Get hologram size. (Number of lines)
@@ -138,7 +137,6 @@ public class HologramPage extends FlagHolder {
         HologramLine line = lines.remove(index);
         if (line != null) {
             line.destroy();
-            line.hide();
             realignLines();
         }
         return line;
@@ -168,8 +166,8 @@ public class HologramPage extends FlagHolder {
         return ImmutableList.copyOf(lines);
     }
 
- 
 
+ 
   
 
 }

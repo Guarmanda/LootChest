@@ -1,14 +1,13 @@
 package eu.decentholo.holograms.api.holograms;
 
-import eu.decentholo.holograms.api.DecentHolograms;
-
-
-import eu.decentholo.holograms.api.utils.scheduler.S;
-import eu.decentholo.holograms.api.utils.tick.Ticked;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+
+import eu.decentholo.holograms.api.DecentHolograms;
+import eu.decentholo.holograms.api.utils.scheduler.S;
+import eu.decentholo.holograms.api.utils.tick.Ticked;
 
 import java.util.Collection;
 import java.util.Map;
@@ -22,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class HologramManager extends Ticked {
 
-
     private final Map<String, Hologram> hologramMap = new ConcurrentHashMap<>();
     private final Map<UUID, Long> clickCooldowns = new ConcurrentHashMap<>();
     private final Set<HologramLine> temporaryLines = ConcurrentHashMap.newKeySet();
@@ -35,7 +33,7 @@ public class HologramManager extends Ticked {
      * as we can't load holograms, that don't have their world all loaded.
      * <p>
      * Key is the name of the world, and Value is a set of file names
-     * of all holograms, that couldn't be loaded due to this world problem.
+     * of all holograms that couldn't be loaded due to this world problem.
      *
      * @since 2.7.4
      */
@@ -50,10 +48,12 @@ public class HologramManager extends Ticked {
 
     @Override
     public synchronized void tick() {
+        updateVisibility();
+    }
+
+    private void updateVisibility() {
         for (Hologram hologram : Hologram.getCachedHolograms()) {
-            if (hologram.isEnabled()) {
-                updateVisibility(hologram);
-            }
+            updateVisibility(hologram);
         }
     }
 
@@ -108,8 +108,6 @@ public class HologramManager extends Ticked {
         return line;
     }
 
-   
-
     public void onQuit(@NonNull Player player) {
         Hologram.getCachedHolograms().forEach(hologram -> hologram.onQuit(player));
         clickCooldowns.remove(player.getUniqueId());
@@ -120,7 +118,9 @@ public class HologramManager extends Ticked {
      */
     public synchronized void reload() {
         this.destroy();
+        S.async(this::updateVisibility);
     }
+
 
     /**
      * Destroy this manager and all the holograms.

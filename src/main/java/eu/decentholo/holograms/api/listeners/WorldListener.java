@@ -12,7 +12,6 @@ import eu.decentholo.holograms.api.holograms.Hologram;
 import eu.decentholo.holograms.api.holograms.HologramManager;
 import eu.decentholo.holograms.api.utils.scheduler.S;
 
-
 public class WorldListener implements Listener {
 
     private final DecentHolograms decentHolograms;
@@ -38,7 +37,10 @@ public class WorldListener implements Listener {
         World world = event.getWorld();
 
         S.async(() -> {
-           
+            if (hologramManager.getToLoad().containsKey(world.getName())) {
+                hologramManager.getToLoad().get(world.getName()).forEach(fileName -> {
+                });
+            }
             hologramManager.getHolograms().stream()
                     .filter(hologram -> !hologram.isEnabled())
                     .filter(hologram -> hologram.getLocation().getWorld().equals(world))

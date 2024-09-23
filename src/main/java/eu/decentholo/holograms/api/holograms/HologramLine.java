@@ -1,5 +1,22 @@
 package eu.decentholo.holograms.api.holograms;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.google.common.util.concurrent.AtomicDouble;
 
 import eu.decentholo.holograms.api.DecentHolograms;
@@ -11,29 +28,16 @@ import eu.decentholo.holograms.api.holograms.objects.HologramObject;
 import eu.decentholo.holograms.api.nms.NMS;
 import eu.decentholo.holograms.api.utils.Common;
 import eu.decentholo.holograms.api.utils.PAPI;
-
+import eu.decentholo.holograms.api.utils.items.HologramItem;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 @Setter
 public class HologramLine extends HologramObject {
 
     protected static final DecentHolograms DECENT_HOLOGRAMS = DecentHologramsAPI.get();
-
 
 
     /*
@@ -51,7 +55,7 @@ public class HologramLine extends HologramObject {
     private double height;
     private String content;
     private String text;
-
+    private HologramItem item;
 
     private volatile boolean containsAnimations;
     private volatile boolean containsPlaceholders;
@@ -72,16 +76,81 @@ public class HologramLine extends HologramObject {
         this.parseContent();
     }
 
+    /*
+     *	General Methods
+     */
 
+    @Override
+    public String toString() {
+        return "DefaultHologramLine{" +
+                "content=" + content +
+                "} " + super.toString();
+    }
 
+    /**
+     * Set the content of the line.
+     * <p>
+     * This method also parses the content and updates the line.
+     * <p>
+     * NOTE: The new content can be null, but if it is, it will be
+     * replaced with an empty string. It is recommended to not use
+     * null as content.
+     *
+     * @param content The new content of the line.
+     */
+    public void setContent(@Nullable String content) {
+        this.content = content == null ? "" : content;
+        this.parseContent();
+        this.update();
+    }
+
+    /**
+     * Enable updating and showing to players automatically.
+     */
+    @Override
+    public void enable() {
+        super.enable();
+        this.show();
+    }
+
+    /**
+     * Disable updating and showing to players automatically.
+     */
+    @Override
+    public void disable() {
+        super.disable();
+        this.hide();
+    }
 
     /**
      * Parse the current content String.
      */
     public void parseContent() {
         HologramLineType prevType = type;
+        String contentU = content.toUpperCase(Locale.ROOT);
+        if (contentU.startsWith("#ICON:")) {
+            type = HologramLineType.ICON;
+            if (prevType != type) {
+                height = Settings.DEFAULT_HEIGHT_ICON;
+            }
+            item = new HologramItem(content.substring("#ICON:".length()));
 
-
+            containsPlaceholders = PAPI.containsPlaceholders(item.getContent());
+        } else if (contentU.startsWith("#SMALLHEAD:")) {
+            type = HologramLineType.SMALLHEAD;
+            if (prevType != type) {
+                height = Settings.DEFAULT_HEIGHT_SMALLHEAD;
+            }
+            item = new HologramItem(content.substring("#SMALLHEAD:".length()));
+            containsPlaceholders = PAPI.containsPlaceholders(item.getContent());
+        } else if (contentU.startsWith("#HEAD:")) {
+            type = HologramLineType.HEAD;
+            if (prevType != type) {
+                height = Settings.DEFAULT_HEIGHT_HEAD;
+            }
+            item = new HologramItem(content.substring("#HEAD:".length()));
+            containsPlaceholders = PAPI.containsPlaceholders(item.getContent());
+        } else {
             type = HologramLineType.TEXT;
             if (prevType != type) {
                 height = Settings.DEFAULT_HEIGHT_TEXT;
@@ -89,12 +158,41 @@ public class HologramLine extends HologramObject {
             text = parseCustomReplacements();
 
             containsPlaceholders = PAPI.containsPlaceholders(text);
-        
+        }
         setOffsetY(type.getOffsetY());
     }
 
+    @NonNull
+    public Map<String, Object> serializeToMap() {
+        final Map<String, Object> map = new LinkedHashMap<>();
+        map.put("content", content);
+        map.put("height", height);
+        if (!flags.isEmpty()) map.put("flags", flags.stream().map(EnumFlag::name).collect(Collectors.toList()));
+        if (permission != null && !permission.trim().isEmpty()) map.put("permission", permission);
+        if (getOffsetX() != 0.0d) map.put("offsetX", offsetX);
+        if (getOffsetZ() != 0.0d) map.put("offsetZ", offsetZ);
+        if (parent == null || getFacing() != parent.getParent().getFacing()) map.put("facing", facing);
+        return map;
+    }
 
-
+    /**
+     * Create a new instance of hologram line that's identical to this one.
+     *
+     * @param location Location of the clone.
+     * @return Cloned instance of this line.
+     */
+    @NonNull
+    public HologramLine clone(@Nullable HologramPage parent, @NonNull Location location) {
+        HologramLine line = new HologramLine(parent, location, this.getContent());
+        line.setHeight(this.getHeight());
+        line.setOffsetY(this.getOffsetY());
+        line.setOffsetX(this.getOffsetX());
+        line.setOffsetZ(this.getOffsetZ());
+        line.setFacing(this.getFacing());
+        line.setPermission(this.getPermission());
+        line.addFlags(this.getFlags().toArray(new EnumFlag[0]));
+        return line;
+    }
 
     /**
      * Get the type of this line.
@@ -132,7 +230,6 @@ public class HologramLine extends HologramObject {
 
         // Parse animations
         if (containsAnimations && !hasFlag(EnumFlag.DISABLE_ANIMATIONS)) {
-
             // Parse placeholders.
             if (Settings.ALLOW_PLACEHOLDERS_INSIDE_ANIMATIONS && !hasFlag(EnumFlag.DISABLE_PLACEHOLDERS)) {
                 // This has been done to allow the use of placeholders in animation frames.
@@ -185,7 +282,7 @@ public class HologramLine extends HologramObject {
         return content;
     }
 
- 
+
     /**
      * Update the visibility of this line for the given player. This method checks
      * if the player has the permission to see this line and if they are in the display
@@ -220,12 +317,27 @@ public class HologramLine extends HologramObject {
                 continue;
             }
             if (!isVisible(player) && isInDisplayRange(player)) {
-
+                switch (type) {
+                    case TEXT:
                         nms.showFakeEntityArmorStand(player, getLocation(), entityIds[0], true, true, false);
                         nms.updateFakeEntityCustomName(player, getText(player, true), entityIds[0]);
-                        
-
-                
+                        break;
+                    case HEAD:
+                    case SMALLHEAD:
+                        System.out.println("HEAD");
+                        nms.showFakeEntityArmorStand(player, getLocation(), entityIds[0], true, HologramLineType.HEAD != type, false);
+                        ItemStack itemStack = HologramItem.parseItemStack(item.getContent(), player);
+                        nms.helmetFakeEntity(player, itemStack, entityIds[0]);
+                        break;
+                    case ICON:
+                        nms.showFakeEntityArmorStand(player, getLocation(), entityIds[0], true, true, false);
+                        ItemStack itemStack1 = HologramItem.parseItemStack(item.getContent(), player);
+                        nms.showFakeEntityItem(player, getLocation(), itemStack1, entityIds[1]);
+                        nms.attachFakeEntity(player, entityIds[0], entityIds[1]);
+                        break;
+                    default:
+                        break;
+                }
                 viewers.add(player.getUniqueId());
             }
         }
@@ -252,7 +364,11 @@ public class HologramLine extends HologramObject {
                     lastTextMap.put(uuid, updatedText);
                     nms.updateFakeEntityCustomName(player, updatedText, entityIds[0]);
                 }
-            } 
+            } else if ((type == HologramLineType.HEAD || type == HologramLineType.SMALLHEAD) && (containsPlaceholders)) {
+                nms.helmetFakeEntity(player, HologramItem.parseItemStack(getItem().getContent(), player), entityIds[0]);
+            } else if (type == HologramLineType.ICON && (containsPlaceholders)) {
+                nms.updateFakeEntityItem(player, HologramItem.parseItemStack(getItem().getContent(), player), entityIds[1]);
+            }
         }
     }
 
@@ -285,7 +401,7 @@ public class HologramLine extends HologramObject {
         }
         List<Player> playerList = getPlayers(true, players);
         for (Player player : playerList) {
-            NMS.getInstance().teleportFakeEntity(player, getLocation(), entityIds[0]);
+                NMS.getInstance().teleportFakeEntity(player, getLocation(), entityIds[0]);
         }
     }
 
@@ -344,7 +460,4 @@ public class HologramLine extends HologramObject {
     public boolean hasFlag(@NonNull EnumFlag flag) {
         return super.hasFlag(flag) || (parent != null && parent.getParent().hasFlag(flag));
     }
-
-    
-
 }

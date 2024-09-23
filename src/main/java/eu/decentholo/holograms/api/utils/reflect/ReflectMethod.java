@@ -3,6 +3,7 @@ package eu.decentholo.holograms.api.utils.reflect;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import fr.black_eyes.lootchest.Main;
 
 public class ReflectMethod {
 
@@ -28,7 +29,7 @@ public class ReflectMethod {
 			}
 			method.setAccessible(true);
 		} catch (NoSuchMethodException e) {
-			//Log.error("Could not find method %s in class %s", name, clazz.getName());
+			Main.getInstance().getLogger().severe("Could not find method "+name+" in class "+clazz.getName());
 		}
 	}
 
@@ -40,7 +41,7 @@ public class ReflectMethod {
 		try {
 			object = method.invoke(instance, args);
 		} catch (IllegalAccessException | InvocationTargetException e) {
-			//Log.error("Could not invoke method %s in class %s", name, clazz.getName());
+			Main.getInstance().getLogger().severe("Could not invoke method "+name+" in class "+clazz.getName());
 		}
 		return object == null ? null : (T) object;
 	}
@@ -53,7 +54,7 @@ public class ReflectMethod {
 		try {
 			object = method.invoke(null, args);
 		} catch (IllegalAccessException | InvocationTargetException e) {
-			//Log.error("Could not invoke static method %s in class %s", name, clazz.getName());
+			Main.getInstance().getLogger().severe("Could not invoke static method "+name+" in class "+clazz.getName());
 		}
 		return object == null ? null : (T) object;
 	}

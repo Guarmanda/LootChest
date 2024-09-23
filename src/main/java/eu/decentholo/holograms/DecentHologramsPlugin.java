@@ -1,6 +1,5 @@
 package eu.decentholo.holograms;
 
-import org.bukkit.Particle;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import eu.decentholo.holograms.api.DecentHolograms;

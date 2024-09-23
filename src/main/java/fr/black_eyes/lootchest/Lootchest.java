@@ -537,7 +537,7 @@ public class Lootchest {
 		if(getFall()) {
 			int height = Main.configs.FALL_Height;
 			Location startLocation = new Location(spawnLoc.getWorld(), spawnLoc.getX()+0.5, spawnLoc.getY()+height, spawnLoc.getZ()+0.5);
-			new FallingPackageEntity(startLocation, chunk_was_loaded, spawnLoc);
+			new FallingPackageEntity(startLocation, chunk_was_loaded, spawnLoc, this);
 		}
 		createchest(newBlock, spawnLoc);
 		

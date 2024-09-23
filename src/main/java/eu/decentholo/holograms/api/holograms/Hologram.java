@@ -13,9 +13,9 @@ import org.jetbrains.annotations.Nullable;
 import eu.decentholo.holograms.api.DecentHolograms;
 import eu.decentholo.holograms.api.DecentHologramsAPI;
 import eu.decentholo.holograms.api.Settings;
+
 import eu.decentholo.holograms.api.holograms.enums.EnumFlag;
 import eu.decentholo.holograms.api.holograms.objects.UpdatingHologramObject;
-import eu.decentholo.holograms.api.nms.NMS;
 import eu.decentholo.holograms.api.utils.collection.DList;
 import eu.decentholo.holograms.api.utils.reflect.Version;
 import eu.decentholo.holograms.api.utils.scheduler.S;
@@ -105,17 +105,16 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
      */
     protected final Object visibilityMutex = new Object();
 
-    protected final @NonNull String name;
+    protected final String name;
     protected boolean saveToFile;
-
-    protected final @NonNull Map<UUID, Integer> viewerPages = new ConcurrentHashMap<>();
-    protected final @NonNull Set<UUID> hidePlayers = ConcurrentHashMap.newKeySet();
-    protected final @NonNull Set<UUID> showPlayers = ConcurrentHashMap.newKeySet();
+    protected final Map<UUID, Integer> viewerPages = new ConcurrentHashMap<>();
+    protected final Set<UUID> hidePlayers = ConcurrentHashMap.newKeySet();
+    protected final Set<UUID> showPlayers = ConcurrentHashMap.newKeySet();
     protected boolean defaultVisibleState = true;
-    protected final @NonNull DList<HologramPage> pages = new DList<>();
+    protected final DList<HologramPage> pages = new DList<>();
     protected boolean downOrigin = Settings.DEFAULT_DOWN_ORIGIN;
     protected boolean alwaysFacePlayer = false;
-    private final @NonNull AtomicInteger tickCounter;
+    private final AtomicInteger tickCounter;
 
     /*
      *	Constructors
@@ -201,7 +200,7 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
     }
 
     /**
-     * This method calls {@link #destroy()} before deleting the holograms file.
+     * This method calls {@link #destroy()} before deleting the hologram file.
      */
     @Override
     public void delete() {
@@ -286,7 +285,7 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
         return pages.size();
     }
 
-   
+
 
     /**
      * Handle the player quit event for this hologram. This method will hide the hologram
@@ -398,7 +397,7 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
                 return false;
             }
             HologramPage page = getPage(pageIndex);
-            if (page != null && page.size() > 0  && isInDisplayRange(player)) {
+            if (page != null && page.size() > 0 && isInDisplayRange(player)) {
                 // First hide the current page
                 HologramPage currentPage = getPage(player);
                 if (currentPage != null) {
@@ -423,7 +422,6 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
         // Add player to viewers
         viewerPages.put(player.getUniqueId(), pageIndex);
         viewers.add(player.getUniqueId());
-
     }
 
     public void showAll() {
@@ -465,7 +463,6 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
 
 
 
-
     public void hide(@NonNull Player player) {
         synchronized (visibilityMutex) {
             if (isVisible(player)) {
@@ -480,7 +477,7 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
 
     private void hidePageFrom(@NonNull Player player, @NonNull HologramPage page) {
         page.getLines().forEach(line -> line.hide(player));
-        hideClickableEntities(player);
+
     }
 
     public void hideAll() {
@@ -491,67 +488,39 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
         }
     }
 
- 
-
-
-    public void hideClickableEntities(@NonNull Player player) {
-        HologramPage page = getPage(player);
-        if (page == null) {
-            return;
-        }
-
-        // Despawn clickable entities
-        NMS nms = NMS.getInstance();
-        page.getClickableEntityIds().forEach(id -> nms.hideFakeEntities(player, id));
-    }
-
-    public void hideClickableEntitiesAll() {
-        if (isEnabled()) {
-            getViewerPlayers().forEach(this::hideClickableEntities);
-        }
-    }
-
 
 
 
     /**
-     * Check whether the given player is in display range of this hologram object.
+     * Check whether the given player is in the display range of this hologram object.
      *
      * @param player Given player.
-     * @return Boolean whether the given player is in display range of this hologram object.
+     * @return Boolean whether the given player is in the display range of this hologram object.
      */
     public boolean isInDisplayRange(@NonNull Player player) {
-        /*
-         * Some forks (e.g., Pufferfish) throw an exception, when we try to get
-         * the world of a location, which is not loaded. We catch this exception
-         * and return false, because the player is not in range.
-         */
-        try {
-            if (player.getWorld().equals(location.getWorld())) {
-                return player.getLocation().distanceSquared(location) <= displayRange * displayRange;
-            }
-        } catch (Exception ignored) {
-            // Ignored
-        }
-        return false;
+        return isInRange(player, displayRange);
     }
 
     /**
-     * Check whether the given player is in update range of this hologram object.
+     * Check whether the given player is in the update range of this hologram object.
      *
      * @param player Given player.
-     * @return Boolean whether the given player is in update range of this hologram object.
+     * @return Boolean whether the given player is in the update range of this hologram object.
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isInUpdateRange(@NonNull Player player) {
+        return isInRange(player, updateRange);
+    }
+
+    private boolean isInRange(@NonNull Player player, double range) {
         /*
          * Some forks (e.g., Pufferfish) throw an exception, when we try to get
-         * the world of a location, which is not loaded. We catch this exception
-         * and return false, because the player is not in range.
+         * the world of a location, which is not loaded.
+         * We catch this exception and return false, because the player is not in range.
          */
         try {
             if (player.getWorld().equals(location.getWorld())) {
-                return player.getLocation().distanceSquared(location) <= updateRange * updateRange;
+                return player.getLocation().distanceSquared(location) <= range * range;
             }
         } catch (Exception ignored) {
             // Ignored
@@ -583,7 +552,7 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
      */
 
     /**
-     * Re-Align the lines in this hologram putting them to the right place.
+     * Re-Align the lines in this hologram, putting them to the right place.
      * <p>
      * This method is good to use after teleporting the hologram.
      * </p>

@@ -1,22 +1,17 @@
 package fr.black_eyes.lootchest.falleffect;
 
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.FireworkMeta;
-
-
-
 import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.DyeColor;
-import org.bukkit.FireworkEffect;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Firework;
-import org.bukkit.util.Vector;
-import fr.black_eyes.lootchest.Main;
-import org.bukkit.Material;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
+
+import eu.decentholo.holograms.api.DHAPI;
+import eu.decentholo.holograms.api.holograms.Hologram;
+import fr.black_eyes.lootchest.Lootchest;
+import fr.black_eyes.lootchest.Main;
 
 public class FallingPackageEntity extends PackageEntity {
 
@@ -31,8 +26,10 @@ public class FallingPackageEntity extends PackageEntity {
     Location target;
     Double speed;
     Boolean fireworks;
+    String chestName;
     
-    public FallingPackageEntity(final Location loc, Boolean loaded,Location target) {
+    public FallingPackageEntity(final Location loc, Boolean loaded,Location target, Lootchest chest) {
+        chestName = chest.getName();
     	Main main = Main.getInstance();
     	this.fireworks = Main.configs.FALL_Enable_Fireworks;
     	this.target = target;
@@ -68,7 +65,16 @@ public class FallingPackageEntity extends PackageEntity {
 				
 			}
 			if(loaded || letAlive) {
-				this.blocky = this.world.spawnEntity(startLoc, org.bukkit.entity.EntityType.ARMOR_STAND);
+                Hologram exists = DHAPI.getHologram(chestName+"fall_effect");
+                if(exists != null) {
+                    exists.delete();
+                }
+                Hologram holo = DHAPI.createHologram(chestName+"fall_effect", startLoc);
+                DHAPI.addHologramLine(holo, "#HEAD: " + Main.configs.FALL_Block);
+ 
+                //new LootChestHologram(chestName, "#HEAD: " + Main.configs.FALL_Block, startLoc, -1, -1);
+                //Bukkit.getLogger().info("Hologram created");
+				/*this.blocky = this.world.spawnEntity(startLoc, org.bukkit.entity.EntityType.ARMOR_STAND);
 	
 	
 				((org.bukkit.entity.ArmorStand) blocky).setVisible(false); //Makes the ArmorStand invisible
@@ -79,7 +85,7 @@ public class FallingPackageEntity extends PackageEntity {
 				 	}
 			 	}
 			 	((org.bukkit.entity.ArmorStand) blocky).setBasePlate(false);
-			 	((org.bukkit.entity.ArmorStand) blocky).setGravity(true);
+			 	((org.bukkit.entity.ArmorStand) blocky).setGravity(true);*/
 			}
 		}
 		if(loaded) {
@@ -89,8 +95,9 @@ public class FallingPackageEntity extends PackageEntity {
 			this.tick();
 		}
     }
-    
+    /* 
 	public Location goodLocation() {
+        if(this.blocky == null) return null;
 		Location loc = ((Entity) this.blocky).getLocation();
 		if(!armorstand) return loc;
 		else {
@@ -98,10 +105,13 @@ public class FallingPackageEntity extends PackageEntity {
 			loc2.setY(loc.getY()+3);
 			return loc2;
 		}
-	}
+	}*/
 	
 	@SuppressWarnings("deprecation")
 	public void tick() {
+        if (this.blocky == null) {
+            return;
+        }
 		Vector v = ((Entity) blocky).getVelocity();
 		v.setY(-(speed));
 		((Entity) blocky).setVelocity(v);
@@ -111,11 +121,12 @@ public class FallingPackageEntity extends PackageEntity {
         }
 		else if (this.world.getBlockAt(LocationUtils.offset(((Entity) this.blocky).getLocation(), 0.0, -1.0, 0.0)).getType() == Material.AIR) {
             ++this.counter;
+            /* 
             if(Main.getVersion() >= 206)
                 Main.getInstance().getParticles().get("SMOKE").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation(), (float)50.0);
             else
 			    Main.getInstance().getParticles().get("SMOKE_NORMAL").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation(), (float)50.0);
-			
+			*/
             if (((Entity) this.blocky).isDead()) {
                 final Location oldLoc = ((Entity) this.blocky).getLocation();
                 final Vector oldVelocity = ((Entity) this.blocky).getVelocity();
@@ -156,7 +167,7 @@ public class FallingPackageEntity extends PackageEntity {
     
     private void summonUpdateFireworks() {
 
-            final Firework fw; 
+            /*final Firework fw; 
             if(Main.getVersion()<206) {
                 fw = (Firework)this.world.spawnEntity(goodLocation(), EntityType.valueOf("FIREWORK"));
             }else {
@@ -172,10 +183,10 @@ public class FallingPackageEntity extends PackageEntity {
                     fw.detonate();
                 }
             }, 1L);
-        //}
+        //}*/
     }
     
-    private void summonSpawnFireworks() {
+    private void summonSpawnFireworks() {/* 
             final Firework fw; 
             if(Main.getVersion()<206) {
                 fw = (Firework)this.world.spawnEntity(goodLocation(), EntityType.valueOf("FIREWORK"));
@@ -193,7 +204,7 @@ public class FallingPackageEntity extends PackageEntity {
                     fw.detonate();
                 }
             }, 1L);
-        //}
+        //}*/
     }
     
     private Location applyOffset(final Location loc) {
