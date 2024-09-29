@@ -390,7 +390,7 @@ public class NMS_1_17 extends NMS {
         dataWatcherItems.add(DATA_WATCHER_ITEM_CONSTRUCTOR.newInstance(DWO_ENTITY_DATA, (byte) (invisible ? 0x20 : 0)));
         dataWatcherItems.add(DATA_WATCHER_ITEM_CONSTRUCTOR.newInstance(DWO_ARMOR_STAND_DATA, (byte) (0x08 | (small ? 0x01 : 0) | (clickable ? 0 : 0x10))));
         int entityTypeId = getEntityTypeId(EntityType.ARMOR_STAND);
-        if (entityTypeId == -1) return;
+        if (entityTypeId == -1) return; 
         if (Version.afterOrEqual(19)) {
             showFakeEntity(player, location, entityTypeId, entityId);
         } else {
