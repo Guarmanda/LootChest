@@ -71,7 +71,7 @@
                         </goals>
                         <id>remap-spigot</id>
                         <configuration>
-                            <inputFile>${project.basedir}/requirements/NMS/1.21.1/spigot-1.21.1-R0.1-SNAPSHOT-remapped-obf.jar</inputFile>
+                            <inputFile>C:/Users/Admin/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT/spigot-1.21.1-R0.1-SNAPSHOT-remapped-obf.jar</inputFile>
                             <srgIn>org.spigotmc:minecraft-server:1.21.1-R0.1-SNAPSHOT:csrg:maps-spigot</srgIn>
                             <remappedDependencies>org.spigotmc:spigot:1.21.1-R0.1-SNAPSHOT:jar:remapped-obf</remappedDependencies>
                         </configuration>
