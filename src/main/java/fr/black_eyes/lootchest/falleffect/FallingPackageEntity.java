@@ -14,6 +14,8 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.util.Vector;
 import fr.black_eyes.lootchest.Main;
+import fr.black_eyes.lootchest.falleffect.packetFall.Fall_1_21_1;
+
 import org.bukkit.Material;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -68,10 +70,11 @@ public class FallingPackageEntity extends PackageEntity {
 				
 			}
 			if(loaded || letAlive) {
-				this.blocky = this.world.spawnEntity(startLoc, org.bukkit.entity.EntityType.ARMOR_STAND);
+
+				//this.blocky = this.world.spawnEntity(startLoc, org.bukkit.entity.EntityType.ARMOR_STAND);
+                
 	
-	
-				((org.bukkit.entity.ArmorStand) blocky).setVisible(false); //Makes the ArmorStand invisible
+				/*((org.bukkit.entity.ArmorStand) blocky).setVisible(false); //Makes the ArmorStand invisible
 			 	((org.bukkit.entity.ArmorStand) blocky).setHelmet(new ItemStack(this.material, 1));
 		        if (Main.getVersion()<13) {
 				 	if(material.equals(Material.valueOf("WOOL"))) {
@@ -79,29 +82,31 @@ public class FallingPackageEntity extends PackageEntity {
 				 	}
 			 	}
 			 	((org.bukkit.entity.ArmorStand) blocky).setBasePlate(false);
-			 	((org.bukkit.entity.ArmorStand) blocky).setGravity(true);
+			 	((org.bukkit.entity.ArmorStand) blocky).setGravity(true);*/
+                this.blocky = new Fall_1_21_1(startLoc, this.material, startLoc.getWorld().getHighestBlockYAt(startLoc), speed);
+                ((Fall_1_21_1)blocky).sendPacketToAll();
 			}
 		}
 		if(loaded) {
 			if(fireworks) {
 				this.summonSpawnFireworks();
 			}
-			this.tick();
+			//this.tick();
 		}
     }
     
 	public Location goodLocation() {
-		Location loc = ((Entity) this.blocky).getLocation();
-		if(!armorstand) return loc;
+		if(!armorstand) return ((Entity) this.blocky).getLocation();
 		else {
-			Location loc2 = loc.clone();
-			loc2.setY(loc.getY()+3);
+			Location loc2 = ((Fall_1_21_1) this.blocky).getLocation().clone();
+			loc2.setY(loc2.getY()+3);
 			return loc2;
 		}
 	}
 	
 	@SuppressWarnings("deprecation")
 	public void tick() {
+
 		Vector v = ((Entity) blocky).getVelocity();
 		v.setY(-(speed));
 		((Entity) blocky).setVelocity(v);
@@ -122,12 +127,12 @@ public class FallingPackageEntity extends PackageEntity {
         		if(!this.armorstand) {
         			((Entity) (this.blocky = this.world.spawnFallingBlock(oldLoc, this.material, (byte)0))).setVelocity(oldVelocity);
         		}else {
-        			this.blocky = this.world.spawnEntity(oldLoc, org.bukkit.entity.EntityType.ARMOR_STAND);
+        			/*this.blocky = this.world.spawnEntity(oldLoc, org.bukkit.entity.EntityType.ARMOR_STAND);
 
         			((org.bukkit.entity.ArmorStand) blocky).setVisible(false); //Makes the ArmorStand invisible
         		 	((org.bukkit.entity.ArmorStand) blocky).setGravity(true);
         		 	((org.bukkit.entity.ArmorStand) blocky).setHelmet(new ItemStack(this.material, 1));
-        		 	((Entity) blocky).setVelocity(oldVelocity);
+        		 	((Entity) blocky).setVelocity(oldVelocity);*/
         		}
                 
             }
