@@ -661,24 +661,7 @@ public class Lootchest {
 			return;
 		}
 		getHologram().setLoc(loc);
-		if(Main.getVersion()>7 && getFall() && Main.configs.FALL_Let_Block_Above_Chest_After_Fall){
-			Location arm = loc.clone();
-			arm.add(0.5, 2, 0.5);
-			Material mat = Material.valueOf(Main.configs.FALL_Block);
-			Entity ent = loc.getWorld().spawnEntity(arm, org.bukkit.entity.EntityType.ARMOR_STAND);
-			
-			
-			((org.bukkit.entity.ArmorStand) ent).setVisible(false); //Makes the ArmorStand invisible
-		 	((org.bukkit.entity.ArmorStand) ent).setHelmet(new ItemStack(mat, 1));
-	        if (Main.getVersion()<13) {
-			 	if(mat.equals(Material.valueOf("WOOL"))) {
-			 		((org.bukkit.entity.ArmorStand) ent).setHelmet(new ItemStack(mat, 1, DyeColor.valueOf(Main.configs.FALL_Optionnal_Color_If_Block_Is_Wool).getDyeData()));
-			 	}
-		 	}
-		 	((org.bukkit.entity.ArmorStand) ent).setBasePlate(false);
-		 	((org.bukkit.entity.ArmorStand) ent).setGravity(true);
-			
-		}
+		
 		final Location loc2 = getParticleLocation();
 		for(Particle part : Main.getInstance().getSupportedParticles()) {
 			if(getParticle() != null && (""+part).contains(getParticle().name())) {

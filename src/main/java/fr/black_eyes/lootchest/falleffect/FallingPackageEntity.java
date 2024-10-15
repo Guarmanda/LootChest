@@ -1,13 +1,11 @@
 package fr.black_eyes.lootchest.falleffect;
 
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 
 
 
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
-import org.bukkit.DyeColor;
 import org.bukkit.FireworkEffect;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -28,22 +26,23 @@ public class FallingPackageEntity extends PackageEntity {
     Material material;
     Object blocky;
     Boolean armorstand;
-    Boolean letAlive;
     Boolean loaded;
     Location target;
     Double speed;
     Boolean fireworks;
+    Integer height;
+    Fall_1_21_1 armorstandFall;
     
     public FallingPackageEntity(final Location loc, Boolean loaded,Location target) {
     	Main main = Main.getInstance();
     	this.fireworks = Main.configs.FALL_Enable_Fireworks;
     	this.target = target;
     	this.loaded = loaded;
-    	this.letAlive = Main.configs.FALL_Let_Block_Above_Chest_After_Fall;
-
+        this.height = Main.configs.FALL_Height;
     	this.armorstand = main.getUseArmorStands();
         this.blocky = null;
-        this.startLoc = this.applyOffset(loc);
+        this.armorstandFall = null;
+        this.startLoc = loc.clone();
         this.world = loc.getWorld();
         this.material = Material.valueOf(Main.configs.FALL_Block);
         this.speed = Main.configs.FALL_Speed;
@@ -60,45 +59,24 @@ public class FallingPackageEntity extends PackageEntity {
 		if(!this.armorstand) {
 			this.blocky = this.world.spawnFallingBlock(startLoc, this.material, (byte)0);
 		}else {
-			if(!loaded && letAlive) {
-				
-				startLoc.setY(startLoc.getWorld().getHighestBlockYAt(startLoc)+2);
-				//getHighestBlockAt function was changed in 1.15
-				if (Main.getVersion()>14) {
-					startLoc.setY(startLoc.getWorld().getHighestBlockYAt(startLoc)+3);
-				}
-				
-			}
-			if(loaded || letAlive) {
-
-				//this.blocky = this.world.spawnEntity(startLoc, org.bukkit.entity.EntityType.ARMOR_STAND);
-                
-	
-				/*((org.bukkit.entity.ArmorStand) blocky).setVisible(false); //Makes the ArmorStand invisible
-			 	((org.bukkit.entity.ArmorStand) blocky).setHelmet(new ItemStack(this.material, 1));
-		        if (Main.getVersion()<13) {
-				 	if(material.equals(Material.valueOf("WOOL"))) {
-				 		((org.bukkit.entity.ArmorStand) blocky).setHelmet(new ItemStack(this.material, 1, DyeColor.valueOf(Main.configs.FALL_Optionnal_Color_If_Block_Is_Wool).getDyeData()));
-				 	}
-			 	}
-			 	((org.bukkit.entity.ArmorStand) blocky).setBasePlate(false);
-			 	((org.bukkit.entity.ArmorStand) blocky).setGravity(true);*/
-                this.blocky = new Fall_1_21_1(startLoc, this.material, startLoc.getWorld().getHighestBlockYAt(startLoc), speed);
-                ((Fall_1_21_1)blocky).sendPacketToAll();
+			if(loaded) {
+                this.armorstandFall = new Fall_1_21_1(startLoc, this.material, height, speed);
+                armorstandFall.sendPacketToAll();
+                //this.blocky = this.world.spawnFallingBlock(startLoc, this.material, (byte)0);
 			}
 		}
 		if(loaded) {
 			if(fireworks) {
 				this.summonSpawnFireworks();
 			}
-			//this.tick();
+			this.tick();
 		}
     }
     
 	public Location goodLocation() {
-		if(!armorstand) return ((Entity) this.blocky).getLocation();
+		if(!armorstand) return ((Entity) this.blocky).getLocation().clone();
 		else {
-			Location loc2 = ((Fall_1_21_1) this.blocky).getLocation().clone();
+			Location loc2 = armorstandFall.getLocation().clone();
 			loc2.setY(loc2.getY()+3);
 			return loc2;
 		}
@@ -106,41 +84,31 @@ public class FallingPackageEntity extends PackageEntity {
 	
 	@SuppressWarnings("deprecation")
 	public void tick() {
-
-		Vector v = ((Entity) blocky).getVelocity();
-		v.setY(-(speed));
-		((Entity) blocky).setVelocity(v);
-		
-		if((((Entity) this.blocky).getLocation().getY() - target.getY()) <2) {
-			if(!this.armorstand || this.armorstand && !this.letAlive) this.remove();
+        if(blocky!=null){
+            Vector v = ((Entity) blocky).getVelocity();
+            v.setY(-(speed));
+            ((Entity) blocky).setVelocity(v);
         }
-		else if (this.world.getBlockAt(LocationUtils.offset(((Entity) this.blocky).getLocation(), 0.0, -1.0, 0.0)).getType() == Material.AIR) {
+        Location locPackage = (!this.armorstand)? ((Entity) this.blocky).getLocation() : armorstandFall.getLocation();
+        
+		if (this.world.getBlockAt(LocationUtils.offset(locPackage, 0.0, -1.0, 0.0)).getType() == Material.AIR) {
             ++this.counter;
             if(Main.getVersion() >= 206)
                 Main.getInstance().getParticles().get("SMOKE").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation(), (float)50.0);
             else
 			    Main.getInstance().getParticles().get("SMOKE_NORMAL").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation(), (float)50.0);
-			
-            if (((Entity) this.blocky).isDead()) {
-                final Location oldLoc = ((Entity) this.blocky).getLocation();
-                final Vector oldVelocity = ((Entity) this.blocky).getVelocity();
-        		if(!this.armorstand) {
-        			((Entity) (this.blocky = this.world.spawnFallingBlock(oldLoc, this.material, (byte)0))).setVelocity(oldVelocity);
-        		}else {
-        			/*this.blocky = this.world.spawnEntity(oldLoc, org.bukkit.entity.EntityType.ARMOR_STAND);
-
-        			((org.bukkit.entity.ArmorStand) blocky).setVisible(false); //Makes the ArmorStand invisible
-        		 	((org.bukkit.entity.ArmorStand) blocky).setGravity(true);
-        		 	((org.bukkit.entity.ArmorStand) blocky).setHelmet(new ItemStack(this.material, 1));
-        		 	((Entity) blocky).setVelocity(oldVelocity);*/
-        		}
-                
+            if(!this.armorstand) {
+                if (((Entity) this.blocky).isDead()) {
+                    final Location oldLoc = locPackage;
+                    final Vector oldVelocity = ((Entity) this.blocky).getVelocity().setY(-(speed));
+                    ((Entity) (this.blocky = this.world.spawnFallingBlock(oldLoc, this.material, (byte)0))).setVelocity(oldVelocity);
+                }
             }
-            if (this.counter % 5 == 0 && (   (((Entity) this.blocky).getLocation().getY() - target.getY()) >3 || counter > 100) && fireworks ) {
+            if (this.counter % 5 == 0 && (   (locPackage.getY() - target.getY()) >3 || counter > 100) && fireworks ) {
                 this.summonUpdateFireworks();
             }
-            if((((Entity) this.blocky).getLocation().getY() - target.getY()) <1) {
-            	if(!this.armorstand || this.armorstand && !this.letAlive) this.remove();
+            if((locPackage.getY() - target.getY()) <1) {
+            	this.remove();
             }
             else if(counter < 100){
             	this.retick();
@@ -155,8 +123,9 @@ public class FallingPackageEntity extends PackageEntity {
     
     @Override
     public void remove() {
-        ((Entity) this.blocky).remove();
-
+        if(!this.armorstand) {
+        	((Entity) this.blocky).remove();
+        }
     }
     
     private void summonUpdateFireworks() {
@@ -201,7 +170,5 @@ public class FallingPackageEntity extends PackageEntity {
         //}
     }
     
-    private Location applyOffset(final Location loc) {
-    	return loc;
-    }
+
 }

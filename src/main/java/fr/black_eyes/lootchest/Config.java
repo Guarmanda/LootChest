@@ -34,7 +34,6 @@ Prevent_Chest_Spawn_In_Protected_Places,
 RemoveChestAfterFirstOpenning,
 PreventHopperPlacingUnderLootChest,
 Protect_From_Explosions,
-FALL_Let_Block_Above_Chest_After_Fall,
 FALL_Enabled,
 FALL_Enable_Fireworks,
 PART_enable,
@@ -123,7 +122,6 @@ public Config(FileConfiguration config) {
 	Prevent_Chest_Spawn_In_Protected_Places = config.getBoolean("Prevent_Chest_Spawn_In_Protected_Places");
 	RemoveChestAfterFirstOpenning = config.getBoolean("RemoveChestAfterFirstOpenning");
 	PreventHopperPlacingUnderLootChest = config.getBoolean("PreventHopperPlacingUnderLootChest");
-	FALL_Let_Block_Above_Chest_After_Fall = config.getBoolean("Fall_Effect.Let_Block_Above_Chest_After_Fall");
 	FALL_Enabled = config.getBoolean("Fall_Effect.Enabled");
 	FALL_Enable_Fireworks = config.getBoolean("Fall_Effect.Enable_Fireworks");
 	PART_enable = config.getBoolean("Particles.enable");

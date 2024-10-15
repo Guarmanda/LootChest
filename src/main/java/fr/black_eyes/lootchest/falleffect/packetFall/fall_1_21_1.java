@@ -12,14 +12,11 @@ import java.util.stream.StreamSupport;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-
-import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.mojang.datafixers.util.Pair;
 
 import fr.black_eyes.lootchest.Main;
-import lombok.Getter;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -42,17 +39,28 @@ public class Fall_1_21_1 {
     private final net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket dataPacket;
     private final ClientboundSetEquipmentPacket equipmentPacket;
     private final ArmorStand armorstand;
-    @Getter private final Location location;
+    private final Location startLocation;
     private final int height;
     private final double speed;
     private long counter;
+    private final short SPEED_ONE_BLOCK_PER_SECOND = 410; // speed found after like 10 tests corresponding to one block fall per second
+    private final long COUNTER_ONE_BLOCK = 10; // after 10*2 ticks at speed 410, the armorstand falls one block
+    private final short SPEED_MULTIPLYER = 31; 
+
+    public Location getLocation() {
+        Location loc = startLocation.clone();
+
+        loc.setY(loc.getY() - (height-((counter /(COUNTER_ONE_BLOCK/(this.speed*SPEED_MULTIPLYER)))-3))   );
+        System.out.println("y = " + loc.getY());
+        return loc;
+    }
 
 
     public Fall_1_21_1(Location loc, Material headItem, int height, double speed) {
         this.speed = speed;
-        this.height = height;
-        this.location = loc;
-        this.counter = (long) ((height / speed)*3);
+        this.height = Main.configs.FALL_Height;
+        this.startLocation = loc;
+        @SuppressWarnings("deprecation")
         MinecraftServer server = MinecraftServer.getServer();
         
         // stream all levels and filter the one that matches the world name
@@ -84,27 +92,40 @@ public class Fall_1_21_1 {
 
     //send to all players
     public void sendPacketToAll() {
+        @SuppressWarnings("deprecation")
         MinecraftServer server = MinecraftServer.getServer();
         Stream<ServerPlayer> players = StreamSupport.stream(server.getPlayerList().getPlayers().spliterator(), false);
         players.forEach(p -> {
+            // check distance between player and armorstand
+            if (p.distanceTo(armorstand) > 100) {
+                return;
+            }
             p.connection.send(spawnPacket);
             p.connection.send(dataPacket);
             p.connection.send(equipmentPacket);
             
-            short y = (short)(speed *6000);
+
+            short new_speed = (short)(this.speed*SPEED_MULTIPLYER*SPEED_ONE_BLOCK_PER_SECOND); // the plugin had a default speed of 0.8 wich was quite fast, but it was never meaningful, 0.8 was like 5 blocks per seconds.
+            // divide the counter by the speed multiplyer to get the number of ticks the armorstand will need to fall to get the fall ticks of one block for the new speed, then multiply it by the total height to fall
+            counter = (int)((COUNTER_ONE_BLOCK/(this.speed*SPEED_MULTIPLYER))*(height+3));
+            // I added 3 to height, else packet is removed too fast
             new BukkitRunnable() {
+                    @Override
 					public void run() {
                         ClientboundMoveEntityPacket motionPacket = new ClientboundMoveEntityPacket.Pos(
                             armorstand.getId(),
                             (short) (0),  // Multiply by 4096 for correct movement scaling
-                            (short) (-y), // Adjust Y for gravity/fall (lower Y for falling)
+                            (short) (-new_speed), // Adjust Y for gravity/fall (lower Y for falling)
                             (short) (0),
                             true  // Yaw
                         ); 
                         p.connection.send(motionPacket);
+                        // print the location of the armorstand
+                        
                         counter--;
                         if(counter <= 0){
                             cancel();
+                            removePacketToAll();
                         }
 					}
                     
@@ -112,19 +133,15 @@ public class Fall_1_21_1 {
         });
     }
 
-    public void removePacket(Player p) {
-
-      
-    }
 
     public void removePacketToAll() {
-       
+        @SuppressWarnings("deprecation")
+        MinecraftServer server = MinecraftServer.getServer();
+        Stream<ServerPlayer> players = StreamSupport.stream(server.getPlayerList().getPlayers().spliterator(), false);
+        players.forEach(p -> {
+            p.connection.send(new ClientboundRemoveEntitiesPacket(armorstand.getId()));
+        });
     }
-    //send packet with MOJANG nms
-    public void sendPacket(org.bukkit.entity.Player p) {
-        
-    }
-
 
 
      // Convert Bukkit Material to Mojang NMS ItemStack using reflection
@@ -135,7 +152,6 @@ public class Fall_1_21_1 {
             Item nmsItem = (Item) itemField.get(null);  // Get the static field's value
             return new ItemStack(nmsItem);  // Create an NMS ItemStack
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();  // Handle errors (e.g., if the Material doesn't exist in Items)
             return ItemStack.EMPTY;  // Return an empty item if reflection fails
         }
     }

@@ -42,7 +42,6 @@ import fr.black_eyes.lootchest.listeners.DeleteListener;
 import fr.black_eyes.lootchest.listeners.UiListener;
 import fr.black_eyes.lootchest.particles.Particle;
 import fr.black_eyes.lootchest.ui.UiHandler;
-import fr.black_eyes.simpleJavaPlugin.Files;
 import fr.black_eyes.simpleJavaPlugin.SimpleJavaPlugin;
 import fr.black_eyes.simpleJavaPlugin.Updater;
 import fr.black_eyes.simpleJavaPlugin.Utils;
@@ -377,6 +376,8 @@ public class Main extends SimpleJavaPlugin {
       configFiles.setConfig("Prevent_Chest_Spawn_In_Protected_Places", false);
       configFiles.setConfig("WorldBorder_Check_For_Spawn", true);
 	  configFiles.setConfig("EnableLootin", false);
+	  //deletion of now unsuported feature
+	  configFiles.getConfig().set("Fall_Effect.Let_Block_Above_Chest_After_Fall", null);
 	  configFiles.setLang("CantBreakBlockBecauseProtected", "&cYou have to wait [Time] seconds to loot that chest!");
 	  configFiles.setLang("editedProtectionTime", "&aYou edited the protection time of chest [Chest]");
       configFiles.setLang("Menu.main.disable_fall", "&aFall effect is enabled. Click to &cDISABLE &ait");
@@ -415,7 +416,6 @@ public class Main extends SimpleJavaPlugin {
               e.printStackTrace();
           }
       }
-      configFiles.setConfig("Fall_Effect.Let_Block_Above_Chest_After_Fall", false);
       configFiles.setConfig("Fall_Effect.Optionnal_Color_If_Block_Is_Wool", "CYAN");
       configFiles.setConfig("Fall_Effect.Block",  configFiles.getConfig().getString("Fall_Effect_Block"));
       configFiles.setConfig("Fall_Effect.Height",  configFiles.getConfig().getInt("Fall_Effect_Height"));
@@ -485,22 +485,7 @@ public class Main extends SimpleJavaPlugin {
     	configFiles.saveLang();        	
       }
     	
-      if(configFiles.getConfig().isSet("Optionnal_Color_If_ArmorStand_Head_Is_Wool")) {
-      	configFiles.getConfig().set("Fall_Effect.Optionnal_Color_If_Block_Is_Wool",configFiles.getConfig().getString("Optionnal_Color_If_ArmorStand_Head_Is_Wool") );
-      	configFiles.getConfig().set("Optionnal_Color_If_ArmorStand_Head_Is_Wool", null);
-      	configFiles.getConfig().set("Fall_Effect.Block", configFiles.getConfig().getString("Armor_Stand_Head_Item"));
-      	configFiles.getConfig().set("Armor_Stand_Head_Item", null);
-      	configFiles.getConfig().set("Use_ArmorStand_Instead_Of_Block", null);
-      	configFiles.getConfig().set("Fall_Effect.Let_Block_Above_Chest_After_Fall", configFiles.getConfig().getBoolean("Let_ArmorStand_On_Chest_After_Fall"));
-      	configFiles.getConfig().set("Let_ArmorStand_On_Chest_After_Fall", null);
-      	configFiles.saveConfig();
-      }
-      if(configFiles.getConfig().isSet("Fall_Effect_Height")){
-      	configFiles.getConfig().set("Fall_Effect_Height", null);
-      	configFiles.getConfig().set("Fall_Effect_Block", null);
-      	configFiles.getConfig().set("Enable_fall_effect", null);
-      	configFiles.saveConfig();
-      }
+
       if(!configFiles.getConfig().isSet("Timer_on_hologram.Show_Timer_On_Hologram")) {
     	  boolean timeholo = configFiles.getConfig().getBoolean("Show_Timer_On_Hologram");
     	  configFiles.getConfig().set("Show_Timer_On_Hologram", null);
@@ -536,6 +521,7 @@ public class Main extends SimpleJavaPlugin {
         	configFiles.getLang().set("Menu.time.name", "&1Respawn Time");
       }
       configFiles.saveLang();
+	  configFiles.saveConfig();
       
   }
 	
