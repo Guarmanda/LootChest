@@ -1,9 +1,7 @@
 package fr.black_eyes.lootchest.falleffect;
 
 import org.bukkit.inventory.meta.FireworkMeta;
-
-
-
+import org.bukkit.plugin.Plugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -18,7 +16,7 @@ import org.bukkit.Material;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-public class FallingPackageEntity extends PackageEntity {
+public class FallingPackageEntity {
 
 
     World world;
@@ -26,18 +24,17 @@ public class FallingPackageEntity extends PackageEntity {
     Material material;
     Object blocky;
     Boolean armorstand;
-    Boolean loaded;
     Location target;
     Double speed;
     Boolean fireworks;
     Integer height;
     Fall_1_21_1 armorstandFall;
+    private int counter = 0;
     
     public FallingPackageEntity(final Location loc, Boolean loaded,Location target) {
     	Main main = Main.getInstance();
     	this.fireworks = Main.configs.FALL_Enable_Fireworks;
     	this.target = target;
-    	this.loaded = loaded;
         this.height = Main.configs.FALL_Height;
     	this.armorstand = main.getUseArmorStands();
         this.blocky = null;
@@ -49,28 +46,23 @@ public class FallingPackageEntity extends PackageEntity {
         if (Bukkit.getVersion().contains("1.7")) {
         	this.armorstand = false;
         }
-        this.summon();
+        if(loaded)
+            this.summon();
     }
     
 
 	@SuppressWarnings("deprecation")
-	@Override
     public void summon() {
 		if(!this.armorstand) {
 			this.blocky = this.world.spawnFallingBlock(startLoc, this.material, (byte)0);
-		}else {
-			if(loaded) {
-                this.armorstandFall = new Fall_1_21_1(startLoc, this.material, height, speed);
-                armorstandFall.sendPacketToAll();
-                //this.blocky = this.world.spawnFallingBlock(startLoc, this.material, (byte)0);
-			}
+		}else {	
+            this.armorstandFall = new Fall_1_21_1(startLoc, this.material, height, speed);
+            armorstandFall.sendPacketToAll();
 		}
-		if(loaded) {
-			if(fireworks) {
-				this.summonSpawnFireworks();
-			}
-			this.tick();
-		}
+        if(fireworks) {
+            this.summonSpawnFireworks();
+        }
+        this.tick();
     }
     
 	public Location goodLocation() {
@@ -121,7 +113,6 @@ public class FallingPackageEntity extends PackageEntity {
         }
     }
     
-    @Override
     public void remove() {
         if(!this.armorstand) {
         	((Entity) this.blocky).remove();
@@ -168,6 +159,15 @@ public class FallingPackageEntity extends PackageEntity {
                 }
             }, 1L);
         //}
+    }
+
+    protected void retick() {
+    	Main.getInstance().getServer().getScheduler().runTaskLater((Plugin)Main.getInstance(), new Runnable() {
+            @Override
+            public void run() {
+                tick();
+            }
+        }, 1L);
     }
     
 

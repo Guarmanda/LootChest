@@ -23,7 +23,7 @@ import org.bukkit.inventory.ItemStack;
 
 @SuppressWarnings("deprecation")
 public class LootChestUtils  {
-	private Files configFiles;
+	private final Files configFiles;
 
 	public LootChestUtils() {
 		configFiles = Main.getInstance().getConfigFiles();
@@ -52,11 +52,6 @@ public class LootChestUtils  {
 		chest2.setRadius(chest1.getRadius());
 		chest2.spawn(true);
 	}
-	
-
-	
-	//cr�er le coffe et enregistrer les infos
-	//chest creation and registering
 
 	
 	/**
@@ -78,6 +73,12 @@ public class LootChestUtils  {
 		return globalLoc;
 	}
 
+	/**
+	 * Choose a random location around a starting location that respects certain parameters
+	 * @param startingLoc the starting location
+	 * @param radius the radius
+	 * @return a random location around the starting location
+	 */
 	public static Location chooseRandomLocation(Location startingLoc, int radius){
 		int counter = 0;
 		boolean checkProtectedBlock = Main.configs.Prevent_Chest_Spawn_In_Protected_Places;
@@ -94,6 +95,11 @@ public class LootChestUtils  {
 		}else return spawnLoc;
 	}
 	
+	/**
+	 * Schedule a chest to respawn
+	 * Do several checks to verify that a chest should respawn or not
+	 * @param lc
+	 */
 	public static void scheduleReSpawn(Lootchest lc) {
 		long tempsActuel = (new Timestamp(System.currentTimeMillis())).getTime();
 		long minutes = lc.getTime();
@@ -126,7 +132,14 @@ public class LootChestUtils  {
 		lc.getRespawnTask().runTaskLater(Main.getInstance(), time_to_wait*20);
     }
 	
-	//to fill a chest or give chest to player
+	/**
+	 * Fill an inventory with items from a lootchest or to give a lootchest to a player
+	 * If player inv is full, drops the items on the ground
+	 * @param lc the Lootchest
+	 * @param inv the Inventory
+	 * @param clear boolean to say if the inventory should be cleared before filling
+	 * @param p the Player to give the lootchest to, if null, the lootchest is put in the inventory
+	 */
     public static void fillInventory(Lootchest lc, final Inventory inv, final boolean clear, final Player p) {
         if (clear) {
             inv.clear();
@@ -169,7 +182,12 @@ public class LootChestUtils  {
 	
 	
 
-
+	/**
+	 * Get the name of a menu from the config file
+	 * @param name
+	 * @param replacement
+	 * @return
+	 */
 	public static String getMenuName(String name, String replacement) {
 		String menuName = Utils.getMsg("Menu."+name+".name", "[Chest]", replacement);
 		//cut it to 32 chars max 
@@ -179,15 +197,31 @@ public class LootChestUtils  {
 		return menuName;
 	}
 	
-	//gives a random number from -max to max
+	/**
+	 * Get a random integer between 0 and max
+	 * @param max
+	 * @return a random integer between 0 and max
+	 */
 	private static int randomInt(int max) {
 		return ThreadLocalRandom.current().nextInt(0-max, max+1);
 	}
 
+	/**
+	 * Get a random integer between min and max
+	 * @param min 
+	 * @param max
+	 * @return a random integer between min and max
+	 */
 	public static int randomInt(int min, int max) {
 		return ThreadLocalRandom.current().nextInt(min, max+1);
 	}
 	
+	/**
+	 * Get a random location around a location with a radius
+	 * @param startLocation the location to start from
+	 * @param radius the radius
+	 * @return a random Location around the startLocation
+	 */
 	public static Location getRandomLocation(Location startLocation, int radius) {
 		Location center = startLocation.clone();
 		center.setX(randomInt(radius)+center.getX());
@@ -230,7 +264,11 @@ public class LootChestUtils  {
         return yaw;
     }
 	
-	//check for empty inventory
+	/**
+	 * Check if an inventory is empty
+	 * @param inv the inventory to check
+	 * @return true if the inventory is empty
+	 */
 	public static boolean isEmpty(Inventory inv) {
 	     for (ItemStack item : inv.getContents() ) {
 	       if ( item != null ) {
@@ -240,7 +278,11 @@ public class LootChestUtils  {
 	     return true;
 	}
 
-	//check if a chest is a lootchest by looking all lootchests locations
+	/**
+	 * Check if a location is a lootchest by checking if it's in the lootchest location list
+	 * @param loc the location to check
+	 * @return the Lootchest object if it's a lootchest, null otherwise
+	 */
 	public static Lootchest isLootChest(Location loc) {
 		for(Lootchest keys : Main.getInstance().getLootChest().values()) {
 			Location loc2 = keys.getActualLocation();
@@ -252,9 +294,9 @@ public class LootChestUtils  {
 	}
 
 	/**
-	 * world checker with 'good practice' dev
+	 * Check if a world name is loaded
 	 * @param world
-	 * @return
+	 * @return true if the world is loaded
 	 */
 	public static boolean isWorldLoaded(String world){
 		for(World w : Bukkit.getWorlds()){
@@ -266,7 +308,7 @@ public class LootChestUtils  {
 	}
 
 	/**
-	 * Broadcast function for 1.7-1.19 compatibility
+	 * Broadcast function for 1.7+ compatibility
 	 * @param message
 	 */
 	public static void broadcast(String message) {
@@ -280,7 +322,11 @@ public class LootChestUtils  {
 
 	}
 	
-	//getting chest position from config.getData().yml
+	/**
+	 * Get the position of a chest from the data.yml file
+	 * @param name the name of the chest
+	 * @return the Location of the chest
+	 */
 	public  Location getPosition(String name) {
 		if (configFiles.getData().getString("chests." + name + ".position.world") == null) {
 			Utils.logInfo("&cThe plugin couldn't get the world of chest &6" + name +"&c. This won't prevent the plugin to work, but the plugin may throw other errors because of that.");
@@ -295,7 +341,11 @@ public class LootChestUtils  {
 		return new Location(world, x, y, z, pitch, yaw);
 	}
 	
-	//setting chest position in config.getData().yml
+	/**
+	 * Set the position of a chest in the data.yml file
+	 * @param name the name of the chest
+	 * @param loc the location
+	 */
 	public  void setPosition(String name, Location loc) {
 		configFiles.getData().set("chests." + name + ".position.world", loc.getWorld().getName());
 		configFiles.getData().set("chests." + name + ".position.x", loc.getX());
@@ -305,7 +355,12 @@ public class LootChestUtils  {
 		configFiles.getData().set("chests." + name + ".position.yaw", loc.getYaw());
 	}
 	
-	public  void setRandomPosition(String name, Location loc) {
+	/**
+	 * Set the actual random position of a chest in the data.yml file
+	 * @param name the name of the chest 
+	 * @param loc the location
+	 */
+	public void setRandomPosition(String name, Location loc) {
 		try {
 		String world = loc.getWorld().getName();
 		configFiles.getData().set("chests." + name + ".randomPosition.world", world);
@@ -319,6 +374,9 @@ public class LootChestUtils  {
 		}
 	}
 	
+	/**
+	 * Save all chests in the data.yml file, saves the data.yml file
+	 */
 	public static void saveAllChests() {
 		for(Lootchest lc : Main.getInstance().getLootChest().values()) {
 			lc.saveInConfig();
@@ -327,8 +385,14 @@ public class LootChestUtils  {
 	}
 	
 
-	
-	public  Location getRandomPosition(String name) {
+	/**
+	 * Get the actual random position of a chest from the data.yml file
+	 * (actual random location means the chest has random position enabled, 
+	 * and we want to get its last spawn location, where it should actually be)
+	 * @param name the name of the chest
+	 * @return the actual random Location of the chest
+	 */
+	public Location getRandomPosition(String name) {
 		if(!configFiles.getData().isSet("chests." + name + ".randomPosition.x")) {
 			return null;
 		}
@@ -341,7 +405,11 @@ public class LootChestUtils  {
 		return new Location(world, x, y, z, pitch, yaw);
 	}
 
-	
+	/**
+	 * Get the number of players online by adding all players from all worlds
+	 * This method is compatible with any version
+	 * @return an int of the number of Player(s) online
+	 */
 	public static int getPlayerCount() {
 		int players = 0;
 		for(World w : Bukkit.getWorlds())
@@ -361,6 +429,12 @@ public class LootChestUtils  {
 		return players;
 	}
 	
+	/**
+	 * Get the number of players around a location
+	 * @param loc the location
+	 * @param radius the radius
+	 * @return an int of the number of Player(s) around the location
+	 */
 	public static int numberOfPlayersAroundLocation(Location loc, int radius) {
 		int cpt = 0;
 		for (Player players : loc.getWorld().getPlayers()) 
@@ -369,7 +443,12 @@ public class LootChestUtils  {
         return cpt;    
 	}
 
-	
+	/**
+	 * Get all players around a location
+	 * @param loc the location
+	 * @param radius the radius
+	 * @return a List of all Player(s) around the location
+	 */
 	public static List<Player> getPlayersAroundLocation(Location loc, int radius) {
 		List<Player> list = new ArrayList<>();
 		for (Player players : loc.getWorld().getPlayers()) 

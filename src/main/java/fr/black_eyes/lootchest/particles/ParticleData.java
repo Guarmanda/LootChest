@@ -2,7 +2,6 @@ package fr.black_eyes.lootchest.particles;
 
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 

@@ -38,6 +38,7 @@ public class Fall_1_21_1 {
     private final ClientboundAddEntityPacket spawnPacket;
     private final net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket dataPacket;
     private final ClientboundSetEquipmentPacket equipmentPacket;
+    private final ClientboundMoveEntityPacket motionPacket;
     private final ArmorStand armorstand;
     private final Location startLocation;
     private final int height;
@@ -47,15 +48,31 @@ public class Fall_1_21_1 {
     private final long COUNTER_ONE_BLOCK = 10; // after 10*2 ticks at speed 410, the armorstand falls one block
     private final short SPEED_MULTIPLYER = 31; 
 
+    /**
+     * Get the actual location of the armorstand
+     * Getting it with the entity class won't work because I move the armorstand, but only client sees it moving,
+     * so I need to get the location from the start location and the counter
+     * @return Location of the armorstand
+     */
     public Location getLocation() {
         Location loc = startLocation.clone();
-
         loc.setY(loc.getY() - (height-((counter /(COUNTER_ONE_BLOCK/(this.speed*SPEED_MULTIPLYER)))-3))   );
-        System.out.println("y = " + loc.getY());
         return loc;
     }
 
-
+    /**
+     * Creates four packets to make an armorstand fall from the sky
+     * The armorstand will have a head made of the headItem material
+     * The armorstand will fall from its spawn location to {height} blocks below
+     * One packet for the spawn of the armorstand
+     * One packet for the equipment of the armorstand
+     * One packet for the movement of the armorstand
+     * One packet for its datas (invisible, etc)
+     * @param loc The location where the armorstand will spawn
+     * @param headItem The material used for the head of the armorstand, the main reason for all of this
+     * @param height The height of the fall, in blocks
+     * @param speed The speed of the fall, does not have a clear meaning
+     */
     public Fall_1_21_1(Location loc, Material headItem, int height, double speed) {
         this.speed = speed;
         this.height = Main.configs.FALL_Height;
@@ -88,9 +105,23 @@ public class Fall_1_21_1 {
                 new Vec3(0, 0, 0),                                   // Velocity (none in this case)
                 0.0);                                              // Head pitch
         dataPacket = new ClientboundSetEntityDataPacket(stand.getId(), stand.getEntityData().getNonDefaultValues());
+        short new_speed = (short)(this.speed*SPEED_MULTIPLYER*SPEED_ONE_BLOCK_PER_SECOND); // the plugin had a default speed of 0.8 wich was quite fast, but it was never meaningful, 0.8 was like 5 blocks per seconds.
+        // divide the counter by the speed multiplyer to get the number of ticks the armorstand will need to fall to get the fall ticks of one block for the new speed, then multiply it by the total height to fall
+        counter = (int)((COUNTER_ONE_BLOCK/(this.speed*SPEED_MULTIPLYER))*(height+3));
+        // I added 3 to height, else packet is removed too fast
+        motionPacket = new ClientboundMoveEntityPacket.Pos(
+                        armorstand.getId(),
+                        (short) (0),  // Multiply by 4096 for correct movement scaling
+                        (short) (-new_speed), // Adjust Y for gravity/fall (lower Y for falling)
+                        (short) (0),
+                        true  // Yaw
+                    ); 
     }
 
-    //send to all players
+    /**
+     * Sends the four packets to all players that are in a 100 blocks radius of the armorstand
+     * An entity can't have gravity with packets, so we will manually move it to the ground, ticks after ticks
+     */
     public void sendPacketToAll() {
         @SuppressWarnings("deprecation")
         MinecraftServer server = MinecraftServer.getServer();
@@ -103,25 +134,10 @@ public class Fall_1_21_1 {
             p.connection.send(spawnPacket);
             p.connection.send(dataPacket);
             p.connection.send(equipmentPacket);
-            
-
-            short new_speed = (short)(this.speed*SPEED_MULTIPLYER*SPEED_ONE_BLOCK_PER_SECOND); // the plugin had a default speed of 0.8 wich was quite fast, but it was never meaningful, 0.8 was like 5 blocks per seconds.
-            // divide the counter by the speed multiplyer to get the number of ticks the armorstand will need to fall to get the fall ticks of one block for the new speed, then multiply it by the total height to fall
-            counter = (int)((COUNTER_ONE_BLOCK/(this.speed*SPEED_MULTIPLYER))*(height+3));
-            // I added 3 to height, else packet is removed too fast
             new BukkitRunnable() {
                     @Override
 					public void run() {
-                        ClientboundMoveEntityPacket motionPacket = new ClientboundMoveEntityPacket.Pos(
-                            armorstand.getId(),
-                            (short) (0),  // Multiply by 4096 for correct movement scaling
-                            (short) (-new_speed), // Adjust Y for gravity/fall (lower Y for falling)
-                            (short) (0),
-                            true  // Yaw
-                        ); 
                         p.connection.send(motionPacket);
-                        // print the location of the armorstand
-                        
                         counter--;
                         if(counter <= 0){
                             cancel();
@@ -133,7 +149,9 @@ public class Fall_1_21_1 {
         });
     }
 
-
+    /**
+     * Removes the armorstand from all players
+     */
     public void removePacketToAll() {
         @SuppressWarnings("deprecation")
         MinecraftServer server = MinecraftServer.getServer();
@@ -144,7 +162,9 @@ public class Fall_1_21_1 {
     }
 
 
-     // Convert Bukkit Material to Mojang NMS ItemStack using reflection
+     /**
+      * Get an NMS ItemStack from a Bukkit Material
+      */
      private ItemStack getNmsItemStackFromMaterial(Material material) {
         try {
             // Get the field in the Items class corresponding to the material name
