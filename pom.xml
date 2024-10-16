@@ -1,16 +1,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>fr.black_eyes.lootchest</groupId>
-    <artifactId>${project.name}</artifactId>
+    <artifactId>LootChest</artifactId>
     <version>2.4.6</version>
     <name>LootChest</name>
     <description>Create higly customizable lootboxes for your minecraft server</description>
-    <packaging>jar</packaging>
+
     <properties>
         <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
-
-        <maven.compiler.release>19</maven.compiler.release>
+        <maven.compiler.release>8</maven.compiler.release>
     </properties>
+
     <build>
         <finalName>${project.name}</finalName>
         <resources>
@@ -80,7 +80,7 @@
             </plugin>
         </plugins>
     </build>
-    <repositories>
+   <repositories>
         <repository>
             <id>enginehub-maven</id>
             <url>https://maven.enginehub.org/repo/</url>
@@ -134,7 +134,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.21.1-R0.1-SNAPSHOT</version>
+            <version>1.17.1-R0.1-SNAPSHOT</version>
             <classifier>remapped-mojang</classifier>
             <scope>provided</scope>
         </dependency>

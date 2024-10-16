@@ -1,22 +1,29 @@
-package fr.black_eyes.lootchest.falleffect.packetFall;
+package fr.black_eyes.lootchest.falleffect;
 
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
+import java.lang.reflect.Constructor;
+
+import org.bukkit.Location;
+import org.bukkit.Material;
+
+import fr.black_eyes.lootchest.Main;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.mojang.datafixers.util.Pair;
 
-import fr.black_eyes.lootchest.Main;
+import fr.black_eyes.simpleJavaPlugin.Utils;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -27,16 +34,17 @@ import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /**
- 
-Cette classe est destinée à faire apparaître et tomber un support d?armure avec un coffre dessus avec des paquets*/
-public class Fall_1_21_1 {
-
-    private final ClientboundAddEntityPacket spawnPacket;
-    private final net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket dataPacket;
+ * 1.17+ class to make an invisible armorstand fall from the sky with packets and a block on its head
+ */
+public class FallPacket {
+    private ClientboundAddEntityPacket spawnPacket;
+    private net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket dataPacket;
     private final ClientboundSetEquipmentPacket equipmentPacket;
     private final ClientboundMoveEntityPacket motionPacket;
     private final ArmorStand armorstand;
@@ -47,6 +55,7 @@ public class Fall_1_21_1 {
     private final short SPEED_ONE_BLOCK_PER_SECOND = 410; // speed found after like 10 tests corresponding to one block fall per second
     private final long COUNTER_ONE_BLOCK = 10; // after 10*2 ticks at speed 410, the armorstand falls one block
     private final short SPEED_MULTIPLYER = 31; 
+    private final JavaPlugin instance;
 
     /**
      * Get the actual location of the armorstand
@@ -73,9 +82,10 @@ public class Fall_1_21_1 {
      * @param height The height of the fall, in blocks
      * @param speed The speed of the fall, does not have a clear meaning
      */
-    public Fall_1_21_1(Location loc, Material headItem, int height, double speed) {
+    public FallPacket(Location loc, Material headItem, int height, double speed) {
+        this.instance = Main.getInstance();
         this.speed = speed;
-        this.height = Main.configs.FALL_Height;
+        this.height = height;
         this.startLocation = loc;
         @SuppressWarnings("deprecation")
         MinecraftServer server = MinecraftServer.getServer();
@@ -94,17 +104,64 @@ public class Fall_1_21_1 {
 
         equipmentPacket = new ClientboundSetEquipmentPacket(stand.getId(), equipmentList);
         
-        //int,UUID,double,double,double,float,float,EntityType<?>,int,Vec3,double
-        spawnPacket = new ClientboundAddEntityPacket(
+        // for the two next packets, there was changes between versions so we need reflection
+        if(Main.getCompleteVersion() > 1182)
+            try {
+                Constructor<ClientboundAddEntityPacket> constructor = ClientboundAddEntityPacket.class.getConstructor(
+                    int.class,        // Entity ID
+                    UUID.class,       // Unique ID
+                    double.class,     // Position X
+                    double.class,     // Position Y
+                    double.class,     // Position Z
+                    float.class,      // Rotation Yaw
+                    float.class,      // Rotation Pitch
+                    EntityType.class, // Entity type
+                    int.class,        // Motion (use 0 for no velocity)
+                    Vec3.class,        // Velocity
+                    Double.class     // Head pitch?
+                );
+                spawnPacket = constructor.newInstance(
+                        stand.getId(), 
+                        UUID.randomUUID(), 
+                        loc.getX(), loc.getY(), loc.getZ(), 
+                        loc.getYaw(), loc.getPitch(), 
+                        stand.getType(), 
+                        0, 
+                        new Vec3(0, 0, 0),
+                        0.0
+                );  
+            } catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
+                Utils.logInfo("Error while creating the spawn packet for the armorstand");
+                e.printStackTrace();
+            }                                         // Head pitch
+        else{
+            spawnPacket = new ClientboundAddEntityPacket(
                 stand.getId(),                                  // Entity ID
                 UUID.randomUUID(),                                  // Unique ID
                 loc.getX(), loc.getY(), loc.getZ(),                  // Position (X, Y, Z)
                 loc.getYaw(), loc.getPitch(),                        // Rotation (Yaw, Pitch)
                 stand.getType(),                               // Entity type (ArmorStand)
                 0,                                                  // No specific motion (use 0 for no velocity)
-                new Vec3(0, 0, 0),                                   // Velocity (none in this case)
-                0.0);                                              // Head pitch
-        dataPacket = new ClientboundSetEntityDataPacket(stand.getId(), stand.getEntityData().getNonDefaultValues());
+                new Vec3(0, 0, 0)                                   // Velocity (none in this case)
+                );   
+        }
+        if(Main.getCompleteVersion() > 1192)
+            // we will need reflection to get the entity data like this:
+            try {
+                //dataPacket = new ClientboundSetEntityDataPacket(stand.getId(), stand.getEntityData().getNonDefaultValues());
+                Constructor<ClientboundSetEntityDataPacket> constructor = ClientboundSetEntityDataPacket.class.getConstructor(int.class, List.class);
+                // the getNonDefaultValues method doesn't exist in this version, we need reflection to execute it
+                Method getNonDefaultValues = SynchedEntityData.class.getMethod("getNonDefaultValues");
+                //dataPacket = constructor.newInstance(stand.getId(), stand.getEntityData().getNonDefaultValues(), true);
+                dataPacket = constructor.newInstance(stand.getId(), getNonDefaultValues.invoke(stand.getEntityData()));
+            } catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
+                Utils.logInfo("Error while creating the data packet for the armorstand");
+                e.printStackTrace();
+            }
+            
+        else {
+            dataPacket = new ClientboundSetEntityDataPacket(stand.getId(), stand.getEntityData(), true);
+        }
         short new_speed = (short)(this.speed*SPEED_MULTIPLYER*SPEED_ONE_BLOCK_PER_SECOND); // the plugin had a default speed of 0.8 wich was quite fast, but it was never meaningful, 0.8 was like 5 blocks per seconds.
         // divide the counter by the speed multiplyer to get the number of ticks the armorstand will need to fall to get the fall ticks of one block for the new speed, then multiply it by the total height to fall
         counter = (int)((COUNTER_ONE_BLOCK/(this.speed*SPEED_MULTIPLYER))*(height+3));
@@ -145,7 +202,7 @@ public class Fall_1_21_1 {
                         }
 					}
                     
-				}.runTaskTimer(Main.getInstance(), 0, 2L);
+				}.runTaskTimer(instance, 0, 2L);
         });
     }
 
@@ -175,6 +232,4 @@ public class Fall_1_21_1 {
             return ItemStack.EMPTY;  // Return an empty item if reflection fails
         }
     }
-
-
 }

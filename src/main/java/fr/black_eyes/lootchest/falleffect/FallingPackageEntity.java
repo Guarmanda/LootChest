@@ -10,7 +10,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.util.Vector;
 import fr.black_eyes.lootchest.Main;
-import fr.black_eyes.lootchest.falleffect.packetFall.Fall_1_21_1;
 
 import org.bukkit.Material;
 import org.bukkit.Location;
@@ -28,7 +27,7 @@ public class FallingPackageEntity {
     Double speed;
     Boolean fireworks;
     Integer height;
-    Fall_1_21_1 armorstandFall;
+    FallPacket armorstandFall;
     private int counter = 0;
     
     public FallingPackageEntity(final Location loc, Boolean loaded,Location target) {
@@ -56,7 +55,7 @@ public class FallingPackageEntity {
 		if(!this.armorstand) {
 			this.blocky = this.world.spawnFallingBlock(startLoc, this.material, (byte)0);
 		}else {	
-            this.armorstandFall = new Fall_1_21_1(startLoc, this.material, height, speed);
+            this.armorstandFall = new FallPacket(startLoc, this.material, height, speed);
             armorstandFall.sendPacketToAll();
 		}
         if(fireworks) {

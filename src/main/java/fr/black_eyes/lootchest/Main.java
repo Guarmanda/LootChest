@@ -56,9 +56,9 @@ import lombok.Setter;
 
 public class Main extends SimpleJavaPlugin {
 	@Getter private Particle supportedParticles[];
-	@Getter private HashMap<Location, Long> protection = new HashMap<>();
-	@Getter private HashMap<String, Particle> particles = new HashMap<>();
-	@Getter private HashMap<Location, Particle> part = new HashMap<>();
+	@Getter private final HashMap<Location, Long> protection = new HashMap<>();
+	@Getter private final HashMap<String, Particle> particles = new HashMap<>();
+	@Getter private final HashMap<Location, Particle> part = new HashMap<>();
 	@Setter public static Config configs;
 	@Getter private HashMap<String, Lootchest> lootChest;
 	@Getter @Setter private static Main instance;
@@ -117,6 +117,17 @@ public class Main extends SimpleJavaPlugin {
 			}
 		}
 		return version;
+	}
+
+	/**
+	 * Get the version a different way:
+	 * 1.8.4 = 184, 1.20.6 = 1206, etc
+	 * @return
+	 */
+	public static int getCompleteVersion(){
+		String complete_ver = Bukkit.getBukkitVersion().split("-")[0];
+		// we just have to remove the dots and parse string as integer
+		return Integer.parseInt(complete_ver.replace(".", ""));
 	}
     
 	@Override
