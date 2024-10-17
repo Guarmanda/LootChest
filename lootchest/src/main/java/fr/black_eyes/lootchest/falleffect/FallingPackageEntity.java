@@ -66,7 +66,7 @@ public class FallingPackageEntity {
 			this.blocky = this.world.spawnFallingBlock(startLoc, this.material, (byte)0);
 		}else {	
             Utils.logInfo(Main.getCompleteVersion()+"");
-            if(Main.getCompleteVersion() >= 1192)
+            if(Main.getCompleteVersion() >= 1194)
                 this.armorstandFall = (FallPacket)new FallPacket_1_19_4(startLoc, this.material, height, speed, Main.getInstance());
             else if(Main.getCompleteVersion() >= 1182)
                 this.armorstandFall = (FallPacket)new FallPacket_1_18_2(startLoc, this.material, height, speed, Main.getInstance());
