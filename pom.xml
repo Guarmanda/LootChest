@@ -17,5 +17,16 @@
         <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
         <maven.compiler.release>8</maven.compiler.release>
         <revision>2.4.6</revision>
+        <MCVersionPacket>1.19.4</MCVersionPacket>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.6.0</version>
+            </plugin>
+        </plugins>
+    </build>
 </project>
