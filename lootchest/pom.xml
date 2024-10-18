@@ -191,19 +191,16 @@
             <groupId>fr.black_eyes.lootchest</groupId>
             <artifactId>packet_1_18_2</artifactId>
             <version>${revision}</version>
-            <classifier>remapped-obf</classifier>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
             <artifactId>packet_1_19_4</artifactId>
             <version>${revision}</version>
-            <classifier>remapped-obf</classifier>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
             <artifactId>packet_1_17</artifactId>
             <version>${revision}</version>
-            <classifier>remapped-obf</classifier>
         </dependency>
     </dependencies>
 </project>

@@ -14,7 +14,7 @@
     <version>${revision}</version>
 
     <properties>
-        <MCVersionPacket>1.19.4</MCVersionPacket>
+        <MCVersionPacket>1.21.1</MCVersionPacket>
         <maven.compiler.release>14</maven.compiler.release>
     </properties>
 
@@ -47,7 +47,7 @@
                         </goals>
                         <id>remap-spigot</id>
                         <configuration>
-                            <inputFile>${user.home}/.m2/repository/org/spigotmc/spigot/${MCVersionPacket}-R0.1-SNAPSHOT/spigot-${MCVersionPacket}-R0.1-SNAPSHOT-remapped-obf.jar</inputFile>
+                            <inputFile>${project.build.directory}/${project.build.finalName}.jar</inputFile>
                             <srgIn>org.spigotmc:minecraft-server:${MCVersionPacket}-R0.1-SNAPSHOT:csrg:maps-spigot</srgIn>
                             <remappedDependencies>org.spigotmc:spigot:${MCVersionPacket}-R0.1-SNAPSHOT:jar:remapped-obf</remappedDependencies>
                         </configuration>

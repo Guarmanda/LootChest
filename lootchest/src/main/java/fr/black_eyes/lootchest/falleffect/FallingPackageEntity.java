@@ -15,6 +15,7 @@ import fr.black_eyes.lootchest.Main;
 import org.bukkit.Material;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import fr.black_eyes.simpleJavaPlugin.Utils;
 
@@ -31,7 +32,7 @@ public class FallingPackageEntity {
     Double speed;
     Boolean fireworks;
     Integer height;
-    FallPacket armorstandFall;
+    FallWrapper armorstandFall;
     private int counter = 0;
     
     public FallingPackageEntity(final Location loc, Boolean loaded,Location target) {
@@ -53,9 +54,34 @@ public class FallingPackageEntity {
             this.summon();
     }
 
-    private interface FallPacket{
-        public void sendPacketToAll();
-        public Location getLocation();
+    private class FallWrapper{
+
+        Object calledClass; 
+
+        public FallWrapper(Location loc, Material mat, int height, double speed, JavaPlugin main) {
+            if(Main.getCompleteVersion() >= 1194)
+                this.calledClass = new FallPacket_1_19_4(loc, mat, height, speed, main);
+            else if(Main.getCompleteVersion() >= 1182)
+                this.calledClass = new FallPacket_1_18_2(loc, mat, height, speed, main);
+            else
+                this.calledClass = new FallPacket_1_17(loc, mat, height, speed, main);
+        }
+        public void sendPacketToAll(){
+            if(Main.getCompleteVersion() >= 1194)
+                ((FallPacket_1_19_4)calledClass).sendPacketToAll();
+            else if(Main.getCompleteVersion() >= 1182)
+                ((FallPacket_1_18_2)calledClass).sendPacketToAll();
+            else
+                ((FallPacket_1_17)calledClass).sendPacketToAll();
+        }
+        public Location getLocation(){
+            if(Main.getCompleteVersion() >= 1194)
+                return ((FallPacket_1_19_4)calledClass).getLocation();
+            else if(Main.getCompleteVersion() >= 1182)
+                return ((FallPacket_1_18_2)calledClass).getLocation();
+            else
+                return ((FallPacket_1_17)calledClass).getLocation();
+        }
     }
     
 
@@ -66,12 +92,7 @@ public class FallingPackageEntity {
 			this.blocky = this.world.spawnFallingBlock(startLoc, this.material, (byte)0);
 		}else {	
             Utils.logInfo(Main.getCompleteVersion()+"");
-            if(Main.getCompleteVersion() >= 1194)
-                this.armorstandFall = (FallPacket)new FallPacket_1_19_4(startLoc, this.material, height, speed, Main.getInstance());
-            else if(Main.getCompleteVersion() >= 1182)
-                this.armorstandFall = (FallPacket)new FallPacket_1_18_2(startLoc, this.material, height, speed, Main.getInstance());
-            else
-                this.armorstandFall = (FallPacket)new FallPacket_1_17(startLoc, this.material, height, speed, Main.getInstance());
+            this.armorstandFall = new FallWrapper(startLoc, this.material, this.height, this.speed, Main.getInstance());
             armorstandFall.sendPacketToAll();
 		}
         if(fireworks) {
