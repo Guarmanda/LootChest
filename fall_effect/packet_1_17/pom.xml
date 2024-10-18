@@ -5,17 +5,16 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
           <groupId>fr.black_eyes.lootchest</groupId>
-          <artifactId>LootChest</artifactId>
+          <artifactId>fall_effect</artifactId>
           <version>${revision}</version>
     </parent>
 
     <groupId>fr.black_eyes.lootchest</groupId>
-    <artifactId>packet_1_19_4</artifactId>
+    <artifactId>packet_1_17</artifactId>
     <version>${revision}</version>
 
     <properties>
-        <MCVersionPacket>1.21.1</MCVersionPacket>
-        <maven.compiler.release>14</maven.compiler.release>
+        <MCVersionPacket>1.17.1</MCVersionPacket>
     </properties>
 
     <build>

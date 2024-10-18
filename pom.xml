@@ -5,10 +5,8 @@
     <version>${revision}</version>
     <packaging>pom</packaging>
     <modules>
-        <module>packet_1_17</module>
-        <module>packet_1_18_2</module>
-        <module>packet_1_19_4</module>
         <module>lootchest</module>
+        <module>fall_effect</module>
     </modules>
     <name>LootChest</name>
     <description>Create higly customizable lootboxes for your minecraft server</description>

@@ -1,6 +1,5 @@
 package fr.black_eyes.lootchest.falleffect;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
@@ -60,26 +59,6 @@ public class FallPacket_1_19_4 {
         loc.setY(loc.getY() - (height-((counter /(COUNTER_ONE_BLOCK/(this.speed*SPEED_MULTIPLYER)))-3))   );
         return loc;
     }
-
-    /**
-	 * Get the version a different way:
-	 * 1.8.4 = 184, 1.20.6 = 1206, etc
-	 * @return
-	 */
-	public static int getCompleteVersion(){
-		String complete_ver = Bukkit.getBukkitVersion().split("-")[0];
-		String sversion = complete_ver.replace(".", "");
-		if(sversion.startsWith("18") || sversion.startsWith("19") || sversion.startsWith("17")){
-			//add a 0 between the first and second digit
-			sversion = sversion.substring(0, 1) + "0" + sversion.substring(1);
-			if(sversion.endsWith("10")) {
-				//remove the 0 at the end
-				sversion = sversion.substring(0, sversion.length()-1);
-			}
-		}
-		// we just have to remove the dots and parse string as integer
-		return Integer.parseInt(sversion);
-	}
 
     /**
      * Creates four packets to make an armorstand fall from the sky
