@@ -24,7 +24,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
-import net.minecraft.network.protocol.game.ClientboundRemoveEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.world.item.Item;
@@ -33,7 +33,7 @@ import net.minecraft.world.item.ItemStack;
 /**
  * 1.17+ class to make an invisible armorstand fall from the sky with packets and a block on its head
  */
-public class FallPacket_1_17 {
+public class FallPacket_1_18 {
     private final ClientboundAddEntityPacket spawnPacket;
     private final net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket dataPacket;
     private final ClientboundSetEquipmentPacket equipmentPacket;
@@ -73,7 +73,7 @@ public class FallPacket_1_17 {
      * @param height The height of the fall, in blocks
      * @param speed The speed of the fall, does not have a clear meaning
      */
-    public FallPacket_1_17(Location loc, Material headItem, int height, double speed, JavaPlugin plugin) {
+    public FallPacket_1_18(Location loc, Material headItem, int height, double speed, JavaPlugin plugin) {
         this.instance = plugin;
         this.speed = speed;
         this.height = height;
@@ -161,7 +161,7 @@ public class FallPacket_1_17 {
         MinecraftServer server = MinecraftServer.getServer();
         Stream<ServerPlayer> players = StreamSupport.stream(server.getPlayerList().getPlayers().spliterator(), false);
         players.forEach(p -> {
-            p.connection.send(new ClientboundRemoveEntityPacket(armorstand.getId()));
+            p.connection.send(new ClientboundRemoveEntitiesPacket(armorstand.getId()));
         });
     }
 

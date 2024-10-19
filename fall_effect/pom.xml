@@ -11,13 +11,34 @@
     </parent>
     <modules>
         <module>packet_1_17</module>
+        <module>packet_1_17_1</module>
+        <module>packet_1_18</module>
+        <module>packet_1_18_1</module>
         <module>packet_1_18_2</module>
+        <module>packet_1_19</module>
+        <module>packet_1_19_1</module>
+        <module>packet_1_19_2</module>
+        <module>packet_1_19_3</module>
         <module>packet_1_19_4</module>
+        <module>packet_1_20</module>
+        <module>packet_1_20_1</module>
+        <module>packet_1_20_2</module>
+        <module>packet_1_20_3</module>
+        <module>packet_1_20_4</module>
+        <module>packet_1_20_5</module>
+        <module>packet_1_20_6</module>
+        <module>packet_1_21</module>
+        <module>packet_1_21_1</module>
     </modules>
 
     <groupId>fr.black_eyes.lootchest</groupId>
     <artifactId>fall_effect</artifactId>
     <version>${revision}</version>
-
+    <repositories>
+        <repository>
+            <id>nms-repo</id>
+            <url>https://repo.codemc.org/repository/nms/</url>
+        </repository>
+    </repositories>
 
 </project>

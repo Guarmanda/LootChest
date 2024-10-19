@@ -24,7 +24,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
-import net.minecraft.network.protocol.game.ClientboundRemoveEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.world.item.Item;
@@ -33,7 +33,7 @@ import net.minecraft.world.item.ItemStack;
 /**
  * 1.17+ class to make an invisible armorstand fall from the sky with packets and a block on its head
  */
-public class FallPacket_1_17 {
+public class FallPacket_1_19_3 {
     private final ClientboundAddEntityPacket spawnPacket;
     private final net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket dataPacket;
     private final ClientboundSetEquipmentPacket equipmentPacket;
@@ -73,7 +73,7 @@ public class FallPacket_1_17 {
      * @param height The height of the fall, in blocks
      * @param speed The speed of the fall, does not have a clear meaning
      */
-    public FallPacket_1_17(Location loc, Material headItem, int height, double speed, JavaPlugin plugin) {
+    public FallPacket_1_19_3(Location loc, Material headItem, int height, double speed, JavaPlugin plugin) {
         this.instance = plugin;
         this.speed = speed;
         this.height = height;
@@ -95,7 +95,6 @@ public class FallPacket_1_17 {
 
         equipmentPacket = new ClientboundSetEquipmentPacket(stand.getId(), equipmentList);
         
-
             spawnPacket = new ClientboundAddEntityPacket(
                 stand.getId(),                                  // Entity ID
                 UUID.randomUUID(),                                  // Unique ID
@@ -103,12 +102,9 @@ public class FallPacket_1_17 {
                 loc.getYaw(), loc.getPitch(),                        // Rotation (Yaw, Pitch)
                 stand.getType(),                               // Entity type (ArmorStand)
                 0,                                                  // No specific motion (use 0 for no velocity)
-                new Vec3(0, 0, 0)                                   // Velocity (none in this case)
-                );   
-
-                //dataPacket = constructor.newInstance(stand.getId(), stand.getEntityData().getNonDefaultValues(), true);
-
-            dataPacket = new ClientboundSetEntityDataPacket(stand.getId(), stand.getEntityData(), true);
+                new Vec3(0, 0, 0),                                   // Velocity (none in this case)
+                0.0);   
+            dataPacket = new ClientboundSetEntityDataPacket(stand.getId(), stand.getEntityData().getNonDefaultValues());
         short new_speed = (short)(this.speed*SPEED_MULTIPLYER*SPEED_ONE_BLOCK_PER_SECOND); // the plugin had a default speed of 0.8 wich was quite fast, but it was never meaningful, 0.8 was like 5 blocks per seconds.
         // divide the counter by the speed multiplyer to get the number of ticks the armorstand will need to fall to get the fall ticks of one block for the new speed, then multiply it by the total height to fall
         counter = (int)((COUNTER_ONE_BLOCK/(this.speed*SPEED_MULTIPLYER))*(height+3));
@@ -161,7 +157,7 @@ public class FallPacket_1_17 {
         MinecraftServer server = MinecraftServer.getServer();
         Stream<ServerPlayer> players = StreamSupport.stream(server.getPlayerList().getPlayers().spliterator(), false);
         players.forEach(p -> {
-            p.connection.send(new ClientboundRemoveEntityPacket(armorstand.getId()));
+            p.connection.send(new ClientboundRemoveEntitiesPacket(armorstand.getId()));
         });
     }
 

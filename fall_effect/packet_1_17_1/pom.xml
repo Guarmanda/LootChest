@@ -10,11 +10,11 @@
     </parent>
 
     <groupId>fr.black_eyes.lootchest</groupId>
-    <artifactId>packet_1_17</artifactId>
+    <artifactId>packet_1_17_1</artifactId>
     <version>${revision}</version>
 
     <properties>
-        <MCVersionPacket>1.17</MCVersionPacket>
+        <MCVersionPacket>1.17.1</MCVersionPacket>
     </properties>
 
     <build>

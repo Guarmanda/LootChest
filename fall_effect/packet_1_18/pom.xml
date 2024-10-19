@@ -10,11 +10,12 @@
     </parent>
 
     <groupId>fr.black_eyes.lootchest</groupId>
-    <artifactId>packet_1_17</artifactId>
+    <artifactId>packet_1_18</artifactId>
     <version>${revision}</version>
 
     <properties>
-        <MCVersionPacket>1.17</MCVersionPacket>
+        <MCVersionPacket>1.18</MCVersionPacket>
+        <maven.compiler.release>14</maven.compiler.release>
     </properties>
 
     <build>
