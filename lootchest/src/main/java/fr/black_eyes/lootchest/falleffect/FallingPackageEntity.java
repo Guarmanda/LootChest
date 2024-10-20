@@ -1,5 +1,7 @@
 package fr.black_eyes.lootchest.falleffect;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.Bukkit;
@@ -17,7 +19,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
-
 public class FallingPackageEntity {
 
 
@@ -30,7 +31,7 @@ public class FallingPackageEntity {
     Double speed;
     Boolean fireworks;
     Integer height;
-    FallWrapper armorstandFall;
+    IFallPacket armorstandFall;
     private int counter = 0;
     
     public FallingPackageEntity(final Location loc, Boolean loaded,Location target) {
@@ -51,36 +52,6 @@ public class FallingPackageEntity {
         if(loaded)
             this.summon();
     }
-
-    private class FallWrapper{
-
-        Object calledClass; 
-
-        public FallWrapper(Location loc, Material mat, int height, double speed, JavaPlugin main) {
-            if(Main.getCompleteVersion() >= 1194)
-                this.calledClass = new FallPacket_1_19_4(loc, mat, height, speed, main);
-            else if(Main.getCompleteVersion() >= 1182)
-                this.calledClass = new FallPacket_1_18_2(loc, mat, height, speed, main);
-            else
-                this.calledClass = new FallPacket_1_17(loc, mat, height, speed, main);
-        }
-        public void sendPacketToAll(){
-            if(Main.getCompleteVersion() >= 1194)
-                ((FallPacket_1_19_4)calledClass).sendPacketToAll();
-            else if(Main.getCompleteVersion() >= 1182)
-                ((FallPacket_1_18_2)calledClass).sendPacketToAll();
-            else
-                ((FallPacket_1_17)calledClass).sendPacketToAll();
-        }
-        public Location getLocation(){
-            if(Main.getCompleteVersion() >= 1194)
-                return ((FallPacket_1_19_4)calledClass).getLocation();
-            else if(Main.getCompleteVersion() >= 1182)
-                return ((FallPacket_1_18_2)calledClass).getLocation();
-            else
-                return ((FallPacket_1_17)calledClass).getLocation();
-        }
-    }
     
 
 	@SuppressWarnings("deprecation")
@@ -89,7 +60,15 @@ public class FallingPackageEntity {
 		if(!this.armorstand) {
 			this.blocky = this.world.spawnFallingBlock(startLoc, this.material, (byte)0);
 		}else {	
-            this.armorstandFall = new FallWrapper(startLoc, this.material, this.height, this.speed, Main.getInstance());
+            String version = Bukkit.getBukkitVersion().split("-")[0].replace(".", "_");
+            System.out.println("Version: " + version);
+            try {
+                this.armorstandFall = (IFallPacket) Class.forName("fr.black_eyes.lootchest.falleffect.Fallv_" + version)
+                        .getDeclaredConstructor(Location.class, Material.class, int.class, double.class, JavaPlugin.class)
+                        .newInstance(startLoc, this.material, this.height, this.speed, Main.getInstance());
+            } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException ex) {
+                ex.printStackTrace();
+            }
             armorstandFall.sendPacketToAll();
 		}
         if(fireworks) {

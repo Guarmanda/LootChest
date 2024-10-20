@@ -81,14 +81,6 @@ public final class DHAPI {
         Validate.notNull(name);
         Validate.notNull(location);
 
-        if (!name.matches(Common.NAME_REGEX)) {
-            throw new IllegalArgumentException(String.format("Hologram name can only contain alphanumeric characters, underscores and dashes! (%s)", name));
-        }
-
-        if (Hologram.getCachedHologramNames().contains(name)) {
-            throw new IllegalArgumentException(String.format("Hologram with that name already exists! (%s)", name));
-        }
-
         Hologram hologram = new Hologram(name, location, saveToFile);
         HologramPage page = hologram.getPage(0);
         if (lines != null) {

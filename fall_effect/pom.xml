@@ -5,40 +5,80 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <parent>
-          <groupId>fr.black_eyes.lootchest</groupId>
-          <artifactId>LootChest</artifactId>
-          <version>${revision}</version>
+        <groupId>fr.black_eyes.lootchest</groupId>
+        <artifactId>LootChest</artifactId>
+        <version>${revision}</version>
     </parent>
     <modules>
-        <module>packet_1_17</module>
-        <module>packet_1_17_1</module>
-        <module>packet_1_18</module>
-        <module>packet_1_18_1</module>
-        <module>packet_1_18_2</module>
-        <module>packet_1_19</module>
-        <module>packet_1_19_1</module>
-        <module>packet_1_19_2</module>
-        <module>packet_1_19_3</module>
-        <module>packet_1_19_4</module>
-        <module>packet_1_20</module>
-        <module>packet_1_20_1</module>
-        <module>packet_1_20_2</module>
-        <module>packet_1_20_3</module>
-        <module>packet_1_20_4</module>
-        <module>packet_1_20_5</module>
-        <module>packet_1_20_6</module>
-        <module>packet_1_21</module>
-        <module>packet_1_21_1</module>
+        <module>v_1_17</module>
+        <module>v_1_17_1</module>
+        <module>v_1_18</module>
+        <module>v_1_18_1</module>
+        <module>v_1_18_2</module>
+        <module>v_1_19</module>
+        <module>v_1_19_1</module>
+        <module>v_1_19_2</module>
+        <module>v_1_19_3</module>
+        <module>v_1_19_4</module>
+        <module>v_1_20</module>
+        <module>v_1_20_1</module>
+        <module>v_1_20_2</module>
+        <module>v_1_20_3</module>
+        <module>v_1_20_4</module>
+        <module>v_1_20_5</module>
+        <module>v_1_20_6</module>
+        <module>v_1_21</module>
+        <module>v_1_21_1</module>
     </modules>
-
+        
     <groupId>fr.black_eyes.lootchest</groupId>
     <artifactId>fall_effect</artifactId>
     <version>${revision}</version>
-    <repositories>
-        <repository>
-            <id>nms-repo</id>
-            <url>https://repo.codemc.org/repository/nms/</url>
-        </repository>
-    </repositories>
-
+    
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>net.md-5</groupId>
+                    <artifactId>specialsource-maven-plugin</artifactId>
+                    <version>2.0.3</version>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>remap</goal>
+                            </goals>
+                            <id>remap-obf</id>
+                            <configuration>
+                                <srgIn>org.spigotmc:minecraft-server:${MCVersionPacket}-R0.1-SNAPSHOT:txt:maps-mojang</srgIn>
+                                <reverse>true</reverse>
+                                <remappedDependencies>org.spigotmc:spigot:${MCVersionPacket}-R0.1-SNAPSHOT:jar:remapped-mojang</remappedDependencies>
+                                <remappedArtifactAttached>true</remappedArtifactAttached>
+                                <remappedClassifierName>remapped-obf</remappedClassifierName>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>remap</goal>
+                            </goals>
+                            <id>remap-spigot</id>
+                            <configuration>
+                                <inputFile>${project.build.directory}/${project.build.finalName}-remapped-obf.jar</inputFile>
+                                <srgIn>org.spigotmc:minecraft-server:${MCVersionPacket}-R0.1-SNAPSHOT:csrg:maps-spigot</srgIn>
+                                <remappedDependencies>org.spigotmc:spigot:${MCVersionPacket}-R0.1-SNAPSHOT:jar:remapped-obf</remappedDependencies>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>fr.black_eyes.lootchest</groupId>
+            <artifactId>fall_effect_interface</artifactId>
+            <version>${revision}</version>
+        </dependency>
+    </dependencies>
 </project>

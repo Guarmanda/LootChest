@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>fr.black_eyes.lootchest</groupId>
+        <artifactId>fall_effect</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <groupId>fr.black_eyes.lootchest</groupId>
+    <artifactId>v_1_17</artifactId>
+    <version>${revision}</version>
+    <properties>
+        <MCVersionPacket>1.17</MCVersionPacket>
+    </properties>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>net.md-5</groupId>
+                <artifactId>specialsource-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>${MCVersionPacket}-R0.1-SNAPSHOT</version>
+            <classifier>remapped-mojang</classifier>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

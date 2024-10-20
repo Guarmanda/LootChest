@@ -5,8 +5,9 @@
     <version>${revision}</version>
     <packaging>pom</packaging>
     <modules>
-        <module>lootchest</module>
+        <module>fall_effect_interface</module>
         <module>fall_effect</module>
+        <module>lootchest</module>
     </modules>
     <name>LootChest</name>
     <description>Create higly customizable lootboxes for your minecraft server</description>
@@ -15,9 +16,18 @@
         <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
         <maven.compiler.release>8</maven.compiler.release>
         <revision>2.4.6</revision>
-        <MCVersionPacket>1.19.4</MCVersionPacket>
+        <paperVersion>1.21.1</paperVersion>
     </properties>
-
+    <repositories>
+        <repository>
+            <id>nms-repo</id>
+            <url>https://repo.codemc.org/repository/nms/</url>
+        </repository>
+        <repository>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+    </repositories>
     <build>
         <plugins>
             <plugin>

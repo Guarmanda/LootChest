@@ -91,7 +91,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21-R0.1-SNAPSHOT</version>
+            <version>${paperVersion}-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -189,94 +189,93 @@
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>packet_1_18_2</artifactId>
+            <artifactId>v_1_18_2</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>packet_1_19_4</artifactId>
+            <artifactId>v_1_19_4</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>packet_1_17</artifactId>
+            <artifactId>v_1_17</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>packet_1_19_3</artifactId>
+            <artifactId>v_1_19_3</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>packet_1_20_6</artifactId>
+            <artifactId>v_1_20_6</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>packet_1_20_5</artifactId>
+            <artifactId>v_1_20_5</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>packet_1_20_4</artifactId>
+            <artifactId>v_1_20_4</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>packet_1_20_3</artifactId>
+            <artifactId>v_1_20_3</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>packet_1_20_2</artifactId>
+            <artifactId>v_1_20_2</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>packet_1_20_1</artifactId>
+            <artifactId>v_1_20_1</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>packet_1_20</artifactId>
+            <artifactId>v_1_20</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>packet_1_19_2</artifactId>
+            <artifactId>v_1_19_2</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>packet_1_19_1</artifactId>
+            <artifactId>v_1_19_1</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>packet_1_18_1</artifactId>
+            <artifactId>v_1_18_1</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>packet_1_18</artifactId>
+            <artifactId>v_1_18</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>packet_1_17_1</artifactId>
+            <artifactId>v_1_17_1</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>packet_1_21</artifactId>
+            <artifactId>v_1_21</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>packet_1_21_1</artifactId>
+            <artifactId>v_1_21_1</artifactId>
             <version>${revision}</version>
         </dependency>
-        
     </dependencies>
 </project>
