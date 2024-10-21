@@ -19,7 +19,10 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class FallingPackageEntity {
+import fr.black_eyes.simpleJavaPlugin.Utils;
+
+
+public final class FallingPackageEntity {
 
 
     World world;
@@ -61,13 +64,12 @@ public class FallingPackageEntity {
 			this.blocky = this.world.spawnFallingBlock(startLoc, this.material, (byte)0);
 		}else {	
             String version = Bukkit.getBukkitVersion().split("-")[0].replace(".", "_");
-            System.out.println("Version: " + version);
             try {
                 this.armorstandFall = (IFallPacket) Class.forName("fr.black_eyes.lootchest.falleffect.Fallv_" + version)
                         .getDeclaredConstructor(Location.class, Material.class, int.class, double.class, JavaPlugin.class)
                         .newInstance(startLoc, this.material, this.height, this.speed, Main.getInstance());
             } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException ex) {
-                ex.printStackTrace();
+                Utils.logInfo("&aError while creating the armorstand fall packet: " + ex.getMessage());
             }
             armorstandFall.sendPacketToAll();
 		}
@@ -143,11 +145,8 @@ public class FallingPackageEntity {
             fwm.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL).withColor(Color.RED).withColor(Color.WHITE).build());
             fwm.setPower(1);
             fw.setFireworkMeta(fwm);
-            Main.getInstance().getServer().getScheduler().runTaskLater(Main.getInstance(), new Runnable() {
-                @Override
-                public void run() {
-                    fw.detonate();
-                }
+            Main.getInstance().getServer().getScheduler().runTaskLater(Main.getInstance(), () -> {
+                fw.detonate();
             }, 1L);
         //}
     }
@@ -164,22 +163,16 @@ public class FallingPackageEntity {
             fwm.setPower(1);
             fw.setFireworkMeta(fwm);
             
-            Main.getInstance().getServer().getScheduler().runTaskLater(Main.getInstance(), new Runnable() {
-                @Override
-                public void run() {
-                    fw.detonate();
-                }
+            Main.getInstance().getServer().getScheduler().runTaskLater(Main.getInstance(), () -> {
+                fw.detonate();
             }, 1L);
         //}
     }
 
     protected void retick() {
-    	Main.getInstance().getServer().getScheduler().runTaskLater((Plugin)Main.getInstance(), new Runnable() {
-            @Override
-            public void run() {
-                tick();
-            }
-        }, 1L);
+    	Main.getInstance().getServer().getScheduler().runTaskLater((Plugin)Main.getInstance(), () -> {
+            tick();
+            }, 1L);
     }
     
 

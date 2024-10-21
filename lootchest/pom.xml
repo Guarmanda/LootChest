@@ -277,5 +277,10 @@
             <artifactId>v_1_21_1</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>fr.black_eyes.lootchest</groupId>
+            <artifactId>fall_effect_interface</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 </project>

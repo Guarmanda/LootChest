@@ -416,7 +416,7 @@ public class Lootchest {
 		if(Config.getInstance().lootin && Bukkit.getPluginManager().isPluginEnabled("Lootin")) {
 			if(block.getType().equals(Material.CHEST) || block.getType().equals(Material.TRAPPED_CHEST))
 				com.github.sachin.lootin.utils.ChestUtils.setLootinContainer(null,block.getState(),com.github.sachin.lootin.utils.ContainerType.CHEST);
-			else if(block.getType().equals(Material.BARREL))
+			else if(block.getType().equals(Material.valueOf("BARREL")))
 				com.github.sachin.lootin.utils.ChestUtils.setLootinContainer(null,block.getState(),com.github.sachin.lootin.utils.ContainerType.BARREL);
 		}
 
