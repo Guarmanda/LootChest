@@ -3,7 +3,6 @@ package fr.black_eyes.lootchest.falleffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -20,20 +19,21 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /**
  * 1.17+ class to make an invisible armorstand fall from the sky with packets and a block on its head
  */
-public class Fallv_1_21 implements IFallPacket {
+public final class Fallv_1_21 implements IFallPacket {
     private final ClientboundAddEntityPacket spawnPacket;
     private final net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket dataPacket;
     private final ClientboundSetEquipmentPacket equipmentPacket;
@@ -83,8 +83,9 @@ public class Fallv_1_21 implements IFallPacket {
         MinecraftServer server = MinecraftServer.getServer();
         
         // stream all levels and filter the one that matches the world name
-        ServerLevel s = StreamSupport.stream(server.getAllLevels().spliterator(), false).filter(level -> level.getWorld().getName().equals(loc.getWorld().getName())).findFirst().orElse(null);
-
+        org.bukkit.World world = loc.getWorld();
+        String worldName = (world != null) ? world.getName() : null;
+        ServerLevel s = StreamSupport.stream(server.getAllLevels().spliterator(), false).filter(level -> level.getWorld().getName().equals(worldName)).findFirst().orElse(null);
         ArmorStand stand = new ArmorStand(s, loc.getX(), loc.getY(), loc.getZ());  
         stand.setInvisible(true);
         stand.setNoBasePlate(true);
@@ -167,14 +168,10 @@ public class Fallv_1_21 implements IFallPacket {
      /**
       * Get an NMS ItemStack from a Bukkit Material
       */
-     private ItemStack getNmsItemStackFromMaterial(Material material) {
-        try {
-            // Get the field in the Items class corresponding to the material name
-            Field itemField = Items.class.getField(material.name());
-            Item nmsItem = (Item) itemField.get(null);  // Get the static field's value
-            return new ItemStack(nmsItem);  // Create an NMS ItemStack
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            return ItemStack.EMPTY;  // Return an empty item if reflection fails
-        }
+      public ItemStack getNmsItemStackFromMaterial(Material material) {
+        if (material == null || !material.isItem()) return null;
+        ResourceLocation key = ResourceLocation.tryParse(material.getKey().toString());
+        Item item = BuiltInRegistries.ITEM.get(key);
+        return new ItemStack(item);
     }
 }

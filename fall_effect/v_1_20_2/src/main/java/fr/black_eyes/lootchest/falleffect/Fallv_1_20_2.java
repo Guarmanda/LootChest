@@ -83,8 +83,9 @@ public class Fallv_1_20_2 implements IFallPacket {
         MinecraftServer server = MinecraftServer.getServer();
         
         // stream all levels and filter the one that matches the world name
-        ServerLevel s = StreamSupport.stream(server.getAllLevels().spliterator(), false).filter(level -> level.getWorld().getName().equals(loc.getWorld().getName())).findFirst().orElse(null);
-
+        org.bukkit.World world = loc.getWorld();
+        String worldName = (world != null) ? world.getName() : null;
+        ServerLevel s = StreamSupport.stream(server.getAllLevels().spliterator(), false).filter(level -> level.getWorld().getName().equals(worldName)).findFirst().orElse(null);
         ArmorStand stand = new ArmorStand(s, loc.getX(), loc.getY(), loc.getZ());  
         stand.setInvisible(false);
         stand.setNoBasePlate(true);

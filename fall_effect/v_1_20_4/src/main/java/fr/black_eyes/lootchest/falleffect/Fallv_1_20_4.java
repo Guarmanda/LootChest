@@ -3,15 +3,12 @@ package fr.black_eyes.lootchest.falleffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -22,20 +19,21 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /**
  * 1.17+ class to make an invisible armorstand fall from the sky with packets and a block on its head
  */
-public class Fallv_1_20_4 implements IFallPacket {
+public final class Fallv_1_20_4 implements IFallPacket {
     private final ClientboundAddEntityPacket spawnPacket;
     private final net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket dataPacket;
     private final ClientboundSetEquipmentPacket equipmentPacket;
@@ -85,8 +83,9 @@ public class Fallv_1_20_4 implements IFallPacket {
         MinecraftServer server = MinecraftServer.getServer();
         
         // stream all levels and filter the one that matches the world name
-        ServerLevel s = StreamSupport.stream(server.getAllLevels().spliterator(), false).filter(level -> level.getWorld().getName().equals(loc.getWorld().getName())).findFirst().orElse(null);
-
+        org.bukkit.World world = loc.getWorld();
+        String worldName = (world != null) ? world.getName() : null;
+        ServerLevel s = StreamSupport.stream(server.getAllLevels().spliterator(), false).filter(level -> level.getWorld().getName().equals(worldName)).findFirst().orElse(null);
         ArmorStand stand = new ArmorStand(s, loc.getX(), loc.getY(), loc.getZ());  
         stand.setInvisible(true);
         stand.setNoBasePlate(true);
@@ -169,59 +168,11 @@ public class Fallv_1_20_4 implements IFallPacket {
      /**
       * Get an NMS ItemStack from a Bukkit Material
       */
-     private ItemStack getNmsItemStackFromMaterial(Material material) {
-        for(Item item : Arrays.asList(Items.class.getFields()).stream().map(field -> {
-            try {
-                return (Item) field.get(null);
-            } catch (IllegalArgumentException | IllegalAccessException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            return null;
-        }).toArray(Item[]::new)) {
-            if (item == null) {
-                continue;
-            }
-            if (item.getDescriptionId().equals(material.getTranslationKey())) {
-                return new ItemStack(item);
-            }
-
-        }
-        return ItemStack.EMPTY;  // Return an empty item if reflection fails     
+      public ItemStack getNmsItemStackFromMaterial(Material material) {
+        if (material == null || !material.isItem()) return null;
+        ResourceLocation key = ResourceLocation.tryParse(material.getKey().toString());
+        Item item = BuiltInRegistries.ITEM.get(key);
+        return new ItemStack(item);
     }
-           /*Field materialIdField = null;
-        try {
-            materialIdField = Material.class.getDeclaredField("id");
-        } catch (NoSuchFieldException | SecurityException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        materialIdField.setAccessible(true);
-        int materialId = 0;
-        try {
-            materialId = materialIdField.getInt(material);
 
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        System.out.println("Material: "+material.name());
-        System.out.println("Item of id "+ materialId + " : " +Item.byId(materialId));
-        System.out.println("Item: "+Item.getId(Items.CHEST));
-        System.out.println(material.getItemTranslationKey());
-        System.out.println(material.getBlockTranslationKey());
-        System.out.println(Items.CHEST.getDescription());
-        System.out.println(Items.CHEST.getDescriptionId());
-        //return new ItemStack(Items.CHEST);
-        // this work, but we want to addapt the code to any material.name()
-        try {
-            // Get the field in the Items class corresponding to the material name
-            Field itemField = Items.class.getField(material.name());
-            Item nmsItem = (Item) itemField.get(null);  // Get the static field's value
-            System.out.println("Item: "+nmsItem);
-
-            System.out.println("nmsItem: "+new ItemStack(nmsItem));
-            return new ItemStack(nmsItem);  // Create an NMS ItemStack
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            //e.printStackTrace();*/
 }

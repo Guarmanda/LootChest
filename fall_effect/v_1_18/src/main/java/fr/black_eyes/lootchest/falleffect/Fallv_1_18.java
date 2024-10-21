@@ -3,7 +3,7 @@ package fr.black_eyes.lootchest.falleffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
-import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -83,8 +83,9 @@ public class Fallv_1_18 implements IFallPacket {
         MinecraftServer server = MinecraftServer.getServer();
         
         // stream all levels and filter the one that matches the world name
-        ServerLevel s = StreamSupport.stream(server.getAllLevels().spliterator(), false).filter(level -> level.getWorld().getName().equals(loc.getWorld().getName())).findFirst().orElse(null);
-
+        org.bukkit.World world = loc.getWorld();
+        String worldName = (world != null) ? world.getName() : null;
+        ServerLevel s = StreamSupport.stream(server.getAllLevels().spliterator(), false).filter(level -> level.getWorld().getName().equals(worldName)).findFirst().orElse(null);
         ArmorStand stand = new ArmorStand(s, loc.getX(), loc.getY(), loc.getZ());  
         stand.setInvisible(true);
         stand.setNoBasePlate(true);
@@ -172,14 +173,24 @@ public class Fallv_1_18 implements IFallPacket {
      /**
       * Get an NMS ItemStack from a Bukkit Material
       */
-     private ItemStack getNmsItemStackFromMaterial(Material material) {
-        try {
-            // Get the field in the Items class corresponding to the material name
-            Field itemField = Items.class.getField(material.name());
-            Item nmsItem = (Item) itemField.get(null);  // Get the static field's value
-            return new ItemStack(nmsItem);  // Create an NMS ItemStack
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            return ItemStack.EMPTY;  // Return an empty item if reflection fails
+      private ItemStack getNmsItemStackFromMaterial(Material material) {
+        String itemKey = "item."+material.getKey().toString().replace(":",".");
+        String blockKey = "block."+material.getKey().toString().replace(":",".");
+        for(Item item : Arrays.asList(Items.class.getFields()).stream().map(field -> {
+            try {
+                return (Item) field.get(null);
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+            }
+            return null;
+        }).toArray(Item[]::new)) {
+            if (item == null) {
+                continue;
+            }
+            if (item.getDescriptionId().equals(itemKey) || item.getDescriptionId().equals(blockKey)) {
+                return new ItemStack(item);
+            }
+
         }
+        return ItemStack.EMPTY;  // Return an empty item if reflection fails  
     }
 }
