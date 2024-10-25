@@ -45,11 +45,12 @@ final class ParticleTypes {
 
         try {
             if (LEGACY) {
+                if(!LegacyParticleType.isInitialized()) LegacyParticleType.init();
                 return LegacyParticleType.of(name.toUpperCase(Locale.ROOT));
             }
 
             return new DefaultParticleType(Particle.valueOf(name.toUpperCase(Locale.ROOT)));
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | NullPointerException | ExceptionInInitializerError e) {
             Bukkit.getLogger().warning("Unknown particle: " + name + " for server version " + Bukkit.getServer().getVersion());
             return null;
         }

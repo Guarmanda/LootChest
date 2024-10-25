@@ -99,9 +99,9 @@ public final class FallingPackageEntity {
         
 		if (this.world.getBlockAt(LocationUtils.offset(locPackage, 0.0, -1.0, 0.0)).getType() == Material.AIR) {
             ++this.counter;
-            if(Main.getCompleteVersion() >= 1206)
+            if(Main.getCompleteVersion() >= 1206 && Main.getInstance().getParticles().get("SMOKE") != null)
                 Main.getInstance().getParticles().get("SMOKE").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation(), (float)50.0);
-            else
+            else if (Main.getInstance().getParticles().get("SMOKE_NORMAL") != null)
 			    Main.getInstance().getParticles().get("SMOKE_NORMAL").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation(), (float)50.0);
             if(!this.armorstand) {
                 if (((Entity) this.blocky).isDead()) {

@@ -172,7 +172,7 @@ public enum Particle {
 	// New name since 1.9 (some particles where renamed in 1.9)
 	@Getter private final Material mat;
 	@Getter private final int requiredVersion;
-	private final ParticleType particle;
+	@Getter private final ParticleType particle;
 	private final List<ParticleProperty> properties;
 	//I want an array that gives an item for each particle, to set them in a selecting menu.
 

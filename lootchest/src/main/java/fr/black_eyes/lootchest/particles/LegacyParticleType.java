@@ -18,20 +18,27 @@ import java.util.Objects;
 @SuppressWarnings("deprecation")
 final class LegacyParticleType implements ParticleType {
 
-    private static final Class<?> ENUM_PARTICLE = FastReflection.nmsOptionalClass("EnumParticle").orElse(null);
-    private static final Map<String, String> LEGACY_NAMES = Collections.unmodifiableMap(getLegacyParticleNames());
+    private static  Class<?> ENUM_PARTICLE = null;
+    private static  Map<String, String> LEGACY_NAMES = null;
     private static final int[] EMPTY_DATA = new int[0];
-    private static final boolean IS_1_8 = ENUM_PARTICLE != null;
+    private static boolean IS_1_8 = false;
 
-    private static final Method WORLD_GET_HANDLE;
-    private static final Method WORLD_SEND_PARTICLE;
-    private static final Constructor<?> PACKET_PARTICLE;
-    private static final Method PLAYER_GET_HANDLE;
-    private static final Field PLAYER_CONNECTION;
-    private static final Method SEND_PACKET;
+    private static  Method WORLD_GET_HANDLE = null;
+    private static  Method WORLD_SEND_PARTICLE = null;
+    private static  Constructor<?> PACKET_PARTICLE = null;
+    private static  Method PLAYER_GET_HANDLE = null;
+    private static  Field PLAYER_CONNECTION = null;
+    private static  Method SEND_PACKET = null;
+    private static boolean initialized = false;
 
-    static {
+    private final String name;
+    private final Object particle; // String on 1.7.10 and EnumParticle on 1.8.8
+
+    public static void init(){
         try {
+            ENUM_PARTICLE = FastReflection.nmsOptionalClass("EnumParticle").orElse(null);
+            LEGACY_NAMES = Collections.unmodifiableMap(getLegacyParticleNames());
+            IS_1_8 = ENUM_PARTICLE != null;
             Class<?> packetParticleClass = FastReflection.nmsClass("PacketPlayOutWorldParticles");
             Class<?> playerClass = FastReflection.nmsClass("EntityPlayer");
             Class<?> playerConnectionClass = FastReflection.nmsClass("PlayerConnection");
@@ -41,6 +48,7 @@ final class LegacyParticleType implements ParticleType {
             Class<?> craftWorldClass = FastReflection.obcClass("CraftWorld");
 
             if (IS_1_8) {
+                System.out.println("1.8");
                 PACKET_PARTICLE = packetParticleClass.getConstructor(ENUM_PARTICLE, boolean.class, float.class,
                         float.class, float.class, float.class, float.class, float.class, float.class, int.class,
                         int[].class);
@@ -48,6 +56,7 @@ final class LegacyParticleType implements ParticleType {
                         boolean.class, double.class, double.class, double.class, int.class, double.class, double.class,
                         double.class, double.class, int[].class);
             } else {
+                System.out.println("1.7");
                 PACKET_PARTICLE = packetParticleClass.getConstructor(String.class, float.class, float.class, float.class,
                         float.class, float.class, float.class, float.class, int.class);
                 WORLD_SEND_PARTICLE = worldClass.getDeclaredMethod("a", String.class, double.class, double.class,
@@ -58,13 +67,16 @@ final class LegacyParticleType implements ParticleType {
             PLAYER_GET_HANDLE = craftPlayerClass.getDeclaredMethod("getHandle");
             PLAYER_CONNECTION = playerClass.getField("playerConnection");
             SEND_PACKET = playerConnectionClass.getMethod("sendPacket", FastReflection.nmsClass("Packet"));
-        } catch (ReflectiveOperationException e) {
-            throw new ExceptionInInitializerError(e);
-        }
+        } catch (NoSuchMethodException | ClassNotFoundException | SecurityException | NoSuchFieldException e) {
+            e.printStackTrace();
+            //throw new ExceptionInInitializerError(e);
+        } 
+        initialized = true;
     }
 
-    private final String name;
-    private final Object particle; // String on 1.7.10 and EnumParticle on 1.8.8
+    public static boolean isInitialized(){
+        return initialized;
+    }
 
     private LegacyParticleType(String name, Object particle) {
         this.name = Objects.requireNonNull(name, "name");

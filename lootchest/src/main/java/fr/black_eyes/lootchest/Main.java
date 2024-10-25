@@ -223,12 +223,14 @@ public class Main extends SimpleJavaPlugin {
 		}
         Utils.logInfo("Starting particles...");
         
-        //Initialization of particles values, it doesn't spawn them but is used in spawning
-    	initParticles();
-  
-    	//loop de tous les coffres tous les 1/4 (modifiable dans la config) de secondes pour faire spawn des particules
-    	//loop of all chests every 1/4 (editable in config) of seconds to spawn particles 
-    	startParticles();
+		if(configs.PART_enable) {
+			//Initialization of particles values, it doesn't spawn them but is used in spawning
+			initParticles();
+	
+			//loop de tous les coffres tous les 1/4 (modifiable dans la config) de secondes pour faire spawn des particules
+			//loop of all chests every 1/4 (editable in config) of seconds to spawn particles 
+			startParticles();
+		}
     	
     	//Loads all chests asynchronously
     	loadChests();
@@ -545,14 +547,14 @@ public class Main extends SimpleJavaPlugin {
 	private void initParticles() {
 		int cpt = 0;
 		for(Particle p:Particle.values()) {
-			if(p.isSupported()) {
+			if(p.isSupported() && p.getParticle()!=null) {
 				cpt++;
 			}
 		}
 		supportedParticles = new Particle[cpt];
 		int i = 0;
 		for(Particle p:Particle.values()) {
-			if(p.isSupported()) {
+			if(p.isSupported() && p.getParticle()!=null) {
 				particles.put(p.getName(), p);
 				supportedParticles[i++] = p;
 			}
