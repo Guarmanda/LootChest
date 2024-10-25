@@ -13,7 +13,6 @@ import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.spigotmc.SpigotConfig;
 
 import eu.decentholo.holograms.DecentHologramsPlugin;
 import eu.decentholo.holograms.api.DecentHolograms;
@@ -87,7 +86,7 @@ public class Main extends SimpleJavaPlugin {
      * @return true if bungee is enabed, else false
      */
     private boolean hasBungee(){
-        boolean bungee = SpigotConfig.bungee;
+        boolean bungee = org.spigotmc.SpigotConfig.bungee;
         boolean onlineMode = Bukkit.getServer().getOnlineMode();
         return (bungee && !onlineMode);
     }
@@ -197,10 +196,11 @@ public class Main extends SimpleJavaPlugin {
 		setConfigs(Config.getInstance(configFiles.getConfig()));
 
 		//If we enabled bungee broadcast but we aren't on a bungee server, not any message will show
-        if(!hasBungee() && configs.NOTE_bungee_broadcast) {
-    		Utils.logInfo("&cYou enaled bungee broadcast in config but you didn't enable bungeecord in spigot config!");
-    		Utils.logInfo("&cSo if this server isn't in a bungee network, no messages will be sent at all on chest spawn!");
-        }
+        if(configs.NOTE_bungee_broadcast) 
+			if(!hasBungee()){
+				Utils.logInfo("&cYou enaled bungee broadcast in config but you didn't enable bungeecord in spigot config!");
+				Utils.logInfo("&cSo if this server isn't in a bungee network, no messages will be sent at all on chest spawn!");
+        	}
  
         if( !useArmorStands && Main.configs.FALL_Block.equals("CHEST")) {
         	configFiles.getConfig().set("Fall_Effect.Block", "NOTE_BLOCK");
