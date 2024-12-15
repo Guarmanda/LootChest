@@ -45,7 +45,8 @@ public class Fallv_1_19_2 implements IFallPacket {
     private long counter;
     private final short SPEED_ONE_BLOCK_PER_SECOND = 410; // speed found after like 10 tests corresponding to one block fall per second
     private final long COUNTER_ONE_BLOCK = 10; // after 10*2 ticks at speed 410, the armorstand falls one block
-    private final short SPEED_MULTIPLYER = 31; 
+    private static final short SPEED_MULTIPLYER = 31; 
+    private static ItemStack headItem;
     private final JavaPlugin instance;
 
     /**
@@ -172,6 +173,9 @@ public class Fallv_1_19_2 implements IFallPacket {
       private ItemStack getNmsItemStackFromMaterial(Material material) {
         String itemKey = "item."+material.getKey().toString().replace(":",".");
         String blockKey = "block."+material.getKey().toString().replace(":",".");
+        if(headItem != null && (headItem.getItem().getDescriptionId().equals(itemKey) || headItem.getItem().getDescriptionId().equals(blockKey))) {
+            return headItem;
+        }
         for(Item item : Arrays.asList(Items.class.getFields()).stream().map(field -> {
             try {
                 return (Item) field.get(null);
@@ -183,7 +187,8 @@ public class Fallv_1_19_2 implements IFallPacket {
                 continue;
             }
             if (item.getDescriptionId().equals(itemKey) || item.getDescriptionId().equals(blockKey)) {
-                return new ItemStack(item);
+                headItem = new ItemStack(item);
+                return headItem;
             }
 
         }

@@ -10,6 +10,31 @@
         <version>${revision}</version>
     </parent>
     <modules>
+        <module>v_1_8_3</module>
+        <module>v_1_8_8</module>
+        <module>v_1_9_2</module>
+        <module>v_1_9_4</module>
+        <module>v_1_10_2</module>
+        <module>v_1_11</module>
+        <module>v_1_11_2</module>
+        <module>v_1_12</module>
+        <module>v_1_12_1</module>
+        <module>v_1_12_2</module>
+        <module>v_1_13</module>
+        <module>v_1_13_1</module>
+        <module>v_1_13_2</module>
+        <module>v_1_14</module>
+        <module>v_1_14_2</module>
+        <module>v_1_14_3</module>
+        <module>v_1_14_4</module>
+        <module>v_1_15</module>
+        <module>v_1_15_1</module>
+        <module>v_1_15_2</module>
+        <module>v_1_16_1</module>
+        <module>v_1_16_2</module>
+        <module>v_1_16_3</module>
+        <module>v_1_16_4</module>
+        <module>v_1_16_5</module>
         <module>v_1_17</module>
         <module>v_1_17_1</module>
         <module>v_1_18</module>

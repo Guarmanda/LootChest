@@ -24,6 +24,10 @@
             <url>https://repo.codemc.org/repository/nms/</url>
         </repository>
         <repository>
+            <id>nms-repo-fallback</id>
+            <url>https://maven.elmakers.com/repository/</url>
+        </repository>
+        <repository>
             <id>papermc</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>

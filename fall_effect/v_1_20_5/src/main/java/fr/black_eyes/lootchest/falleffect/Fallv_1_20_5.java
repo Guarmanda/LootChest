@@ -45,7 +45,7 @@ public final class Fallv_1_20_5 implements IFallPacket {
     private long counter;
     private final short SPEED_ONE_BLOCK_PER_SECOND = 410; // speed found after like 10 tests corresponding to one block fall per second
     private final long COUNTER_ONE_BLOCK = 10; // after 10*2 ticks at speed 410, the armorstand falls one block
-    private final short SPEED_MULTIPLYER = 31; 
+    private static final short SPEED_MULTIPLYER = 31;
     private final JavaPlugin instance;
 
     /**

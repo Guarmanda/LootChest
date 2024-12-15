@@ -63,12 +63,12 @@
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
         <repository>
-            <id>local-repo</id>
-            <url>file://${project.basedir}/requirements/local-repo</url>
-        </repository>
-        <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
+        </repository>
+        <repository>
+            <id>local-repo</id>
+            <url>file://${project.parent.basedir}/requirements/local-repo</url>
         </repository>
         <repository>
             <id>dmulloy2-repo</id>
@@ -100,8 +100,6 @@
             <version>6.1</version>
             <scope>provided</scope>
         </dependency>
- 
-
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard-bukkit</artifactId>
@@ -135,9 +133,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.sachin.lootin</groupId>
+            <groupId>com.local.sachin.lootin</groupId>
             <artifactId>lootin</artifactId>
-            <version>10.6</version>
+            <version>11.3</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -187,96 +185,43 @@
             <artifactId>SimpleJavaPlugin</artifactId>
             <version>0.7</version>
         </dependency>
-        <dependency>
-            <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>v_1_18_2</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>v_1_19_4</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>v_1_17</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>v_1_19_3</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>v_1_20_6</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>v_1_20_5</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>v_1_20_4</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>v_1_20_3</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>v_1_20_2</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>v_1_20_1</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>v_1_20</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>v_1_19_2</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>v_1_19_1</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>v_1_18_1</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>v_1_18</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>v_1_17_1</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>v_1_21</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.black_eyes.lootchest</groupId>
-            <artifactId>v_1_21_1</artifactId>
-            <version>${revision}</version>
-        </dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_8_3</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_8_8</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_9_2</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_9_4</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_10_2</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_11</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_11_2</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_12</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_12_1</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_12_2</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_13</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_13_1</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_13_2</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_14</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_14_2</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_14_3</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_14_4</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_16_5</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_17</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_17_1</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_18</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_18_1</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_18_2</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_19_1</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_19_2</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_19_3</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_19_4</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_20</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_20_1</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_20_2</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_20_3</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_20_4</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_20_5</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_20_6</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_21</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_21_1</artifactId><version>${revision}</version></dependency>
+
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
             <artifactId>fall_effect_interface</artifactId>

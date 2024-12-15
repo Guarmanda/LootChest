@@ -59,7 +59,7 @@ public final class FallingPackageEntity {
 
 	@SuppressWarnings("deprecation")
     public void summon() {
-        if(Main.getCompleteVersion() < 1170) this.armorstand = false;
+        if(Main.getCompleteVersion() < 1083) this.armorstand = false;
 		if(!this.armorstand) {
 			this.blocky = this.world.spawnFallingBlock(startLoc, this.material, (byte)0);
 		}else {	
@@ -69,7 +69,8 @@ public final class FallingPackageEntity {
                         .getDeclaredConstructor(Location.class, Material.class, int.class, double.class, JavaPlugin.class)
                         .newInstance(startLoc, this.material, this.height, this.speed, Main.getInstance());
             } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException ex) {
-                Utils.logInfo("&aError while creating the armorstand fall packet: " + ex.getMessage());
+                Utils.logInfo("&cError while creating the armorstand fall packet: " + ex.getMessage());
+                ex.printStackTrace();
             }
             armorstandFall.sendPacketToAll();
 		}
