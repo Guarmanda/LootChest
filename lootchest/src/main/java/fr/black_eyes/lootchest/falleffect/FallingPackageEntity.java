@@ -60,17 +60,22 @@ public final class FallingPackageEntity {
 	@SuppressWarnings("deprecation")
     public void summon() {
         if(Main.getCompleteVersion() < 1083) this.armorstand = false;
+        String version = Bukkit.getBukkitVersion().split("-")[0].replace(".", "_");
+        try {
+            Class.forName("fr.black_eyes.lootchest.falleffect.Fallv_" + version);
+        }  catch (ClassNotFoundException e) {
+            this.armorstand = false;
+        }
 		if(!this.armorstand) {
 			this.blocky = this.world.spawnFallingBlock(startLoc, this.material, (byte)0);
 		}else {	
-            String version = Bukkit.getBukkitVersion().split("-")[0].replace(".", "_");
+            
             try {
                 this.armorstandFall = (IFallPacket) Class.forName("fr.black_eyes.lootchest.falleffect.Fallv_" + version)
                         .getDeclaredConstructor(Location.class, Material.class, int.class, double.class, JavaPlugin.class)
                         .newInstance(startLoc, this.material, this.height, this.speed, Main.getInstance());
             } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException ex) {
                 Utils.logInfo("&cError while creating the armorstand fall packet: " + ex.getMessage());
-                ex.printStackTrace();
             }
             armorstandFall.sendPacketToAll();
 		}

@@ -221,6 +221,8 @@
         <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_20_6</artifactId><version>${revision}</version></dependency>
         <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_21</artifactId><version>${revision}</version></dependency>
         <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_21_1</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_21_3</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_21_4</artifactId><version>${revision}</version></dependency>
 
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>
