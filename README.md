@@ -7,7 +7,7 @@ Build with maven (mvn package)
 </dl>
 <dl class="customResourceFieldmc_versions">
 <dt>Tested Minecraft Versions:</dt>
-<dd><ul class="plainList"><li>1.7</li><li>1.8</li><li>1.9</li><li>1.10</li><li>1.11</li><li>1.12</li><li>1.13</li><li>1.14</li><li>1.15</li><li>1.16</li><li>1.17</li><li>1.18</li><li>1.19</li></ul></dd>
+<dd><ul class="plainList"><li>1.7</li><li>1.8</li><li>1.9</li><li>1.10</li><li>1.11</li><li>1.12</li><li>1.13</li><li>1.14</li><li>1.15</li><li>1.16</li><li>1.17</li><li>1.18</li><li>1.19</li><li>1.20</li><li>1.21.1</li></ul></dd>
 </dl>
 <dl class="customResourceFieldsource_code">
 <dt>Source Code:</dt>
@@ -35,7 +35,7 @@ Build with maven (mvn package)
 - BungeeCord messages on chest respawn/take<br />
 - Timer on chest&#039;s hologram (can be disabled)<br />
 - Give a chest content to a player (it allow you to create a kind of kit, since essentials kits doesn&#039;t store nbt tags)<br />
-- 1.7 to 1.19 support (No holograms in 1.7)</span><br />
+- 1.7 to 1.21.1 support (No holograms in 1.7)</span><br />
 - Menu to create or edit everything<br />
 - Editable inventory for each chest<br />
 - Editable item chance for each item in each chest (default: 100% (editable))<br />
