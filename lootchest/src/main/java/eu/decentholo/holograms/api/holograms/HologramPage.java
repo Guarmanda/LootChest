@@ -93,7 +93,7 @@ public class HologramPage extends FlagHolder {
             lineLocation.setZ(currentLocation.getZ() + line.getOffsetZ());
 
             line.setLocation(lineLocation);
-            line.updateLocation(true);
+            line.updateLocation();
             currentLocation.subtract(0, line.getHeight(), 0);
         }
     }
@@ -102,13 +102,11 @@ public class HologramPage extends FlagHolder {
      * Add a new line to the bottom of this hologram page.
      *
      * @param line New line.
-     * @return Boolean whether the operation was successful.
      */
-    public boolean addLine(@NonNull HologramLine line) {
+    public void addLine(@NonNull HologramLine line) {
         lines.add(line);
         parent.getViewerPlayers(this.index).forEach(line::show);
         realignLines();
-        return true;
     }
 
 

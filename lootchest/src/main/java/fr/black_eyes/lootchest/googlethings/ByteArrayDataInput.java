@@ -1,4 +1,4 @@
-package fr.black_eyes.lootchest.googleThings;
+package fr.black_eyes.lootchest.googlethings;
 
 /*
  * Copyright (C) 2009 The Guava Authors
@@ -15,26 +15,29 @@ package fr.black_eyes.lootchest.googleThings;
  */
 
 
+
 import org.jetbrains.annotations.NotNull;
 
-import java.io.DataOutput;
+import java.io.DataInput;
 import java.io.IOException;
 
 /**
- * An extension of {@code DataOutput} for writing to in-memory byte arrays; its methods offer
+ * An extension of {@code DataInput} for reading from in-memory byte arrays; its methods offer
  * identical functionality but do not throw {@link IOException}.
  *
- * @author Jayaprabhakar Kadarkarai
+ * <p><b>Warning:</b> The caller is responsible for not attempting to read past the end of the
+ * array. If any method encounters the end of the array prematurely, it throws {@link
+ * IllegalStateException} to signify <i>programmer error</i>. This behavior is a technical violation
+ * of the supertype's contract, which specifies a checked exception.
+ *
+ * @author Kevin Bourrillion
  * @since 1.0
  */
 
-public interface ByteArrayDataOutput extends DataOutput {
 
-  @Override
-  void writeUTF(@NotNull String s);
+public interface ByteArrayDataInput extends DataInput {
 
 
 
-  /** Returns the contents that have been written to this instance, as a byte array. */
-  byte[] toByteArray();
+  @NotNull String readUTF();
 }

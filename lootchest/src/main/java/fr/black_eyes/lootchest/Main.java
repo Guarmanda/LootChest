@@ -95,9 +95,9 @@ public class Main extends SimpleJavaPlugin {
 	 */
 	public static int getVersion() {
 		if(version == 0) {
-			String complete_ver = Bukkit.getBukkitVersion().split("-")[0];
+			String completeVer = Bukkit.getBukkitVersion().split("-")[0];
 			// version can be 1.8.4 or 1.12.2 or 1.8, we need to get all the digits after the first dot, and ignore the second dot IF THERE IS ONE
-			version = Integer.parseInt(complete_ver.split("\\.")[1]);
+			version = Integer.parseInt(completeVer.split("\\.")[1]);
 		}
 		return version;
 	}
@@ -108,8 +108,8 @@ public class Main extends SimpleJavaPlugin {
 	 * @return the version number
 	 */
 	public static int getCompleteVersion(){
-		String complete_ver = Bukkit.getBukkitVersion().split("-")[0];
-		String sversion = complete_ver.replace(".", "");
+		String completeVer = Bukkit.getBukkitVersion().split("-")[0];
+		String sversion = completeVer.replace(".", "");
 		if(sversion.startsWith("18") || sversion.startsWith("19") || sversion.startsWith("17")){
 			//add a 0 between the first and second digit
 			sversion = sversion.charAt(0) + "0" + sversion.substring(1);

@@ -147,14 +147,14 @@ public class LootChestUtils  {
         if (clear) {
             inv.clear();
         }
-		List<Integer> full_slots = new ArrayList<>();
+		List<Integer> fullSlots = new ArrayList<>();
 
         for (int i=0; i<27 ; i++){
         	if(lc.getInv().getItem(i) != null && !lc.getInv().getItem(i).getType().equals(Material.AIR)) {
 	            final ItemStack item = lc.getInv().getItem(i);
                 final int percent = ThreadLocalRandom.current().nextInt(0, 101);
 	            if (percent <= lc.chances[i]) {
-					full_slots.add(i);
+					fullSlots.add(i);
 	                if (inv.getItem(i) == null || inv.getItem(i).getType() == Material.AIR) {
 	                    inv.setItem(i, item);
 	                }
@@ -168,14 +168,14 @@ public class LootChestUtils  {
         	}
         }
 
-		//while full_slots >= lc.getMaxFilledSlots(), we remove a random item from the chest
+		//while fullSlots >= lc.getMaxFilledSlots(), we remove a random item from the chest
 		if(lc.getMaxFilledSlots() > 0) {
-			while(full_slots.size() > lc.getMaxFilledSlots()) {
-				int index = ThreadLocalRandom.current().nextInt(0, full_slots.size());
-				int slot = full_slots.get(index);
+			while(fullSlots.size() > lc.getMaxFilledSlots()) {
+				int index = ThreadLocalRandom.current().nextInt(0, fullSlots.size());
+				int slot = fullSlots.get(index);
 				if(inv.getItem(slot) != null && inv.getItem(slot).getType() != Material.AIR) {
 					inv.setItem(slot, new ItemStack(Material.AIR));
-					full_slots.remove(index);
+					fullSlots.remove(index);
 				}
 			}
 		}
@@ -219,7 +219,7 @@ public class LootChestUtils  {
 		center.setZ(randomInt(radius)+center.getZ());
 		center.setY(center.getWorld().getHighestBlockYAt(center));
 		if (Main.getCompleteVersion()>=1150) {
-			center.setY(center.getWorld().getHighestBlockYAt(center)+1);
+			center.setY(center.getWorld().getHighestBlockYAt(center)+(double)1);
 		}
 		return center;
 	}

@@ -1,4 +1,4 @@
-package fr.black_eyes.lootchest.googleThings;
+package fr.black_eyes.lootchest.googlethings;
 
 /*
  * Copyright (C) 2007 The Guava Authors

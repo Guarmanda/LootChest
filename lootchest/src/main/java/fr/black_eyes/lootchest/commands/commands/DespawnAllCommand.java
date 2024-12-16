@@ -25,20 +25,16 @@ public class DespawnAllCommand extends SubCommand {
 				if (!l.getWorld().equals(worldName)) {
 					continue;
 				}
-				Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
-					Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
-						l.spawn(false, true);
-					}, 0L);
-				}, 5L);
+				Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () ->
+						Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () ->
+								l.spawn(false, true), 0L), 5L);
 			}
 			Utils.msg(sender, "AllChestsDespawnedInWorld", "[World]", worldName);
 		}else if(args.length == 1) {
 			for (final Lootchest l : Main.getInstance().getLootChest().values()) {
-				Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
-					Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
-						l.spawn(false, true);
-					}, 0L);
-				}, 5L);
+				Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () ->
+						Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () ->
+								l.spawn(false, true), 0L), 5L);
 			}
 			Utils.msg(sender, "AllChestsDespawned", " ", " ");
 		}

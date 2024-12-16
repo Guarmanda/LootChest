@@ -370,7 +370,7 @@ public class Lootchest {
 			Main.getInstance().getPart().remove(getParticleLocation());
 			hologram.remove();
 		}
-		Boolean loaded2 = startLocation.getWorld().isChunkLoaded((int)startLocation.getX()/16, (int)startLocation.getZ()/16) ;
+		boolean loaded2 = startLocation.getWorld().isChunkLoaded((int)startLocation.getX()/16, (int)startLocation.getZ()/16) ;
 		if(loaded != loaded2) {
 			startLocation.getWorld().unloadChunk((int)startLocation.getX()/16, (int)startLocation.getZ()/16);
 			return false;
@@ -382,7 +382,7 @@ public class Lootchest {
 	 * @return whever config option Minimum_Number_Of_Players_For_Natural_Spawning is respected
 	 */
 	private static boolean checkIfEnoughPlayers(){
-		Integer num = Main.configs.Minimum_Number_Of_Players_For_Natural_Spawning;
+		int num = Main.configs.Minimum_Number_Of_Players_For_Natural_Spawning;
 		int players = LootChestUtils.getPlayerCount();
 		return (players >= num); 
 	}

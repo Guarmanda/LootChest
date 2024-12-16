@@ -29,11 +29,9 @@ public class RespawnAllCommand extends SubCommand {
 				if (!l.getWorld().equals(worldName)) {
 					continue;
 				}
-				Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
-					Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
-						l.spawn(true);
-					}, 0L);
-				}, 5L);
+				Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () ->
+						Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () ->
+								l.spawn(true), 0L), 5L);
 			}
 			if (Main.configs.NOTE_allcmd_world_e) {
 				if (Main.configs.NOTE_bungee_broadcast) {
@@ -47,11 +45,9 @@ public class RespawnAllCommand extends SubCommand {
 			Utils.msg(sender, "AllChestsReloadedInWorld", "[World]", args[1]);
 		} else if (args.length == 1) {
 			for (final Lootchest l : Main.getInstance().getLootChest().values()) {
-				Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
-					Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
-						l.spawn(true);
-					}, 0L);
-				}, 5L);
+				Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () ->
+						Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () ->
+								l.spawn(true), 0L), 5L);
 			}
 			if (Main.configs.NOTE_allcmd_e) {
 				if (Main.configs.NOTE_bungee_broadcast) {

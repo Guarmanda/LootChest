@@ -3,8 +3,8 @@ package fr.black_eyes.lootchest;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
-import fr.black_eyes.lootchest.googleThings.ByteArrayDataOutput;
-import fr.black_eyes.lootchest.googleThings.ByteStreams;
+import fr.black_eyes.lootchest.googlethings.ByteArrayDataOutput;
+import fr.black_eyes.lootchest.googlethings.ByteStreams;
 import org.jetbrains.annotations.NotNull;
 
 

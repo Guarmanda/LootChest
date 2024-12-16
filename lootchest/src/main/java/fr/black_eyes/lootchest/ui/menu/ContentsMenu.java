@@ -40,6 +40,8 @@ public class ContentsMenu extends ChestUi {
 		return false;
 	}
 
+	// (for the compatibility with 1.7, we need deprecated code)
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onClose(Player player) {
 		Inventory inv = Bukkit.createInventory(null, 27, "");

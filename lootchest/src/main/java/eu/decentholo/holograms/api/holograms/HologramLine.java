@@ -190,10 +190,7 @@ public class HologramLine extends HologramObject {
         List<Player> playerList = getPlayers(false, players);
         NMS nms = NMS.getInstance();
         for (Player player : playerList) {
-            if (player == null) {
-                continue;
-            }
-            if (parent != null && parent.getParent().isHideState(player)) {
+            if (player == null || parent != null && parent.getParent().isHideState(player)) {
                 continue;
             }
             if (!isVisible(player) && isInDisplayRange(player)) {
@@ -255,7 +252,7 @@ public class HologramLine extends HologramObject {
      *
      * @param players Given players.
      */
-    public void updateLocation(boolean updateRotation, Player... players) {
+    public void updateLocation(Player... players) {
         if (isDisabled()) {
             return;
         }

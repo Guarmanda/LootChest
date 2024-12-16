@@ -19,6 +19,8 @@ import lombok.Getter;
 /**
  * A custom inventory UI that allows for actions to be assigned to each slot.
  */
+// (for the compatibility with 1.7, we need deprecated code)
+@SuppressWarnings("deprecation")
 public class ChestUi {
 
 	@Getter

@@ -37,13 +37,10 @@ public class WorldListener implements Listener {
         HologramManager hologramManager = decentHolograms.getHologramManager();
         World world = event.getWorld();
 
-        S.async(() -> {
-           
-            hologramManager.getHolograms().stream()
-                    .filter(hologram -> !hologram.isEnabled())
-                    .filter(hologram -> hologram.getLocation().getWorld().equals(world))
-                    .filter(hologram -> hologram.getDisableCause().equals(DisableCause.WORLD_UNLOAD))
-                    .forEach(Hologram::enable);
-        });
+        S.async(() -> hologramManager.getHolograms().stream()
+                .filter(hologram -> !hologram.isEnabled())
+                .filter(hologram -> hologram.getLocation().getWorld().equals(world))
+                .filter(hologram -> hologram.getDisableCause().equals(DisableCause.WORLD_UNLOAD))
+                .forEach(Hologram::enable));
     }
 }

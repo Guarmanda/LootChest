@@ -18,6 +18,8 @@ import java.util.List;
 /**
  * A menu to change the chances of each item to be spawned in a loot chest
  */
+// (for the compatibility with 1.7, we need deprecated code)
+@SuppressWarnings("deprecation")
 public class ChancesMenu extends ChestUi {
 
 	private final Lootchest chest;
