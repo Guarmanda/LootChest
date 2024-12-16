@@ -15,6 +15,7 @@ import fr.black_eyes.lootchest.LootChestUtils;
 import fr.black_eyes.lootchest.Main;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.generator.WorldInfo;
 
 /**
  * Abstract class for implementing logic for a sub command
@@ -28,25 +29,25 @@ public abstract class SubCommand {
 	@Getter private List<ArgType> requiredArgs;
 	@Getter private List<ArgType> optionalArgs;
 
-	public SubCommand(String name) {
+	protected SubCommand(String name) {
 		init(name, new ArrayList<>(), new ArrayList<>());
 	}
-	
-	public SubCommand(String name, List<ArgType> requiredArgs) {
+
+	protected SubCommand(String name, List<ArgType> requiredArgs) {
 		init(name, requiredArgs, new ArrayList<>());
 	}
 
-	public SubCommand(String name, List<ArgType> requiredArgs, List<ArgType> OptionnalArgs) {
-		init(name, requiredArgs, OptionnalArgs);
+	protected SubCommand(String name, List<ArgType> requiredArgs, List<ArgType> arguments) {
+		init(name, requiredArgs, arguments);
 	}
 
-	private void init(String name, List<ArgType> requiredArgs, List<ArgType> OptionnalArgs) {
+	private void init(String name, List<ArgType> requiredArgs, List<ArgType> arguments) {
 		this.name = name.toLowerCase();
 		this.requiredArgs = requiredArgs;
 		this.permission = "lootchest." + name;
 		aliases = new HashSet<>();
 		aliases.add(this.name);
-		this.optionalArgs = OptionnalArgs;
+		this.optionalArgs = arguments;
 	}
 
 	public int getArgCount() {
@@ -73,6 +74,7 @@ public abstract class SubCommand {
 		for (int i = 1; i < args.length; i++) {
 			ArgType arg = getArgs().get(i-1);
 			if (!arg.isValid(args[i], sender)) {
+				sender.sendMessage(ChatColor.RED + getUsage());
 				//sender.sendMessage(ChatColor.RED + "Invalid argument " + args[i] + " for " + arg.getName());
 				return;
 			}
@@ -84,10 +86,6 @@ public abstract class SubCommand {
 	 * Method to overwrite to hanlde sub command execution with arguments
 	 */
 	protected abstract void onCommand(CommandSender sender, String[] args);
-	
-	public void addAlias(String alias) {
-		aliases.add(alias.toLowerCase());
-	}
 	
 	public boolean matchesAlias(String alias) {
 		return aliases.contains(alias);
@@ -104,7 +102,7 @@ public abstract class SubCommand {
 			case PLAYER:
 				return LootChestUtils.getPlayersOnline().stream().map(Player::getName).collect(LinkedList::new, LinkedList::add, LinkedList::addAll);
 			case WORLD:
-				return Bukkit.getWorlds().stream().map(w -> w.getName()).collect(LinkedList::new, LinkedList::add, LinkedList::addAll);
+				return Bukkit.getWorlds().stream().map(WorldInfo::getName).collect(LinkedList::new, LinkedList::add, LinkedList::addAll);
 			case INTEGER:
 			case STRING:
 			default:

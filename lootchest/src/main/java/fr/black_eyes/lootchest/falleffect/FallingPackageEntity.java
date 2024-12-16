@@ -3,7 +3,6 @@ package fr.black_eyes.lootchest.falleffect;
 import java.lang.reflect.InvocationTargetException;
 
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -29,20 +28,20 @@ public final class FallingPackageEntity {
     Location startLoc;
     Material material;
     Object blocky;
-    Boolean armorstand;
+    boolean armorstand;
     Location target;
-    Double speed;
-    Boolean fireworks;
-    Integer height;
+    double speed;
+    boolean fireworks;
+    int height;
     IFallPacket armorstandFall;
     private int counter = 0;
     
-    public FallingPackageEntity(final Location loc, Boolean loaded,Location target) {
+    public FallingPackageEntity(final Location loc, boolean loaded, Location target) {
     	Main main = Main.getInstance();
     	this.fireworks = Main.configs.FALL_Enable_Fireworks;
     	this.target = target;
         this.height = Main.configs.FALL_Height;
-    	this.armorstand = main.getUseArmorStands();
+    	this.armorstand = main.isUseArmorStands();
         this.blocky = null;
         this.armorstandFall = null;
         this.startLoc = loc.clone();
@@ -109,13 +108,12 @@ public final class FallingPackageEntity {
                 Main.getInstance().getParticles().get("SMOKE").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation(), (float)50.0);
             else if (Main.getInstance().getParticles().get("SMOKE_NORMAL") != null)
 			    Main.getInstance().getParticles().get("SMOKE_NORMAL").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation(), (float)50.0);
-            if(!this.armorstand) {
-                if (((Entity) this.blocky).isDead()) {
+            if(!this.armorstand && ((Entity) this.blocky).isDead()) {
                     final Location oldLoc = locPackage;
                     final Vector oldVelocity = ((Entity) this.blocky).getVelocity().setY(-(speed));
                     ((Entity) (this.blocky = this.world.spawnFallingBlock(oldLoc, this.material, (byte)0))).setVelocity(oldVelocity);
                 }
-            }
+
             if (this.counter % 5 == 0 && (   (locPackage.getY() - target.getY()) >3 || counter > 100) && fireworks ) {
                 this.summonUpdateFireworks();
             }
@@ -151,10 +149,7 @@ public final class FallingPackageEntity {
             fwm.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL).withColor(Color.RED).withColor(Color.WHITE).build());
             fwm.setPower(1);
             fw.setFireworkMeta(fwm);
-            Main.getInstance().getServer().getScheduler().runTaskLater(Main.getInstance(), () -> {
-                fw.detonate();
-            }, 1L);
-        //}
+            Main.getInstance().getServer().getScheduler().runTaskLater(Main.getInstance(), fw::detonate, 1L);
     }
     
     private void summonSpawnFireworks() {
@@ -168,17 +163,11 @@ public final class FallingPackageEntity {
             fwm.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE).withColor(Color.RED).withColor(Color.WHITE).build());
             fwm.setPower(1);
             fw.setFireworkMeta(fwm);
-            
-            Main.getInstance().getServer().getScheduler().runTaskLater(Main.getInstance(), () -> {
-                fw.detonate();
-            }, 1L);
-        //}
+            Main.getInstance().getServer().getScheduler().runTaskLater(Main.getInstance(), fw::detonate, 1L);
     }
 
-    protected void retick() {
-    	Main.getInstance().getServer().getScheduler().runTaskLater((Plugin)Main.getInstance(), () -> {
-            tick();
-            }, 1L);
+    private void retick() {
+    	Main.getInstance().getServer().getScheduler().runTaskLater(Main.getInstance(), this::tick, 1L);
     }
     
 

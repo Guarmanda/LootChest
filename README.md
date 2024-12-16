@@ -26,8 +26,8 @@ Build with maven (mvn package)
 <dd><a href="https://www.paypal.me/BlackEyes99" rel="nofollow" class="externalLink" target="_blank">https://www.paypal.me/BlackEyes99</a></dd>
 </dl>
 </div>
-<div style="text-align: center"><span style="font-size: 26px"><span style="font-family: 'Verdana'">LootChest</span></span><br />
-<span style="font-size: 12px"><span style="font-family: 'Verdana'">Configurable chest reloader<br />
+<div style="text-align: center"><span style="font-size: 26px">LootChest</span></span><br />
+<span style="font-size: 12px">Configurable chest reloader<br />
 <br />
 
 </span></span><br />
@@ -85,7 +85,7 @@ Build with maven (mvn package)
 <br />
 <br />
 <span style="font-size: 12px"><span style="font-size: 22px"><span style="font-size: 15px"><b><span style="font-size: 22px">More infos:</span></b></span></span></span><br />
-<span style="font-size: 12px"><span style="font-size: 22px"><span style="font-size: 15px">Mail: <a href="/cdn-cgi/l/email-protection#3147505d545f45585f715658435e551f5743"><span class="__cf_email__" data-cfemail="93e5f2fff6fde7fafdd3f4fae1fcf7bdf5e1">valentin@girod.fr</span></a></span></span></span><br />
+<span style="font-size: 12px"><span style="font-size: 22px"><span style="font-size: 15px">Mail: <span class="__cf_email__" data-cfemail="93e5f2fff6fde7fafdd3f4fae1fcf7bdf5e1">valentin@girod.fr</span></a></span></span></span><br />
 <span style="font-size: 12px"><span style="font-size: 22px"><span style="font-size: 15px">Discord: Black_Eyes#5538</span></span></span><br />
 <span style="font-size: 12px"><span style="font-size: 22px"><span style="font-size: 15px">github on top of page</span></span></span><br />
 
@@ -96,7 +96,8 @@ You can donate to me here <a href="https://www.paypal.com/paypalme/BlackEyes99" 
 <br />
 
 <span style="font-size: 22px"><b>Using my code:</b></span><br />
-<span style="font-size: 15px">Don&#039;t sell copy of this thing, it will always stay open source. You can still use my code if you want to edit this plugin for yourself, or someone in needs, or you can use some function for your own plugin^^ (the fall effect class could be useful to some, and there&#039;s many menu in this, and also some config file functions) </span>&#8203;</div>
+<span style="font-size: 15px">Don&#039;t sell copy of this thing, it will always stay open source. You can still use my code if you want to edit this plugin for yourself, or someone in needs, or you can use some function for your own plugin^^ (the fall effect class could be useful to some, and there&#039;s many menu in this, and also some config file functions) </span>&#8203;
+</div>
 </blockquote></article>
 
 

@@ -1,6 +1,7 @@
 package fr.black_eyes.lootchest.listeners;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -34,7 +35,6 @@ import fr.black_eyes.simpleJavaPlugin.Utils;
 import fr.black_eyes.lootchest.LootChestUtils;
 
 
-
 public class DeleteListener implements Listener  {
 	
 
@@ -58,7 +58,7 @@ public class DeleteListener implements Listener  {
         if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 Block b = e.getClickedBlock();
                 if (Mat.isALootChestBlock(b)){
-					Lootchest chest = LootChestUtils.isLootChest(e.getClickedBlock().getLocation());
+					Lootchest chest = LootChestUtils.isLootChest(b.getLocation());
 					if(chest != null) {
 						if(openInvs.containsKey(p)) {
 							openInvs.remove(p);
@@ -126,7 +126,7 @@ public class DeleteListener implements Listener  {
     					keys.spawn( false);
     				}
     			}
-    			if(keys.getTake_msg()&&!keys.getTaken()){
+    			if(keys.isTakeMsgEnabled()&&!keys.isTaken()){
     				keys.setTaken(true);
 	    			String msg = Utils.color(Main.getInstance().getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()));
 	    			if(Main.configs.NOTE_bungee_broadcast) {
@@ -189,7 +189,7 @@ public class DeleteListener implements Listener  {
     			}
     				
     			Player p = e.getPlayer();
-    			if(keys.getTake_msg() && !keys.getTaken()){
+    			if(keys.isTakeMsgEnabled() && !keys.isTaken()){
     				keys.setTaken(true);
 	    			String msg = Utils.color(Main.getInstance().getConfigFiles().getLang().getString("playerTookChest").replace("[Player]", p.getName()).replace("[Chest]", keys.getHolo()));
 	    			if(Main.configs.NOTE_bungee_broadcast) {
@@ -232,12 +232,10 @@ public class DeleteListener implements Listener  {
         				chest.setType(Material.AIR); //stop item drops
         		        
         	            int delay = 2; 
-        	            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.getInstance(), new Runnable() {
-        	                public void run() {
-        	                    state.update(true, false);
-        	                    ((InventoryHolder)state).getInventory().setContents(content);
-        	                }
-        	            }, delay);
+        	            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
+                            state.update(true, false);
+                            ((InventoryHolder)state).getInventory().setContents(content);
+                        }, delay);
         				return;
         			}
         			if(!Main.configs.Destroy_Naturally_Instead_Of_Removing_Chest) {
@@ -298,22 +296,27 @@ public class DeleteListener implements Listener  {
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent e) {
 		Block block = e.getBlock();
-		if (Mat.isALootChestBlock(block)) {
-			for (int x = -1; x <= 1; x++) {
-				for (int y = -1; y <= 1; y++) {
-					for (int z = -1; z <= 1; z++) {
-						Block b = block.getRelative(x, y, z);
-						Lootchest lc = LootChestUtils.isLootChest(b.getLocation());
-						if (lc != null && !(x==0 && z==0)) {
-							if(lc.getProtectionTime() != 0) {
-								e.setCancelled(true);
-								return;
-							}
-						}
-					}
+		if (Mat.isALootChestBlock(block)){
+			for(Block b : getBlocksInRadius(e.getBlock(), 1)) {
+				if (LootChestUtils.isLootChest(b.getLocation()) != null) {
+					e.setCancelled(true);
+					return;
 				}
 			}
 		}
+	}
+
+	public List<Block> getBlocksInRadius(Block start, int radius){
+		ArrayList<Block> blocks = new ArrayList<>();
+		for(double x = start.getLocation().getX() - radius; x <= start.getLocation().getX() + radius; x++){
+			for(double y = start.getLocation().getY() - radius; y <= start.getLocation().getY() + radius; y++){
+				for(double z = start.getLocation().getZ() - radius; z <= start.getLocation().getZ() + radius; z++){
+					Location loc = new Location(start.getWorld(), x, y, z);
+					blocks.add(loc.getBlock());
+				}
+			}
+		}
+		return blocks;
 	}
 
 

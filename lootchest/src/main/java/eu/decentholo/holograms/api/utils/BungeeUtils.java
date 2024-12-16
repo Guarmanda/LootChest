@@ -1,13 +1,9 @@
 package eu.decentholo.holograms.api.utils;
 
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
-
 import eu.decentholo.holograms.api.DecentHolograms;
 import eu.decentholo.holograms.api.DecentHologramsAPI;
 import lombok.experimental.UtilityClass;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.Messenger;
 
 @UtilityClass
@@ -29,18 +25,6 @@ public class BungeeUtils {
         Messenger messenger = Bukkit.getServer().getMessenger();
         messenger.unregisterOutgoingPluginChannel(DECENT_HOLOGRAMS.getPlugin(), BUNGEE_CORD_CHANNEL);
         initialized = false;
-    }
-
-    public static void connect(Player player, String server) {
-        if (!initialized) init();
-        try {
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeUTF("Connect");
-            out.writeUTF(server);
-            player.sendPluginMessage(DECENT_HOLOGRAMS.getPlugin(), BUNGEE_CORD_CHANNEL, out.toByteArray());
-        } catch (Exception e) {
-
-        }
     }
 
 }

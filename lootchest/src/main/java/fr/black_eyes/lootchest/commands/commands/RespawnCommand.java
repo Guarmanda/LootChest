@@ -1,6 +1,6 @@
 package fr.black_eyes.lootchest.commands.commands;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
@@ -18,7 +18,7 @@ import fr.black_eyes.simpleJavaPlugin.Utils;
 public class RespawnCommand extends SubCommand {
 	
 	public RespawnCommand() {
-		super("respawn", Arrays.asList(ArgType.LOOTCHEST));
+		super("respawn", Collections.singletonList(ArgType.LOOTCHEST));
 	}
 	
 	@Override
@@ -26,11 +26,11 @@ public class RespawnCommand extends SubCommand {
 		String chestName = args[1];
 		Lootchest lc = Main.getInstance().getLootChest().get(chestName);
 		lc.spawn(true);
-		Utils.msg(sender, "succesfulyRespawnedChest", Constants.cheststr, chestName);
-		if (lc.getRespawn_cmd()) {
+		Utils.msg(sender, "succesfulyRespawnedChest", Constants.CHEST_PLACEHOLDER, chestName);
+		if (lc.isRespawnCmdMsgEnabled()) {
 			Block block = lc.getActualLocation().getBlock();
 			String holo = lc.getHolo();
-			String message = Utils.color((((Main.configs.NOTE_command_msg.replace("[World]", block.getWorld().getName()).replace(Constants.cheststr, holo)).replace("[x]", block.getX() + "")).replace("[y]", block.getY() + "")).replace("[z]", block.getZ() + ""));
+			String message = Utils.color((((Main.configs.NOTE_command_msg.replace("[World]", block.getWorld().getName()).replace(Constants.CHEST_PLACEHOLDER, holo)).replace("[x]", block.getX() + "")).replace("[y]", block.getY() + "")).replace("[z]", block.getZ() + ""));
 			if (Main.configs.NOTE_bungee_broadcast) {
 				BungeeChannel.bungeeBroadcast(message);
 			} else if (Main.configs.NOTE_per_world_message) {

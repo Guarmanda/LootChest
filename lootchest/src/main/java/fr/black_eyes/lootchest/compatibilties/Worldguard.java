@@ -18,7 +18,7 @@ public class Worldguard
    
     public static boolean isInRegion(Location loc) {
     	RegionManager regions = null;
-		Class<? extends RegionManager> cls = null; 
+		Class<? extends RegionManager> cls;
 		Method getregion = null;
 		try {
 			if(Main.getCompleteVersion() >= 1130) {

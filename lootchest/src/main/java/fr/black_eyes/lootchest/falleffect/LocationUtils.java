@@ -20,4 +20,8 @@ public class LocationUtils
         }
         return new Location(original.getWorld(), newX, newY, newZ);
     }
+
+    private LocationUtils() {
+        throw new IllegalStateException("Utility class");
+    }
 }

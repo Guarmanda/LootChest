@@ -1,5 +1,6 @@
 package fr.black_eyes.lootchest;
 
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -23,7 +24,7 @@ PART_respawn_ticks,
 defaultRespawnProtection,
 default_maxFilledSlots;
 
-public Boolean saveDataFileDuringReload, 
+public boolean saveDataFileDuringReload,
 use_players_locations_for_randomspawn,
 save_Chest_Locations_At_Every_Spawn,
 UseHologram,
@@ -68,8 +69,13 @@ PART_speed;
 
 
 /**
- * 
+ *
+ * -- GETTER --
+ *
+ * @return the only instance of the config options. Usefull for anything but reloading the plugin.
+
  */
+@Getter
 private static Config instance = null;
 
 
@@ -85,16 +91,8 @@ public static Config getInstance(FileConfiguration config)
     return instance;
 }
 
-/**
- * @return the only instance of the config options. Usefull for anything but reloading the plugin.
- */
-public static Config getInstance()
-{
-	return instance;
-}
 
-
-/**
+    /**
  * Initialize all the config options by reading the YAML config file 
  * @param config The config file to get the options from, and initialize them
  */

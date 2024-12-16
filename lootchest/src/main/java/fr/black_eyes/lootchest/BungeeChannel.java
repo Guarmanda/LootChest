@@ -3,9 +3,9 @@ package fr.black_eyes.lootchest;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
-import fr.black_eyes.lootchest.googleThings.ByteArrayDataInput;
 import fr.black_eyes.lootchest.googleThings.ByteArrayDataOutput;
 import fr.black_eyes.lootchest.googleThings.ByteStreams;
+import org.jetbrains.annotations.NotNull;
 
 
 /**
@@ -15,24 +15,10 @@ import fr.black_eyes.lootchest.googleThings.ByteStreams;
 public class BungeeChannel implements PluginMessageListener {
 	
 
-	/**
-	 * 
-	 */
 	@Override
-	public void onPluginMessageReceived(String channel, Player player, byte[] message) {
-		if (!channel.equals("BungeeCord")) {
-			return;
-		}
-		String subchannel;
+	public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
 
-		ByteArrayDataInput in = ByteStreams.newDataInput(message);
-		subchannel = in.readUTF();
-
-		if (subchannel.equals("SomeSubChannel")) {
-			// Use the code sample in the 'Response' sections below to read
-			// the data.
-	    }
-	}
+    }
 
 	
 
@@ -58,17 +44,7 @@ public class BungeeChannel implements PluginMessageListener {
 	
 	
 	/**
-	 * @param p
-	 * @param server
-	 * @param player
-	 */
-	public static void sendPlayerToServer(Player p, String server, String player){
-		sendPluginMsg(new String[]{"ConnectOther", player, server}, null);
-	}
-	
-	
-	/**
-	 * @param message
+	 * @param message The message to broadcast
 	 */
 	public static void bungeeBroadcast(String message) {
 		sendPluginMsg(new String[]{"Message", "ALL", message}, null);

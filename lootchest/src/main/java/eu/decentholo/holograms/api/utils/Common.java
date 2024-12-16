@@ -1,20 +1,11 @@
 package eu.decentholo.holograms.api.utils;
 
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class Common {
-
-
-
-    public static String PREFIX;
-
-    static {
-        PREFIX = "&8[&3DecentHolograms&8] &7";
-    }
 
     /**
      * This method generates random Integer between min and max
@@ -30,15 +21,8 @@ public class Common {
     /*
      * 	Colorize
      */
-
     public static String colorize(String string) {
         return string;
     }
-
-    public static List<String> colorize(List<String> list) {
-        list.replaceAll(Common::colorize);
-        return list;
-    }
-
 
 }

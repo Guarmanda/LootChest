@@ -128,7 +128,6 @@ public class ReflectionUtil {
         try {
             return Class.forName(classPath);
         } catch (ClassNotFoundException e) {
-            //Log.error("Failed to get class: %s", e, classPath);
             return null;
         }
     }
@@ -151,7 +150,6 @@ public class ReflectionUtil {
         try {
             return Class.forName("net.minecraft." + classPath);
         } catch (ClassNotFoundException e) {
-            //Log.error("Failed to get net.minecraft class: %s", e, classPath);
             return null;
         }
     }
@@ -172,7 +170,6 @@ public class ReflectionUtil {
         try {
             return Class.forName("net.minecraft.server." + getVersion() + "." + classPath);
         } catch (ClassNotFoundException e) {
-            //Log.error("Failed to get net.minecraft.server class: %s", e, classPath);
             return null;
         }
     }
@@ -191,7 +188,6 @@ public class ReflectionUtil {
         try {
             return Class.forName(CRAFTBUKKIT_PACKAGE + "." + classPath);
         } catch (ClassNotFoundException e) {
-            //Log.error("Failed to get org.bukkit.craftbukkit class: %s", e, classPath);
             return null;
         }
     }

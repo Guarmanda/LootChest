@@ -186,9 +186,9 @@ public enum Particle {
 	 */
 	public static int getVersion() {
 		if(version == 0) {
-			String complete_ver = Bukkit.getBukkitVersion().split("-")[0];
+			String completeVer = Bukkit.getBukkitVersion().split("-")[0];
 			// version can be 1.8.4 or 1.12.2 or 1.8, we need to get all the digits after the first dot, and ignore the second dot IF THERE IS ONE
-			version = Integer.parseInt(complete_ver.split("\\.")[1]);
+			version = Integer.parseInt(completeVer.split("\\.")[1]);
 		}
 		return version;
 	}
@@ -197,13 +197,12 @@ public enum Particle {
 
 	/**
 	 * Construct a new particle effect
-	 * 
-	 * @param name Name of this particle effect
-	 * @param id Id of this particle effect
+	 *
+	 * @param mate Material of the particle
 	 * @param requiredVersion Version which is required (1.x)
 	 * @param properties Properties of this particle effect
 	 */
-	private Particle(Material mate, int requiredVersion, ParticleProperty... properties) {
+	Particle(Material mate, int requiredVersion, ParticleProperty... properties) {
 		this.requiredVersion = requiredVersion;
 		this.properties = Arrays.asList(properties);
 		this.mat = mate;
@@ -280,12 +279,8 @@ public enum Particle {
 	 * @param amount Amount of particles
 	 * @param center Center location of the effect
 	 * @param range Range of the visibility
-	 * @throws ParticleVersionException If the particle effect is not supported by the server version
-	 * @throws ParticleDataException If the particle effect requires additional data
 	 * @throws IllegalArgumentException If the particle effect requires water and none is at the center location
-	 * @see ParticlePacket
-	 * @see ParticlePacket#sendTo(Location, double)
-	 */
+	*/
 	public void display(float offsetX, float offsetY, float offsetZ, float speed, int amount, Location center, double range) throws IllegalArgumentException {
 		particle.spawn(center, amount, offsetX, offsetY, offsetZ, speed, null);
 	}
@@ -300,35 +295,11 @@ public enum Particle {
 	 * @param amount Amount of particles
 	 * @param center Center location of the effect
 	 * @param players Receivers of the effect
-	 * @throws ParticleVersionException If the particle effect is not supported by the server version
-	 * @throws ParticleDataException If the particle effect requires additional data
 	 * @throws IllegalArgumentException If the particle effect requires water and none is at the center location
-	 * @see ParticlePacket
-	 * @see ParticlePacket#sendTo(Location, List)
 	 */
 	public void display(float offsetX, float offsetY, float offsetZ, float speed, int amount, Location center, List<Player> players) throws  IllegalArgumentException {
 		for(Player p: players) if(!isFarAway(center, p)) particle.spawn(p, center, amount, offsetX, offsetY, offsetZ, speed, null);
 	}
-
-	/**
-	 * Displays a particle effect which is only visible for the specified players
-	 * 
-	 * @param offsetX Maximum distance particles can fly away from the center on the x-axis
-	 * @param offsetY Maximum distance particles can fly away from the center on the y-axis
-	 * @param offsetZ Maximum distance particles can fly away from the center on the z-axis
-	 * @param speed Display speed of the particles
-	 * @param amount Amount of particles
-	 * @param center Center location of the effect
-	 * @param players Receivers of the effect
-	 * @throws ParticleVersionException If the particle effect is not supported by the server version
-	 * @throws ParticleDataException If the particle effect requires additional data
-	 * @throws IllegalArgumentException If the particle effect requires water and none is at the center location
-	 * @see #display(float, float, float, float, int, Location, List)
-	 */
-	public void display(float offsetX, float offsetY, float offsetZ, float speed, int amount, Location center, Player... players) throws IllegalArgumentException {
-			display(offsetX, offsetY, offsetZ, speed, amount, center, Arrays.asList(players));
-	}
-
 
 	/**
 	 * Represents the property of a particle effect
@@ -338,15 +309,14 @@ public enum Particle {
 	 * @author DarkBlade12
 	 * @since 1.7
 	 */
-	public static enum ParticleProperty {
-		DELETED_IN_1_13,DELETED_IN_1_18, DELETED_IN_1_20_6;
+	public enum ParticleProperty {
+		DELETED_IN_1_13,DELETED_IN_1_18, DELETED_IN_1_20_6
 	}
 
 	/**
 	 * Get the name of the particle in a readable format
 	 * Capitalize the first letter of any word in a string and replace "_" with " " in it.
 	 * Example: FALLING_OBSIDIAN_TEAR -> Falling Obsidian Tear
-	 * @param string The string to transform so all words begin with an uppercase letter
 	 * @return The modified String
 	 */
 	public String getReadableName() {
@@ -362,17 +332,6 @@ public enum Particle {
 		  }
 		 return (String.valueOf(chars));
 	}
-	
-	/**
-	 * Revert the process of the function above
-	 * @param sting
-	 * @return
-	 */
-	public static String getUnreadableName(String sting) {
-		return sting.toUpperCase().replace(" ", "_");
-	}
-	
-
 
 	
 

@@ -1,13 +1,11 @@
 package fr.black_eyes.lootchest.commands.commands;
 
-import java.util.Arrays;
+import java.util.Collections;
 
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.util.BlockIterator;
 
 import fr.black_eyes.lootchest.Constants;
 import fr.black_eyes.lootchest.Lootchest;
@@ -23,7 +21,7 @@ public class CreateCommand extends SubCommand {
 	
 	private final UiHandler uiHandler;
 	public CreateCommand(UiHandler uiHandler) {
-		super("create", Arrays.asList(ArgType.STRING));
+		super("create", Collections.singletonList(ArgType.STRING));
 		setPlayerRequired(true);
 
 		this.uiHandler = uiHandler;
@@ -34,31 +32,21 @@ public class CreateCommand extends SubCommand {
 		Player player = (Player) sender;
 		Block chest;
 		String chestName = args[1];
-		
-		BlockIterator iter = new BlockIterator(player, 10);
-		Block lastBlock = iter.next();
-		while (iter.hasNext()) {
-			lastBlock = iter.next();
-			if (lastBlock.getType() == Material.AIR) {
-				continue;
-			}
-			break;
-		}
-		chest = lastBlock;
+		chest = LootChestUtils.getWatchedBlock(player);
 		if (!Mat.isALootChestBlock(chest)) {
 			Utils.msg(sender, "notAChest", " ", " ");
 		} else if (LootChestUtils.isEmpty(((InventoryHolder) chest.getState()).getInventory())) {
 			Utils.msg(sender, "chestIsEmpy", " ", " ");
 		} else if (Main.getInstance().getLootChest().containsKey(chestName)) {
-			Utils.msg(sender, "chestAlreadyExist", Constants.cheststr, chestName);
+			Utils.msg(sender, "chestAlreadyExist", Constants.CHEST_PLACEHOLDER, chestName);
 		} else if (LootChestUtils.isLootChest(chest.getLocation()) != null) {
-			Utils.msg(sender, "blockIsAlreadyLootchest", Constants.cheststr, chestName);
+			Utils.msg(sender, "blockIsAlreadyLootchest", Constants.CHEST_PLACEHOLDER, chestName);
 		} else {
 			Lootchest newChest = new Lootchest(chest, chestName);
 			Main.getInstance().getLootChest().put(chestName, newChest);
 			newChest.spawn(true);
 			newChest.updateData();
-			Utils.msg(sender, "chestSuccefulySaved", Constants.cheststr, chestName);
+			Utils.msg(sender, "chestSuccefulySaved", Constants.CHEST_PLACEHOLDER, chestName);
 			uiHandler.openUi(player, UiHandler.UiType.MAIN, newChest);
 		}
 	}

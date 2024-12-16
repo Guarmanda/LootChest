@@ -1,6 +1,6 @@
 package fr.black_eyes.lootchest.commands.commands;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.bukkit.command.CommandSender;
 
@@ -14,19 +14,19 @@ import fr.black_eyes.simpleJavaPlugin.Utils;
 public class ToggleFallCommand extends SubCommand {
 	
 	public ToggleFallCommand() {
-		super("togglefall", Arrays.asList(ArgType.LOOTCHEST));
+		super("togglefall", Collections.singletonList(ArgType.LOOTCHEST));
 	}
 	
 	@Override
 	protected void onCommand(CommandSender sender, String[] args) {
 		Lootchest lc = Main.getInstance().getLootChest().get(args[1]);
-		boolean fall = lc.getFall();
+		boolean fall = lc.isFallEnabled();
 		if (fall) {
-			lc.setFall(false);
-			Utils.msg(sender, "disabledFallEffect", Constants.cheststr, args[1]);
+			lc.setFallEnabled(false);
+			Utils.msg(sender, "disabledFallEffect", Constants.CHEST_PLACEHOLDER, args[1]);
 		} else {
-			lc.setFall(true);
-			Utils.msg(sender, "enabledFallEffect", Constants.cheststr, args[1]);
+			lc.setFallEnabled(true);
+			Utils.msg(sender, "enabledFallEffect", Constants.CHEST_PLACEHOLDER, args[1]);
 		}
 		lc.updateData();
 	}

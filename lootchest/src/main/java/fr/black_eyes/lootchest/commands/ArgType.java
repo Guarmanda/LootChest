@@ -10,6 +10,7 @@ import fr.black_eyes.lootchest.Constants;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.simpleJavaPlugin.Utils;
 import fr.black_eyes.lootchest.LootChestUtils;
+import org.bukkit.generator.WorldInfo;
 
 public enum ArgType {
     INTEGER, PLAYER, LOOTCHEST, STRING, WORLD;
@@ -35,7 +36,7 @@ public enum ArgType {
         switch (this) {
             case INTEGER:
                 try {
-                    Integer.parseInt(arg);
+                    Integer.valueOf(arg);
                     return true;
                 } catch (NumberFormatException e) {
                     Utils.msg(sender, "notAnInteger", "[Number]", arg);
@@ -46,20 +47,24 @@ public enum ArgType {
                     Utils.msg(sender, "PlayerIsNotOnline", "[Player]", arg);
                     return false;
                 }
+                break;
             case LOOTCHEST:
-                if (!Main.getInstance().getLootChest().keySet().contains(arg)) {
-                    Utils.msg(sender, "chestDoesntExist", Constants.cheststr, arg);
+                if (!Main.getInstance().getLootChest().containsKey(arg)) {
+                    Utils.msg(sender, "chestDoesntExist", Constants.CHEST_PLACEHOLDER, arg);
                     return false;
                 }
+                break;
             case STRING:
                 return true;
             case WORLD:
-                if(!Bukkit.getWorlds().stream().map(w -> w.getName()).collect(LinkedList::new, LinkedList::add, LinkedList::addAll).contains(arg)){
+                if(!Bukkit.getWorlds().stream().map(WorldInfo::getName).collect(LinkedList::new, LinkedList::add, LinkedList::addAll).contains(arg)){
                     Utils.msg(sender, "worldDoesntExist", "[World]", arg);
                     return false;
                 }
+                break;
             default:
                 return true;
         }
+        return true;
     }
 }

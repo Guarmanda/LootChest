@@ -27,12 +27,12 @@ import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /**
  * 1.17+ class to make an invisible armorstand fall from the sky with packets and a block on its head
  */
+@SuppressWarnings("unused")
 public final class Fallv_1_21_3 implements IFallPacket {
     private final ClientboundAddEntityPacket spawnPacket;
     private final net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket dataPacket;
@@ -43,9 +43,9 @@ public final class Fallv_1_21_3 implements IFallPacket {
     private final int height;
     private final double speed;
     private long counter;
-    private final short SPEED_ONE_BLOCK_PER_SECOND = 410; // speed found after like 10 tests corresponding to one block fall per second
-    private final long COUNTER_ONE_BLOCK = 10; // after 10*2 ticks at speed 410, the armorstand falls one block
-    private static final short SPEED_MULTIPLYER = 31;
+    private static final short SPEED_ONE_BLOCK_PER_SECOND = 410; // speed found after like 10 tests corresponding to one block fall per second
+    private static final long COUNTER_ONE_BLOCK = 10; // after 10*2 ticks at speed 410, the armorstand falls one block
+    private static final short SPEED_MULTIPLIER = 31;
     private final JavaPlugin instance;
 
     /**
@@ -57,7 +57,7 @@ public final class Fallv_1_21_3 implements IFallPacket {
     @Override
     public Location getLocation() {
         Location loc = startLocation.clone();
-        loc.setY(loc.getY() - (height-((counter /(COUNTER_ONE_BLOCK/(this.speed*SPEED_MULTIPLYER)))-3))   );
+        loc.setY(loc.getY() - (height-((counter /(COUNTER_ONE_BLOCK/(this.speed*SPEED_MULTIPLIER)))-3))   );
         return loc;
     }
 
@@ -106,14 +106,14 @@ public final class Fallv_1_21_3 implements IFallPacket {
                 new Vec3(0, 0, 0),                                   // Velocity (none in this case)
                 0.0);   
             dataPacket = new ClientboundSetEntityDataPacket(stand.getId(), stand.getEntityData().getNonDefaultValues());
-        short new_speed = (short)(this.speed*SPEED_MULTIPLYER*SPEED_ONE_BLOCK_PER_SECOND); // the plugin had a default speed of 0.8 wich was quite fast, but it was never meaningful, 0.8 was like 5 blocks per seconds.
+        short newSpeed = (short)(this.speed*SPEED_MULTIPLIER*SPEED_ONE_BLOCK_PER_SECOND); // the plugin had a default speed of 0.8 wich was quite fast, but it was never meaningful, 0.8 was like 5 blocks per seconds.
         // divide the counter by the speed multiplyer to get the number of ticks the armorstand will need to fall to get the fall ticks of one block for the new speed, then multiply it by the total height to fall
-        counter = (int)((COUNTER_ONE_BLOCK/(this.speed*SPEED_MULTIPLYER))*(height+3));
+        counter = (int)((COUNTER_ONE_BLOCK/(this.speed*SPEED_MULTIPLIER))*(height+3));
         // I added 3 to height, else packet is removed too fast
         motionPacket = new ClientboundMoveEntityPacket.Pos(
                         armorstand.getId(),
                         (short) (0),  // Multiply by 4096 for correct movement scaling
-                        (short) (-new_speed), // Adjust Y for gravity/fall (lower Y for falling)
+                        (short) (-newSpeed), // Adjust Y for gravity/fall (lower Y for falling)
                         (short) (0),
                         true  // Yaw
                     ); 
@@ -127,7 +127,7 @@ public final class Fallv_1_21_3 implements IFallPacket {
     public void sendPacketToAll() {
         @SuppressWarnings("deprecation")
         MinecraftServer server = MinecraftServer.getServer();
-        Stream<ServerPlayer> players = StreamSupport.stream(server.getPlayerList().getPlayers().spliterator(), false);
+        Stream<ServerPlayer> players = server.getPlayerList().getPlayers().stream();
         players.forEach(p -> {
             // check distance between player and armorstand
             if (p.distanceTo(armorstand) > 100) {
@@ -158,20 +158,16 @@ public final class Fallv_1_21_3 implements IFallPacket {
     public void removePacketToAll() {
         @SuppressWarnings("deprecation")
         MinecraftServer server = MinecraftServer.getServer();
-        Stream<ServerPlayer> players = StreamSupport.stream(server.getPlayerList().getPlayers().spliterator(), false);
-        players.forEach(p -> {
-            p.connection.send(new ClientboundRemoveEntitiesPacket(armorstand.getId()));
-        });
+        Stream<ServerPlayer> players = server.getPlayerList().getPlayers().stream();
+players.forEach(p -> p.connection.send(new ClientboundRemoveEntitiesPacket(armorstand.getId())));
     }
 
 
      /**
       * Get an NMS ItemStack from a Bukkit Material
       */
-      public ItemStack getNmsItemStackFromMaterial(Material material) {
-        if (material == null || !material.isItem()) return null;
-        ResourceLocation key = ResourceLocation.tryParse(material.getKey().toString());
-        Item item = BuiltInRegistries.ITEM.get(key).orElse(null).value();
-        return new ItemStack(item);
-    }
+     public ItemStack getNmsItemStackFromMaterial(Material material) {
+         if (material == null || !material.isItem()) return null;
+         return new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(material.getKey().toString())).get());
+     }
 }

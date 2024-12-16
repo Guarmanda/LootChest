@@ -76,6 +76,9 @@ public class NMS_1_17 extends NMS {
     private static final ReflectField<AtomicInteger> ENTITY_COUNTER_FIELD;
     private static final Object VEC_3D_A;
 
+    private static final String BUILTINREGISTRIES = "core.registries.BuiltInRegistries";
+    private static final String IREGISTRY = "core.IRegistry";
+
     static {
         DWO_CLASS = ReflectionUtil.getNMClass("network.syncher.DataWatcherObject");
         DWS_CLASS = ReflectionUtil.getNMClass("network.syncher.DataWatcherSerializer");
@@ -96,23 +99,24 @@ public class NMS_1_17 extends NMS {
         POSITION_MOVE_ROTATION_CONSTRUCTOR = new ReflectConstructor(POSITION_MOVE_ROTATION_CLASS, VEC_3D_CLASS, VEC_3D_CLASS, float.class, float.class);
         VEC_3D_CONSTRUCTOR = new ReflectConstructor(VEC_3D_CLASS, double.class, double.class, double.class);
 
+
         if (Version.afterOrEqual(18)) {
             if (Version.afterOrEqual(Version.v1_21_R1)) {
-                ENTITY_TYPES_REGISTRY_FIELD = new ReflectField<>(ReflectionUtil.getNMClass("core.registries.BuiltInRegistries"), "f");
+                ENTITY_TYPES_REGISTRY_FIELD = new ReflectField<>(ReflectionUtil.getNMClass(BUILTINREGISTRIES), "f");
             } else if (Version.afterOrEqual(Version.v1_20_R3)) {
-                ENTITY_TYPES_REGISTRY_FIELD = new ReflectField<>(ReflectionUtil.getNMClass("core.registries.BuiltInRegistries"), "g");
+                ENTITY_TYPES_REGISTRY_FIELD = new ReflectField<>(ReflectionUtil.getNMClass(BUILTINREGISTRIES), "g");
             } else if (Version.afterOrEqual(Version.v1_19_R2)) {
-                ENTITY_TYPES_REGISTRY_FIELD = new ReflectField<>(ReflectionUtil.getNMClass("core.registries.BuiltInRegistries"), "h");
+                ENTITY_TYPES_REGISTRY_FIELD = new ReflectField<>(ReflectionUtil.getNMClass(BUILTINREGISTRIES), "h");
             } else if (Version.afterOrEqual(19)) {
-                ENTITY_TYPES_REGISTRY_FIELD = new ReflectField<>(ReflectionUtil.getNMClass("core.IRegistry"), "X");
+                ENTITY_TYPES_REGISTRY_FIELD = new ReflectField<>(ReflectionUtil.getNMClass(IREGISTRY), "X");
             } else if (Version.is(Version.v1_18_R2)) {
-                ENTITY_TYPES_REGISTRY_FIELD = new ReflectField<>(ReflectionUtil.getNMClass("core.IRegistry"), "W");
+                ENTITY_TYPES_REGISTRY_FIELD = new ReflectField<>(ReflectionUtil.getNMClass(IREGISTRY), "W");
             } else {
-                ENTITY_TYPES_REGISTRY_FIELD = new ReflectField<>(ReflectionUtil.getNMClass("core.IRegistry"), "Z");
+                ENTITY_TYPES_REGISTRY_FIELD = new ReflectField<>(ReflectionUtil.getNMClass(IREGISTRY), "Z");
             }
             REGISTRY_BLOCKS_FROM_ID_METHOD = new ReflectMethod(ReflectionUtil.getNMClass("core.RegistryBlocks"), "a", int.class);
         } else {
-            ENTITY_TYPES_REGISTRY_FIELD = new ReflectField<>(ReflectionUtil.getNMClass("core.IRegistry"), "Y");
+            ENTITY_TYPES_REGISTRY_FIELD = new ReflectField<>(ReflectionUtil.getNMClass(IREGISTRY), "Y");
             REGISTRY_BLOCKS_FROM_ID_METHOD = new ReflectMethod(ReflectionUtil.getNMClass("core.RegistryBlocks"), "fromId", int.class);
         }
         // MATH HELPER
@@ -350,7 +354,7 @@ public class NMS_1_17 extends NMS {
         if (Version.afterOrEqual(Version.v1_20_R4)) {
             REGISTRY_FRIENDLY_BYTE_BUF_CLASS = ReflectionUtil.getNMClass("network.RegistryFriendlyByteBuf");
             IREGISTRYCUSTOM_CLASS = ReflectionUtil.getNMClass("core.IRegistryCustom");
-            BUILTINREGISTRIES_CLASS = ReflectionUtil.getNMClass("core.registries.BuiltInRegistries");
+            BUILTINREGISTRIES_CLASS = ReflectionUtil.getNMClass(BUILTINREGISTRIES);
             IREGISTRYCUSTOM_C_CLASS = ReflectionUtil.getNMClass("core.IRegistryCustom$c");
             REGISTRY_FRIENDLY_BYTE_BUF_CONSTRUCTOR = new ReflectConstructor(REGISTRY_FRIENDLY_BYTE_BUF_CLASS, ByteBuf.class, IREGISTRYCUSTOM_CLASS);
             IREGISTRYCUSTOM_C_CONSTRUCTOR = new ReflectConstructor(IREGISTRYCUSTOM_C_CLASS, List.class);

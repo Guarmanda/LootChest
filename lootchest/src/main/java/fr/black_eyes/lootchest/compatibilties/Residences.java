@@ -6,7 +6,7 @@ import com.bekvon.bukkit.residence.Residence;
 import com.bekvon.bukkit.residence.protection.ClaimedResidence;
 
 public class Residences  {
-	public static Boolean isInResidence(Location loc) {
+	public static boolean isInResidence(Location loc) {
 		Residence residence = (Residence) Bukkit.getServer().getPluginManager().getPlugin("Residence");
 		
 		@SuppressWarnings("static-access")
@@ -14,5 +14,9 @@ public class Residences  {
 
 
 		return res != null;
+	}
+
+	private Residences() {
+		throw new IllegalStateException("Utility class");
 	}
 }

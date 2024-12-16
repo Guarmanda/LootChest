@@ -1,6 +1,6 @@
 package fr.black_eyes.api;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.block.Block;
@@ -10,11 +10,16 @@ import fr.black_eyes.lootchest.Lootchest;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
 
+@SuppressWarnings("unused")
 public class LootChestAPI {
+
+    private LootChestAPI() {
+        throw new IllegalStateException("Utility class");
+    }
 
     /**
      * Generates a random name for a lootchest
-     * @return
+     * @return The name
      */
     public static String generateName(){
         UUID uuid = UUID.randomUUID();
@@ -25,7 +30,7 @@ public class LootChestAPI {
      * Get all lootchests loaded within lootchest plugin
      * @return HashMap<String, Lootchest> containing all lootchests with thei name as key
      */
-    public static HashMap<String, Lootchest> getAllLootChests() {
+    public static Map<String, Lootchest> getAllLootChests() {
         return Main.getInstance().getLootChest();
     }
 
@@ -97,8 +102,8 @@ public class LootChestAPI {
 
     /**
      * Copies an existing lootchest to another existing lootchest
-     * @param lc
-     * @param newName
+     * @param lc The lootchest to copy
+     * @param secondLc The lootchest to copy to
      */
     public static void copyToExistingChest(Lootchest lc, Lootchest secondLc) {
         LootChestUtils.copychest(lc, secondLc);
@@ -106,9 +111,9 @@ public class LootChestAPI {
 
     /**
      * Copies an existing lootchest to a new lootchest, specifying the name of this chest
-     * @param lc
-     * @param newName
-     * @return
+     * @param lc The lootchest to copy
+     * @param newName The name of the new lootchest
+     * @return The new lootchest
      */
     public static Lootchest copyToNewChest(Lootchest lc, String newName) {
         if (!checkNameAvalability(newName)) {
@@ -133,6 +138,11 @@ public class LootChestAPI {
         LootChestUtils.saveAllChests();
     }
 
+    /**
+     * Checks if a lootchest with the given name exists
+     * @param name The name of the lootchest
+     * @return true if the lootchest does not exist, false otherwise
+     */
     private static boolean checkNameAvalability(String name) {
         return !getAllLootChests().containsKey(name);
     }

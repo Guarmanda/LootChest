@@ -5,7 +5,11 @@ import org.bukkit.Location;
 import com.palmergames.bukkit.towny.TownyAPI;
 
 public class Towny {
-	public static Boolean isInTown(Location loc) {
+	public static boolean isInTown(Location loc) {
 		return !TownyAPI.getInstance().isWilderness(loc);
+	}
+
+	private Towny() {
+		throw new IllegalStateException("Utility class");
 	}
 }

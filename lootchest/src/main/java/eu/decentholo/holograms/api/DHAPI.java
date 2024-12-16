@@ -3,15 +3,10 @@ package eu.decentholo.holograms.api;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import eu.decentholo.holograms.api.holograms.Hologram;
 import eu.decentholo.holograms.api.holograms.HologramLine;
 import eu.decentholo.holograms.api.holograms.HologramPage;
-import eu.decentholo.holograms.api.holograms.enums.HologramLineType;
-import eu.decentholo.holograms.api.utils.Common;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -85,8 +80,7 @@ public final class DHAPI {
         HologramPage page = hologram.getPage(0);
         if (lines != null) {
             for (String line : lines) {
-                HologramLine hologramLine = new HologramLine(page, page.getNextLineLocation(), line);
-                page.addLine(hologramLine);
+                HologramLine hologramLine = addHologramLine(page, line);
             }
         }
         hologram.showAll();
@@ -100,17 +94,16 @@ public final class DHAPI {
      * @param hologram  The hologram.
      * @param pageIndex Index of the page.
      * @param content   New lines content.
-     * @return The new line.
      * @throws IllegalArgumentException If hologram or content is null or the indexes are invalid.
      */
-    public static HologramLine addHologramLine(Hologram hologram, int pageIndex, String content) throws IllegalArgumentException {
+    public static void addHologramLine(Hologram hologram, int pageIndex, String content) throws IllegalArgumentException {
         Validate.notNull(hologram);
         Validate.notNull(content);
         HologramPage page = hologram.getPage(pageIndex);
         if (page == null) {
             throw new IllegalArgumentException("Given page index is out of bounds for the hologram.");
         }
-        return addHologramLine(page, content);
+        addHologramLine(page, content);
     }
 
     /**
@@ -158,9 +151,8 @@ public final class DHAPI {
         if (page == null) {
             throw new IllegalArgumentException("Given page index is out of bounds for the hologram.");
         }
-        HologramLine line = page.removeLine(lineIndex);
-  
-        return line;
+
+        return page.removeLine(lineIndex);
     }
 
 

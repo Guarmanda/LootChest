@@ -22,7 +22,6 @@ import eu.decentholo.holograms.api.utils.scheduler.S;
 import eu.decentholo.holograms.api.utils.tick.ITicked;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -57,16 +56,6 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
 
     static {
         CACHED_HOLOGRAMS = new ConcurrentHashMap<>();
-    }
-
-    public static Hologram getCachedHologram(@NonNull String name) {
-        return CACHED_HOLOGRAMS.get(name);
-    }
-
-    @NonNull
-    @Contract(pure = true)
-    public static Set<String> getCachedHologramNames() {
-        return CACHED_HOLOGRAMS.keySet();
     }
 
     @NonNull
@@ -201,14 +190,6 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
     }
 
     /**
-     * This method calls {@link #destroy()} before deleting the holograms file.
-     */
-    @Override
-    public void delete() {
-        super.delete();
-    }
-
-    /**
      * This method disables the hologram, removes it from the {@link HologramManager},
      * removes it from the cache and hides it from all players.
      */
@@ -246,20 +227,6 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
         }
     }
 
-
-
-    /**
-     * Set the location of this hologram. This method doesn't update the hologram's location
-     * for the players, you have to call {@link #realignLines()} for that.
-     *
-     * @param location The new location of this hologram.
-     */
-    @Override
-    public void setLocation(@NonNull Location location) {
-        super.setLocation(location);
-
-    }
-
     /**
      * Get hologram size. (Number of pages)
      *
@@ -284,38 +251,6 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
         viewerPages.remove(player.getUniqueId());
     }
 
-    /*
-     *	Visibility Methods
-     */
-
-    /**
-     * Set default display state
-     *
-     * @param state state
-     */
-    public void setDefaultVisibleState(boolean state) {
-        this.defaultVisibleState = state;
-    }
-
-    /**
-     * @return Default display state
-     */
-    public boolean isVisibleState() {
-        return defaultVisibleState;
-    }
-
-    /**
-     * Set player hide state
-     *
-     * @param player player
-     */
-    public void setHidePlayer(@NonNull Player player) {
-        UUID uniqueId = player.getUniqueId();
-        if (!hidePlayers.contains(uniqueId)) {
-            hidePlayers.add(player.getUniqueId());
-        }
-    }
-
     /**
      * Remove a player hide state
      *
@@ -334,18 +269,6 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
      */
     public boolean isHideState(@NonNull Player player) {
         return hidePlayers.contains(player.getUniqueId());
-    }
-
-    /**
-     * Set player show state
-     *
-     * @param player player
-     */
-    public void setShowPlayer(@NonNull Player player) {
-        UUID uniqueId = player.getUniqueId();
-        if (!showPlayers.contains(uniqueId)) {
-            showPlayers.add(player.getUniqueId());
-        }
     }
 
     /**
@@ -375,10 +298,10 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
      * @param player    Given player.
      * @param pageIndex Given page.
      */
-    public boolean show(@NonNull Player player, int pageIndex) {
+    public void show(@NonNull Player player, int pageIndex) {
         synchronized (visibilityMutex) {
             if (isDisabled() || isHideState(player) || (!isDefaultVisibleState() && !isShowState(player))) {
-                return false;
+                return;
             }
             HologramPage page = getPage(pageIndex);
             if (page != null && page.size() > 0  && isInDisplayRange(player)) {
@@ -395,9 +318,7 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
                     // I *think* this is from despawning and spawning the entities (with the same ID) in the same tick.
                     S.sync(() -> showPageTo(player, page, pageIndex), 0L);
                 }
-                return true;
             }
-            return false;
         }
     }
 
@@ -414,16 +335,6 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
             if (isEnabled()) {
                 Bukkit.getOnlinePlayers().forEach(player -> show(player, getPlayerPage(player)));
             }
-        }
-    }
-
-    public void update(@NonNull Player player) {
-        synchronized (visibilityMutex) {
-            if (hasFlag(EnumFlag.DISABLE_UPDATING)) {
-                return;
-            }
-
-            performUpdate(player);
         }
     }
 
@@ -486,12 +397,6 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
         // Despawn clickable entities
         NMS nms = NMS.getInstance();
         page.getClickableEntityIds().forEach(id -> nms.hideFakeEntities(player, id));
-    }
-
-    public void hideClickableEntitiesAll() {
-        if (isEnabled()) {
-            getViewerPlayers().forEach(this::hideClickableEntities);
-        }
     }
 
 
@@ -561,43 +466,9 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
         return players;
     }
 
-    /*
-     *	Pages Methods
-     */
-
-    /**
-     * Re-Align the lines in this hologram putting them to the right place.
-     * <p>
-     * This method is good to use after teleporting the hologram.
-     * </p>
-     */
-    public void realignLines() {
-        for (HologramPage page : pages) {
-            page.realignLines();
-        }
-    }
-
-    public HologramPage addPage() {
+    public void addPage() {
         HologramPage page = new HologramPage(this, pages.size());
         pages.add(page);
-        return page;
-    }
-
-    public HologramPage insertPage(int index) {
-        if (index < 0 || index > size()) return null;
-        HologramPage page = new HologramPage(this, index);
-        pages.add(index, page);
-
-        // Add 1 to indexes of all the other pages.
-        pages.stream().skip(index).forEach(p -> p.setIndex(p.getIndex() + 1));
-        // Add 1 to all page indexes of current viewers, so they still see the same page.
-        viewerPages.replaceAll((uuid, integer) -> {
-            if (integer > index) {
-                return integer + 1;
-            }
-            return integer;
-        });
-        return page;
     }
 
     public HologramPage getPage(int index) {
@@ -610,56 +481,6 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
             return getPage(getPlayerPage(player));
         }
         return null;
-    }
-
-    public HologramPage removePage(int index) {
-        if (index < 0 || index >= size()) {
-            return null;
-        }
-
-        HologramPage page = pages.remove(index);
-        page.getLines().forEach(HologramLine::hide);
-
-        // Update indexes of all the other pages.
-        for (int i = 0; i < pages.size(); i++) {
-            pages.get(i).setIndex(i);
-        }
-
-        // Update all page indexes of current viewers, so they still see the same page.
-        if (pages.isNotEmpty()) {
-            for (Map.Entry<UUID, Integer> entry : viewerPages.entrySet()) {
-                UUID uuid = entry.getKey();
-                int currentPage = viewerPages.get(uuid);
-                if (currentPage == index) {
-                    show(Bukkit.getPlayer(uuid), 0);
-                } else if (currentPage > index) {
-                    viewerPages.put(uuid, currentPage - 1);
-                }
-            }
-        }
-        return page;
-    }
-
-    public boolean swapPages(int index1, int index2) {
-        if (index1 == index2 || index1 < 0 || index1 >= size() || index2 < 0 || index2 >= size()) {
-            return false;
-        }
-        // Swap them in the list
-        Collections.swap(pages, index1, index2);
-
-        // Swap indexes of affected pages
-        HologramPage page1 = getPage(index1);
-        HologramPage page2 = getPage(index2);
-        int i = page1.getIndex();
-        page1.setIndex(page2.getIndex());
-        page2.setIndex(i);
-
-        // Swap viewers
-        Set<Player> viewers1 = getViewerPlayers(index1);
-        Set<Player> viewers2 = getViewerPlayers(index2);
-        viewers1.forEach(player -> show(player, index2));
-        viewers2.forEach(player -> show(player, index1));
-        return true;
     }
 
 }

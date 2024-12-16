@@ -30,6 +30,6 @@ public class MaxFilledSlotsCommand extends SubCommand {
 			lc.setMaxFilledSlots(maxFilledSlots);
 		}
 		lc.updateData();
-		Utils.msg(sender, "editedMaxFilledSlots", Constants.cheststr, lc.getName());
+		Utils.msg(sender, "editedMaxFilledSlots", Constants.CHEST_PLACEHOLDER, lc.getName());
 	}
 }

@@ -18,6 +18,8 @@ import java.util.List;
 
 import fr.black_eyes.simpleJavaPlugin.Files;
 
+import static fr.black_eyes.lootchest.Constants.DATA_CHEST_PATH;
+
 /**
  * A menu to copy the properties of another loot chest
  */
@@ -42,7 +44,7 @@ public class CopyMenu extends PagedChestUi {
 			}
 			String holoName = otherChest.getHolo();
 			String otherName = otherChest.getName();
-			String effect = configFiles.getData().getString("chests." + otherName + ".particle");
+			String effect = configFiles.getData().getString(DATA_CHEST_PATH + otherName + ".particle");
 			String world;
 			if (Bukkit.getWorld(otherChest.getWorld()) == null) {
 				world = "Unloaded world";

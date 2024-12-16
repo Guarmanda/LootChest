@@ -28,7 +28,7 @@ public class SetProtectionCommand extends SubCommand {
 		Lootchest lc = Main.getInstance().getLootChest().get(chestName);
 		lc.setProtectionTime(Integer.parseInt(args[1]));
 		lc.updateData();
-		Utils.msg(sender, "editedProtectionTime", Constants.cheststr, chestName);
+		Utils.msg(sender, "editedProtectionTime", Constants.CHEST_PLACEHOLDER, chestName);
 	}
 	
 }

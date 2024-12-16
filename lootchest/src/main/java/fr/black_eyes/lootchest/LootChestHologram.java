@@ -33,21 +33,19 @@ public class LootChestHologram {
 	 * Key is the version, value is the y modifier
 	 * @return the yPosModifier
 	 */
-	private static final Map<Integer, Double> yPosModifier = new HashMap<Integer, Double>(){{
-		put(8,  0.6);
-		put(9,  0.5);
-		put(10, 0.5);
-		put(11, 0.5);
-		put(12, 0.5);
-		put(13, 0.5);
-		put(14, 0.5);
-		put(15, 0.5);
-		put(16, 0.5);
-		put(17, 0.5);
-		put(18, 0.5);
-		put(19, 0.5);
-		put(20, 0.5);
-	}};
+	private static final Map<Integer, Double> yPosModifier = initializeRates();
+
+	private static final double DEFAULT_RATE = 0.5;
+
+	private static Map<Integer, Double> initializeRates() {
+		Map<Integer, Double> rates = new HashMap<>();
+		rates.put(8, 0.6);
+		for (int i = 9; i <= 20; i++) {
+			rates.put(i, DEFAULT_RATE);
+		}
+		return rates;
+	}
+
 	/**
 	 * @return the text displayed by the hologram
 	 */
@@ -122,7 +120,7 @@ public class LootChestHologram {
 	 */
 	public void setText(String name) {
 		text = name;
-		if(!(Main.getCompleteVersion()>=1080) || !Main.configs.UseHologram) return;
+		if(Main.getCompleteVersion()<1080 || !Main.configs.UseHologram) return;
 		if(!NULL_NAME.contains(name)) {
 			getHologram();
 			setLine(Utils.color(name));
@@ -133,19 +131,15 @@ public class LootChestHologram {
 
 	/**
 	 * Manage hologram lines to display / change its name
-	 * @param name
+	 * @param text The text to display
 	 */
 	private void setLine(String text){
 		if(hologram.getPage(0).getLines().isEmpty()) {
 			DHAPI.addHologramLine(hologram, 0, text);
 		}
 		else{
-			//DHAPI.removeHologramLine(hologram, 0);
-			//DHAPI.addHologramLine(hologram, 0, text);
 			hologram.getPage(0).getLine(0).setContent(text);
 			hologram.getPage(0).getLine(0).updateWithTextForAllViewers(text);
-			//hologram.getPage(0).removeLine(0);
-			//DHAPI.addHologramLine(hologram, 0, text);
 		}
 	}
 	

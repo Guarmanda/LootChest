@@ -26,8 +26,8 @@ public class GiveCommand extends SubCommand {
 		Lootchest lc = Main.getInstance().getLootChest().get(chestName);
 		String playerName = args[2];
 		Player player = Bukkit.getPlayerExact(playerName);
-		Utils.msg(sender, "giveto", Constants.cheststr, chestName, "[Player]", playerName);
-		Utils.msg(player, "givefrom", Constants.cheststr, chestName, "[Player]", sender.getName());
+		Utils.msg(sender, "giveto", Constants.CHEST_PLACEHOLDER, chestName, "[Player]", playerName);
+		Utils.msg(player, "givefrom", Constants.CHEST_PLACEHOLDER, chestName, "[Player]", sender.getName());
 		LootChestUtils.fillInventory(lc, player.getInventory(), false, player);
 	}
 }

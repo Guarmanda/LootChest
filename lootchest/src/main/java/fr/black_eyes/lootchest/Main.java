@@ -47,14 +47,11 @@ import fr.black_eyes.simpleJavaPlugin.Utils;
 import lombok.Getter;
 import lombok.Setter;
 
-
-
-
-
+import static fr.black_eyes.lootchest.Constants.DATA_CHEST_PATH;
 
 
 public class Main extends SimpleJavaPlugin {
-	@Getter private Particle supportedParticles[];
+	@Getter private Particle[] supportedParticles;
 	@Getter private final HashMap<Location, Long> protection = new HashMap<>();
 	@Getter private final HashMap<String, Particle> particles = new HashMap<>();
 	@Getter private final HashMap<Location, Particle> part = new HashMap<>();
@@ -62,7 +59,7 @@ public class Main extends SimpleJavaPlugin {
 	@Getter private HashMap<String, Lootchest> lootChest;
 	@Getter @Setter private static Main instance;
 	@Getter private LootChestUtils utils;
-	@Getter private Boolean useArmorStands;
+	@Getter private boolean useArmorStands;
 	@Getter private DecentHologramsPlugin hologramPlugin;
 	@Getter private DecentHolograms hologramImpl;
 	private static int version = 0;
@@ -108,14 +105,14 @@ public class Main extends SimpleJavaPlugin {
 	/**
 	 * Get the version a different way:
 	 * 1.8.4 = 184, 1.20.6 = 1206, etc
-	 * @return
+	 * @return the version number
 	 */
 	public static int getCompleteVersion(){
 		String complete_ver = Bukkit.getBukkitVersion().split("-")[0];
 		String sversion = complete_ver.replace(".", "");
 		if(sversion.startsWith("18") || sversion.startsWith("19") || sversion.startsWith("17")){
 			//add a 0 between the first and second digit
-			sversion = sversion.substring(0, 1) + "0" + sversion.substring(1);
+			sversion = sversion.charAt(0) + "0" + sversion.substring(1);
 			if(sversion.endsWith("10")) {
 				//remove the 0 at the end
 				sversion = sversion.substring(0, sversion.length()-1);
@@ -282,15 +279,14 @@ public class Main extends SimpleJavaPlugin {
 							int number = configs.PART_number;
 							if (configs.PART_enable) {
 								for(Map.Entry<Location, Particle> entry: part.entrySet()) {
-									Boolean loaded = entry.getKey().getWorld().isChunkLoaded((int)entry.getKey().getX()/16, (int)entry.getKey().getZ()/16) ;
-									if (loaded) {	
-										if(entry.getValue()!=null)
+									boolean loaded = entry.getKey().getWorld().isChunkLoaded((int)entry.getKey().getX()/16, (int)entry.getKey().getZ()/16) ;
+									if (loaded && entry.getValue()!=null)
 											try{
 												entry.getValue().display(radius, radius, radius, speed, number, entry.getKey(), entry.getKey().getWorld().getPlayers());
 											}catch(Exception e) {
 												// concurrent modification exception, just ignore it
 											}
-									}
+
 								}
 							}
 						}catch(Exception e) {
@@ -306,7 +302,7 @@ public class Main extends SimpleJavaPlugin {
 						int number = configs.PART_number;
 						if (configs.PART_enable) {
 							for(Map.Entry<Location, Particle> entry: part.entrySet()) {
-								Boolean loaded = entry.getKey().getWorld().isChunkLoaded((int)entry.getKey().getX()/16, (int)entry.getKey().getZ()/16) ;
+								boolean loaded = entry.getKey().getWorld().isChunkLoaded((int)entry.getKey().getX()/16, (int)entry.getKey().getZ()/16) ;
 								if (loaded && entry.getValue()!=null)
 									entry.getValue().display(radius, radius, radius, speed, number, entry.getKey(), entry.getKey().getWorld().getPlayers());
 								
@@ -331,16 +327,16 @@ public class Main extends SimpleJavaPlugin {
             Utils.logInfo("Loading chests...");
             long current = (new Timestamp(System.currentTimeMillis())).getTime();
             for(String keys : configFiles.getData().getConfigurationSection("chests").getKeys(false)) {
-                String name = configFiles.getData().getString("chests." + keys + ".position.world");
+                String name = configFiles.getData().getString(DATA_CHEST_PATH + keys + ".position.world");
                 String randomName = name;
-                if( configFiles.getData().getInt("chests." + keys + ".randomradius")>0) {
-                    randomName = configFiles.getData().getString("chests." + keys + ".randomPosition.world");
+                if( configFiles.getData().getInt(DATA_CHEST_PATH + keys + ".randomradius")>0) {
+                    randomName = configFiles.getData().getString(DATA_CHEST_PATH + keys + ".randomPosition.world");
                 }
                 if(name != null && LootChestUtils.isWorldLoaded(randomName) && LootChestUtils.isWorldLoaded(name)) {
                     getLootChest().put(keys, new Lootchest(keys));
                 }
                 else {
-                    Utils.logInfo("&cCouldn't load chest "+keys +" : the world " + configFiles.getData().getString("chests." + keys + ".position.world") + " is not loaded.");
+                    Utils.logInfo("&cCouldn't load chest "+keys +" : the world " + configFiles.getData().getString(DATA_CHEST_PATH + keys + ".position.world") + " is not loaded.");
                 }
             }
             
@@ -357,7 +353,7 @@ public class Main extends SimpleJavaPlugin {
                         , 5L);
             }
             Utils.logInfo("Plugin loaded");
-                }, countdown+1 * 20);
+                }, countdown+20);
 	}
 	
 	
@@ -490,7 +486,7 @@ public class Main extends SimpleJavaPlugin {
 	  if(configFiles.getLang().getStringList("help").toString().contains("removeAllHolo")){
     	List<String> help = configFiles.getLang().getStringList("help");
     	//get line and remove it
-		int index = help.stream().filter(s -> s.contains("removeAllHolo")).findFirst().map(s -> help.indexOf(s)).orElse(-1);
+		int index = help.stream().filter(s -> s.contains("removeAllHolo")).findFirst().map(help::indexOf).orElse(-1);
 		if(index!=-1) {
 			help.remove(index);
 		}

@@ -12,7 +12,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-@SuppressWarnings("deprecation")
 final class ParticleTypes {
 
     static final Class<?> BLOCK_DATA_CLASS = FastReflection.optionalClass("org.bukkit.block.data.BlockData").orElse(null);
@@ -75,11 +74,7 @@ final class ParticleTypes {
 
         @Override
         public Class<?> getRawDataType() {
-            Class<?> type = this.particle.getDataType();
-
- 
-
-            return type;
+            return this.particle.getDataType();
         }
 
         @Override
@@ -123,13 +118,10 @@ final class ParticleTypes {
                 data = ((ParticleData.AbstractParticleData) data).data;
             }
 
-            if (dataType == DUST_OPTIONS_CLASS) {
-                if (data instanceof Color) {
+            if (dataType == DUST_OPTIONS_CLASS && data instanceof Color) {
                     return new Particle.DustOptions((Color) data, 1);
                 }
 
-        
-            }
 
             if (dataType == BLOCK_DATA_CLASS && data instanceof MaterialData) {
                 return Bukkit.createBlockData(((MaterialData) data).getItemType());

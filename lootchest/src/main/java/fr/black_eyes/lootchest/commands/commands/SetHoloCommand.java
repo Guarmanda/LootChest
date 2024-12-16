@@ -32,7 +32,7 @@ public class SetHoloCommand extends SubCommand {
 		String holoText = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
 		lc.setHolo(holoText);
 		lc.updateData();
-		Utils.msg(sender, "hologram_edited", Constants.cheststr, chestName);
+		Utils.msg(sender, "hologram_edited", Constants.CHEST_PLACEHOLDER, chestName);
 		lc.spawn(false);
 	}
 }

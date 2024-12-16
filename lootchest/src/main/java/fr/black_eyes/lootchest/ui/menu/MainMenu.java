@@ -27,40 +27,40 @@ public class MainMenu extends ChestUi {
 		setItem(15, nameItem(Mat.CLOCK, Utils.getMsg("Menu.main.respawnTime")), p -> uiHandler.openUi(p, UiHandler.UiType.TIME, chest));
 		setItem(22, nameItem(Mat.DIAMOND, Utils.getMsg("Menu.main.chances")), p -> uiHandler.openUi(p, UiHandler.UiType.CHANCES, chest));
 		
-		setItem(28, getToggleItem("fall", chest.getFall()), p -> toggleFall(chest));
-		setItem(30, getToggleItem("respawn_cmd", chest.getRespawn_cmd()), p -> toggleRespawnCmd(chest));
-		setItem(32, getToggleItem("respawn_natural", chest.getRespawn_natural()), p -> toggleRespawnNatural(chest));
-		setItem(34, getToggleItem("take_message", chest.getTake_msg()), p -> toggleTakeMsg(chest));
+		setItem(28, getToggleItem("fall", chest.isFallEnabled()), p -> toggleFall(chest));
+		setItem(30, getToggleItem("respawn_cmd", chest.isRespawnCmdMsgEnabled()), p -> toggleRespawnCmd(chest));
+		setItem(32, getToggleItem("respawn_natural", chest.isRespawnNaturalMsgEnabled()), p -> toggleRespawnNatural(chest));
+		setItem(34, getToggleItem("take_message", chest.isTakeMsgEnabled()), p -> toggleTakeMsg(chest));
 	}
 	
 	private void toggleFall(Lootchest lc) {
-		lc.setFall(!lc.getFall());
-		changeItem(28, getToggleItem("fall", lc.getFall()));
+		lc.setFallEnabled(!lc.isFallEnabled());
+		changeItem(28, getToggleItem("fall", lc.isFallEnabled()));
 		lc.updateData();
 	}
 	
 	private void toggleRespawnCmd(Lootchest lc) {
-		lc.setRespawn_cmd(!lc.getRespawn_cmd());
-		changeItem(30, getToggleItem("respawn_cmd", lc.getRespawn_cmd()));
+		lc.setRespawnCmdMsgEnabled(!lc.isRespawnCmdMsgEnabled());
+		changeItem(30, getToggleItem("respawn_cmd", lc.isRespawnCmdMsgEnabled()));
 		lc.updateData();
 	}
 	
 	private void toggleRespawnNatural(Lootchest lc) {
-		lc.setRespawn_natural(!lc.getRespawn_natural());
-		changeItem(32, getToggleItem("respawn_natural", lc.getRespawn_natural()));
+		lc.setRespawnNaturalMsgEnabled(!lc.isRespawnNaturalMsgEnabled());
+		changeItem(32, getToggleItem("respawn_natural", lc.isRespawnNaturalMsgEnabled()));
 		lc.updateData();
 	}
 	
 	private void toggleTakeMsg(Lootchest lc) {
-		lc.setTake_msg(!lc.getTake_msg());
-		setItem(34, getToggleItem("take_message", lc.getTake_msg()), p -> toggleTakeMsg(lc));
+		lc.setTakeMsgEnabled(!lc.isTakeMsgEnabled());
+		setItem(34, getToggleItem("take_message", lc.isTakeMsgEnabled()), p -> toggleTakeMsg(lc));
 		lc.updateData();
 	}
 
 	/**
 	 * Returns an "enabled" or "disabled" item based on the state
 	 */
-	protected ItemStack getToggleItem(String path, Boolean state) {
+	protected ItemStack getToggleItem(String path, boolean state) {
 		if (state) {
 			return nameItem(Mat.EMERALD_BLOCK, Utils.getMsg("Menu.main.disable_" + path));
 		} else {

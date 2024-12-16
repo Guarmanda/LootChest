@@ -29,7 +29,7 @@ public class SetTimeCommand extends SubCommand {
 		lc.setTime(Integer.parseInt(args[1]));
 		lc.updateData();
 		lc.spawn(true);
-		Utils.msg(sender, "settime", Constants.cheststr, chestName);
+		Utils.msg(sender, "settime", Constants.CHEST_PLACEHOLDER, chestName);
 	}
 	
 }

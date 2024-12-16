@@ -6,7 +6,6 @@
           <version>${revision}</version>
     </parent>
 
-    <groupId>fr.black_eyes.lootchest</groupId>
     <artifactId>v_1_20_4</artifactId>
     <version>${revision}</version>
 
@@ -31,3 +30,4 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+</project>

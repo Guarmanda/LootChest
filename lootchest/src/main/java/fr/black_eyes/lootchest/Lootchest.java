@@ -9,7 +9,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -24,11 +23,15 @@ import fr.black_eyes.simpleJavaPlugin.Files;
 import fr.black_eyes.simpleJavaPlugin.Utils;
 import lombok.Getter;
 import lombok.Setter;
+
+import static fr.black_eyes.lootchest.Constants.DATA_CHEST_PATH;
+
 public class Lootchest {
 	/**
 	 * @return the Lootchest name
 	 */
-	@Getter /**
+	@Getter
+	/**
 	 * @param name the name to give to the lootchest
 	 */
 	@Setter private String name;
@@ -50,7 +53,7 @@ public class Lootchest {
 	@Getter /**
 	 * @param fall says if the LootChest should display a fall effect or not
 	 */
-	@Setter private Boolean fall;
+	@Setter private boolean fallEnabled;
 	/**
 	 * @return An array of integers, representing chances of each item in the chest
 	 */
@@ -93,21 +96,21 @@ public class Lootchest {
 	@Getter /**
 	 * @param respawn_cmd boolean, which says if we should send a broadcast if the chest is respawned manually
 	 */
-	@Setter private Boolean respawn_cmd;
+	@Setter private boolean respawnCmdMsgEnabled;
 	/**
 	 * @return the value of the respawn_natural boolean, which says if we should send a broadcast if the chest is respawned "naturally"
 	 */
 	@Getter /**
 	 * @param respawn_natural boolean, which says if we should send a broadcast if the chest is respawned "naturally"
 	 */
-	@Setter private Boolean respawn_natural;
+	@Setter private boolean respawnNaturalMsgEnabled;
 	/**
 	 * @return the value of the take_msg boolean, which says if we should send a broadcast if the chest taken/looted by a player
 	 */
 	@Getter /**
 	 * @param take_msg boolean, which says if we should send a broadcast if the chest taken/looted by a player
 	 */
-	@Setter private Boolean take_msg;
+	@Setter private boolean takeMsgEnabled;
 	/**
 	 * @return the radius around the global location, to set the random location
 	 */
@@ -128,7 +131,7 @@ public class Lootchest {
 	@Getter /**
 	 * @param taken boolean, which says if the chest was looted already or not
 	 */
-	@Setter private Boolean taken;
+	@Setter private boolean taken;
 	/** 
 	 * @return the type of the lootchest, can be chest, trapped chest or barrel
 	 */
@@ -149,27 +152,27 @@ public class Lootchest {
 	
 	/**
 	 * Function used in Main / reload for chest loading
-	 * @param naming
+	 * @param naming the name of the chest
 	 */
 	public Lootchest(String naming) {
 		Main main = Main.getInstance();
 		LootChestUtils utils = main.getUtils();
 		Files configFiles = Main.getInstance().getConfigFiles();
 		taken = false;
-		if(!configFiles.getData().isSet("chests."+naming+".type")){
+		if(!configFiles.getData().isSet(DATA_CHEST_PATH+naming+".type")){
 			type = Mat.CHEST;
 		}else {
-			String types = configFiles.getData().getString("chests."+naming+".type");
+			String types = configFiles.getData().getString(DATA_CHEST_PATH+naming+".type");
 			switch(types) {
 				case "TRAPPED_CHEST": type = Mat.TRAPPED_CHEST; break;
 				case "BARREL": type = Mat.BARREL; break;
 				default: type = Mat.CHEST; break;
 			}
 		}
-		if(!configFiles.getData().isSet("chests."+naming+".maxFilledSlots")){
+		if(!configFiles.getData().isSet(DATA_CHEST_PATH+naming+".maxFilledSlots")){
 			maxFilledSlots = Main.configs.default_maxFilledSlots;
 		}else{
-			maxFilledSlots = configFiles.getData().getInt("chests."+naming+".maxFilledSlots");
+			maxFilledSlots = configFiles.getData().getInt(DATA_CHEST_PATH+naming+".maxFilledSlots");
 		}
 		name = naming;
 		Integer[] chancesInit = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -177,8 +180,8 @@ public class Lootchest {
 		chancesInit = null;
 		inv = Bukkit.createInventory(null, 27);
 		globalLoc = utils.getPosition(naming);
-		if(configFiles.getData().isSet("chests."+naming+".randomradius")) {
-			radius = configFiles.getData().getInt("chests."+naming+".randomradius");
+		if(configFiles.getData().isSet(DATA_CHEST_PATH+naming+".randomradius")) {
+			radius = configFiles.getData().getInt(DATA_CHEST_PATH+naming+".randomradius");
 			if(radius > 0) {
 				randomLoc = utils.getRandomPosition(naming);
 			}else {
@@ -189,15 +192,15 @@ public class Lootchest {
 			randomLoc = null;
 		}
 
-		if(configFiles.getData().isSet("chests."+naming+".protectionTime")) {
-			protectionTime = configFiles.getData().getLong("chests."+naming+".protectionTime");
+		if(configFiles.getData().isSet(DATA_CHEST_PATH+naming+".protectionTime")) {
+			protectionTime = configFiles.getData().getLong(DATA_CHEST_PATH+naming+".protectionTime");
 		}else {
 			protectionTime = Main.configs.defaultRespawnProtection;
 		}
 
 
-		holo = configFiles.getData().getString("chests." + naming + ".holo");
-		String part = configFiles.getData().getString("chests." + naming + ".particle");
+		holo = configFiles.getData().getString(DATA_CHEST_PATH + naming + ".holo");
+		String part = configFiles.getData().getString(DATA_CHEST_PATH + naming + ".particle");
 		if(part.equals("Disabled")) {
 			particle = null;
 		}else {
@@ -210,22 +213,22 @@ public class Lootchest {
 				particle = Particle.FLAME;
 			}
 		}
-		time = configFiles.getData().getInt("chests." + naming + ".time");
-		fall =  configFiles.getData().getBoolean("chests." + naming + ".fall");
+		time = configFiles.getData().getInt(DATA_CHEST_PATH + naming + ".time");
+		fallEnabled =  configFiles.getData().getBoolean(DATA_CHEST_PATH + naming + ".fall");
 		try {
-		for(String keys : configFiles.getData().getConfigurationSection("chests." + naming + ".inventory").getKeys(false)) {
-			inv.setItem(Integer.parseInt(keys), configFiles.getData().getItemStack("chests." + naming + ".inventory." + keys));
-			chances[Integer.parseInt(keys)] = configFiles.getData().getInt("chests." + naming + ".chance." + keys);
+		for(String keys : configFiles.getData().getConfigurationSection(DATA_CHEST_PATH + naming + ".inventory").getKeys(false)) {
+			inv.setItem(Integer.parseInt(keys), configFiles.getData().getItemStack(DATA_CHEST_PATH + naming + ".inventory." + keys));
+			chances[Integer.parseInt(keys)] = configFiles.getData().getInt(DATA_CHEST_PATH + naming + ".chance." + keys);
 		}
 		}catch(NullPointerException e) {
 			Utils.logInfo("&cMaybe you changed to an older server version recently: chest inventory of "+name+" was lost :/");
 		}
-		respawn_cmd =  configFiles.getData().getBoolean("chests." + naming + ".respawn_cmd");
-		respawn_natural =  configFiles.getData().getBoolean("chests." + naming + ".respawn_natural");
-		take_msg =  configFiles.getData().getBoolean("chests." + naming + ".take_message");
-		world = configFiles.getData().getString("chests." + naming + ".position.world");
-		direction = configFiles.getData().getString("chests." + naming + ".direction");
-		lastReset = configFiles.getData().getLong("chests." + name + ".lastreset");
+		respawnCmdMsgEnabled =  configFiles.getData().getBoolean(DATA_CHEST_PATH + naming + ".respawn_cmd");
+		respawnNaturalMsgEnabled =  configFiles.getData().getBoolean(DATA_CHEST_PATH + naming + ".respawn_natural");
+		takeMsgEnabled =  configFiles.getData().getBoolean(DATA_CHEST_PATH + naming + ".take_message");
+		world = configFiles.getData().getString(DATA_CHEST_PATH + naming + ".position.world");
+		direction = configFiles.getData().getString(DATA_CHEST_PATH + naming + ".direction");
+		lastReset = configFiles.getData().getLong(DATA_CHEST_PATH + name + ".lastreset");
 		
 		hologram = new LootChestHologram(this);
 	}
@@ -234,8 +237,8 @@ public class Lootchest {
 	
 	/**
 	 * Function used for /lc create
-	 * @param chest
-	 * @param naming
+	 * @param chest - The block of the chest
+	 * @param naming - The name of the chest
 	 */
 	public Lootchest(Block chest, String naming){
 		type = chest.getType();
@@ -255,10 +258,10 @@ public class Lootchest {
 			Utils.logInfo("&cDo not use double chests to create chests! Only half of the inventory of the chest was registered.");
 		}
 		maxFilledSlots = Main.configs.default_maxFilledSlots;
-		fall =  Main.configs.FALL_Enabled;
-		respawn_cmd =  Main.configs.NOTE_command_e;
-		respawn_natural =  Main.configs.NOTE_natural_e;
-		take_msg =  Main.configs.NOTE_message_on_chest_take;
+		fallEnabled =  Main.configs.FALL_Enabled;
+		respawnCmdMsgEnabled =  Main.configs.NOTE_command_e;
+		respawnNaturalMsgEnabled =  Main.configs.NOTE_natural_e;
+		takeMsgEnabled =  Main.configs.NOTE_message_on_chest_take;
 		direction = LootChestUtils.getDirection(chest);
 		holo = name;
 		time =  Main.configs.default_reset_time;
@@ -288,10 +291,10 @@ public class Lootchest {
 		}
 		chances = lc.getChances().clone();
 		maxFilledSlots = lc.getMaxFilledSlots();
-		fall = lc.getFall();
-		respawn_cmd = lc.getRespawn_cmd();
-		respawn_natural = lc.getRespawn_natural();
-		take_msg = lc.getTake_msg();
+		fallEnabled = lc.isFallEnabled();
+		respawnCmdMsgEnabled = lc.isRespawnCmdMsgEnabled();
+		respawnNaturalMsgEnabled = lc.isRespawnNaturalMsgEnabled();
+		takeMsgEnabled = lc.isTakeMsgEnabled();
 		direction = lc.getDirection();
 		holo = lc.getHolo();
 		time = lc.getTime();
@@ -312,34 +315,34 @@ public class Lootchest {
 		Main main = Main.getInstance();
 		LootChestUtils utils = main.getUtils();
 		Files configFiles = Main.getInstance().getConfigFiles();
-		configFiles.getData().set("chests." + name + ".inventory", null);
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".inventory", null);
 		for(int i = 0 ; i < inv.getSize() ; i++) {
 			if(inv.getItem(i) != null && inv.getItem(i).getType() != Material.AIR) {
-				configFiles.getData().set("chests." + name + ".inventory." + i, inv.getItem(i));
-				configFiles.getData().set("chests." + name + ".chance." + i, chances[i]);
+				configFiles.getData().set(DATA_CHEST_PATH + name + ".inventory." + i, inv.getItem(i));
+				configFiles.getData().set(DATA_CHEST_PATH + name + ".chance." + i, chances[i]);
 			}
 		}
-		configFiles.getData().set("chests." + name + ".fall", fall);
-		configFiles.getData().set("chests." + name + ".type", type.name());
-		configFiles.getData().set("chests." + name + ".respawn_cmd", respawn_cmd);
-		configFiles.getData().set("chests." + name + ".respawn_natural", respawn_natural);
-		configFiles.getData().set("chests." + name + ".take_message", take_msg);
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".fall", fallEnabled);
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".type", type.name());
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".respawn_cmd", respawnCmdMsgEnabled);
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".respawn_natural", respawnNaturalMsgEnabled);
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".take_message", takeMsgEnabled);
 		
-		configFiles.getData().set("chests." + name + ".direction", direction);
-		configFiles.getData().set("chests." + name + ".holo", holo);
-		configFiles.getData().set("chests." + name + ".time", time);
-		configFiles.getData().set("chests." + name + ".protectionTime", protectionTime);
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".direction", direction);
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".holo", holo);
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".time", time);
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".protectionTime", protectionTime);
 		utils.setPosition(name, globalLoc);
-		configFiles.getData().set("chests." + name + ".lastreset", lastReset);
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".lastreset", lastReset);
 		if(particle!=null)
-			configFiles.getData().set("chests." +name+ ".particle", particle.name());
+			configFiles.getData().set(DATA_CHEST_PATH +name+ ".particle", particle.name());
 		else
-			configFiles.getData().set("chests." +name+ ".particle", "Disabled");
-		configFiles.getData().set("chests."+name+".randomradius", radius);
+			configFiles.getData().set(DATA_CHEST_PATH +name+ ".particle", "Disabled");
+		configFiles.getData().set(DATA_CHEST_PATH+name+".randomradius", radius);
 		if(randomLoc != null) {
 			utils.setRandomPosition(name, randomLoc);
 		}
-		configFiles.getData().set("chests." + name + ".maxFilledSlots", maxFilledSlots);
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".maxFilledSlots", maxFilledSlots);
 
 	}
 
@@ -393,10 +396,8 @@ public class Lootchest {
 
 	/**
 	 * used by spawn, spawns the chest
-	 * @param name - A Lootchest to spawn
 	 * @param block - The block concerned, where the spawn will append
 	 * @param blockLocation - Location of the block
-	 * @param force - True if respawned with a command
 	 */
 	public void createchest( Block block, Location blockLocation) {
 		block.setType(getType());
@@ -407,7 +408,6 @@ public class Lootchest {
 		if(Main.getCompleteVersion()>=1140) {
 			org.bukkit.block.data.BlockData data;
 			data = block.getBlockData();
-				System.out.println(block.getType());
 			((org.bukkit.block.data.Directional)data).setFacing(BlockFace.valueOf(direction));
 			BlockState state = block.getState();
 			state.setBlockData(data);
@@ -447,7 +447,7 @@ public class Lootchest {
 		}
 		setTaken(false);
 		if(protectionTime >0){
-			Long now = (new Timestamp(System.currentTimeMillis())).getTime();
+			long now = (new Timestamp(System.currentTimeMillis())).getTime();
 			Main.getInstance().getProtection().put(block.getLocation(), now+protectionTime*1000);
 		}
 		Bukkit.getPluginManager().callEvent(new LootChestSpawnEvent(this));
@@ -458,7 +458,7 @@ public class Lootchest {
 	 * Executes the spawn function, despawning the chest only if we force it to respawn
 	 * @param forceRespawn Forces the chest to respawn, even if it's not time to respawn
 	 */
-	public boolean spawn(Boolean forceRespawn){
+	public boolean spawn(boolean forceRespawn){
 		if (forceRespawn){
 			return spawn(forceRespawn, true);
 		}
@@ -472,9 +472,9 @@ public class Lootchest {
 	 * 
 	 * @param forceSpawn Forces the chest to respawn, even if it's not time to respawn
 	 * @param forceDespawn Forces the chest to despawn, even if it's not time to respawn
-	 * @return
+	 * @return true if the chest was spawned, false if it wasn't
 	 */
-	public boolean spawn(Boolean forceSpawn, Boolean forceDespawn) {
+	public boolean spawn(boolean forceSpawn, boolean forceDespawn) {
 		if(time == 0) time = -1;
 		if(forceDespawn) {
 			despawn();
@@ -495,7 +495,7 @@ public class Lootchest {
 			return false;
 		}
 		Location actualLocation = getActualLocation();
-		Boolean chunk_was_loaded = actualLocation.getWorld().isChunkLoaded((int)actualLocation.getX()/16, (int)actualLocation.getZ()/16) ;
+		boolean chunkWasLoaded = actualLocation.getWorld().isChunkLoaded((int)actualLocation.getX()/16, (int)actualLocation.getZ()/16) ;
 		
 		Location globalLocation = getPosition();
 		Location spawnLoc = globalLocation.clone();
@@ -520,30 +520,30 @@ public class Lootchest {
 		despawn();
 
 		// handle natural spawning messages - command respawn messages are handled in command class
-		if(!forceSpawn && getRespawn_natural() ) {
-			String natural_msg = Utils.color((((Main.configs.NOTE_natural_msg.replace("[Chest]", holo)).replace("[x]", spawnLoc.getX()+"")).replace("[y]", spawnLoc.getY()+"")).replace("[z]", spawnLoc.getZ()+"").replace("[World]", world));
+		if(!forceSpawn && isRespawnNaturalMsgEnabled() ) {
+			String naturalMsg = Utils.color((((Main.configs.NOTE_natural_msg.replace("[Chest]", holo)).replace("[x]", spawnLoc.getX()+"")).replace("[y]", spawnLoc.getY()+"")).replace("[z]", spawnLoc.getZ()+"").replace("[World]", world));
 			if(Main.configs.NOTE_bungee_broadcast) {
-				BungeeChannel.bungeeBroadcast(natural_msg);
+				BungeeChannel.bungeeBroadcast(naturalMsg);
 			}
 			else if(!Main.configs.NOTE_per_world_message) {
 				for(World w : Bukkit.getWorlds()) {
 					for(Player p : w.getPlayers()) {
-						Utils.sendMultilineMessage(natural_msg, p);
+						Utils.sendMultilineMessage(naturalMsg, p);
 					}
 				}
 			}else {
 				for(Player p : spawnLoc.getWorld().getPlayers()){
-					Utils.sendMultilineMessage(natural_msg, p);
+					Utils.sendMultilineMessage(naturalMsg, p);
 				}
 			}
 		}
 
 		// make the fall effect
 		final Block newBlock = spawnLoc.getBlock();
-		if(getFall()) {
+		if(isFallEnabled()) {
 			int height = Main.configs.FALL_Height;
 			Location startLocation = new Location(spawnLoc.getWorld(), spawnLoc.getX()+0.5, spawnLoc.getY()+height, spawnLoc.getZ()+0.5);
-			new FallingPackageEntity(startLocation, chunk_was_loaded, spawnLoc);
+			new FallingPackageEntity(startLocation, chunkWasLoaded, spawnLoc);
 		}
 		createchest(newBlock, spawnLoc);
 		
@@ -581,7 +581,7 @@ public class Lootchest {
 
 
 	/**
-	 * @param inventory
+	 * @param inventory the inventory of the chest
 	 */
 	public void setInventory(Inventory inventory) {
 		// if we don't clear the existing inv, removed items will still be in the chest
@@ -621,13 +621,13 @@ public class Lootchest {
 	public void deleteChest() {
 		despawn();
 		Main.getInstance().getLootChest().remove(getName());
-		Main.getInstance().getConfigFiles().getData().set("chests."+ getName(), null);
+		Main.getInstance().getConfigFiles().getData().set(DATA_CHEST_PATH+ getName(), null);
 		Main.getInstance().getConfigFiles().saveData();
 	}
 
 
 	/**
-	 * @param block
+	 * @param block the block to check
 	 * @return true if the block is the good one for the chest
 	 */
 	public boolean isGoodType(Block block) {
@@ -638,7 +638,7 @@ public class Lootchest {
 	 * gives the main informations about the chest
 	 */
 	public String toString() {
-		return (name +" "+fall +" " +direction+" "+ radius+" "+particle);             
+		return (name +" "+ fallEnabled +" " +direction+" "+ radius+" "+particle);             
 	}
 	
 	/**
@@ -657,7 +657,6 @@ public class Lootchest {
 
 	/**
 	 * reactivates particles, after a server restart for example
-	 * @param lc
 	 */
 	public void reactivateEffects() {
 

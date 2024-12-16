@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -34,6 +33,7 @@ import net.minecraft.server.v1_8_R3.PacketPlayOutEntityMetadata;
 /**
  * 1.17+ class to make an invisible armorstand fall from the sky with packets and a block on its head
  */
+@SuppressWarnings("unused")
 public class Fallv_1_8_8 implements IFallPacket {
     private final PacketPlayOutSpawnEntityLiving spawnPacket;
     private final PacketPlayOutEntityMetadata dataPacket;
@@ -44,9 +44,9 @@ public class Fallv_1_8_8 implements IFallPacket {
     private final int height;
     private final double speed;
     private long counter;
-    private final short SPEED_ONE_BLOCK_PER_SECOND = 410; // speed found after like 10 tests corresponding to one block fall per second
-    private final long COUNTER_ONE_BLOCK = 10; // after 10*2 ticks at speed 410, the armorstand falls one block
-    private static final short SPEED_MULTIPLYER = 31; 
+    private static final short SPEED_ONE_BLOCK_PER_SECOND = 410; // speed found after like 10 tests corresponding to one block fall per second
+    private static final long COUNTER_ONE_BLOCK = 10; // after 10*2 ticks at speed 410, the armorstand falls one block
+    private static final short SPEED_MULTIPLIER = 31; 
     private static ItemStack headItem;
     private final JavaPlugin instance;
 
@@ -59,7 +59,7 @@ public class Fallv_1_8_8 implements IFallPacket {
     @Override
     public Location getLocation() {
         Location loc = startLocation.clone();
-        loc.setY(loc.getY() - (height-((counter /(COUNTER_ONE_BLOCK/(this.speed*SPEED_MULTIPLYER)))-3))   );
+        loc.setY(loc.getY() - (height-((counter /(COUNTER_ONE_BLOCK/(this.speed*SPEED_MULTIPLIER)))-3))   );
         return loc;
     }
 
@@ -86,7 +86,7 @@ public class Fallv_1_8_8 implements IFallPacket {
         // stream all levels and filter the one that matches the world name
         org.bukkit.World world = loc.getWorld();
         String worldName = (world != null) ? world.getName() : null;
-        WorldServer s = StreamSupport.stream(server.worlds.spliterator(), false).filter(level -> level.getWorld().getName().equals(worldName)).findFirst().orElse(null);
+        WorldServer s = server.worlds.stream().filter(level -> level.getWorld().getName().equals(worldName)).findFirst().orElse(null);
         EntityArmorStand stand = new EntityArmorStand(s, loc.getX(), loc.getY(), loc.getZ());  
         stand.setInvisible(true);
         
@@ -97,17 +97,17 @@ public class Fallv_1_8_8 implements IFallPacket {
         equipmentPacket = new PacketPlayOutEntityEquipment(stand.getId(), 4, getNmsItemStackFromMaterial(headItem));
 
 
-                //dataPacket = constructor.newInstance(stand.getId(), stand.getEntityData().getNonDefaultValues(), true);
+                
 
             dataPacket = new PacketPlayOutEntityMetadata(stand.getId(), stand.getDataWatcher(), true);
-        short new_speed = (short)(this.speed*SPEED_MULTIPLYER*SPEED_ONE_BLOCK_PER_SECOND); // the plugin had a default speed of 0.8 wich was quite fast, but it was never meaningful, 0.8 was like 5 blocks per seconds.
+        short newSpeed = (short)(this.speed*SPEED_MULTIPLIER*SPEED_ONE_BLOCK_PER_SECOND); // the plugin had a default speed of 0.8 wich was quite fast, but it was never meaningful, 0.8 was like 5 blocks per seconds.
         // divide the counter by the speed multiplyer to get the number of ticks the armorstand will need to fall to get the fall ticks of one block for the new speed, then multiply it by the total height to fall
-        counter = (int)((COUNTER_ONE_BLOCK/(this.speed*SPEED_MULTIPLYER))*(height+3));
+        counter = (int)((COUNTER_ONE_BLOCK/(this.speed*SPEED_MULTIPLIER))*(height+3));
         // I added 3 to height, else packet is removed too fast
         motionPacket = new PacketPlayOutRelEntityMove(
                         armorstand.getId(),
                         (byte) (0),  // Multiply by 4096 for correct movement scaling
-                        (byte) (new_speed), // Adjust Y for gravity/fall (lower Y for falling)
+                        (byte) (newSpeed), // Adjust Y for gravity/fall (lower Y for falling)
                         (byte) (0),
                         true  // Yaw
                     ); 
@@ -120,11 +120,11 @@ public class Fallv_1_8_8 implements IFallPacket {
     @Override
     public void sendPacketToAll() {
         MinecraftServer server = MinecraftServer.getServer();
-        Stream<EntityPlayer> players = StreamSupport.stream(server.getPlayerList().players.spliterator(), false);
+        Stream<EntityPlayer> players = server.getPlayerList().players.stream();
         players.forEach(p -> {
             // get player from uuid
             Player bukkitPlayer = Bukkit.getPlayer(p.getUniqueID());
-            //p.getUniqueID();
+            
             // check distance between player and armorstand
             if (bukkitPlayer != null && bukkitPlayer.getLocation().distance(startLocation) > 100) {
                 return;
@@ -154,16 +154,12 @@ public class Fallv_1_8_8 implements IFallPacket {
     @Override
     public void removePacketToAll() {
         MinecraftServer server = MinecraftServer.getServer();
-        Stream<EntityPlayer> players = StreamSupport.stream(server.getPlayerList().players.spliterator(), false);
-        players.forEach(p -> {
-            p.playerConnection.sendPacket(new PacketPlayOutEntityDestroy(armorstand.getId()));
-        });
+        Stream<EntityPlayer> players = server.getPlayerList().players.stream();
+        players.forEach(p -> p.playerConnection.sendPacket(new PacketPlayOutEntityDestroy(armorstand.getId())));
     }
 
 
-    /**
-     * 
-     */
+
 
      /**
       * Get an NMS ItemStack from a Bukkit Material
@@ -176,7 +172,7 @@ public class Fallv_1_8_8 implements IFallPacket {
             return headItem;
         }
         
-        for(Item item : Arrays.asList(Blocks.class.getFields()).stream().map(field -> {
+        for(Item item : Arrays.stream(Blocks.class.getFields()).map(field -> {
             try {
                 return Item.getItemOf((Block)field.get(null));
             } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -192,7 +188,7 @@ public class Fallv_1_8_8 implements IFallPacket {
             }
 
         }
-        for(Item item : Arrays.asList(Items.class.getFields()).stream().map(field -> {
+        for(Item item : Arrays.stream(Items.class.getFields()).map(field -> {
             try {
                 return (Item) field.get(null);
             } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -202,14 +198,13 @@ public class Fallv_1_8_8 implements IFallPacket {
             if (item == null) {
                 continue;
             }
-            System.out.println("item.getName(): " + item.getName());
+            
             if (item.getName().equals(itemKey) || item.getName().equals(blockKey) || item.getName().equals(tileKey)) {
                 headItem = new ItemStack(item);
                 return headItem;
             }
 
         }
-        System.out.println("Could not find item for material " + material.name());
         return new ItemStack(Blocks.AIR);  // Return an empty item if reflection fails  
     }
 }

@@ -1,5 +1,6 @@
 package fr.black_eyes.lootchest.particles;
 
+import lombok.Getter;
 import org.bukkit.Color;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -29,6 +30,7 @@ final class LegacyParticleType implements ParticleType {
     private static  Method PLAYER_GET_HANDLE = null;
     private static  Field PLAYER_CONNECTION = null;
     private static  Method SEND_PACKET = null;
+    @Getter
     private static boolean initialized = false;
 
     private final String name;
@@ -48,7 +50,6 @@ final class LegacyParticleType implements ParticleType {
             Class<?> craftWorldClass = FastReflection.obcClass("CraftWorld");
 
             if (IS_1_8) {
-                System.out.println("1.8");
                 PACKET_PARTICLE = packetParticleClass.getConstructor(ENUM_PARTICLE, boolean.class, float.class,
                         float.class, float.class, float.class, float.class, float.class, float.class, int.class,
                         int[].class);
@@ -56,7 +57,6 @@ final class LegacyParticleType implements ParticleType {
                         boolean.class, double.class, double.class, double.class, int.class, double.class, double.class,
                         double.class, double.class, int[].class);
             } else {
-                System.out.println("1.7");
                 PACKET_PARTICLE = packetParticleClass.getConstructor(String.class, float.class, float.class, float.class,
                         float.class, float.class, float.class, float.class, int.class);
                 WORLD_SEND_PARTICLE = worldClass.getDeclaredMethod("a", String.class, double.class, double.class,
@@ -69,13 +69,8 @@ final class LegacyParticleType implements ParticleType {
             SEND_PACKET = playerConnectionClass.getMethod("sendPacket", FastReflection.nmsClass("Packet"));
         } catch (NoSuchMethodException | ClassNotFoundException | SecurityException | NoSuchFieldException e) {
             e.printStackTrace();
-            //throw new ExceptionInInitializerError(e);
         } 
         initialized = true;
-    }
-
-    public static boolean isInitialized(){
-        return initialized;
     }
 
     private LegacyParticleType(String name, Object particle) {

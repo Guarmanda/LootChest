@@ -15,6 +15,8 @@ package fr.black_eyes.lootchest.googleThings;
  */
 
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.DataOutput;
 import java.io.IOException;
 
@@ -29,7 +31,7 @@ import java.io.IOException;
 public interface ByteArrayDataOutput extends DataOutput {
 
   @Override
-  void writeUTF(String s);
+  void writeUTF(@NotNull String s);
 
 
 

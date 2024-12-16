@@ -1,6 +1,6 @@
 package fr.black_eyes.lootchest.commands.commands;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.bukkit.command.CommandSender;
 
@@ -14,7 +14,7 @@ import fr.black_eyes.simpleJavaPlugin.Utils;
 public class RemoveCommand extends SubCommand {
 	
 	public RemoveCommand() {
-		super("remove", Arrays.asList(ArgType.LOOTCHEST));
+		super("remove", Collections.singletonList(ArgType.LOOTCHEST));
 	}
 	
 	@Override
@@ -22,6 +22,6 @@ public class RemoveCommand extends SubCommand {
 		String chestName = args[1];
 		Lootchest lc = Main.getInstance().getLootChest().get(chestName);
 		lc.deleteChest();
-		Utils.msg(sender, "chestDeleted", Constants.cheststr, chestName);
+		Utils.msg(sender, "chestDeleted", Constants.CHEST_PLACEHOLDER, chestName);
 	}
 }

@@ -16,6 +16,8 @@ package fr.black_eyes.lootchest.googleThings;
 
 
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.DataInput;
 import java.io.IOException;
 
@@ -37,5 +39,5 @@ public interface ByteArrayDataInput extends DataInput {
 
 
 
-  String readUTF();
+  @NotNull String readUTF();
 }

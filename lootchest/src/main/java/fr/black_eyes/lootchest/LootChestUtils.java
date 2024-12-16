@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.material.DirectionalContainer;
 import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -20,8 +21,10 @@ import fr.black_eyes.simpleJavaPlugin.Utils;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.BlockIterator;
 
-@SuppressWarnings("deprecation")
+import static fr.black_eyes.lootchest.Constants.DATA_CHEST_PATH;
+
 public class LootChestUtils  {
 	private final Files configFiles;
 
@@ -42,13 +45,13 @@ public class LootChestUtils  {
 		chest2.setHolo(chest1.getHolo());
 		chest2.chances = chest1.chances.clone();
 		//chest2.direction = chest1.direction; let's not change original direction
-		chest2.setFall(chest1.getFall());
+		chest2.setFallEnabled(chest1.isFallEnabled());
 		chest2.getInv().setContents(chest1.getInv().getContents());
 		chest2.setTime(chest1.getTime());
 		chest2.setParticle(chest1.getParticle());
-		chest2.setRespawn_cmd(chest1.getRespawn_cmd());
-		chest2.setRespawn_natural(chest1.getRespawn_natural());
-		chest2.setTake_msg(chest1.getTake_msg());
+		chest2.setRespawnCmdMsgEnabled(chest1.isRespawnCmdMsgEnabled());
+		chest2.setRespawnNaturalMsgEnabled(chest1.isRespawnNaturalMsgEnabled());
+		chest2.setTakeMsgEnabled(chest1.isTakeMsgEnabled());
 		chest2.setRadius(chest1.getRadius());
 		chest2.spawn(true);
 	}
@@ -98,7 +101,7 @@ public class LootChestUtils  {
 	/**
 	 * Schedule a chest to respawn
 	 * Do several checks to verify that a chest should respawn or not
-	 * @param lc
+	 * @param lc the Lootchest
 	 */
 	public static void scheduleReSpawn(Lootchest lc) {
 		long tempsActuel = (new Timestamp(System.currentTimeMillis())).getTime();
@@ -111,14 +114,14 @@ public class LootChestUtils  {
 			return;
 		}
 		long tempsEnregistre = lc.getLastReset();
-		long time_to_wait = (minutes*60-((tempsActuel - tempsEnregistre)/1000));
+		long timeToWait = (minutes*60-((tempsActuel - tempsEnregistre)/1000));
 		//if chest should already have respawned (eg it failed to spawn and send us here), let's retry in 30 seconds
-		if(time_to_wait<0) {
-			time_to_wait = 30;
+		if(timeToWait<0) {
+			timeToWait = 30;
 		}
 		// a pull request said that this was suposed to solve respawn problem. I don't experience this bug so I don't know it it works or not
 		// plus, this isn't logical at all. but... let's try
-		time_to_wait +=5;
+		timeToWait +=5;
 
 		//we have to noe duplicate respawn tasks
 		if(lc.getRespawnTask()!=null)
@@ -129,7 +132,7 @@ public class LootChestUtils  {
             	lc.spawn(false);
             }                
         });
-		lc.getRespawnTask().runTaskLater(Main.getInstance(), time_to_wait*20);
+		lc.getRespawnTask().runTaskLater(Main.getInstance(), timeToWait*20);
     }
 	
 	/**
@@ -146,22 +149,20 @@ public class LootChestUtils  {
         }
 		List<Integer> full_slots = new ArrayList<>();
 
-		//&& (lc.getMaxFilledSlots() == 0 || lc.getMaxFilledSlots() > full_slots)
         for (int i=0; i<27 ; i++){
         	if(lc.getInv().getItem(i) != null && !lc.getInv().getItem(i).getType().equals(Material.AIR)) {
 	            final ItemStack item = lc.getInv().getItem(i);
-	            final int slot = i;
-	            final int percent = ThreadLocalRandom.current().nextInt(0, 101);
+                final int percent = ThreadLocalRandom.current().nextInt(0, 101);
 	            if (percent <= lc.chances[i]) {
-					full_slots.add(slot);
-	                if (inv.getItem(slot) == null || inv.getItem(slot).getType() == Material.AIR) {
-	                    inv.setItem(slot, item);
+					full_slots.add(i);
+	                if (inv.getItem(i) == null || inv.getItem(i).getType() == Material.AIR) {
+	                    inv.setItem(i, item);
 	                }
 	                else if (p != null && p.getInventory().firstEmpty() == -1) {
 	                    p.getWorld().dropItem(p.getLocation(), item);
 	                }
 	                else {
-	                    inv.addItem(new ItemStack[] { item });
+	                    inv.addItem(item);
 	                }
 	            }
         	}
@@ -184,9 +185,9 @@ public class LootChestUtils  {
 
 	/**
 	 * Get the name of a menu from the config file
-	 * @param name
-	 * @param replacement
-	 * @return
+	 * @param name the name of the menu
+	 * @param replacement the chest name to replace the [Chest] placeholder
+	 * @return the name of the menu
 	 */
 	public static String getMenuName(String name, String replacement) {
 		String menuName = Utils.getMsg("Menu."+name+".name", "[Chest]", replacement);
@@ -199,21 +200,11 @@ public class LootChestUtils  {
 	
 	/**
 	 * Get a random integer between 0 and max
-	 * @param max
+	 * @param max the maximum and minimum value at once (inclusive)
 	 * @return a random integer between 0 and max
 	 */
 	private static int randomInt(int max) {
-		return ThreadLocalRandom.current().nextInt(0-max, max+1);
-	}
-
-	/**
-	 * Get a random integer between min and max
-	 * @param min 
-	 * @param max
-	 * @return a random integer between min and max
-	 */
-	public static int randomInt(int min, int max) {
-		return ThreadLocalRandom.current().nextInt(min, max+1);
+		return ThreadLocalRandom.current().nextInt(-max, max+1);
 	}
 	
 	/**
@@ -235,16 +226,15 @@ public class LootChestUtils  {
 	
 	/**
 	 * Checks if location is outside border (thanks spigot forum)
-	 * @param the location to check
-	 * @return
+	 * @param loc the location to check
+	 * @return true if the location is outside the border, false otherwise
 	 */
 	public static boolean isOutsideOfBorder(Location loc) {
-		if(loc.getWorld().getWorldBorder()==null) return false;
-		
-		org.bukkit.WorldBorder border = loc.getWorld().getWorldBorder();
+        org.bukkit.WorldBorder border = loc.getWorld().getWorldBorder();
         double size = border.getSize()/2;
         Location center = border.getCenter();
-        double x = loc.getX() - center.getX(), z = loc.getZ() - center.getZ();
+        double x = loc.getX() - center.getX();
+		double z = loc.getZ() - center.getZ();
         return ((x > size || (-x) > size) || (z > size || (-z) > size));
     }
 	
@@ -328,16 +318,16 @@ public class LootChestUtils  {
 	 * @return the Location of the chest
 	 */
 	public  Location getPosition(String name) {
-		if (configFiles.getData().getString("chests." + name + ".position.world") == null) {
+		if (configFiles.getData().getString(DATA_CHEST_PATH + name + ".position.world") == null) {
 			Utils.logInfo("&cThe plugin couldn't get the world of chest &6" + name +"&c. This won't prevent the plugin to work, but the plugin may throw other errors because of that.");
 			return null;
 		}
-		World world = Bukkit.getWorld(configFiles.getData().getString("chests." + name + ".position.world"));
-		double x = configFiles.getData().getDouble("chests." + name + ".position.x");
-		double y = configFiles.getData().getDouble("chests." + name + ".position.y");
-		double z = configFiles.getData().getDouble("chests." + name + ".position.z");
-		float pitch = (float) configFiles.getData().getDouble("chests." + name + ".position.pitch");
-		float yaw = (float) configFiles.getData().getDouble("chests." + name + ".position.yaw");
+		World world = Bukkit.getWorld(configFiles.getData().getString(DATA_CHEST_PATH + name + ".position.world"));
+		double x = configFiles.getData().getDouble(DATA_CHEST_PATH + name + ".position.x");
+		double y = configFiles.getData().getDouble(DATA_CHEST_PATH + name + ".position.y");
+		double z = configFiles.getData().getDouble(DATA_CHEST_PATH + name + ".position.z");
+		float pitch = (float) configFiles.getData().getDouble(DATA_CHEST_PATH + name + ".position.pitch");
+		float yaw = (float) configFiles.getData().getDouble(DATA_CHEST_PATH + name + ".position.yaw");
 		return new Location(world, x, y, z, pitch, yaw);
 	}
 	
@@ -347,12 +337,12 @@ public class LootChestUtils  {
 	 * @param loc the location
 	 */
 	public  void setPosition(String name, Location loc) {
-		configFiles.getData().set("chests." + name + ".position.world", loc.getWorld().getName());
-		configFiles.getData().set("chests." + name + ".position.x", loc.getX());
-		configFiles.getData().set("chests." + name + ".position.y", loc.getY());
-		configFiles.getData().set("chests." + name + ".position.z", loc.getZ());
-		configFiles.getData().set("chests." + name + ".position.pitch", loc.getPitch());
-		configFiles.getData().set("chests." + name + ".position.yaw", loc.getYaw());
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".position.world", loc.getWorld().getName());
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".position.x", loc.getX());
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".position.y", loc.getY());
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".position.z", loc.getZ());
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".position.pitch", loc.getPitch());
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".position.yaw", loc.getYaw());
 	}
 	
 	/**
@@ -363,12 +353,12 @@ public class LootChestUtils  {
 	public void setRandomPosition(String name, Location loc) {
 		try {
 		String world = loc.getWorld().getName();
-		configFiles.getData().set("chests." + name + ".randomPosition.world", world);
-		configFiles.getData().set("chests." + name + ".randomPosition.x", loc.getX());
-		configFiles.getData().set("chests." + name + ".randomPosition.y", loc.getY());
-		configFiles.getData().set("chests." + name + ".randomPosition.z", loc.getZ());
-		configFiles.getData().set("chests." + name + ".randomPosition.pitch", loc.getPitch());
-		configFiles.getData().set("chests." + name + ".randomPosition.yaw", loc.getYaw());
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".randomPosition.world", world);
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".randomPosition.x", loc.getX());
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".randomPosition.y", loc.getY());
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".randomPosition.z", loc.getZ());
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".randomPosition.pitch", loc.getPitch());
+		configFiles.getData().set(DATA_CHEST_PATH + name + ".randomPosition.yaw", loc.getYaw());
 		}catch(NullPointerException e) {
 			Utils.logInfo(name + " " +loc.toString());
 		}
@@ -393,15 +383,15 @@ public class LootChestUtils  {
 	 * @return the actual random Location of the chest
 	 */
 	public Location getRandomPosition(String name) {
-		if(!configFiles.getData().isSet("chests." + name + ".randomPosition.x")) {
+		if(!configFiles.getData().isSet(DATA_CHEST_PATH + name + ".randomPosition.x")) {
 			return null;
 		}
-		World world = Bukkit.getWorld(configFiles.getData().getString("chests." + name + ".randomPosition.world"));
-		double x = configFiles.getData().getDouble("chests." + name + ".randomPosition.x");
-		double y = configFiles.getData().getDouble("chests." + name + ".randomPosition.y");
-		double z = configFiles.getData().getDouble("chests." + name + ".randomPosition.z");
-		float pitch = (float) configFiles.getData().getDouble("chests." + name + ".randomPosition.pitch");
-		float yaw = (float) configFiles.getData().getDouble("chests." + name + ".randomPosition.yaw");
+		World world = Bukkit.getWorld(configFiles.getData().getString(DATA_CHEST_PATH + name + ".randomPosition.world"));
+		double x = configFiles.getData().getDouble(DATA_CHEST_PATH + name + ".randomPosition.x");
+		double y = configFiles.getData().getDouble(DATA_CHEST_PATH + name + ".randomPosition.y");
+		double z = configFiles.getData().getDouble(DATA_CHEST_PATH + name + ".randomPosition.z");
+		float pitch = (float) configFiles.getData().getDouble(DATA_CHEST_PATH + name + ".randomPosition.pitch");
+		float yaw = (float) configFiles.getData().getDouble(DATA_CHEST_PATH + name + ".randomPosition.yaw");
 		return new Location(world, x, y, z, pitch, yaw);
 	}
 
@@ -430,34 +420,6 @@ public class LootChestUtils  {
 	}
 	
 	/**
-	 * Get the number of players around a location
-	 * @param loc the location
-	 * @param radius the radius
-	 * @return an int of the number of Player(s) around the location
-	 */
-	public static int numberOfPlayersAroundLocation(Location loc, int radius) {
-		int cpt = 0;
-		for (Player players : loc.getWorld().getPlayers()) 
-            if (loc.distanceSquared(players.getLocation()) <= radius) 
-                cpt++;
-        return cpt;    
-	}
-
-	/**
-	 * Get all players around a location
-	 * @param loc the location
-	 * @param radius the radius
-	 * @return a List of all Player(s) around the location
-	 */
-	public static List<Player> getPlayersAroundLocation(Location loc, int radius) {
-		List<Player> list = new ArrayList<>();
-		for (Player players : loc.getWorld().getPlayers()) 
-            if (loc.distanceSquared(players.getLocation()) <= radius) 
-                list.add(players);
-        return list;    
-	}
-	
-	/**
 	 * Get the direction of a chest with its beautiful superclass "DirectionalContainer"
 	 * @param chest a chest Block
 	 * @return the direction of the chest
@@ -468,6 +430,19 @@ public class LootChestUtils  {
 		}
 		MaterialData data = chest.getState().getData();
 		return ((DirectionalContainer)data).getFacing().name();	
+	}
+
+	public static Block getWatchedBlock(LivingEntity player){
+		BlockIterator iter = new BlockIterator(player, 10);
+		Block lastBlock = iter.next();
+        if (iter.hasNext()) do {
+            lastBlock = iter.next();
+            if (lastBlock.getType() == Material.AIR) {
+                continue;
+            }
+            break;
+        } while (iter.hasNext());
+		return lastBlock;
 	}
 	
 

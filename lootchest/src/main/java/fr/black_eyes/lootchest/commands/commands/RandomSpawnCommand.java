@@ -30,13 +30,13 @@ public class RandomSpawnCommand extends SubCommand {
 		newradius = Math.max(newradius, 0);
 		lc.setRadius(newradius);
 		if (newradius > 0) {
-			Utils.msg(sender, "chestRadiusSet", Constants.cheststr, chestName);
+			Utils.msg(sender, "chestRadiusSet", Constants.CHEST_PLACEHOLDER, chestName);
 		}
 		
 		lc.despawn();
 		if (newradius == 0) {
 			lc.setRandomLoc(null);
-			Utils.msg(sender, "disabledChestRadius", Constants.cheststr, chestName);
+			Utils.msg(sender, "disabledChestRadius", Constants.CHEST_PLACEHOLDER, chestName);
 		}
 		lc.spawn(true);
 		lc.updateData();

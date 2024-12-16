@@ -25,10 +25,10 @@ public class LocateCommand extends SubCommand {
 	protected void onCommand(CommandSender sender, String[] args) {
 		Utils.msg(sender, "locate_command.main_message", " ", " ");
 		for (Lootchest lcs : Main.getInstance().getLootChest().values()) {
-			if (lcs.getRespawn_natural() && !lcs.getTaken()) {
+			if (lcs.isRespawnNaturalMsgEnabled() && !lcs.isTaken()) {
 				Location block = lcs.getActualLocation();
 				String holo = lcs.getHolo();
-				Utils.msg(sender, "locate_command.chest_list", "[world]", block.getWorld().getName(), Constants.cheststr, holo, "[x]", block.getX() + "", "[y]", block.getY() + "", "[z]", block.getZ() + "");
+				Utils.msg(sender, "locate_command.chest_list", "[world]", block.getWorld().getName(), Constants.CHEST_PLACEHOLDER, holo, "[x]", block.getX() + "", "[y]", block.getY() + "", "[z]", block.getZ() + "");
 			}
 		}
 	}

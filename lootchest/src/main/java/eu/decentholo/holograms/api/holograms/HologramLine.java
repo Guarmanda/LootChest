@@ -2,8 +2,6 @@ package eu.decentholo.holograms.api.holograms;
 
 import com.google.common.util.concurrent.AtomicDouble;
 
-import eu.decentholo.holograms.api.DecentHolograms;
-import eu.decentholo.holograms.api.DecentHologramsAPI;
 import eu.decentholo.holograms.api.Settings;
 import eu.decentholo.holograms.api.holograms.enums.EnumFlag;
 import eu.decentholo.holograms.api.holograms.enums.HologramLineType;
@@ -31,11 +29,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Getter
 @Setter
 public class HologramLine extends HologramObject {
-
-    protected static final DecentHolograms DECENT_HOLOGRAMS = DecentHologramsAPI.get();
-
-
-
     /*
      *	Fields
      */
@@ -185,22 +178,6 @@ public class HologramLine extends HologramObject {
         return content;
     }
 
- 
-    /**
-     * Update the visibility of this line for the given player. This method checks
-     * if the player has the permission to see this line and if they are in the display
-     * range. Then it updates the visibility accordingly.
-     *
-     * @param player The player to update visibility for.
-     */
-    public void updateVisibility(@NonNull Player player) {
-        if (isVisible(player) && isInDisplayRange(player)) {
-            hide(player);
-        } else if (!isVisible(player) && isInDisplayRange(player)) {
-            show(player);
-        }
-    }
-
     /**
      * Show this line for given players.
      *
@@ -264,11 +241,10 @@ public class HologramLine extends HologramObject {
             if (type == HologramLineType.TEXT) {
                 UUID uuid = player.getUniqueId();
                 String lastText = lastTextMap.get(uuid);
-                String updatedText = text;
-                if (!updatedText.equals(lastText)) {
-                    lastTextMap.put(uuid, updatedText);
-                    playerTextMap.put(uuid, updatedText);
-                    nms.updateFakeEntityCustomName(player, updatedText, entityIds[0]);
+                if (!text.equals(lastText)) {
+                    lastTextMap.put(uuid, text);
+                    playerTextMap.put(uuid, text);
+                    nms.updateFakeEntityCustomName(player, text, entityIds[0]);
                 }
             } 
         }
@@ -307,11 +283,6 @@ public class HologramLine extends HologramObject {
         return parent == null || parent.getParent().isInDisplayRange(player);
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean isInUpdateRange(@NonNull Player player) {
-        return parent == null || parent.getParent().isInUpdateRange(player);
-    }
-
     public double getOffsetX() {
         return offsetX.get();
     }
@@ -324,16 +295,8 @@ public class HologramLine extends HologramObject {
         return offsetZ.get();
     }
 
-    public void setOffsetX(double offsetX) {
-        this.offsetX.set(offsetX);
-    }
-
     public void setOffsetY(double offsetY) {
         this.offsetY.set(offsetY);
-    }
-
-    public void setOffsetZ(double offsetZ) {
-        this.offsetZ.set(offsetZ);
     }
 
     /*
