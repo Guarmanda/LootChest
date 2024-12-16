@@ -110,11 +110,11 @@ public class DeleteListener implements Listener  {
     public void oncloseInventory(InventoryCloseEvent e) {
     	Inventory inv = e.getInventory();
     	Player p = Bukkit.getPlayer(e.getPlayer().getName());
-    	if((LootChestUtils.isEmpty(inv) || Main.configs.RemoveChestAfterFirstOpenning) && openInvs.containsKey(p)) {
+    	if((LootChestUtils.isEmpty(inv) || Main.configs.RemoveChestAfterFirstOpening) && openInvs.containsKey(p)) {
     		Lootchest keys = LootChestUtils.isLootChest(openInvs.get(p));
     		if(keys != null) {
     			Location loc = openInvs.get(p);
-    			if((Main.configs.RemoveEmptyChests && LootChestUtils.isEmpty(inv)) || Main.configs.RemoveChestAfterFirstOpenning) {
+    			if((Main.configs.RemoveEmptyChests && LootChestUtils.isEmpty(inv)) || Main.configs.RemoveChestAfterFirstOpening) {
     				inv.clear();
     				keys.getHologram().remove();
     	

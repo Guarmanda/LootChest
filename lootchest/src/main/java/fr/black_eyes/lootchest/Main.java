@@ -429,7 +429,7 @@ public class Main extends SimpleJavaPlugin {
               e.printStackTrace();
           }
       }
-      configFiles.setConfig("Fall_Effect.Optionnal_Color_If_Block_Is_Wool", "CYAN");
+      configFiles.setConfig("Fall_Effect.Optionnal_Color_If_Block_Is_Wool", null);
       configFiles.setConfig("Fall_Effect.Block",  configFiles.getConfig().getString("Fall_Effect_Block"));
       configFiles.setConfig("Fall_Effect.Height",  configFiles.getConfig().getInt("Fall_Effect_Height"));
       configFiles.setConfig("Fall_Effect.Enabled",  configFiles.getConfig().getBoolean("Enable_fall_effect"));

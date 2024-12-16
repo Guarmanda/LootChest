@@ -31,7 +31,7 @@ RemoveEmptyChests,
 CheckForUpdates,
 ConsoleMessages,
 Prevent_Chest_Spawn_In_Protected_Places,
-RemoveChestAfterFirstOpenning,
+RemoveChestAfterFirstOpening,
 PreventHopperPlacingUnderLootChest,
 Protect_From_Explosions,
 FALL_Enabled,
@@ -50,8 +50,7 @@ allow_spawning_on_water,
 NOTE_allcmd_world_e,
 lootin;
 
-public String FALL_Optionnal_Color_If_Block_Is_Wool,
-PART_default_particle,
+public String PART_default_particle,
 FALL_Block,
 NOTE_natural_msg,
 NOTE_command_msg,
@@ -120,7 +119,7 @@ public Config(FileConfiguration config) {
 	CheckForUpdates = config.getBoolean("CheckForUpdates");
 	ConsoleMessages = config.getBoolean("ConsoleMessages");
 	Prevent_Chest_Spawn_In_Protected_Places = config.getBoolean("Prevent_Chest_Spawn_In_Protected_Places");
-	RemoveChestAfterFirstOpenning = config.getBoolean("RemoveChestAfterFirstOpenning");
+	RemoveChestAfterFirstOpening = config.getBoolean("RemoveChestAfterFirstOpening");
 	PreventHopperPlacingUnderLootChest = config.getBoolean("PreventHopperPlacingUnderLootChest");
 	FALL_Enabled = config.getBoolean("Fall_Effect.Enabled");
 	FALL_Enable_Fireworks = config.getBoolean("Fall_Effect.Enable_Fireworks");
@@ -139,7 +138,6 @@ public Config(FileConfiguration config) {
 	lootin = config.getBoolean("EnableLootin");
 
 	
-	FALL_Optionnal_Color_If_Block_Is_Wool = config.getString("Fall_Effect.Optionnal_Color_If_Block_Is_Wool");
 	PART_default_particle = config.getString("Particles.default_particle");
 	FALL_Block = config.getString("Fall_Effect.Block");
 	NOTE_natural_msg = config.getString("respawn_notify.natural_respawn.message");

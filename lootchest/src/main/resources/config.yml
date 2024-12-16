@@ -5,7 +5,7 @@ ConsoleMessages: true
     # Looting is a plugin that allows all players to loot the same chest
 EnableLootin: false
     #Some people have troubles about worlds loading before my plugin: in fact, chests located in unloaded worlds aren't loaded.
-    #Let's fi this with this option. Cooldown is in second.
+    #Let's fix this with this option. Cooldown is in second.
 Cooldown_Before_Plugin_Start: 0
     #Here are some options about particles
 Particles:
@@ -42,7 +42,7 @@ Protect_From_Explosions: false
     #this detects factions, residence and worldguard regions
 Prevent_Chest_Spawn_In_Protected_Places: false
     #removes the chest when a player closes it, even if there's still items in it
-RemoveChestAfterFirstOpenning: false
+RemoveChestAfterFirstOpening: false
     #Holograms doesn't act the same depending on server version, so here you can configure their height compared to the chest's height. 
     #YOU CAN PUT A NEGATIVE NUMBER if the hologram is too high!
 Hologram_distance_to_chest: 1
@@ -62,9 +62,6 @@ Max_Filled_Slots_By_Default: 0
 Fall_Effect:
       #the block is on an armorstand's head, so it would be 1 or 2 blocks above the chest, and not really on it
   Let_Block_Above_Chest_After_Fall: false
-      #this option is for versions before 1.13: since 1.13, we have diferent material for each wool color, so we don't need this.
-      #Colors are wrong, for example, PINK is CYAN and CYAN is PINK. Spigot bug, sorry.
-  Optionnal_Color_If_Block_Is_Wool: CYAN
       #The block that falls. This block is on an armorstand's head
   Block: CHEST
       #The block will spawn 50 blocks above the chest then will fall to it
