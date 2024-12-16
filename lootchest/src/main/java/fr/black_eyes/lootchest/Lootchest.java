@@ -9,6 +9,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -258,9 +259,7 @@ public class Lootchest {
 		respawn_cmd =  Main.configs.NOTE_command_e;
 		respawn_natural =  Main.configs.NOTE_natural_e;
 		take_msg =  Main.configs.NOTE_message_on_chest_take;
-		if( !(Mat.CHEST != Mat.BARREL && chest.getType() == Mat.BARREL) ) {
-			direction = LootChestUtils.getDirection(chest);
-		}
+		direction = LootChestUtils.getDirection(chest);
 		holo = name;
 		time =  Main.configs.default_reset_time;
 		globalLoc =  chest.getLocation();
@@ -360,7 +359,7 @@ public class Lootchest {
 	 */
 	public boolean despawn(){
 		Location startLocation = getActualLocation();
-		Boolean loaded = startLocation.getWorld().isChunkLoaded((int)startLocation.getX()/16, (int)startLocation.getZ()/16) ;
+		boolean loaded = startLocation.getWorld().isChunkLoaded((int)startLocation.getX()/16, (int)startLocation.getZ()/16) ;
 		if(LootChestUtils.isWorldLoaded(getWorld()) && isGoodType(startLocation.getBlock())) {
 			Block chest = startLocation.getBlock();
 			((InventoryHolder) chest.getLocation().getBlock().getState()).getInventory().clear();
@@ -403,15 +402,25 @@ public class Lootchest {
 		block.setType(getType());
 		Inventory inventory = ((InventoryHolder) block.getState()).getInventory();
 		LootChestUtils.fillInventory(this, inventory, true, null);
-		MaterialData data = null;
-		//if the chest isn't a barrel, we can change its direction
-		if( !(Mat.CHEST != Mat.BARREL && getType() == Mat.BARREL) && Main.getCompleteVersion()>=1080) {
-				data = block.getState().getData();
+
+		// set the direction of the chest
+		if(Main.getCompleteVersion()>=1140) {
+			org.bukkit.block.data.BlockData data;
+			data = block.getBlockData();
+				System.out.println(block.getType());
+			((org.bukkit.block.data.Directional)data).setFacing(BlockFace.valueOf(direction));
+			BlockState state = block.getState();
+			state.setBlockData(data);
+			state.update();
+		}
+		else {
+			MaterialData data = block.getState().getData();
 			((DirectionalContainer)data).setFacingDirection(BlockFace.valueOf(direction));
 			BlockState state = block.getState();
 			state.setData(data);
 			state.update();
 		}
+
 		// check if lootin is installed
 		if(Config.getInstance().lootin && Bukkit.getPluginManager().isPluginEnabled("Lootin")) {
 			if(block.getType().equals(Material.CHEST) || block.getType().equals(Material.TRAPPED_CHEST))
