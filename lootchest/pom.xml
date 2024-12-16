@@ -47,6 +47,25 @@
                     </descriptorRefs>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>copy-and-rename-resource</id>
+                        <phase>install</phase>
+                        <configuration>
+                            <target>
+                    <copy file="${project.build.directory}/lootchest-jar-with-dependencies.jar"
+                          tofile="${basedir}/../target/Lootchest-${project.version}.jar" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
    <repositories>
