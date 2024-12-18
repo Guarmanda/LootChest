@@ -15,10 +15,6 @@ public class DList<T> extends ArrayList<T> {
         super(cap);
     }
 
-    public T random() {
-        return get(randomIndex());
-    }
-
     /**
      * Pop the first item off this list and return it
      *
@@ -35,10 +31,6 @@ public class DList<T> extends ArrayList<T> {
             return pop();
         }
         return remove(randomIndex());
-    }
-
-    public boolean isNotEmpty() {
-        return !isEmpty();
     }
 
     public boolean hasElements() {

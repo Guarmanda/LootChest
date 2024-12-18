@@ -1,6 +1,6 @@
 package fr.black_eyes.lootchest.commands.commands;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -15,7 +15,7 @@ public class EditCommand extends SubCommand {
 	private final UiHandler uiHandler;
 
 	public EditCommand(UiHandler uiHandler) {
-		super("edit", Arrays.asList(ArgType.LOOTCHEST));
+		super("edit", Collections.singletonList(ArgType.LOOTCHEST));
 		setPlayerRequired(true);
 		this.uiHandler = uiHandler;
 	}

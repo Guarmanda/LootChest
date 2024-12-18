@@ -8,7 +8,6 @@ import eu.decentholo.holograms.api.utils.reflect.ReflectMethod;
 import eu.decentholo.holograms.api.utils.reflect.ReflectionUtil;
 import eu.decentholo.holograms.api.utils.reflect.Version;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelPipeline;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -112,13 +111,6 @@ public abstract class NMS {
         if (packet == null || !PACKET_CLASS.isAssignableFrom(packet.getClass())) return;
         Object playerConnection = getPlayerConnection(player);
         PLAYER_CONNECTION_SEND_PACKET_METHOD.invoke(playerConnection, packet);
-    }
-
-    public ChannelPipeline getPipeline(Player player) {
-        Object playerConnection = getPlayerConnection(player);
-        Object networkManager = PLAYER_CONNECTION_NETWORK_MANAGER_FIELD.getValue(playerConnection);
-        Channel channel = (Channel) NETWORK_MANAGER_CHANNEL_FIELD.getValue(networkManager);
-        return channel.pipeline();
     }
 
 

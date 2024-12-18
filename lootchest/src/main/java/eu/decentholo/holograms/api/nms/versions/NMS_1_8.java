@@ -3,7 +3,6 @@ package eu.decentholo.holograms.api.nms.versions;
 import org.apache.commons.lang.Validate;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -79,7 +78,7 @@ public class NMS_1_8 extends NMS {
         if (small) data += 0x01;
         if (!clickable) data += 0x10;
         DATA_WATCHER_A_METHOD.invoke(dataWatcher, 10, data);
-        showFakeEntityLiving(player, location, 30, entityId, dataWatcher);
+        showFakeEntityLiving(player, location, entityId, dataWatcher);
     }
 
     @Override
@@ -99,11 +98,7 @@ public class NMS_1_8 extends NMS {
         Validate.notNull(location);
 
         Object teleport = PACKET_ENTITY_TELEPORT_CONSTRUCTOR.newInstance();
-        if (teleport == null) return;
-        ReflectionUtil.setFieldValue(teleport, "a", entityId);
-        ReflectionUtil.setFieldValue(teleport, "b", MATH_HELPER_FLOOR_METHOD.invokeStatic(location.getX() * 32.0D));
-        ReflectionUtil.setFieldValue(teleport, "c", MATH_HELPER_FLOOR_METHOD.invokeStatic(location.getY() * 32.0D));
-        ReflectionUtil.setFieldValue(teleport, "d", MATH_HELPER_FLOOR_METHOD.invokeStatic(location.getZ() * 32.0D));
+        if (buildSpawnPacket(location, entityId, teleport)) return;
         ReflectionUtil.setFieldValue(teleport, "e", (byte) ((int) (location.getYaw() * 256.0F / 360.0F)));
         ReflectionUtil.setFieldValue(teleport, "f", (byte) ((int) (location.getPitch() * 256.0F / 360.0F)));
         ReflectionUtil.setFieldValue(teleport, "g", false);
@@ -123,26 +118,31 @@ public class NMS_1_8 extends NMS {
         Validate.notNull(location);
 
         Object spawn = PACKET_SPAWN_ENTITY_CONSTRUCTOR.newInstance();
-        if (spawn == null) return;
-        ReflectionUtil.setFieldValue(spawn, "a", entityId);
-        ReflectionUtil.setFieldValue(spawn, "b", MATH_HELPER_FLOOR_METHOD.invokeStatic(location.getX() * 32.0D));
-        ReflectionUtil.setFieldValue(spawn, "c", MATH_HELPER_FLOOR_METHOD.invokeStatic(location.getY() * 32.0D));
-        ReflectionUtil.setFieldValue(spawn, "d", MATH_HELPER_FLOOR_METHOD.invokeStatic(location.getZ() * 32.0D));
+        if (buildSpawnPacket(location, entityId, spawn)) return;
         ReflectionUtil.setFieldValue(spawn, "h", MATH_HELPER_D_METHOD.invokeStatic(location.getPitch() * 256.0F / 360.0F));
         ReflectionUtil.setFieldValue(spawn, "i", MATH_HELPER_D_METHOD.invokeStatic(location.getYaw() * 256.0F / 360.0F));
         ReflectionUtil.setFieldValue(spawn, "j", entityTypeId);
         sendPacket(player, spawn);
     }
 
-    private void showFakeEntityLiving(Player player, Location location, int entityTypeId, int entityId, Object dataWatcher) {
+    private boolean buildSpawnPacket(Location location, int entityId, Object spawn) {
+        if (spawn == null) return true;
+        ReflectionUtil.setFieldValue(spawn, "a", entityId);
+        ReflectionUtil.setFieldValue(spawn, "b", MATH_HELPER_FLOOR_METHOD.invokeStatic(location.getX() * 32.0D));
+        ReflectionUtil.setFieldValue(spawn, "c", MATH_HELPER_FLOOR_METHOD.invokeStatic(location.getY() * 32.0D));
+        ReflectionUtil.setFieldValue(spawn, "d", MATH_HELPER_FLOOR_METHOD.invokeStatic(location.getZ() * 32.0D));
+        return false;
+    }
+
+    private void showFakeEntityLiving(Player player, Location location, int entityId, Object dataWatcher) {
         Validate.notNull(player);
         Validate.notNull(location);
-        if (dataWatcher == null || !DATA_WATCHER_CLASS.isAssignableFrom(dataWatcher.getClass())) return;
+        if (dataWatcher == null || !(DATA_WATCHER_CLASS != null && DATA_WATCHER_CLASS.isAssignableFrom(dataWatcher.getClass()))) return;
 
         Object spawn = PACKET_SPAWN_ENTITY_LIVING_CONSTRUCTOR.newInstance();
         if (spawn == null) return;
         ReflectionUtil.setFieldValue(spawn, "a", entityId);
-        ReflectionUtil.setFieldValue(spawn, "b", entityTypeId);
+        ReflectionUtil.setFieldValue(spawn, "b", 30);
         ReflectionUtil.setFieldValue(spawn, "c", MATH_HELPER_FLOOR_METHOD.invokeStatic(location.getX() * 32.0D));
         ReflectionUtil.setFieldValue(spawn, "d", MATH_HELPER_FLOOR_METHOD.invokeStatic(location.getY() * 32.0D));
         ReflectionUtil.setFieldValue(spawn, "e", MATH_HELPER_FLOOR_METHOD.invokeStatic(location.getZ() * 32.0D));

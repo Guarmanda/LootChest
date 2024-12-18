@@ -29,8 +29,7 @@ public class UiHandler {
 	 * Enum for the different types of UIs that can be opened
 	 */
 	public enum UiType {
-		MAIN, COPY, TYPE, PARTICLE, EDIT, TIME, CHANCES;
-
+		MAIN, COPY, TYPE, PARTICLE, EDIT, TIME, CHANCES
 	}
 
 	public UiHandler(JavaPlugin plugin) {

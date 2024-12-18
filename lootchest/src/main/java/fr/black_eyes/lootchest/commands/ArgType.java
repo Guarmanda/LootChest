@@ -54,8 +54,6 @@ public enum ArgType {
                     return false;
                 }
                 break;
-            case STRING:
-                return true;
             case WORLD:
                 if(!Bukkit.getWorlds().stream().map(WorldInfo::getName).collect(LinkedList::new, LinkedList::add, LinkedList::addAll).contains(arg)){
                     Utils.msg(sender, "worldDoesntExist", "[World]", arg);

@@ -1,7 +1,7 @@
 package fr.black_eyes.lootchest.commands.commands;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -17,7 +17,7 @@ import fr.black_eyes.simpleJavaPlugin.Utils;
 public class RespawnAllCommand extends SubCommand {
 	
 	public RespawnAllCommand() {
-		super("respawnall", new ArrayList<>(), Arrays.asList(ArgType.WORLD));
+		super("respawnall", new ArrayList<>(), Collections.singletonList(ArgType.WORLD));
 	}
 	
 	@Override
@@ -33,12 +33,12 @@ public class RespawnAllCommand extends SubCommand {
 						Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () ->
 								l.spawn(true), 0L), 5L);
 			}
-			if (Main.configs.NOTE_allcmd_world_e) {
-				if (Main.configs.NOTE_bungee_broadcast) {
-					BungeeChannel.bungeeBroadcast(Utils.color(Main.configs.NOTE_allcmd_msg_world));
+			if (Main.configs.noteAllcmdWorldE) {
+				if (Main.configs.noteBungeeBroadcast) {
+					BungeeChannel.bungeeBroadcast(Utils.color(Main.configs.noteAllcmdMsgWorld));
 				} else {
 					for (Player p : Bukkit.getOnlinePlayers()) {
-						Utils.sendMultilineMessage(Main.configs.NOTE_allcmd_msg_world.replace("[World]", worldName), p);
+						Utils.sendMultilineMessage(Main.configs.noteAllcmdMsgWorld.replace("[World]", worldName), p);
 					}
 				}
 			}
@@ -49,12 +49,12 @@ public class RespawnAllCommand extends SubCommand {
 						Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () ->
 								l.spawn(true), 0L), 5L);
 			}
-			if (Main.configs.NOTE_allcmd_e) {
-				if (Main.configs.NOTE_bungee_broadcast) {
-					BungeeChannel.bungeeBroadcast(Utils.color(Main.configs.NOTE_allcmd_msg));
+			if (Main.configs.noteAllcmdE) {
+				if (Main.configs.noteBungeeBroadcast) {
+					BungeeChannel.bungeeBroadcast(Utils.color(Main.configs.noteAllcmdMsg));
 				} else {
 					for (Player p : Bukkit.getOnlinePlayers()) {
-						Utils.sendMultilineMessage(Main.configs.NOTE_allcmd_msg, p);
+						Utils.sendMultilineMessage(Main.configs.noteAllcmdMsg, p);
 					}
 				}
 			}

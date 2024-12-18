@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * <b>Particle Library</b>
  * <p>
- * I'm @Black_Eyes , I listed 1.7 to 1.20 particles, indicating version of appearance for each particles,
+ * I'm @Black_Eyes , I listed 1.7 to 1.20 particles, indicating version of appearance for each particle,
  * With this, I could get all particles and check their compatibility with version X.
  * Then I searched and found a good api to spawn/summon them in any version.
  * <p>
@@ -278,10 +278,9 @@ public enum Particle {
 	 * @param speed Display speed of the particles
 	 * @param amount Amount of particles
 	 * @param center Center location of the effect
-	 * @param range Range of the visibility
 	 * @throws IllegalArgumentException If the particle effect requires water and none is at the center location
 	*/
-	public void display(float offsetX, float offsetY, float offsetZ, float speed, int amount, Location center, double range) throws IllegalArgumentException {
+	public void display(float offsetX, float offsetY, float offsetZ, float speed, int amount, Location center) throws IllegalArgumentException {
 		particle.spawn(center, amount, offsetX, offsetY, offsetZ, speed, null);
 	}
 

@@ -94,93 +94,80 @@ public final class ByteStreams {
 
 
 	@Override
-	public void write(int b) throws IOException {
-		
-		
+	public void write(int b) {
+		//nothing
 	}
 
 
 	@Override
-	public void write(byte @NotNull [] b) throws IOException {
-		
-		
+	public void write(byte @NotNull [] b) {
+		//nothing
 	}
 
 
 	@Override
-	public void write(byte @NotNull [] b, int off, int len) throws IOException {
-		
-		
+	public void write(byte @NotNull [] b, int off, int len) {
+		//nothing
 	}
 
 
 	@Override
-	public void writeBoolean(boolean v) throws IOException {
-		
-		
+	public void writeBoolean(boolean v) {
+		//nothing
 	}
 
 
 	@Override
-	public void writeByte(int v) throws IOException {
-		
-		
+	public void writeByte(int v) {
+		//nothing
 	}
 
 
 	@Override
-	public void writeShort(int v) throws IOException {
-		
-		
+	public void writeShort(int v)  {
+		//nothing
 	}
 
 
 	@Override
-	public void writeChar(int v) throws IOException {
-		
-		
+	public void writeChar(int v)  {
+		//nothing
 	}
 
 
 	@Override
-	public void writeInt(int v) throws IOException {
-		
-		
+	public void writeInt(int v)  {
+		//nothing
 	}
 
 
 	@Override
-	public void writeLong(long v) throws IOException {
-		
-		
+	public void writeLong(long v)  {
+		//nothing
 	}
 
 
 	@Override
-	public void writeFloat(float v) throws IOException {
-		
-		
+	public void writeFloat(float v)  {
+		//nothing
 	}
 
 
 	@Override
-	public void writeDouble(double v) throws IOException {
-		
-		
+	public void writeDouble(double v)  {
+		//nothing
 	}
 
 
 	@Override
-	public void writeBytes(@NotNull String s) throws IOException {
-		
-		
+	public void writeBytes(@NotNull String s) {
+		//nothing
 	}
 
 
 	@Override
-	public void writeChars(@NotNull String s) throws IOException {
-
-
+	public void writeChars(@NotNull String s)  {
+		//nothing
 	}
   }
 

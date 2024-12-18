@@ -1,6 +1,6 @@
 package fr.black_eyes.lootchest.commands.commands;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -14,7 +14,7 @@ import fr.black_eyes.simpleJavaPlugin.Utils;
 public class DespawnAllCommand extends SubCommand {
 	
 	public DespawnAllCommand() {
-		super("despawnall", Arrays.asList(), Arrays.asList(ArgType.WORLD));
+		super("despawnall", Collections.emptyList(), Collections.singletonList(ArgType.WORLD));
 	}
 	
 	@Override

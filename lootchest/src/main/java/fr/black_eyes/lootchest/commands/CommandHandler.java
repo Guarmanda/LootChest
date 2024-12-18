@@ -7,6 +7,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -38,7 +39,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 	 * Looks up which subcommand was called as first argument and executes it
 	 */
 	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
 		if (args.length < 1) {
 			displayhelp(sender);
 			return true;
@@ -62,7 +63,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 	 * Looks up which subcommand was tabbed as first argument and returns its tab list
 	 */
 	@Override
-	public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
+	public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
 		String subCommandName = args[0].toLowerCase();
 		
 		if (args.length == 1) {
@@ -91,9 +92,9 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 	
 	public void displayhelp(CommandSender p) {
 		List<String> help = Main.getInstance().getConfigFiles().getLang().getStringList("help");
-		for (int i = 0; i < help.size(); i++) {
-			p.sendMessage(Utils.color(help.get(i)));
-		}
+        for (String s : help) {
+            p.sendMessage(Utils.color(s));
+        }
 	}
 	
 	private boolean hasPerm(CommandSender sender, String permission) {

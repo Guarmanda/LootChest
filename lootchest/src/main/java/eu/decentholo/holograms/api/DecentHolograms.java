@@ -32,7 +32,6 @@ public final class DecentHolograms {
 
 
     private Ticker ticker;
-    private boolean updateAvailable;
 
     /*
      *	Constructors
@@ -61,7 +60,7 @@ public final class DecentHolograms {
         DExecutor.init(3);
 
         this.ticker = new Ticker();
-        this.hologramManager = new HologramManager(this);
+        this.hologramManager = new HologramManager();
 
 
         PluginManager pm = Bukkit.getPluginManager();
@@ -81,18 +80,6 @@ public final class DecentHolograms {
 
         BungeeUtils.destroy();
         DExecutor.shutdownNow();
-    }
-
-    /**
-     * Reload the plugin, this method also calls the reload event.
-     *
-     * @see DecentHologramsReloadEvent
-     */
-    public void reload() {
-
-        this.hologramManager.reload();
-
-  
     }
 
 

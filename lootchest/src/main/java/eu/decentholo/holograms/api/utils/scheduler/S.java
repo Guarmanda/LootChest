@@ -16,8 +16,8 @@ public class S {
         Bukkit.getScheduler().cancelTask(id);
     }
 
-    public static BukkitTask sync(Runnable runnable, long delay) {
-        return Bukkit.getScheduler().runTaskLater(DECENT_HOLOGRAMS.getPlugin(), runnable, delay);
+    public static void sync(Runnable runnable, long delay) {
+        Bukkit.getScheduler().runTaskLater(DECENT_HOLOGRAMS.getPlugin(), runnable, delay);
     }
 
     public static void async(Runnable runnable) {

@@ -63,7 +63,6 @@ public class LootChestUtils  {
 	 */
 	public static Location chooseRandomPlayer(String world){
 		int i = Bukkit.getWorld(world).getPlayers().size();
-		Location globalLoc = null;
 		if(i>0) {
 			int ran = ThreadLocalRandom.current().nextInt(1, i+1);
 			i=0;
@@ -73,7 +72,7 @@ public class LootChestUtils  {
 				}
 			}
 		}
-		return globalLoc;
+		return null;
 	}
 
 	/**
@@ -84,9 +83,9 @@ public class LootChestUtils  {
 	 */
 	public static Location chooseRandomLocation(Location startingLoc, int radius){
 		int counter = 0;
-		boolean checkProtectedBlock = Main.configs.Prevent_Chest_Spawn_In_Protected_Places;
-		boolean checkWorldBorder = Main.configs.WorldBorder_Check_For_Spawn;
-		boolean checkWater = !Main.configs.allow_spawning_on_water;
+		boolean checkProtectedBlock = Main.configs.preventChestSpawnInProtectedPlaces;
+		boolean checkWorldBorder = Main.configs.worldborderCheckForSpawn;
+		boolean checkWater = !Main.configs.allowSpawningOnWater;
 		Location spawnLoc = getRandomLocation(startingLoc, radius );
 		while(counter<50 && ((checkProtectedBlock &&ProtectedRegions.isProtected(spawnLoc)) || (checkWater && spawnLoc.getBlock().isLiquid()) || checkWorldBorder && (isOutsideOfBorder(spawnLoc) ))) {
 			spawnLoc = getRandomLocation(startingLoc, radius );
@@ -115,11 +114,11 @@ public class LootChestUtils  {
 		}
 		long tempsEnregistre = lc.getLastReset();
 		long timeToWait = (minutes*60-((tempsActuel - tempsEnregistre)/1000));
-		//if chest should already have respawned (eg it failed to spawn and send us here), let's retry in 30 seconds
+		//if chest should already have respawned (e.g. it failed to spawn and send us here), let's retry in 30 seconds
 		if(timeToWait<0) {
 			timeToWait = 30;
 		}
-		// a pull request said that this was suposed to solve respawn problem. I don't experience this bug so I don't know it it works or not
+		// a pull request said that this was suposed to solve respawn problem. I don't experience this bug, so I don't know if it works or not
 		// plus, this isn't logical at all. but... let's try
 		timeToWait +=5;
 
@@ -424,6 +423,7 @@ public class LootChestUtils  {
 	 * @param chest a chest Block
 	 * @return the direction of the chest
 	 */
+	@SuppressWarnings("removal")
 	public static String getDirection(Block chest) {
 		if(Main.getVersion() ==7) {
 			return "NORTH";

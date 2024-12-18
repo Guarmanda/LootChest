@@ -145,7 +145,7 @@ public class Main extends SimpleJavaPlugin {
         Mat.init_materials();
 		
 
-        //In many versions, I add some text an config option. These lines are done to update config and language files without erasing options that are already set
+        //In many versions, I add some text a config option. These lines are done to update config and language files without erasing options that are already set
 		super.onEnable();
 		if(configFiles.getLang() == null) {
 			Utils.logInfo("&cConfig or data files couldn't be initialized, the plugin will stop.");
@@ -192,35 +192,35 @@ public class Main extends SimpleJavaPlugin {
 		//load config
 		setConfigs(Config.getInstance(configFiles.getConfig()));
 
-		//If we enabled bungee broadcast but we aren't on a bungee server, not any message will show
-        if(configs.NOTE_bungee_broadcast) 
+		//If we enabled bungee broadcast, but we aren't on a bungee server, not any message will show
+        if(configs.noteBungeeBroadcast)
 			if(!hasBungee()){
 				Utils.logInfo("&cYou enaled bungee broadcast in config but you didn't enable bungeecord in spigot config!");
 				Utils.logInfo("&cSo if this server isn't in a bungee network, no messages will be sent at all on chest spawn!");
         	}
  
-        if( !useArmorStands && Main.configs.FALL_Block.equals("CHEST")) {
+        if( !useArmorStands && Main.configs.fallBlock.equals("CHEST")) {
         	configFiles.getConfig().set("Fall_Effect.Block", "NOTE_BLOCK");
-        	configs.FALL_Block = "NOTE_BLOCK";
+        	configs.fallBlock = "NOTE_BLOCK";
         }
         
 
-        if(configs.CheckForUpdates) {
+        if(configs.checkForUpdates) {
         	Utils.logInfo("Checking for update...");
         	new Updater(this, "lootchest.61564");
         }
 
 		//if 1.7, disable world border check
 		if(getVersion()<=7) {
-			configs.UseHologram = false;
-			configs.WorldBorder_Check_For_Spawn = false;
+			configs.usehologram = false;
+			configs.worldborderCheckForSpawn = false;
 			Utils.logInfo("&eYou're using 1.7 or below, I disabled worldborder check because worldborder is implemented in spigot from 1.8");
 			Utils.logInfo("&eYou're using 1.7 or below, I disabled holograms because it uses armorstands, which are implemented in spigot from 1.8");
 					
 		}
         Utils.logInfo("Starting particles...");
         
-		if(configs.PART_enable) {
+		if(configs.partEnable) {
 			//Initialization of particles values, it doesn't spawn them but is used in spawning
 			initParticles();
 	
@@ -276,8 +276,8 @@ public class Main extends SimpleJavaPlugin {
 						try{
 							float radius = (float) configs.PART_radius;
 							float speed = (float)configs.PART_speed;
-							int number = configs.PART_number;
-							if (configs.PART_enable) {
+							int number = configs.partNumber;
+							if (configs.partEnable) {
 								for(Map.Entry<Location, Particle> entry: part.entrySet()) {
 									boolean loaded = entry.getKey().getWorld().isChunkLoaded((int)entry.getKey().getX()/16, (int)entry.getKey().getZ()/16) ;
 									if (loaded && entry.getValue()!=null)
@@ -293,14 +293,14 @@ public class Main extends SimpleJavaPlugin {
 							// concurrent modification exception, just ignore it
 						}
 					}
-				}.runTaskTimer(this, 0, configs.PART_respawn_ticks);
+				}.runTaskTimer(this, 0, configs.partRespawnTicks);
 			}else{
 				new BukkitRunnable() {
 					public void run() {
 						float radius = (float) configs.PART_radius;
 						float speed = (float)configs.PART_speed;
-						int number = configs.PART_number;
-						if (configs.PART_enable) {
+						int number = configs.partNumber;
+						if (configs.partEnable) {
 							for(Map.Entry<Location, Particle> entry: part.entrySet()) {
 								boolean loaded = entry.getKey().getWorld().isChunkLoaded((int)entry.getKey().getX()/16, (int)entry.getKey().getZ()/16) ;
 								if (loaded && entry.getValue()!=null)
@@ -309,7 +309,7 @@ public class Main extends SimpleJavaPlugin {
 							}
 						}
 					}
-				}.runTaskTimer(this, 0, configs.PART_respawn_ticks);
+				}.runTaskTimer(this, 0, configs.partRespawnTicks);
 			}
 		}).start();
 	}
@@ -319,7 +319,7 @@ public class Main extends SimpleJavaPlugin {
 	 */
 	@SuppressWarnings("deprecation") //compatibility with 1.7
 	private void loadChests() {
-		long countdown = configs.Cooldown_Before_Plugin_Start;
+		long countdown = configs.cooldownBeforePluginStart;
     	if(countdown>0) 
 			Utils.logInfo("Chests will load in "+ countdown + " seconds.");
     	
@@ -358,7 +358,7 @@ public class Main extends SimpleJavaPlugin {
 	
 	
   /**
-   * In many versions, I add some text an config option. 
+   * In many versions, I add some text a config option.
    * These lines are done to update config and language files without erasing options that are already set
    */
   private void updateOldConfig() {
@@ -537,8 +537,8 @@ public class Main extends SimpleJavaPlugin {
 
 	
 	/**
-	 * This initialize an array of particles. Under 1.12, I use InventiveTalent's ParticleAPI, 
-	 * and for 1.12+, I use new particles spawning functions so I use default spigot particles
+	 * This initializes an array of particles. Under 1.12, I use InventiveTalent's ParticleAPI,
+	 * and for 1.12+, I use new particles spawning functions, so I use default spigot particles
 	 */
 	private void initParticles() {
 		int cpt = 0;

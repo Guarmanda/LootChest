@@ -15,10 +15,7 @@ import org.jetbrains.annotations.NotNull;
 public class BungeeChannel implements PluginMessageListener {
 	
 
-	@Override
-	public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
 
-    }
 
 	
 
@@ -49,7 +46,10 @@ public class BungeeChannel implements PluginMessageListener {
 	public static void bungeeBroadcast(String message) {
 		sendPluginMsg(new String[]{"Message", "ALL", message}, null);
 	}
-	
-	
 
+
+	@Override
+	public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
+		// Nothing to do
+	}
 }

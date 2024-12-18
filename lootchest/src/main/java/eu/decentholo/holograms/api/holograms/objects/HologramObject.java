@@ -51,13 +51,6 @@ public abstract class HologramObject extends FlagHolder {
     }
 
     /**
-     * Hide this hologram object from all players, stop it from updating and delete it completely.
-     */
-    public void delete() {
-        destroy();
-    }
-
-    /**
      * Check if this hologram object is disabled.
      *
      * @return True if disabled, false otherwise.

@@ -6,7 +6,7 @@
         <version>${revision}</version>
     </parent>
 
-    <groupId>fr.black_eyes.lootchest</groupId>
+
     <artifactId>v_1_16_2</artifactId>
     <version>${revision}</version>
     <properties>

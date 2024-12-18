@@ -30,10 +30,10 @@ public class RespawnCommand extends SubCommand {
 		if (lc.isRespawnCmdMsgEnabled()) {
 			Block block = lc.getActualLocation().getBlock();
 			String holo = lc.getHolo();
-			String message = Utils.color((((Main.configs.NOTE_command_msg.replace("[World]", block.getWorld().getName()).replace(Constants.CHEST_PLACEHOLDER, holo)).replace("[x]", block.getX() + "")).replace("[y]", block.getY() + "")).replace("[z]", block.getZ() + ""));
-			if (Main.configs.NOTE_bungee_broadcast) {
+			String message = Utils.color((((Main.configs.noteCommandMsg.replace("[World]", block.getWorld().getName()).replace(Constants.CHEST_PLACEHOLDER, holo)).replace("[x]", block.getX() + "")).replace("[y]", block.getY() + "")).replace("[z]", block.getZ() + ""));
+			if (Main.configs.noteBungeeBroadcast) {
 				BungeeChannel.bungeeBroadcast(message);
-			} else if (Main.configs.NOTE_per_world_message) {
+			} else if (Main.configs.notePerWorldMessage) {
 				for (Player p : block.getWorld().getPlayers()) {
 					Utils.sendMultilineMessage(message, p);
 				}

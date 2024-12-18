@@ -27,122 +27,128 @@ import lombok.Setter;
 import static fr.black_eyes.lootchest.Constants.DATA_CHEST_PATH;
 
 public class Lootchest {
+
 	/**
 	 * @return the Lootchest name
-	 */
-	@Getter
-	/**
 	 * @param name the name to give to the lootchest
 	 */
+	@Getter
 	@Setter private String name;
+
 	/**
 	 * @param globalLoc The static location of the lootchest, which is always used to choose the random location
 	 */
-	@Setter 		private Location globalLoc;
+	@Setter private Location globalLoc;
+
 	/**
 	 * @param randomLoc the random location that changes every time a lootchest respawns. Can be disabled to only use global location
 	 */
-	@Setter 		private Location randomLoc;
+	@Setter private Location randomLoc;
+
 	/**
 	 * @return The inventory of the lootchest, used to give it to someone, or fill the lootchest
 	 */
-	@Getter			private Inventory inv;
+	@Getter	private final Inventory inv;
+
 	/**
 	 * @return the value of the fall boolean, which says if the LootChest should display a fall effect or not
-	 */
-	@Getter /**
 	 * @param fall says if the LootChest should display a fall effect or not
 	 */
+	 @Getter
 	@Setter private boolean fallEnabled;
+
 	/**
 	 * @return An array of integers, representing chances of each item in the chest
 	 */
-	@Getter			 Integer[] chances;
+	@Getter	Integer[] chances;
+
 	/**
 	 * @return a string representing the direction of the chest block (north, east, south, or east)
-	 */
-	@Getter /**
 	 * @param direction a string representing the direction of the chest block (north, east, south, or east)
 	 */
+	@Getter
 	@Setter private String direction;
+
 	/**
 	 * @return the text displayed by the hologram of the lootchest
 	 */
 	@Getter private String holo;
+
 	/**
-	 * @return the time between two spawns of the lootchest. 
-	 */
-	@Getter /**
+	 * @return the time between two spawns of the lootchest.
 	 * @param time the time between two spawns of the lootchest. -1 to disable auto respawn
 	 */
+	@Getter
 	@Setter private long time;
+
 	/**
 	 * @return the last respawn date of the chest, in milliseconds.
-	 */
-	@Getter /**
 	 * @param lastReset the last respawn date of the chest, in milliseconds.
 	 */
+	@Setter
+	@Getter
 	private long lastReset;
+
 	/**
 	 * @return the particle to spawn around the lootchest
-	 */
-	@Getter /**
 	 * @param particle the particle to spawn around the lootchest
 	 */
-	@Setter private Particle particle;
+	 @Getter
+	 @Setter
+	 private Particle particle;
+
 	/**
 	 * @return the value of respawn_cmd boolean, which says if we should send a broadcast if the chest is respawned manually
-	 */
-	@Getter /**
 	 * @param respawn_cmd boolean, which says if we should send a broadcast if the chest is respawned manually
 	 */
+	@Getter
 	@Setter private boolean respawnCmdMsgEnabled;
+
 	/**
 	 * @return the value of the respawn_natural boolean, which says if we should send a broadcast if the chest is respawned "naturally"
-	 */
-	@Getter /**
 	 * @param respawn_natural boolean, which says if we should send a broadcast if the chest is respawned "naturally"
 	 */
+	@Getter
 	@Setter private boolean respawnNaturalMsgEnabled;
+
 	/**
 	 * @return the value of the take_msg boolean, which says if we should send a broadcast if the chest taken/looted by a player
-	 */
-	@Getter /**
 	 * @param take_msg boolean, which says if we should send a broadcast if the chest taken/looted by a player
 	 */
+	@Getter
 	@Setter private boolean takeMsgEnabled;
+
 	/**
 	 * @return the radius around the global location, to set the random location
-	 */
-	@Getter /** 
 	 * @param radius the radius around the global location, to set the random location
 	 */
+	@Getter
 	@Setter private int radius;
+
 	/**
 	 * @return the world to spawn the lootchest
-	 */
-	@Getter /**
 	 * @param world the world to spawn the lootchest
 	 */
+	@Getter
 	@Setter private String world;
+
 	/**
 	 * @return taken boolean, which says if the chest was looted already or not
-	 */
-	@Getter /**
 	 * @param taken boolean, which says if the chest was looted already or not
 	 */
+	@Getter
 	@Setter private boolean taken;
+
 	/** 
 	 * @return the type of the lootchest, can be chest, trapped chest or barrel
-	 */
-	 /**
 	 * @param type the type of the lootchest, can be chest, trapped chest or barrel
 	 */
 	@Getter @Setter private Material type;
+
 	/**
 	 * @return the hologram object attached to this lootchest
 	 */
-	@Getter private LootChestHologram hologram;
+	@Getter private final LootChestHologram hologram;
 
 	@Getter @Setter private long protectionTime;
 
@@ -170,14 +176,12 @@ public class Lootchest {
 			}
 		}
 		if(!configFiles.getData().isSet(DATA_CHEST_PATH+naming+".maxFilledSlots")){
-			maxFilledSlots = Main.configs.default_maxFilledSlots;
+			maxFilledSlots = Main.configs.defaultMaxFilledSlots;
 		}else{
 			maxFilledSlots = configFiles.getData().getInt(DATA_CHEST_PATH+naming+".maxFilledSlots");
 		}
 		name = naming;
-		Integer[] chancesInit = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-		chances = chancesInit;
-		chancesInit = null;
+        chances = new Integer[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 		inv = Bukkit.createInventory(null, 27);
 		globalLoc = utils.getPosition(naming);
 		if(configFiles.getData().isSet(DATA_CHEST_PATH+naming+".randomradius")) {
@@ -201,7 +205,7 @@ public class Lootchest {
 
 		holo = configFiles.getData().getString(DATA_CHEST_PATH + naming + ".holo");
 		String part = configFiles.getData().getString(DATA_CHEST_PATH + naming + ".particle");
-		if(part.equals("Disabled")) {
+		if(part != null && part.equals("Disabled")) {
 			particle = null;
 		}else {
 			try {
@@ -245,29 +249,28 @@ public class Lootchest {
 		taken = false;
 		name = naming;
 		inv = Bukkit.createInventory(null, 27);
-		Integer[] initChances = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-		this.chances = initChances;
+        this.chances = new Integer[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 		Inventory inventory =  ((InventoryHolder) chest.getState()).getInventory();
 		for(int i = 0 ; i < 27 ; i++) {
 			if(inventory.getItem(i) != null) {
 				inv.setItem( i, inventory.getItem(i));
-				chances[i] =  Main.configs.default_item_chance;
+				chances[i] =  Main.configs.defaultItemChance;
 			}
 		}
 		if(inventory.getSize() >27) {
 			Utils.logInfo("&cDo not use double chests to create chests! Only half of the inventory of the chest was registered.");
 		}
-		maxFilledSlots = Main.configs.default_maxFilledSlots;
-		fallEnabled =  Main.configs.FALL_Enabled;
-		respawnCmdMsgEnabled =  Main.configs.NOTE_command_e;
-		respawnNaturalMsgEnabled =  Main.configs.NOTE_natural_e;
-		takeMsgEnabled =  Main.configs.NOTE_message_on_chest_take;
+		maxFilledSlots = Main.configs.defaultMaxFilledSlots;
+		fallEnabled =  Main.configs.fallEnabled;
+		respawnCmdMsgEnabled =  Main.configs.noteCommandE;
+		respawnNaturalMsgEnabled =  Main.configs.noteNaturalE;
+		takeMsgEnabled =  Main.configs.noteMessageOnChestTake;
 		direction = LootChestUtils.getDirection(chest);
 		holo = name;
-		time =  Main.configs.default_reset_time;
+		time =  Main.configs.defaultResetTime;
 		globalLoc =  chest.getLocation();
 		lastReset =  new Timestamp(System.currentTimeMillis()).getTime();
-	   	particle =  Particle.valueOf(Main.configs.PART_default_particle);
+	   	particle =  Particle.valueOf(Main.configs.partDefaultParticle);
 	   	radius = 0;
 	   	world = chest.getWorld().getName();
 		((InventoryHolder) chest.getLocation().getBlock().getState()).getInventory().clear();
@@ -281,8 +284,7 @@ public class Lootchest {
 		taken = false;
 		this.name = name;
 		inv = Bukkit.createInventory(null, 27);
-		Integer[] initChances = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-		this.chances = initChances;
+        this.chances = new Integer[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 		for (int i = 0; i < 27; i++) {
 			if (lc.getInv().getItem(i) != null) {
 				inv.setItem(i, lc.getInv().getItem(i));
@@ -358,9 +360,8 @@ public class Lootchest {
 	/**
 	 * Remove the chest block, the hologram, and the particle
 	 * If the chunk isn't loaded before doing this, it will be unloaded after.
-	 * @return true if the chunk was loaded before, false if it wasn't
 	 */
-	public boolean despawn(){
+	public void despawn(){
 		Location startLocation = getActualLocation();
 		boolean loaded = startLocation.getWorld().isChunkLoaded((int)startLocation.getX()/16, (int)startLocation.getZ()/16) ;
 		if(LootChestUtils.isWorldLoaded(getWorld()) && isGoodType(startLocation.getBlock())) {
@@ -373,16 +374,14 @@ public class Lootchest {
 		boolean loaded2 = startLocation.getWorld().isChunkLoaded((int)startLocation.getX()/16, (int)startLocation.getZ()/16) ;
 		if(loaded != loaded2) {
 			startLocation.getWorld().unloadChunk((int)startLocation.getX()/16, (int)startLocation.getZ()/16);
-			return false;
 		}
-		return true;
 	}
 
 	/**
 	 * @return whever config option Minimum_Number_Of_Players_For_Natural_Spawning is respected
 	 */
 	private static boolean checkIfEnoughPlayers(){
-		int num = Main.configs.Minimum_Number_Of_Players_For_Natural_Spawning;
+		int num = Main.configs.minimumNumberOfPlayersForNaturalSpawning;
 		int players = LootChestUtils.getPlayerCount();
 		return (players >= num); 
 	}
@@ -399,6 +398,7 @@ public class Lootchest {
 	 * @param block - The block concerned, where the spawn will append
 	 * @param blockLocation - Location of the block
 	 */
+	@SuppressWarnings("removal")
 	public void createchest( Block block, Location blockLocation) {
 		block.setType(getType());
 		Inventory inventory = ((InventoryHolder) block.getState()).getInventory();
@@ -431,7 +431,7 @@ public class Lootchest {
 
 		// spawn particles and hologram if needed
 		final Location loc2 = getParticleLocation();
-		if(getParticle() != null && Main.configs.PART_enable){
+		if(getParticle() != null && Main.configs.partEnable){
 			for(Particle part : Main.getInstance().getSupportedParticles()) {
 				if((""+part).contains(getParticle().name())) {
 					Main.getInstance().getPart().put(loc2, part);
@@ -441,7 +441,7 @@ public class Lootchest {
 		getHologram().setLoc(blockLocation);
 		
 		setLastReset();
-		if(Main.configs.save_Chest_Locations_At_Every_Spawn) {
+		if(Main.configs.saveChestLocationsAtEverySpawn) {
 			saveInConfig();
 			Main.getInstance().getConfigFiles().saveData();
 		}
@@ -459,11 +459,7 @@ public class Lootchest {
 	 * @param forceRespawn Forces the chest to respawn, even if it's not time to respawn
 	 */
 	public boolean spawn(boolean forceRespawn){
-		if (forceRespawn){
-			return spawn(forceRespawn, true);
-		}
-		else
-			return spawn(forceRespawn, false);
+		return spawn(forceRespawn, forceRespawn);
 	}
 
 	/**
@@ -480,12 +476,12 @@ public class Lootchest {
 			despawn();
 			setLastReset();
 		}
-		// if world is not loaded || lootchest was deleted || not enough players
+		// if world is not loaded or lootchest was deleted or not enough players
 		if(!LootChestUtils.isWorldLoaded(getWorld()) || !Main.getInstance().getLootChest().containsValue(this) ) {
 			LootChestUtils.scheduleReSpawn(this);
 			return false;
 		}
-		// if (there's not enough player || it's not time to respawn) && we didn't force respawn
+		// if [there's not enough player, or it's not time to respawn] and we didn't force respawn
 		if( !checkIfTimeToRespawn() && !forceSpawn) {
 			LootChestUtils.scheduleReSpawn(this);
 			return false;
@@ -502,7 +498,7 @@ public class Lootchest {
 		//if randomSpawn is enabled, we get a random location in the radius
 		if(getRadius() !=0){
 			//if this option is true, we take the location of one of online players randomly.
-			if(Main.configs.use_players_locations_for_randomspawn ) {
+			if(Main.configs.usePlayersLocationsForRandomspawn) {
 				globalLocation = LootChestUtils.chooseRandomPlayer(getWorld());
 				globalLocation = globalLocation!=null?globalLocation:spawnLoc.clone();
 			}
@@ -521,11 +517,11 @@ public class Lootchest {
 
 		// handle natural spawning messages - command respawn messages are handled in command class
 		if(!forceSpawn && isRespawnNaturalMsgEnabled() ) {
-			String naturalMsg = Utils.color((((Main.configs.NOTE_natural_msg.replace("[Chest]", holo)).replace("[x]", spawnLoc.getX()+"")).replace("[y]", spawnLoc.getY()+"")).replace("[z]", spawnLoc.getZ()+"").replace("[World]", world));
-			if(Main.configs.NOTE_bungee_broadcast) {
+			String naturalMsg = Utils.color((((Main.configs.noteNaturalMsg.replace("[Chest]", holo)).replace("[x]", spawnLoc.getX()+"")).replace("[y]", spawnLoc.getY()+"")).replace("[z]", spawnLoc.getZ()+"").replace("[World]", world));
+			if(Main.configs.noteBungeeBroadcast) {
 				BungeeChannel.bungeeBroadcast(naturalMsg);
 			}
-			else if(!Main.configs.NOTE_per_world_message) {
+			else if(!Main.configs.notePerWorldMessage) {
 				for(World w : Bukkit.getWorlds()) {
 					for(Player p : w.getPlayers()) {
 						Utils.sendMultilineMessage(naturalMsg, p);
@@ -541,7 +537,7 @@ public class Lootchest {
 		// make the fall effect
 		final Block newBlock = spawnLoc.getBlock();
 		if(isFallEnabled()) {
-			int height = Main.configs.FALL_Height;
+			int height = Main.configs.fallHeight;
 			Location startLocation = new Location(spawnLoc.getWorld(), spawnLoc.getX()+0.5, spawnLoc.getY()+height, spawnLoc.getZ()+0.5);
 			new FallingPackageEntity(startLocation, chunkWasLoaded, spawnLoc);
 		}
@@ -567,7 +563,7 @@ public class Lootchest {
 	public Location getRandomPosition() {	return (randomLoc!=null)?randomLoc.clone():getPosition();	}
 
 	/**
-	 * @return a clone of the actual location, eg the random location if the radius is not 0, else the global location
+	 * @return a clone of the actual location, e.g. the random location if the radius is not 0, else the global location
 	 */
 	public Location getActualLocation() {
 		return (radius!=0)?getRandomPosition():getPosition();
@@ -590,7 +586,7 @@ public class Lootchest {
 			if(inventory.getItem(i) != null) {
 				inv.setItem( i, inventory.getItem(i));
 				if(chances[i] ==0) {
-					chances[i] =  Main.configs.default_item_chance;
+					chances[i] =  Main.configs.defaultItemChance;
 				}
 			}
 		}
@@ -635,7 +631,7 @@ public class Lootchest {
 	}
 
 	/**
-	 * gives the main informations about the chest
+	 * gives the main information about the chest
 	 */
 	public String toString() {
 		return (name +" "+ fallEnabled +" " +direction+" "+ radius+" "+particle);             

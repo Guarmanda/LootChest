@@ -70,7 +70,7 @@ public abstract class SubCommand {
 			sender.sendMessage(ChatColor.RED + getUsage());
 			return;
 		}
-		// check each arguments
+		// check each argument
 		for (int i = 1; i < args.length; i++) {
 			ArgType arg = getArgs().get(i-1);
 			if (!arg.isValid(args[i], sender)) {

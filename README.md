@@ -25,8 +25,7 @@ Build with maven (mvn package)
 <dt>Donation Link:</dt>
 <dd><a href="https://www.paypal.me/BlackEyes99" rel="nofollow" class="externalLink" target="_blank">https://www.paypal.me/BlackEyes99</a></dd>
 </dl>
-</div>
-<div style="text-align: center"><span style="font-size: 26px">LootChest</span></span><br />
+<div style="text-align: center"><span style="font-size: 26px">LootChest</span></div><br />
 <span style="font-size: 12px">Configurable chest reloader<br />
 <br />
 
@@ -49,7 +48,7 @@ Build with maven (mvn package)
 - Change a chest&#039;s position<br />
 - Automatic config and lang update , so that you don&#039;t have to delete anything when you update this plugin<br />
 - Random spawn within a radius around location where chest was created, or around a random player (editable radius for each chest) (can be disabled)<br />
-- Awesome fall effect (fully editable) (can be disabled for each chests)<br />
+- Awesome fall effect (fully editable) (can be disabled for each chest)<br />
 - Broadcast on chest taken (can be disabled for each chest)<br />
 <br />
 <div style="text-align: center">You can also look this awesome video made by <a href="https://www.youtube.com/channel/UC0DKOswctz1q3gtm5BMfPtw" target="_blank" class="externalLink" rel="nofollow">MusicTechnician</a> (English) or the one from <a href="https://www.youtube.com/channel/UCrngTubVPUjA-I2f4wuM1MQ" target="_blank" class="externalLink" rel="nofollow">Maxar628 </a>(Spanish) to know everything about this plugin:&#8203;</div><div style="text-align: left">&#8203;</div><div style="text-align: center">
@@ -85,7 +84,7 @@ Build with maven (mvn package)
 <br />
 <br />
 <span style="font-size: 12px"><span style="font-size: 22px"><span style="font-size: 15px"><b><span style="font-size: 22px">More infos:</span></b></span></span></span><br />
-<span style="font-size: 12px"><span style="font-size: 22px"><span style="font-size: 15px">Mail: <span class="__cf_email__" data-cfemail="93e5f2fff6fde7fafdd3f4fae1fcf7bdf5e1">valentin@girod.fr</span></a></span></span></span><br />
+<span style="font-size: 12px"><span style="font-size: 22px"><span style="font-size: 15px">Mail: <span class="__cf_email__" data-cfemail="93e5f2fff6fde7fafdd3f4fae1fcf7bdf5e1">valentin@girod.fr</span></span></span></span><br />
 <span style="font-size: 12px"><span style="font-size: 22px"><span style="font-size: 15px">Discord: Black_Eyes#5538</span></span></span><br />
 <span style="font-size: 12px"><span style="font-size: 22px"><span style="font-size: 15px">github on top of page</span></span></span><br />
 
@@ -98,6 +97,6 @@ You can donate to me here <a href="https://www.paypal.com/paypalme/BlackEyes99" 
 <span style="font-size: 22px"><b>Using my code:</b></span><br />
 <span style="font-size: 15px">Don&#039;t sell copy of this thing, it will always stay open source. You can still use my code if you want to edit this plugin for yourself, or someone in needs, or you can use some function for your own plugin^^ (the fall effect class could be useful to some, and there&#039;s many menu in this, and also some config file functions) </span>&#8203;
 </div>
-</blockquote></article>
+</div></span>
 
 

@@ -111,6 +111,7 @@ final class ParticleTypes {
             player.spawnParticle(this.particle, x, y, z, count, offsetX, offsetY, offsetZ, extra, newData);
         }
 
+        @SuppressWarnings("removal")
         private Object mapData(Object data) {
             Class<?> dataType = this.particle.getDataType();
 

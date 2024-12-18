@@ -5,9 +5,6 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @UtilityClass
 public class PAPI {
 
@@ -32,20 +29,6 @@ public class PAPI {
 			return PlaceholderAPI.setPlaceholders(player, string);
 		}
 		return string;
-	}
-
-	/**
-	 * Set placeholders to given List of Strings for given Player.
-	 *
-	 * @param player The player.
-	 * @param stringList The string list.
-	 * @return The string with replaced placeholders.
-	 */
-	public static List<String> setPlaceholders(Player player, List<String> stringList) {
-		if (isAvailable()) {
-			return stringList.stream().map(s -> setPlaceholders(player, s)).collect(Collectors.toList());
-		}
-		return stringList;
 	}
 
 	/**

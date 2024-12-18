@@ -16,20 +16,20 @@ import java.util.Map;
 import java.util.Objects;
 
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation", "removal"})
 final class LegacyParticleType implements ParticleType {
 
-    private static  Class<?> ENUM_PARTICLE = null;
-    private static  Map<String, String> LEGACY_NAMES = null;
+    private static  Class<?> enumParticle = null;
+    private static  Map<String, String> legacyNames = null;
     private static final int[] EMPTY_DATA = new int[0];
-    private static boolean IS_1_8 = false;
+    private static boolean is18 = false;
 
-    private static  Method WORLD_GET_HANDLE = null;
-    private static  Method WORLD_SEND_PARTICLE = null;
-    private static  Constructor<?> PACKET_PARTICLE = null;
-    private static  Method PLAYER_GET_HANDLE = null;
-    private static  Field PLAYER_CONNECTION = null;
-    private static  Method SEND_PACKET = null;
+    private static  Method worldGetHandle = null;
+    private static  Method worldSendParticle = null;
+    private static  Constructor<?> packetParticle = null;
+    private static  Method playerGetHandle = null;
+    private static  Field playerConnection = null;
+    private static  Method sendPacket = null;
     @Getter
     private static boolean initialized = false;
 
@@ -38,9 +38,9 @@ final class LegacyParticleType implements ParticleType {
 
     public static void init(){
         try {
-            ENUM_PARTICLE = FastReflection.nmsOptionalClass("EnumParticle").orElse(null);
-            LEGACY_NAMES = Collections.unmodifiableMap(getLegacyParticleNames());
-            IS_1_8 = ENUM_PARTICLE != null;
+            enumParticle = FastReflection.nmsOptionalClass("EnumParticle").orElse(null);
+            legacyNames = Collections.unmodifiableMap(getLegacyParticleNames());
+            is18 = enumParticle != null;
             Class<?> packetParticleClass = FastReflection.nmsClass("PacketPlayOutWorldParticles");
             Class<?> playerClass = FastReflection.nmsClass("EntityPlayer");
             Class<?> playerConnectionClass = FastReflection.nmsClass("PlayerConnection");
@@ -49,24 +49,24 @@ final class LegacyParticleType implements ParticleType {
             Class<?> craftPlayerClass = FastReflection.obcClass("entity.CraftPlayer");
             Class<?> craftWorldClass = FastReflection.obcClass("CraftWorld");
 
-            if (IS_1_8) {
-                PACKET_PARTICLE = packetParticleClass.getConstructor(ENUM_PARTICLE, boolean.class, float.class,
+            if (is18) {
+                packetParticle = packetParticleClass.getConstructor(enumParticle, boolean.class, float.class,
                         float.class, float.class, float.class, float.class, float.class, float.class, int.class,
                         int[].class);
-                WORLD_SEND_PARTICLE = worldClass.getDeclaredMethod("sendParticles", entityPlayerClass, ENUM_PARTICLE,
+                worldSendParticle = worldClass.getDeclaredMethod("sendParticles", entityPlayerClass, enumParticle,
                         boolean.class, double.class, double.class, double.class, int.class, double.class, double.class,
                         double.class, double.class, int[].class);
             } else {
-                PACKET_PARTICLE = packetParticleClass.getConstructor(String.class, float.class, float.class, float.class,
+                packetParticle = packetParticleClass.getConstructor(String.class, float.class, float.class, float.class,
                         float.class, float.class, float.class, float.class, int.class);
-                WORLD_SEND_PARTICLE = worldClass.getDeclaredMethod("a", String.class, double.class, double.class,
+                worldSendParticle = worldClass.getDeclaredMethod("a", String.class, double.class, double.class,
                         double.class, int.class, double.class, double.class, double.class, double.class);
             }
 
-            WORLD_GET_HANDLE = craftWorldClass.getDeclaredMethod("getHandle");
-            PLAYER_GET_HANDLE = craftPlayerClass.getDeclaredMethod("getHandle");
-            PLAYER_CONNECTION = playerClass.getField("playerConnection");
-            SEND_PACKET = playerConnectionClass.getMethod("sendPacket", FastReflection.nmsClass("Packet"));
+            worldGetHandle = craftWorldClass.getDeclaredMethod("getHandle");
+            playerGetHandle = craftPlayerClass.getDeclaredMethod("getHandle");
+            playerConnection = playerClass.getField("playerConnection");
+            sendPacket = playerConnectionClass.getMethod("sendPacket", FastReflection.nmsClass("Packet"));
         } catch (NoSuchMethodException | ClassNotFoundException | SecurityException | NoSuchFieldException e) {
             e.printStackTrace();
         } 
@@ -107,7 +107,7 @@ final class LegacyParticleType implements ParticleType {
             }
 
             int[] data = toData(rawData);
-            Object worldServer = WORLD_GET_HANDLE.invoke(world);
+            Object worldServer = worldGetHandle.invoke(world);
 
             if (rawData instanceof Color && getRawDataType() == Color.class) {
                 Color color = (Color) rawData;
@@ -118,11 +118,11 @@ final class LegacyParticleType implements ParticleType {
                 extra = 1.0;
             }
 
-            if (IS_1_8) {
-                WORLD_SEND_PARTICLE.invoke(worldServer, null, this.particle, true, x, y, z, count, offsetX, offsetY, offsetZ, extra, data);
+            if (is18) {
+                worldSendParticle.invoke(worldServer, null, this.particle, true, x, y, z, count, offsetX, offsetY, offsetZ, extra, data);
             } else {
                 String particleName = this.particle + (data.length != 2 ? "" : "_" + data[0] + "_" + data[1]);
-                WORLD_SEND_PARTICLE.invoke(worldServer, particleName, x, y, z, count, offsetX, offsetY, offsetZ, extra);
+                worldSendParticle.invoke(worldServer, particleName, x, y, z, count, offsetX, offsetY, offsetZ, extra);
             }
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
@@ -148,18 +148,18 @@ final class LegacyParticleType implements ParticleType {
                 extra = 1.0;
             }
 
-            if (IS_1_8) {
-                packet = PACKET_PARTICLE.newInstance(this.particle, true, (float) x, (float) y,
+            if (is18) {
+                packet = packetParticle.newInstance(this.particle, true, (float) x, (float) y,
                         (float) z, (float) offsetX, (float) offsetY, (float) offsetZ, (float) extra, count, data);
             } else {
                 String particleName = this.particle + (data.length != 2 ? "" : "_" + data[0] + "_" + data[1]);
-                packet = PACKET_PARTICLE.newInstance(particleName, (float) x, (float) y, (float) z,
+                packet = packetParticle.newInstance(particleName, (float) x, (float) y, (float) z,
                         (float) offsetX, (float) offsetY, (float) offsetZ, (float) extra, count);
             }
 
-            Object entityPlayer = PLAYER_GET_HANDLE.invoke(player);
-            Object playerConnection = PLAYER_CONNECTION.get(entityPlayer);
-            SEND_PACKET.invoke(playerConnection, packet);
+            Object entityPlayer = playerGetHandle.invoke(player);
+            Object playerConnection = LegacyParticleType.playerConnection.get(entityPlayer);
+            sendPacket.invoke(playerConnection, packet);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
@@ -170,7 +170,7 @@ final class LegacyParticleType implements ParticleType {
 
         if (dataType == ItemStack.class) {
             if (!(data instanceof ItemStack)) {
-                return IS_1_8 ? new int[2] : new int[]{1, 0};
+                return is18 ? new int[2] : new int[]{1, 0};
             }
 
             ItemStack itemStack = (ItemStack) data;
@@ -179,11 +179,11 @@ final class LegacyParticleType implements ParticleType {
 
         if (dataType == MaterialData.class) {
             if (!(data instanceof MaterialData)) {
-                return IS_1_8 ? new int[1] : new int[]{1, 0};
+                return is18 ? new int[1] : new int[]{1, 0};
             }
 
             MaterialData materialData = (MaterialData) data;
-            if (IS_1_8) {
+            if (is18) {
                 return new int[]{materialData.getItemType().getId() + (materialData.getData() << 12)};
             } else {
                 return new int[]{materialData.getItemType().getId(), materialData.getData()};
@@ -194,11 +194,11 @@ final class LegacyParticleType implements ParticleType {
     }
 
     static ParticleType of(String name) {
-        if (IS_1_8) {
-            return new LegacyParticleType(name, FastReflection.enumValueOf(ENUM_PARTICLE, name));
+        if (is18) {
+            return new LegacyParticleType(name, FastReflection.enumValueOf(enumParticle, name));
         }
 
-        String legacyName = LEGACY_NAMES.get(name);
+        String legacyName = legacyNames.get(name);
 
         if (legacyName == null) {
             throw new IllegalArgumentException("Invalid legacy particle: " + name);

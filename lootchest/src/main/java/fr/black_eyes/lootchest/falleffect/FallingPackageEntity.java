@@ -24,29 +24,29 @@ import fr.black_eyes.simpleJavaPlugin.Utils;
 public final class FallingPackageEntity {
 
 
-    World world;
-    Location startLoc;
-    Material material;
+    final World world;
+    final Location startLoc;
+    final Material material;
     Object blocky;
     boolean armorstand;
-    Location target;
-    double speed;
-    boolean fireworks;
-    int height;
+    final Location target;
+    final double speed;
+    final boolean fireworks;
+    final int height;
     IFallPacket armorstandFall;
     private int counter = 0;
     
     public FallingPackageEntity(final Location loc, boolean loaded, Location target) {
     	Main main = Main.getInstance();
-    	this.fireworks = Main.configs.FALL_Enable_Fireworks;
+    	this.fireworks = Main.configs.fallEnableFireworks;
     	this.target = target;
-        this.height = Main.configs.FALL_Height;
+        this.height = Main.configs.fallHeight;
     	this.armorstand = main.isUseArmorStands();
         this.blocky = null;
         this.armorstandFall = null;
         this.startLoc = loc.clone();
         this.world = loc.getWorld();
-        this.material = Material.valueOf(Main.configs.FALL_Block);
+        this.material = Material.valueOf(Main.configs.fallBlock);
         this.speed = Main.configs.FALL_Speed;
         if (Bukkit.getVersion().contains("1.7")) {
         	this.armorstand = false;
@@ -105,9 +105,9 @@ public final class FallingPackageEntity {
 		if (this.world.getBlockAt(LocationUtils.offset(locPackage, 0.0, -1.0, 0.0)).getType() == Material.AIR) {
             ++this.counter;
             if(Main.getCompleteVersion() >= 1206 && Main.getInstance().getParticles().get("SMOKE") != null)
-                Main.getInstance().getParticles().get("SMOKE").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation(), (float)50.0);
+                Main.getInstance().getParticles().get("SMOKE").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation());
             else if (Main.getInstance().getParticles().get("SMOKE_NORMAL") != null)
-			    Main.getInstance().getParticles().get("SMOKE_NORMAL").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation(), (float)50.0);
+			    Main.getInstance().getParticles().get("SMOKE_NORMAL").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation());
             if(!this.armorstand && ((Entity) this.blocky).isDead()) {
                     final Location oldLoc = locPackage;
                     final Vector oldVelocity = ((Entity) this.blocky).getVelocity().setY(-(speed));

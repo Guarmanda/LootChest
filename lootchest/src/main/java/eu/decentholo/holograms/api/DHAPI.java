@@ -26,39 +26,13 @@ public final class DHAPI {
     /**
      * Create a new hologram with the given name on the specified location.
      *
-     * @param name     The name.
-     * @param location The location.
+     * @param name       The name.
+     * @param location   The location.
      * @return The new hologram.
      * @throws IllegalArgumentException If name or location is null or hologram with the given name already exists.
      */
     public static Hologram createHologram(String name, Location location) throws IllegalArgumentException {
-        return createHologram(name, location, false);
-    }
-
-    /**
-     * Create a new hologram with the given name on the specified location.
-     *
-     * @param name       The name.
-     * @param location   The location.
-     * @param saveToFile Boolean: Should the hologram be saved into file?
-     * @return The new hologram.
-     * @throws IllegalArgumentException If name or location is null or hologram with the given name already exists.
-     */
-    public static Hologram createHologram(String name, Location location, boolean saveToFile) throws IllegalArgumentException {
-        return createHologram(name, location, saveToFile, new ArrayList<>());
-    }
-
-    /**
-     * Create a new hologram with the given name on the specified location with the given lines.
-     *
-     * @param name     The name.
-     * @param location The location.
-     * @param lines    The lines of this hologram.
-     * @return The new hologram.
-     * @throws IllegalArgumentException If name or location is null or hologram with the given name already exists.
-     */
-    public static Hologram createHologram(String name, Location location, List<String> lines) throws IllegalArgumentException {
-        return createHologram(name, location, false, lines);
+        return createHologram(name, location, new ArrayList<>());
     }
 
     /**
@@ -66,17 +40,16 @@ public final class DHAPI {
      *
      * @param name       The name.
      * @param location   The location.
-     * @param saveToFile Boolean: Should the hologram be saved into file?
      * @param lines      The lines of this hologram.
      * @return The new hologram.
      * @throws IllegalArgumentException If name or location is null or hologram with the given name already exists
      *                                  or if the name contains invalid characters.
      */
-    public static Hologram createHologram(String name, Location location, boolean saveToFile, List<String> lines) throws IllegalArgumentException {
+    public static Hologram createHologram(String name, Location location, List<String> lines) throws IllegalArgumentException {
         Validate.notNull(name);
         Validate.notNull(location);
 
-        Hologram hologram = new Hologram(name, location, saveToFile);
+        Hologram hologram = new Hologram(name, location);
         HologramPage page = hologram.getPage(0);
         if (lines != null) {
             for (String line : lines) {

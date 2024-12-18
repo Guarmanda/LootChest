@@ -30,20 +30,17 @@ public class ReflectionUtil {
      * @param fieldName The name of the field to set.
      * @param value     The value to set the field to.
      * @param <T>       The type of the field and value.
-     * @return True if the field was found and set, false otherwise.
      */
-    public static <T> boolean setFieldValue(final @NotNull Object object, final @NotNull String fieldName, final @Nullable T value) {
+    public static <T> void setFieldValue(final @NotNull Object object, final @NotNull String fieldName, final @Nullable T value) {
         Class<?> clazz = object.getClass();
         Field field = getCachedField(clazz, fieldName);
         if (field != null) {
             try {
                 field.set(object, value);
-                return true;
             } catch (IllegalAccessException ignored) {
                 // The field is not accessible
             }
         }
-        return false;
     }
 
     /**

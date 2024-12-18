@@ -1,7 +1,5 @@
 package eu.decentholo.holograms.api.holograms;
 
-import eu.decentholo.holograms.api.DecentHolograms;
-
 
 import eu.decentholo.holograms.api.utils.scheduler.S;
 import eu.decentholo.holograms.api.utils.tick.Ticked;
@@ -12,7 +10,6 @@ import org.bukkit.entity.Player;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -23,24 +20,11 @@ public class HologramManager extends Ticked {
 
 
     private final Map<String, Hologram> hologramMap = new ConcurrentHashMap<>();
-    private final Map<UUID, Long> clickCooldowns = new ConcurrentHashMap<>();
     private final Set<HologramLine> temporaryLines = ConcurrentHashMap.newKeySet();
 
-    /**
-     * Map of holograms to load when their respective world loads.
-     * <p>
-     * There were issues with world management plugins loading worlds
-     * after holograms. Due to that, holograms in these worlds were skipped
-     * as we can't load holograms, that don't have their world all loaded.
-     * <p>
-     * Key is the name of the world, and Value is a set of file names
-     * of all holograms, that couldn't be loaded due to this world problem.
-     *
-     * @since 2.7.4
-     */
-    private final Map<String, Set<String>> toLoad = new ConcurrentHashMap<>();
 
-    public HologramManager(DecentHolograms decentHolograms) {
+
+    public HologramManager() {
         super(20L);
         this.register();
 
@@ -90,7 +74,6 @@ public class HologramManager extends Ticked {
 
     public void onQuit(@NonNull Player player) {
         Hologram.getCachedHolograms().forEach(hologram -> hologram.onQuit(player));
-        clickCooldowns.remove(player.getUniqueId());
     }
 
     /**
@@ -115,22 +98,6 @@ public class HologramManager extends Ticked {
             line.destroy();
         }
         temporaryLines.clear();
-
-        clickCooldowns.clear();
-    }
-
-    /**
-     * Show all registered holograms for the given player.
-     *
-     * @param player Given player.
-     */
-    public void showAll(@NonNull Player player) {
-        for (Hologram hologram : getHolograms()) {
-            hologram.show(player, hologram.getPlayerPage(player));
-        }
-        for (HologramLine line : temporaryLines) {
-            line.show(player);
-        }
     }
 
     /**
@@ -148,51 +115,12 @@ public class HologramManager extends Ticked {
     }
 
     /**
-     * Check whether a hologram with the given name is registered in this manager.
-     *
-     * @param name Name of the hologram.
-     * @return Boolean whether a hologram with the given name is registered in this manager.
-     */
-    public boolean containsHologram(@NonNull String name) {
-        return hologramMap.containsKey(name);
-    }
-
-    /**
-     * Register a new hologram.
-     *
-     * @param hologram New hologram.
-     */
-    public void registerHologram(@NonNull Hologram hologram) {
-        hologramMap.put(hologram.getName(), hologram);
-    }
-
-    /**
-     * Get hologram by name.
-     *
-     * @param name Name of the hologram.
-     * @return The hologram or null if it wasn't found.
-     */
-    public Hologram getHologram(@NonNull String name) {
-        return hologramMap.get(name);
-    }
-
-    /**
      * Remove hologram by name.
      *
      * @param name Name of the hologram.
-     * @return The hologram or null if it wasn't found.
      */
-    public Hologram removeHologram(@NonNull String name) {
-        return hologramMap.remove(name);
-    }
-
-    /**
-     * Get the names of all registered holograms.
-     *
-     * @return Set of the names of all registered holograms.
-     */
-    public Set<String> getHologramNames() {
-        return hologramMap.keySet();
+    public void removeHologram(@NonNull String name) {
+        hologramMap.remove(name);
     }
 
     /**
@@ -205,9 +133,5 @@ public class HologramManager extends Ticked {
         return hologramMap.values();
     }
 
-    @NonNull
-    public Map<String, Set<String>> getToLoad() {
-        return toLoad;
-    }
 
 }

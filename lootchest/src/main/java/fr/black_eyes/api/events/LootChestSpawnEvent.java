@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 @Getter
 public class LootChestSpawnEvent extends Event {
 
-    private Lootchest lc;
+    private final Lootchest lc;
 
     private static final HandlerList HANDLERS = new HandlerList();
 

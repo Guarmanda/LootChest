@@ -49,10 +49,6 @@ public final class FastReflection {
         return Class.forName(obcClassName(className));
     }
 
-    public static Optional<Class<?>> obcOptionalClass(String className) {
-        return optionalClass(obcClassName(className));
-    }
-
     public static Optional<Class<?>> optionalClass(String className) {
 
         try {
@@ -62,7 +58,6 @@ public final class FastReflection {
         }
     }
 
-    @SuppressWarnings("unchecked")
 	public static Object enumValueOf(Class<?> enumClass, String enumName) {
         return Enum.valueOf(enumClass.asSubclass(Enum.class), enumName);
     }

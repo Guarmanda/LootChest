@@ -140,7 +140,7 @@ public class Fallv_1_16_4 implements IFallPacket {
     public void sendPacketToAll() {
         @SuppressWarnings("deprecation")
         MinecraftServer server = MinecraftServer.getServer();
-        Stream<EntityPlayer> players = StreamSupport.stream(server.getPlayerList().getPlayers().spliterator(), false);
+        Stream<EntityPlayer> players = server.getPlayerList().getPlayers().stream();
         players.forEach(p -> {
             // get player from uuid
             Player bukkitPlayer = Bukkit.getPlayer(p.getUniqueID());
@@ -174,7 +174,7 @@ public class Fallv_1_16_4 implements IFallPacket {
     public void removePacketToAll() {
         @SuppressWarnings("deprecation")
         MinecraftServer server = MinecraftServer.getServer();
-        Stream<EntityPlayer> players = StreamSupport.stream(server.getPlayerList().getPlayers().spliterator(), false);
+        Stream<EntityPlayer> players = server.getPlayerList().getPlayers().stream();
         players.forEach(p -> p.playerConnection.sendPacket(new PacketPlayOutEntityDestroy(armorstand.getId())));
     }
 
@@ -182,7 +182,7 @@ public class Fallv_1_16_4 implements IFallPacket {
      /**
       * Get an NMS ItemStack from a Bukkit Material
       */
-      private ItemStack getNmsItemStackFromMaterial(Material material) {
+      private static ItemStack getNmsItemStackFromMaterial(Material material) {
         String itemKey = "item."+material.getKey().toString().replace(":",".");
         String blockKey = "block."+material.getKey().toString().replace(":",".");
         if(headItem != null && (headItem.getItem().getName().equals(itemKey) || headItem.getItem().getName().equals(blockKey))) {
@@ -191,7 +191,7 @@ public class Fallv_1_16_4 implements IFallPacket {
         for(Item item : Arrays.stream(Items.class.getFields()).map(field -> {
             try {
                 return (Item) field.get(null);
-            } catch (IllegalArgumentException | IllegalAccessException e) {
+            } catch (IllegalArgumentException | IllegalAccessException ignored) {
             }
             return null;
         }).toArray(Item[]::new)) {

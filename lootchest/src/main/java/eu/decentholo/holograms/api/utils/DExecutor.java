@@ -81,13 +81,11 @@ public class DExecutor {
      * Schedule a new runnable.
      *
      * @param r The runnable.
-     * @return CompletableFuture executing the runnable.
      */
-    public CompletableFuture<Void> queue(@NonNull Runnable r) {
+    public void queue(@NonNull Runnable r) {
         synchronized (running) {
             CompletableFuture<Void> c = CompletableFuture.runAsync(r, executor);
             running.add(c);
-            return c;
         }
     }
 

@@ -8,7 +8,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import eu.decentholo.holograms.api.DecentHolograms;
 import eu.decentholo.holograms.api.DecentHologramsAPI;
@@ -50,7 +49,6 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
      * Holograms, that are only in this map and not in the {@link HologramManager}, are not
      * editable via commands. They are only editable via the API.
      *
-     * @see #getCachedHologram(String)
      */
     private static final @NonNull Map<String, Hologram> CACHED_HOLOGRAMS;
 
@@ -117,30 +115,17 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
      * @param location The location of the hologram.
      */
     public Hologram(@NonNull String name, @NonNull Location location) {
-        this(name, location, null, true);
+        this(name, location, true);
     }
-
-    /**
-     * Creates a new hologram with the given name and location.
-     *
-     * @param name       The name of the hologram.
-     * @param location   The location of the hologram.
-     * @param saveToFile Whether the hologram should be saved to a file.
-     */
-    public Hologram(@NonNull String name, @NonNull Location location, boolean saveToFile) {
-        this(name, location);
-    }
-
 
     /**
      * Creates a new hologram with the given name and location.
      *
      * @param name     The name of the hologram.
      * @param location The location of the hologram.
-     * @param config   The config of the hologram.
      * @param enabled  Whether the hologram should be enabled.
      */
-    public Hologram(@NonNull String name, @NonNull Location location, @Nullable Object config, boolean enabled) {
+    public Hologram(@NonNull String name, @NonNull Location location, boolean enabled) {
         super(location);
         this.name = name;
         this.enabled = enabled;

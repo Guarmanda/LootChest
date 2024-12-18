@@ -41,8 +41,6 @@ public class NMS_1_9 extends NMS {
     private static final Object DWO_CUSTOM_NAME_VISIBLE;
     private static final Object DWO_ENTITY_DATA;
     private static final Object DWO_ARMOR_STAND_DATA;
-    // ENTITY TYPES
-    private static Class<?> ENTITY_TYPES_CLASS;
     private static final ReflectField<Object> ENTITY_COUNTER_FIELD;
 
     static {
@@ -133,11 +131,14 @@ public class NMS_1_9 extends NMS {
             DWO_ARMOR_STAND_DATA = new ReflectField<>(ENTITY_ARMOR_STAND_CLASS, "b").getValue(null);
             // ENTITY TYPES
             Class<?> registryBlocksClass = ReflectionUtil.getNMSClass("RegistryBlocks");
-            ENTITY_TYPES_CLASS = ReflectionUtil.getNMSClass("EntityTypes");
+            // ENTITY TYPES
+            Class<?> entityTypesClass = ReflectionUtil.getNMSClass("EntityTypes");
             new ReflectMethod(registryBlocksClass, "fromId", int.class);
-            for (Method method : ENTITY_TYPES_CLASS.getMethods()) {
-                if (method.getReturnType().getName().contains("EntitySize")) {
-                    new ReflectMethod(ENTITY_TYPES_CLASS, method.getName());
+            if (entityTypesClass != null) {
+                for (Method method : entityTypesClass.getMethods()) {
+                    if (method.getReturnType().getName().contains("EntitySize")) {
+                        new ReflectMethod(entityTypesClass, method.getName());
+                    }
                 }
             }
             new ReflectField<>(ReflectionUtil.getNMSClass("EntitySize"), "height");
@@ -157,17 +158,18 @@ public class NMS_1_9 extends NMS {
     }
 
 
-    private void showFakeEntityLiving(Player player, Location location, int entityTypeId, int entityId, Object dataWatcher) {
+    private void showFakeEntityLiving(Player player, Location location, int entityId, Object dataWatcher) {
         Validate.notNull(player);
         Validate.notNull(location);
-        if (dataWatcher == null || !DATA_WATCHER_CLASS.isAssignableFrom(dataWatcher.getClass())) return;
+        if (DATA_WATCHER_CLASS != null && (dataWatcher == null || !DATA_WATCHER_CLASS.isAssignableFrom(dataWatcher.getClass())))
+            return;
 
-        if (entityTypeId == -1) return;
+        if (NMS_1_9.ARMOR_STAND_ID == -1) return;
         Object spawn = PACKET_SPAWN_ENTITY_LIVING_CONSTRUCTOR.newInstance();
         if (spawn == null) return;
         ReflectionUtil.setFieldValue(spawn, "a", entityId);
         ReflectionUtil.setFieldValue(spawn, "b", MATH_HELPER_A_METHOD.invokeStatic(ThreadLocalRandom.current()));
-        ReflectionUtil.setFieldValue(spawn, "c", entityTypeId);
+        ReflectionUtil.setFieldValue(spawn, "c", NMS_1_9.ARMOR_STAND_ID);
         ReflectionUtil.setFieldValue(spawn, "d", location.getX());
         ReflectionUtil.setFieldValue(spawn, "e", location.getY());
         ReflectionUtil.setFieldValue(spawn, "f", location.getZ());
@@ -180,13 +182,16 @@ public class NMS_1_9 extends NMS {
 
     @Override
     public void showFakeEntityArmorStand(Player player, Location location, int entityId, boolean invisible, boolean small, boolean clickable) {
-        Object dataWatcher = DATA_WATCHER_CONSTRUCTOR.newInstance(ENTITY_CLASS.cast(null));
+        Object dataWatcher = null;
+        if (ENTITY_CLASS != null) {
+            dataWatcher = DATA_WATCHER_CONSTRUCTOR.newInstance(ENTITY_CLASS.cast(null));
+        }
         DATA_WATCHER_REGISTER_METHOD.invoke(dataWatcher, DWO_ENTITY_DATA, (byte) (invisible ? 0x20 : 0x00)); // Invisible
         byte data = 0x08;
         if (small) data += 0x01;
         if (!clickable) data += 0x10;
         DATA_WATCHER_REGISTER_METHOD.invoke(dataWatcher, DWO_ARMOR_STAND_DATA, data);
-        showFakeEntityLiving(player, location, ARMOR_STAND_ID, entityId, dataWatcher);
+        showFakeEntityLiving(player, location, entityId, dataWatcher);
         sendPacket(player, PACKET_ENTITY_METADATA_CONSTRUCTOR.newInstance(entityId, dataWatcher, true));
     }
 
@@ -195,7 +200,10 @@ public class NMS_1_9 extends NMS {
         Validate.notNull(player);
         Validate.notNull(name);
 
-        Object dataWatcher = DATA_WATCHER_CONSTRUCTOR.newInstance(ENTITY_CLASS.cast(null));
+        Object dataWatcher = null;
+        if (ENTITY_CLASS != null) {
+            dataWatcher = DATA_WATCHER_CONSTRUCTOR.newInstance(ENTITY_CLASS.cast(null));
+        }
         if (Version.before(13)) {
             DATA_WATCHER_REGISTER_METHOD.invoke(dataWatcher, DWO_CUSTOM_NAME, name); // Custom Name
         } else {
