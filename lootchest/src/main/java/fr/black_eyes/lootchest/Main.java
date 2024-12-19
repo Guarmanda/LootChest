@@ -2,10 +2,7 @@ package fr.black_eyes.lootchest;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -51,6 +48,8 @@ import static fr.black_eyes.lootchest.Constants.DATA_CHEST_PATH;
 
 
 public class Main extends SimpleJavaPlugin {
+	public static final String MENU_MAIN_TYPE = "Menu.main.type";
+	public static final String MENU_CHANCES_LORE = "Menu.chances.lore";
 	@Getter private Particle[] supportedParticles;
 	@Getter private final HashMap<Location, Long> protection = new HashMap<>();
 	@Getter private final HashMap<String, Particle> particles = new HashMap<>();
@@ -140,7 +139,7 @@ public class Main extends SimpleJavaPlugin {
 
 		lootChest = new HashMap<>();
 		useArmorStands = true;
-		//initialisation des matÃ©riaux dans toutes les verions du jeu
+		//initialisation des matériaux dans toutes les verions du jeu
         //initializing materials in all game versions, to allow cross-version compatibility
         Mat.init_materials();
 		
@@ -171,30 +170,13 @@ public class Main extends SimpleJavaPlugin {
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         this.getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new BungeeChannel());
 
-
-        //If we're on paperspigot, in 1.9+, we check if armorstands ticks aren't disabled. If they are, we use 
-        //falling blocks insteand of armor stands for fall effect
-        if(getCompleteVersion()>=1090 ) {
-        	//Paper has many forks so instead of checking if we're on paper/fork or not, let's just try and see if we can get the
-        	//settings.
-        	try {
-	        	if(org.bukkit.Bukkit.getServer().spigot().getPaperConfig().isSet("world-settings.default.armor-stands-tick")
-		        	&& !org.bukkit.Bukkit.getServer().spigot().getPaperConfig().getBoolean("world-settings.default.armor-stands-tick")) {
-		        		useArmorStands = false;
-		        		Utils.logInfo("&eYou disabled 'armor-stands-tick' in paper.yml. ArmorStands will not have gravity, so fall effect will use falling blocks instead! Some blocks can't be used as falling blocks. If so, only fireworks will show!");
-		        		Utils.logInfo("&eIf no blocks are spawned with the fireworks, use another type of block for fall-effect in config.yml or enable 'armor-stands-tick' in paper.yml");
-		        	
-	        	}
-        	}catch(NoSuchMethodError e) {}
-        }
         
 		
 		//load config
 		setConfigs(Config.getInstance(configFiles.getConfig()));
 
 		//If we enabled bungee broadcast, but we aren't on a bungee server, not any message will show
-        if(configs.noteBungeeBroadcast)
-			if(!hasBungee()){
+        if(configs.noteBungeeBroadcast && !hasBungee()){
 				Utils.logInfo("&cYou enaled bungee broadcast in config but you didn't enable bungeecord in spigot config!");
 				Utils.logInfo("&cSo if this server isn't in a bungee network, no messages will be sent at all on chest spawn!");
         	}
@@ -326,7 +308,7 @@ public class Main extends SimpleJavaPlugin {
         this.getServer().getScheduler().runTaskLater(this, () -> {
             Utils.logInfo("Loading chests...");
             long current = (new Timestamp(System.currentTimeMillis())).getTime();
-            for(String keys : configFiles.getData().getConfigurationSection("chests").getKeys(false)) {
+            for(String keys : Objects.requireNonNull(configFiles.getData().getConfigurationSection("chests")).getKeys(false)) {
                 String name = configFiles.getData().getString(DATA_CHEST_PATH + keys + ".position.world");
                 String randomName = name;
                 if( configFiles.getData().getInt(DATA_CHEST_PATH + keys + ".randomradius")>0) {
@@ -364,10 +346,12 @@ public class Main extends SimpleJavaPlugin {
   private void updateOldConfig() {
 	// hotfix
 	// in chances.lore, replace all % by nothing
-	if(configFiles.getLang().getString("Menu.chances.lore").contains("%")) {
-		String lore = configFiles.getLang().getString("Menu.chances.lore");
-		lore = lore.replaceAll("%", "");
-		configFiles.getLang().set("Menu.chances.lore", lore);
+	if(Objects.requireNonNull(configFiles.getLang().getString(MENU_CHANCES_LORE)).contains("%")) {
+		String lore = configFiles.getLang().getString(MENU_CHANCES_LORE);
+        if (lore != null) {
+            lore = lore.replace("%", "");
+        }
+        configFiles.getLang().set(MENU_CHANCES_LORE, lore);
 	}
 	  configFiles.setConfig("Max_Filled_Slots_By_Default", 0);
 	  configFiles.setConfig("SaveDataFileDuringReload", true);
@@ -396,7 +380,7 @@ public class Main extends SimpleJavaPlugin {
       configFiles.setLang("Menu.main.enable_fall", "&cFall effect is disabled. Click to &aENABLE &cit");
       configFiles.setLang("Menu.main.enable_respawn_natural", "&cNatural-respawn message is disabled. Click to &aENABLE &cit");
       configFiles.setLang("Menu.main.enable_respawn_cmd", "&cCommand-respawn message is disabled. Click to &aENABLE &cit");
-      configFiles.setLang("Menu.main.type", "&1Select Chest Item");
+      configFiles.setLang(MENU_MAIN_TYPE, "&1Select Chest Item");
       configFiles.setLang("Menu.type.name", "&1Select Chest Item");
 	  configFiles.setLang("notAnInteger", "&c[Number] is not an integer!");
       configFiles.setLang("Menu.main.enable_take_message", "&cMessage on chest take is disabled. Click to &aENABLE &cit");
@@ -422,7 +406,7 @@ public class Main extends SimpleJavaPlugin {
               configFiles.getLang().load(configFiles.getLangF());
           }
           catch (IOException | InvalidConfigurationException e) {
-              e.printStackTrace();
+              Utils.logInfo("Error while updating lang.yml");
           }
       }
       configFiles.setConfig("Fall_Effect.Optionnal_Color_If_Block_Is_Wool", null);
@@ -504,15 +488,15 @@ public class Main extends SimpleJavaPlugin {
     	  configFiles.getConfig().set("Timer_on_hologram.Seconds_Separator", " seconds.");
     	  configFiles.getConfig().set("Timer_on_hologram.Format", "&3%Hours%Hsep%Minutes%Msep%Seconds%Ssep &bleft for %Hologram to respawn");
       }
-      if(configFiles.getLang().getString("Menu.chances.lore").equals("&aLeft click: +1; right: -1; shift+right: -10; shift+left: +10; tab+right: -50") || configFiles.getLang().getString("Menu.chances.lore").equals("&aLeft click to up percentage, Right click to down it")) {
-      	configFiles.getLang().set("Menu.chances.lore", "&aLeft click: +1||&aright: -1||&ashift+right: -10||&ashift+left: +10||&atab+right: -50");
+      if(configFiles.getLang().getString(MENU_CHANCES_LORE).equals("&aLeft click: +1; right: -1; shift+right: -10; shift+left: +10; tab+right: -50") || configFiles.getLang().getString(MENU_CHANCES_LORE).equals("&aLeft click to up percentage, Right click to down it")) {
+      	configFiles.getLang().set(MENU_CHANCES_LORE, "&aLeft click: +1||&aright: -1||&ashift+right: -10||&ashift+left: +10||&atab+right: -50");
       }
       
       if(configFiles.getLang().getString("Menu.main.respawnTime").equals("&1Respawn time editing")) {
         	configFiles.getLang().set("Menu.main.respawnTime", "&1Edit Respawn Time");
        }
-      if(configFiles.getLang().getString("Menu.main.type").equals("&1Choose type (Barrel, trapped chest, chest)")) {
-      	configFiles.getLang().set("Menu.main.type", "&1Select Chest Item");
+      if(configFiles.getLang().getString(MENU_MAIN_TYPE).equals("&1Choose type (Barrel, trapped chest, chest)")) {
+      	configFiles.getLang().set(MENU_MAIN_TYPE, "&1Select Chest Item");
       }
       if(configFiles.getLang().getString("Menu.main.content").equals("&1Chest content editing")) {
         	configFiles.getLang().set("Menu.main.content", "&1Edit Chest Contents");

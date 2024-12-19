@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 import fr.black_eyes.simpleJavaPlugin.Files;
 
@@ -49,7 +50,7 @@ public class CopyMenu extends PagedChestUi {
 			if (Bukkit.getWorld(otherChest.getWorld()) == null) {
 				world = "Unloaded world";
 			} else {
-				world = Bukkit.getWorld(otherChest.getWorld()).getName();
+				world = Objects.requireNonNull(Bukkit.getWorld(otherChest.getWorld())).getName();
 			}
 			ItemStack item = nameItem(Mat.CHEST, Utils.color("&6" + otherName), 1, Utils.color("&bHologram: &6" + holoName + "||&bWorld: &6" + world + "||&bEffect: &6" + effect));
 			addContent(item, p -> copyChest(p, otherChest));

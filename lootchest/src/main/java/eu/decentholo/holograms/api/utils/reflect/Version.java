@@ -77,10 +77,6 @@ public enum Version {
         return null;
     }
 
-    public static boolean is(int minor) {
-        return CURRENT.getMinor() == minor;
-    }
-
     public static boolean is(@NonNull Version version) {
         return CURRENT == version;
     }
@@ -99,10 +95,6 @@ public enum Version {
 
     public static boolean before(int minor) {
         return CURRENT.getMinor() < minor;
-    }
-
-    public static boolean before(@NonNull Version version) {
-        return CURRENT.ordinal() < version.ordinal();
     }
 
     /*

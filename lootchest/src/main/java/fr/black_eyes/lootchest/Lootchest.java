@@ -1,6 +1,7 @@
 package fr.black_eyes.lootchest;
 
 import java.sql.Timestamp;
+import java.util.Objects;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -28,6 +29,11 @@ import static fr.black_eyes.lootchest.Constants.DATA_CHEST_PATH;
 
 public class Lootchest {
 
+	public static final String MAX_FILLED_SLOTS = ".maxFilledSlots";
+	public static final String RANDOMRADIUS = ".randomradius";
+	public static final String PARTICLE = ".particle";
+	public static final String PROTECTION_TIME = ".protectionTime";
+	public static final String TYPE = ".type";
 	/**
 	 * @return the Lootchest name
 	 * @param name the name to give to the lootchest
@@ -165,27 +171,29 @@ public class Lootchest {
 		LootChestUtils utils = main.getUtils();
 		Files configFiles = Main.getInstance().getConfigFiles();
 		taken = false;
-		if(!configFiles.getData().isSet(DATA_CHEST_PATH+naming+".type")){
+		if(!configFiles.getData().isSet(DATA_CHEST_PATH+naming+ TYPE)){
 			type = Mat.CHEST;
 		}else {
-			String types = configFiles.getData().getString(DATA_CHEST_PATH+naming+".type");
-			switch(types) {
-				case "TRAPPED_CHEST": type = Mat.TRAPPED_CHEST; break;
-				case "BARREL": type = Mat.BARREL; break;
-				default: type = Mat.CHEST; break;
-			}
-		}
-		if(!configFiles.getData().isSet(DATA_CHEST_PATH+naming+".maxFilledSlots")){
+			String types = configFiles.getData().getString(DATA_CHEST_PATH+naming+ TYPE);
+            if (types != null) {
+                switch(types) {
+                    case "TRAPPED_CHEST": type = Mat.TRAPPED_CHEST; break;
+                    case "BARREL": type = Mat.BARREL; break;
+                    default: type = Mat.CHEST; break;
+                }
+            }
+        }
+		if(!configFiles.getData().isSet(DATA_CHEST_PATH+naming+ MAX_FILLED_SLOTS)){
 			maxFilledSlots = Main.configs.defaultMaxFilledSlots;
 		}else{
-			maxFilledSlots = configFiles.getData().getInt(DATA_CHEST_PATH+naming+".maxFilledSlots");
+			maxFilledSlots = configFiles.getData().getInt(DATA_CHEST_PATH+naming+ MAX_FILLED_SLOTS);
 		}
 		name = naming;
         chances = new Integer[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 		inv = Bukkit.createInventory(null, 27);
 		globalLoc = utils.getPosition(naming);
-		if(configFiles.getData().isSet(DATA_CHEST_PATH+naming+".randomradius")) {
-			radius = configFiles.getData().getInt(DATA_CHEST_PATH+naming+".randomradius");
+		if(configFiles.getData().isSet(DATA_CHEST_PATH+naming+ RANDOMRADIUS)) {
+			radius = configFiles.getData().getInt(DATA_CHEST_PATH+naming+ RANDOMRADIUS);
 			if(radius > 0) {
 				randomLoc = utils.getRandomPosition(naming);
 			}else {
@@ -196,15 +204,15 @@ public class Lootchest {
 			randomLoc = null;
 		}
 
-		if(configFiles.getData().isSet(DATA_CHEST_PATH+naming+".protectionTime")) {
-			protectionTime = configFiles.getData().getLong(DATA_CHEST_PATH+naming+".protectionTime");
+		if(configFiles.getData().isSet(DATA_CHEST_PATH+naming+ PROTECTION_TIME)) {
+			protectionTime = configFiles.getData().getLong(DATA_CHEST_PATH+naming+ PROTECTION_TIME);
 		}else {
 			protectionTime = Main.configs.defaultRespawnProtection;
 		}
 
 
 		holo = configFiles.getData().getString(DATA_CHEST_PATH + naming + ".holo");
-		String part = configFiles.getData().getString(DATA_CHEST_PATH + naming + ".particle");
+		String part = configFiles.getData().getString(DATA_CHEST_PATH + naming + PARTICLE);
 		if(part != null && part.equals("Disabled")) {
 			particle = null;
 		}else {
@@ -220,7 +228,7 @@ public class Lootchest {
 		time = configFiles.getData().getInt(DATA_CHEST_PATH + naming + ".time");
 		fallEnabled =  configFiles.getData().getBoolean(DATA_CHEST_PATH + naming + ".fall");
 		try {
-		for(String keys : configFiles.getData().getConfigurationSection(DATA_CHEST_PATH + naming + ".inventory").getKeys(false)) {
+		for(String keys : Objects.requireNonNull(configFiles.getData().getConfigurationSection(DATA_CHEST_PATH + naming + ".inventory")).getKeys(false)) {
 			inv.setItem(Integer.parseInt(keys), configFiles.getData().getItemStack(DATA_CHEST_PATH + naming + ".inventory." + keys));
 			chances[Integer.parseInt(keys)] = configFiles.getData().getInt(DATA_CHEST_PATH + naming + ".chance." + keys);
 		}
@@ -319,13 +327,13 @@ public class Lootchest {
 		Files configFiles = Main.getInstance().getConfigFiles();
 		configFiles.getData().set(DATA_CHEST_PATH + name + ".inventory", null);
 		for(int i = 0 ; i < inv.getSize() ; i++) {
-			if(inv.getItem(i) != null && inv.getItem(i).getType() != Material.AIR) {
+			if(inv.getItem(i) != null && Objects.requireNonNull(inv.getItem(i)).getType() != Material.AIR) {
 				configFiles.getData().set(DATA_CHEST_PATH + name + ".inventory." + i, inv.getItem(i));
 				configFiles.getData().set(DATA_CHEST_PATH + name + ".chance." + i, chances[i]);
 			}
 		}
 		configFiles.getData().set(DATA_CHEST_PATH + name + ".fall", fallEnabled);
-		configFiles.getData().set(DATA_CHEST_PATH + name + ".type", type.name());
+		configFiles.getData().set(DATA_CHEST_PATH + name + TYPE, type.name());
 		configFiles.getData().set(DATA_CHEST_PATH + name + ".respawn_cmd", respawnCmdMsgEnabled);
 		configFiles.getData().set(DATA_CHEST_PATH + name + ".respawn_natural", respawnNaturalMsgEnabled);
 		configFiles.getData().set(DATA_CHEST_PATH + name + ".take_message", takeMsgEnabled);
@@ -333,18 +341,18 @@ public class Lootchest {
 		configFiles.getData().set(DATA_CHEST_PATH + name + ".direction", direction);
 		configFiles.getData().set(DATA_CHEST_PATH + name + ".holo", holo);
 		configFiles.getData().set(DATA_CHEST_PATH + name + ".time", time);
-		configFiles.getData().set(DATA_CHEST_PATH + name + ".protectionTime", protectionTime);
+		configFiles.getData().set(DATA_CHEST_PATH + name + PROTECTION_TIME, protectionTime);
 		utils.setPosition(name, globalLoc);
 		configFiles.getData().set(DATA_CHEST_PATH + name + ".lastreset", lastReset);
 		if(particle!=null)
-			configFiles.getData().set(DATA_CHEST_PATH +name+ ".particle", particle.name());
+			configFiles.getData().set(DATA_CHEST_PATH +name+ PARTICLE, particle.name());
 		else
-			configFiles.getData().set(DATA_CHEST_PATH +name+ ".particle", "Disabled");
-		configFiles.getData().set(DATA_CHEST_PATH+name+".randomradius", radius);
+			configFiles.getData().set(DATA_CHEST_PATH +name+ PARTICLE, "Disabled");
+		configFiles.getData().set(DATA_CHEST_PATH+name+ RANDOMRADIUS, radius);
 		if(randomLoc != null) {
 			utils.setRandomPosition(name, randomLoc);
 		}
-		configFiles.getData().set(DATA_CHEST_PATH + name + ".maxFilledSlots", maxFilledSlots);
+		configFiles.getData().set(DATA_CHEST_PATH + name + MAX_FILLED_SLOTS, maxFilledSlots);
 
 	}
 
@@ -359,7 +367,7 @@ public class Lootchest {
 
 	/**
 	 * Remove the chest block, the hologram, and the particle
-	 * If the chunk isn't loaded before doing this, it will be unloaded after.
+	 * If the chunk isn't loaded before doing this, it will be unloaded after (hopefully).
 	 */
 	public void despawn(){
 		Location startLocation = getActualLocation();

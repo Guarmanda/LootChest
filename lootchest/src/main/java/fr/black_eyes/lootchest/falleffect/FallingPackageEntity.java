@@ -100,19 +100,22 @@ public final class FallingPackageEntity {
             v.setY(-(speed));
             ((Entity) blocky).setVelocity(v);
         }
-        Location locPackage = (!this.armorstand)? ((Entity) this.blocky).getLocation() : armorstandFall.getLocation();
-        
-		if (this.world.getBlockAt(LocationUtils.offset(locPackage, 0.0, -1.0, 0.0)).getType() == Material.AIR) {
+        Location locPackage = null;
+        if (this.blocky != null) {
+            locPackage = (!this.armorstand)? ((Entity) this.blocky).getLocation() : armorstandFall.getLocation();
+        }
+
+        if (this.world.getBlockAt(LocationUtils.offset(locPackage, 0.0, -1.0, 0.0)).getType() == Material.AIR) {
             ++this.counter;
             if(Main.getCompleteVersion() >= 1206 && Main.getInstance().getParticles().get("SMOKE") != null)
                 Main.getInstance().getParticles().get("SMOKE").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation());
             else if (Main.getInstance().getParticles().get("SMOKE_NORMAL") != null)
 			    Main.getInstance().getParticles().get("SMOKE_NORMAL").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation());
             if(!this.armorstand && ((Entity) this.blocky).isDead()) {
-                    final Location oldLoc = locPackage;
-                    final Vector oldVelocity = ((Entity) this.blocky).getVelocity().setY(-(speed));
-                    ((Entity) (this.blocky = this.world.spawnFallingBlock(oldLoc, this.material, (byte)0))).setVelocity(oldVelocity);
-                }
+                final Vector oldVelocity = ((Entity) this.blocky).getVelocity().setY(-(speed));
+                this.blocky = this.world.spawnFallingBlock(locPackage, this.material, (byte)0);
+                ((Entity) (this.blocky)).setVelocity(oldVelocity);
+            }
 
             if (this.counter % 5 == 0 && (   (locPackage.getY() - target.getY()) >3 || counter > 100) && fireworks ) {
                 this.summonUpdateFireworks();
@@ -138,7 +141,6 @@ public final class FallingPackageEntity {
     }
     
     private void summonUpdateFireworks() {
-
             final Firework fw; 
             if(Main.getCompleteVersion() < 1206) {
                 fw = (Firework)this.world.spawnEntity(goodLocation(), EntityType.valueOf("FIREWORK"));

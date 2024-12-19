@@ -1,5 +1,6 @@
 package fr.black_eyes.lootchest.particles;
 
+import fr.black_eyes.simpleJavaPlugin.Utils;
 import lombok.Getter;
 import org.bukkit.Color;
 import org.bukkit.World;
@@ -68,7 +69,7 @@ final class LegacyParticleType implements ParticleType {
             playerConnection = playerClass.getField("playerConnection");
             sendPacket = playerConnectionClass.getMethod("sendPacket", FastReflection.nmsClass("Packet"));
         } catch (NoSuchMethodException | ClassNotFoundException | SecurityException | NoSuchFieldException e) {
-            e.printStackTrace();
+            Utils.logInfo("Error while initializing LegacyParticleType: " + e.getMessage());
         } 
         initialized = true;
     }

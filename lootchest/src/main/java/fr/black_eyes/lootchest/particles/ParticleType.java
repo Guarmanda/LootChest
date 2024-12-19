@@ -208,7 +208,6 @@ public interface ParticleType {
      * on each axis.
      *
      * @param <T>      type of particle data (see {@link ParticleType#getDataType()}
-     * @param world    the world to spawn particle to
      * @param location the location to spawn at
      * @param count    the number of particles
      * @param offsetX  the maximum random offset on the x-axis

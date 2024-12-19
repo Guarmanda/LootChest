@@ -3,6 +3,7 @@ package fr.black_eyes.lootchest;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
@@ -26,6 +27,9 @@ import org.bukkit.util.BlockIterator;
 import static fr.black_eyes.lootchest.Constants.DATA_CHEST_PATH;
 
 public class LootChestUtils  {
+	public static final String POSITION_WORLD = ".position.world";
+	public static final String RANDOM_POSITION_X = ".randomPosition.x";
+	public static final String RANDOM_POSITION_WORLD = ".randomPosition.world";
 	private final Files configFiles;
 
 	public LootChestUtils() {
@@ -62,11 +66,11 @@ public class LootChestUtils  {
 	 * @param world the LootChest's world
 	 */
 	public static Location chooseRandomPlayer(String world){
-		int i = Bukkit.getWorld(world).getPlayers().size();
+		int i = Objects.requireNonNull(Bukkit.getWorld(world)).getPlayers().size();
 		if(i>0) {
 			int ran = ThreadLocalRandom.current().nextInt(1, i+1);
 			i=0;
-			for(Player p : Bukkit.getWorld(world).getPlayers()) {
+			for(Player p : Objects.requireNonNull(Bukkit.getWorld(world)).getPlayers()) {
 				if(++i == ran) {
 					return p.getLocation().getBlock().getLocation();
 				}
@@ -149,20 +153,20 @@ public class LootChestUtils  {
 		List<Integer> fullSlots = new ArrayList<>();
 
         for (int i=0; i<27 ; i++){
-        	if(lc.getInv().getItem(i) != null && !lc.getInv().getItem(i).getType().equals(Material.AIR)) {
+        	if(lc.getInv().getItem(i) != null && !Objects.requireNonNull(lc.getInv().getItem(i)).getType().equals(Material.AIR)) {
 	            final ItemStack item = lc.getInv().getItem(i);
                 final int percent = ThreadLocalRandom.current().nextInt(0, 101);
 	            if (percent <= lc.chances[i]) {
 					fullSlots.add(i);
-	                if (inv.getItem(i) == null || inv.getItem(i).getType() == Material.AIR) {
+	                if (inv.getItem(i) == null || Objects.requireNonNull(inv.getItem(i)).getType() == Material.AIR) {
 	                    inv.setItem(i, item);
 	                }
-	                else if (p != null && p.getInventory().firstEmpty() == -1) {
-	                    p.getWorld().dropItem(p.getLocation(), item);
-	                }
-	                else {
-	                    inv.addItem(item);
-	                }
+	                else if (p != null && p.getInventory().firstEmpty() == -1 && item != null) {
+                            p.getWorld().dropItem(p.getLocation(), item);
+                    }
+	                else if (item != null) {
+						inv.addItem(item);
+                    }
 	            }
         	}
         }
@@ -172,7 +176,7 @@ public class LootChestUtils  {
 			while(fullSlots.size() > lc.getMaxFilledSlots()) {
 				int index = ThreadLocalRandom.current().nextInt(0, fullSlots.size());
 				int slot = fullSlots.get(index);
-				if(inv.getItem(slot) != null && inv.getItem(slot).getType() != Material.AIR) {
+				if(inv.getItem(slot) != null && Objects.requireNonNull(inv.getItem(slot)).getType() != Material.AIR) {
 					inv.setItem(slot, new ItemStack(Material.AIR));
 					fullSlots.remove(index);
 				}
@@ -284,7 +288,7 @@ public class LootChestUtils  {
 
 	/**
 	 * Check if a world name is loaded
-	 * @param world
+	 * @param world the world name
 	 * @return true if the world is loaded
 	 */
 	public static boolean isWorldLoaded(String world){
@@ -298,7 +302,7 @@ public class LootChestUtils  {
 
 	/**
 	 * Broadcast function for 1.7+ compatibility
-	 * @param message
+	 * @param message the message to broadcast
 	 */
 	public static void broadcast(String message) {
 		for(World w : Bukkit.getWorlds()){
@@ -317,11 +321,11 @@ public class LootChestUtils  {
 	 * @return the Location of the chest
 	 */
 	public  Location getPosition(String name) {
-		if (configFiles.getData().getString(DATA_CHEST_PATH + name + ".position.world") == null) {
+		if (configFiles.getData().getString(DATA_CHEST_PATH + name + POSITION_WORLD) == null) {
 			Utils.logInfo("&cThe plugin couldn't get the world of chest &6" + name +"&c. This won't prevent the plugin to work, but the plugin may throw other errors because of that.");
 			return null;
 		}
-		World world = Bukkit.getWorld(configFiles.getData().getString(DATA_CHEST_PATH + name + ".position.world"));
+		World world = Bukkit.getWorld(Objects.requireNonNull(configFiles.getData().getString(DATA_CHEST_PATH + name + POSITION_WORLD)));
 		double x = configFiles.getData().getDouble(DATA_CHEST_PATH + name + ".position.x");
 		double y = configFiles.getData().getDouble(DATA_CHEST_PATH + name + ".position.y");
 		double z = configFiles.getData().getDouble(DATA_CHEST_PATH + name + ".position.z");
@@ -336,7 +340,7 @@ public class LootChestUtils  {
 	 * @param loc the location
 	 */
 	public  void setPosition(String name, Location loc) {
-		configFiles.getData().set(DATA_CHEST_PATH + name + ".position.world", loc.getWorld().getName());
+		configFiles.getData().set(DATA_CHEST_PATH + name + POSITION_WORLD, loc.getWorld().getName());
 		configFiles.getData().set(DATA_CHEST_PATH + name + ".position.x", loc.getX());
 		configFiles.getData().set(DATA_CHEST_PATH + name + ".position.y", loc.getY());
 		configFiles.getData().set(DATA_CHEST_PATH + name + ".position.z", loc.getZ());
@@ -352,8 +356,8 @@ public class LootChestUtils  {
 	public void setRandomPosition(String name, Location loc) {
 		try {
 		String world = loc.getWorld().getName();
-		configFiles.getData().set(DATA_CHEST_PATH + name + ".randomPosition.world", world);
-		configFiles.getData().set(DATA_CHEST_PATH + name + ".randomPosition.x", loc.getX());
+		configFiles.getData().set(DATA_CHEST_PATH + name + RANDOM_POSITION_WORLD, world);
+		configFiles.getData().set(DATA_CHEST_PATH + name + RANDOM_POSITION_X, loc.getX());
 		configFiles.getData().set(DATA_CHEST_PATH + name + ".randomPosition.y", loc.getY());
 		configFiles.getData().set(DATA_CHEST_PATH + name + ".randomPosition.z", loc.getZ());
 		configFiles.getData().set(DATA_CHEST_PATH + name + ".randomPosition.pitch", loc.getPitch());
@@ -382,11 +386,11 @@ public class LootChestUtils  {
 	 * @return the actual random Location of the chest
 	 */
 	public Location getRandomPosition(String name) {
-		if(!configFiles.getData().isSet(DATA_CHEST_PATH + name + ".randomPosition.x")) {
+		if(!configFiles.getData().isSet(DATA_CHEST_PATH + name + RANDOM_POSITION_X)) {
 			return null;
 		}
-		World world = Bukkit.getWorld(configFiles.getData().getString(DATA_CHEST_PATH + name + ".randomPosition.world"));
-		double x = configFiles.getData().getDouble(DATA_CHEST_PATH + name + ".randomPosition.x");
+		World world = Bukkit.getWorld(Objects.requireNonNull(configFiles.getData().getString(DATA_CHEST_PATH + name + RANDOM_POSITION_WORLD)));
+		double x = configFiles.getData().getDouble(DATA_CHEST_PATH + name + RANDOM_POSITION_X);
 		double y = configFiles.getData().getDouble(DATA_CHEST_PATH + name + ".randomPosition.y");
 		double z = configFiles.getData().getDouble(DATA_CHEST_PATH + name + ".randomPosition.z");
 		float pitch = (float) configFiles.getData().getDouble(DATA_CHEST_PATH + name + ".randomPosition.pitch");

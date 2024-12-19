@@ -9,10 +9,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -27,8 +24,8 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 	 */
 	public CommandHandler(JavaPlugin plugin, String baseCommand) {
 		this.commands = new HashSet<>();
-		plugin.getCommand(baseCommand).setExecutor(this);
-		plugin.getCommand(baseCommand).setTabCompleter(this);
+		Objects.requireNonNull(plugin.getCommand(baseCommand)).setExecutor(this);
+		Objects.requireNonNull(plugin.getCommand(baseCommand)).setTabCompleter(this);
 	}
 	
 	public void addSubCommand(SubCommand command) {
@@ -48,9 +45,8 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 		
 		for (SubCommand command : commands) {
 			if (command.matchesAlias(subCmdName)) {
-				if (!hasPerm(sender, command.getPermission())) {
+				if (!hasPerm(sender, command.getPermission()))
 					return true;
-				}
 				command.execute(sender, args);
 				return true;
 			}

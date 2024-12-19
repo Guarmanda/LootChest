@@ -182,7 +182,7 @@ players.forEach(p -> p.connection.send(new ClientboundRemoveEntitiesPacket(armor
         for(Item item : Arrays.stream(Items.class.getFields()).map(field -> {
             try {
                 return (Item) field.get(null);
-            } catch (IllegalArgumentException | IllegalAccessException e) {
+            } catch (IllegalArgumentException | IllegalAccessException ignored) {
             }
             return null;
         }).toArray(Item[]::new)) {

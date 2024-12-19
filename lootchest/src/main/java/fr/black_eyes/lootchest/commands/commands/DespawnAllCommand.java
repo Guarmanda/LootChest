@@ -11,6 +11,7 @@ import fr.black_eyes.lootchest.commands.ArgType;
 import fr.black_eyes.lootchest.commands.SubCommand;
 import fr.black_eyes.simpleJavaPlugin.Utils;
 
+@SuppressWarnings("deprecation")
 public class DespawnAllCommand extends SubCommand {
 	
 	public DespawnAllCommand() {

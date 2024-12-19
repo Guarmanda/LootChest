@@ -176,18 +176,21 @@ public class LootChestHologram {
     			long mins = (secondes%3600)/60; 
     			long hours = secondes/3600;
     			String text = Main.configs.timerFormat;
-    			if(hours <1) text = text.replace("%Hours", "").replace("%Hsep", "");
-    			if(mins <1) text = text.replace("%Minutes", "").replace("%Msep", "");
-    			text = text.replace("%Hours", hours+"").replace("%Hsep", Main.configs.timerHSep)
-    					.replace("%Minutes", mins+"").replace("%Msep", Main.configs.timerMSep)
-    					.replace("%Seconds", secs+"").replace("%Ssep", Main.configs.timerSSep)
-    					.replace("%Hologram", getText());
-    			if(holo ==null) {
-    				runnable.cancel();
-    			}else {
-					//replace with paragraph character
-    				setLine(Utils.color(text));
-    			}
+				if(text != null && Main.configs.timerHSep != null && Main.configs.timerMSep != null && Main.configs.timerSSep != null) {
+					if(hours <1) text = text.replace("%Hours", "").replace("%Hsep", "");
+					if(mins <1) text = text.replace("%Minutes", "").replace("%Msep", "");
+					text = text.replace("%Hours", hours+"").replace("%Hsep", Main.configs.timerHSep)
+							.replace("%Minutes", mins+"").replace("%Msep", Main.configs.timerMSep)
+							.replace("%Seconds", secs+"").replace("%Ssep", Main.configs.timerSSep)
+							.replace("%Hologram", getText());
+
+					if(holo ==null) {
+						runnable.cancel();
+					}else {
+						//replace with paragraph character
+						setLine(Utils.color(text));
+					}
+				}
     			if(secondes<=0) {
     				runnable.cancel();
     			}

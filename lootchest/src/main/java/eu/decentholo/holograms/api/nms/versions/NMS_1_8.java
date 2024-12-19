@@ -72,7 +72,10 @@ public class NMS_1_8 extends NMS {
 
     @Override
     public void showFakeEntityArmorStand(Player player, Location location, int entityId, boolean invisible, boolean small, boolean clickable) {
-        Object dataWatcher = DATA_WATCHER_CONSTRUCTOR.newInstance(ENTITY_CLASS.cast(null));
+        Object dataWatcher = null;
+        if (ENTITY_CLASS != null) {
+            dataWatcher = DATA_WATCHER_CONSTRUCTOR.newInstance(ENTITY_CLASS.cast(null));
+        }
         DATA_WATCHER_A_METHOD.invoke(dataWatcher, 0, (byte) (invisible ? 0x20 : 0x00)); // Invisible
         byte data = 0x08;
         if (small) data += 0x01;
@@ -82,11 +85,15 @@ public class NMS_1_8 extends NMS {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void updateFakeEntityCustomName(Player player, String name, int entityId) {
         Validate.notNull(player);
         Validate.notNull(name);
 
-        Object dataWatcher = DATA_WATCHER_CONSTRUCTOR.newInstance(ENTITY_CLASS.cast(null));
+        Object dataWatcher = null;
+        if (ENTITY_CLASS != null) {
+            dataWatcher = DATA_WATCHER_CONSTRUCTOR.newInstance(ENTITY_CLASS.cast(null));
+        }
         DATA_WATCHER_A_METHOD.invoke(dataWatcher, 2, name); // Custom Name
         DATA_WATCHER_A_METHOD.invoke(dataWatcher, 3, (byte) (ChatColor.stripColor(name).isEmpty() ? 0 : 1)); // Custom Name Visible
         sendPacket(player, PACKET_ENTITY_METADATA_CONSTRUCTOR.newInstance(entityId, dataWatcher, true));

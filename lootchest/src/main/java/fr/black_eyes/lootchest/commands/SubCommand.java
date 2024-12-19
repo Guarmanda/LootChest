@@ -60,7 +60,7 @@ public abstract class SubCommand {
 		args.addAll(optionalArgs);
 		return args;
 	}
-	
+	@SuppressWarnings("deprecation")
 	public void execute(CommandSender sender, String[] args) {
 		if (isPlayerRequired && !(sender instanceof Player)) {
 			sender.sendMessage(ChatColor.RED + "Please, run this command in-game");

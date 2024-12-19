@@ -52,15 +52,15 @@ public class TimeMenu extends ChestUi {
 		long hours = time % 1440 / 60;
 		long minutes = time % 60;
 		
-		days = clamp(days + dDays, 0, 99);
-		hours = clamp(hours + dHours, 0, 23);
-		minutes = clamp(minutes + dMinutes, 0, 59);
+		days = clamp(days + dDays, 99);
+		hours = clamp(hours + dHours, 23);
+		minutes = clamp(minutes + dMinutes, 59);
 		chest.setTime(days * 1440 + hours * 60 + minutes);
 		updateTimeDial();
 	}
 	
-	private long clamp(long value, long min, long max) {
-		return Math.max(min, Math.min(max, value));
+	private long clamp(long value, long max) {
+		return Math.max(0, Math.min(max, value));
 	}
 	
 	/**

@@ -174,7 +174,7 @@ public class Fallv_1_14_2 implements IFallPacket {
      /**
       * Get an NMS ItemStack from a Bukkit Material
       */
-      private ItemStack getNmsItemStackFromMaterial(Material material) {
+      private static ItemStack getNmsItemStackFromMaterial(Material material) {
         String itemKey = "item."+material.getKey().toString().replace(":",".");
         String blockKey = "block."+material.getKey().toString().replace(":",".");
         if(headItem != null && (headItem.getItem().getName().equals(itemKey) || headItem.getItem().getName().equals(blockKey))) {
@@ -183,7 +183,7 @@ public class Fallv_1_14_2 implements IFallPacket {
         for(Item item : Arrays.stream(Items.class.getFields()).map(field -> {
             try {
                 return (Item) field.get(null);
-            } catch (IllegalArgumentException | IllegalAccessException e) {
+            } catch (IllegalArgumentException | IllegalAccessException ignored) {
             }
             return null;
         }).toArray(Item[]::new)) {

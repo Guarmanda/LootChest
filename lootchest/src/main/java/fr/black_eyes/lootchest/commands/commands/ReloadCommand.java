@@ -11,8 +11,11 @@ import fr.black_eyes.lootchest.commands.SubCommand;
 import fr.black_eyes.simpleJavaPlugin.Files;
 import fr.black_eyes.simpleJavaPlugin.Utils;
 
+import java.util.Objects;
+
 import static fr.black_eyes.lootchest.Constants.DATA_CHEST_PATH;
 
+@SuppressWarnings("deprecation")
 public class ReloadCommand extends SubCommand {
 	
 	public ReloadCommand() {
@@ -35,7 +38,7 @@ public class ReloadCommand extends SubCommand {
 			Main.getInstance().getLootChest().values().forEach(chest -> chest.getHologram().remove());
 		}
 		Main.getInstance().getLootChest().clear();
-		for (String keys : configFiles.getData().getConfigurationSection("chests").getKeys(false)) {
+		for (String keys : Objects.requireNonNull(configFiles.getData().getConfigurationSection("chests")).getKeys(false)) {
 			String name = configFiles.getData().getString(DATA_CHEST_PATH + keys + ".position.world");
 			String randomname = name;
 			if (configFiles.getData().getInt(DATA_CHEST_PATH + keys + ".randomradius") > 0) {

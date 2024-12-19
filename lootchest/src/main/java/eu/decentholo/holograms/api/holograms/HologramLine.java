@@ -86,25 +86,12 @@ public class HologramLine extends HologramObject {
         setOffsetY(type.getOffsetY());
     }
 
-
-
-
-    /**
-     * Get the type of this line.
-     *
-     * @return the type of this line.
-     */
-    @NonNull
-    public HologramLineType getType() {
-        return type != null ? type : HologramLineType.UNKNOWN;
-    }
-
     /*
      *	Visibility Methods
      */
 
     @NotNull
-    private String getText(@NonNull Player player, boolean update) {
+    private String getText(@NonNull Player player) {
         if (type != HologramLineType.TEXT) {
             return "";
         }
@@ -113,24 +100,21 @@ public class HologramLine extends HologramObject {
         String string = playerTextMap.get(uuid);
 
         // Update cache
-        if (update || string == null) {
-            string = text == null ? "" : text;
-            // Parse placeholders.
-            if (!hasFlag(EnumFlag.DISABLE_PLACEHOLDERS)) {
-                string = parsePlaceholders(string, player, containsPlaceholders);
-            }
-            // Update the cached text.
-            playerTextMap.put(uuid, string);
+
+        string = text == null ? "" : text;
+        // Parse placeholders.
+        if (!hasFlag(EnumFlag.DISABLE_PLACEHOLDERS)) {
+            string = parsePlaceholders(string, player, containsPlaceholders);
         }
+        // Update the cached text.
+        playerTextMap.put(uuid, string);
+
 
         // Parse animations
-        if (containsAnimations && !hasFlag(EnumFlag.DISABLE_ANIMATIONS)) {
-
-            // Parse placeholders.
-            if (Settings.ALLOW_PLACEHOLDERS_INSIDE_ANIMATIONS && !hasFlag(EnumFlag.DISABLE_PLACEHOLDERS)) {
+        if (containsAnimations && !hasFlag(EnumFlag.DISABLE_ANIMATIONS)
+            && Settings.ALLOW_PLACEHOLDERS_INSIDE_ANIMATIONS && !hasFlag(EnumFlag.DISABLE_PLACEHOLDERS)) {
                 // This has been done to allow the use of placeholders in animation frames.
                 string = parsePlaceholders(string, player, true);
-            }
         }
 
         return Common.colorize(string);
@@ -196,7 +180,7 @@ public class HologramLine extends HologramObject {
             if (!isVisible(player) && isInDisplayRange(player)) {
 
                         nms.showFakeEntityArmorStand(player, getLocation(), entityIds[0], true, true, false);
-                        nms.updateFakeEntityCustomName(player, getText(player, true), entityIds[0]);
+                        nms.updateFakeEntityCustomName(player, getText(player), entityIds[0]);
                         
 
                 
@@ -221,7 +205,7 @@ public class HologramLine extends HologramObject {
             if (type == HologramLineType.TEXT) {
                 UUID uuid = player.getUniqueId();
                 String lastText = lastTextMap.get(uuid);
-                String updatedText = getText(player, true);
+                String updatedText = getText(player);
                 if (!updatedText.equals(lastText)) {
                     lastTextMap.put(uuid, updatedText);
                     nms.updateFakeEntityCustomName(player, updatedText, entityIds[0]);

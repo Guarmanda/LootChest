@@ -7,7 +7,6 @@ import eu.decentholo.holograms.api.utils.reflect.ReflectField;
 import eu.decentholo.holograms.api.utils.reflect.ReflectMethod;
 import eu.decentholo.holograms.api.utils.reflect.ReflectionUtil;
 import eu.decentholo.holograms.api.utils.reflect.Version;
-import io.netty.channel.Channel;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -23,61 +22,34 @@ public abstract class NMS {
     protected static final ReflectMethod CRAFT_PLAYER_GET_HANDLE_METHOD;
     protected static final ReflectMethod PLAYER_CONNECTION_SEND_PACKET_METHOD;
     protected static ReflectField<?> ENTITY_PLAYER_CONNECTION_FIELD;
-    // PACKET LISTENER
-    protected static ReflectField<?> PLAYER_CONNECTION_NETWORK_MANAGER_FIELD;
-    protected static ReflectField<?> NETWORK_MANAGER_CHANNEL_FIELD;
+
 
     static {
         // SEND PACKET
         Class<?> entityPlayerClass;
         Class<?> playerConnectionClass;
         Class<?> craftPlayerClass;
-        Class<?> networkManagerClass;
         if (Version.afterOrEqual(17)) {
             entityPlayerClass = ReflectionUtil.getNMClass("server.level.EntityPlayer");
             playerConnectionClass = ReflectionUtil.getNMClass("server.network.PlayerConnection");
             craftPlayerClass = ReflectionUtil.getObcClass("entity.CraftPlayer");
-            networkManagerClass = ReflectionUtil.getNMClass("network.NetworkManager");
             PACKET_CLASS = ReflectionUtil.getNMClass("network.protocol.Packet");
             // Because NMS has different names for fields in almost every version.
-            for (Field field : entityPlayerClass.getDeclaredFields()) {
-                if (field.getType().isAssignableFrom(playerConnectionClass)) {
-                    ENTITY_PLAYER_CONNECTION_FIELD = new ReflectField<>(entityPlayerClass, field.getName());
-                    break;
-                }
-            }
-            if (Version.afterOrEqual(Version.v1_20_R2)) {
-                // Since 1.20, the field is in a parent class.
-                Class<?> playerConnectionParentClass = ReflectionUtil.getNMClass("server.network.ServerCommonPacketListenerImpl");
-                for (Field field : playerConnectionParentClass.getDeclaredFields()) {
-                    if (field.getType().isAssignableFrom(networkManagerClass)) {
-                        PLAYER_CONNECTION_NETWORK_MANAGER_FIELD = new ReflectField<>(field);
+            if (entityPlayerClass != null) {
+                for (Field field : entityPlayerClass.getDeclaredFields()) {
+                    if (playerConnectionClass != null && field.getType().isAssignableFrom(playerConnectionClass)) {
+                        ENTITY_PLAYER_CONNECTION_FIELD = new ReflectField<>(entityPlayerClass, field.getName());
                         break;
                     }
-                }
-            } else {
-                for (Field field : playerConnectionClass.getDeclaredFields()) {
-                    if (field.getType().isAssignableFrom(networkManagerClass)) {
-                        PLAYER_CONNECTION_NETWORK_MANAGER_FIELD = new ReflectField<>(field);
-                        break;
-                    }
-                }
-            }
-            for (Field field : networkManagerClass.getDeclaredFields()) {
-                if (field.getType().isAssignableFrom(Channel.class)) {
-                    NETWORK_MANAGER_CHANNEL_FIELD = new ReflectField<>(field);
-                    break;
                 }
             }
         } else {
             entityPlayerClass = ReflectionUtil.getNMSClass("EntityPlayer");
             playerConnectionClass = ReflectionUtil.getNMSClass("PlayerConnection");
             craftPlayerClass = ReflectionUtil.getObcClass("entity.CraftPlayer");
-            networkManagerClass = ReflectionUtil.getNMSClass("NetworkManager");
             PACKET_CLASS = ReflectionUtil.getNMSClass("Packet");
             ENTITY_PLAYER_CONNECTION_FIELD = new ReflectField<>(entityPlayerClass, "playerConnection");
-            PLAYER_CONNECTION_NETWORK_MANAGER_FIELD = new ReflectField<>(playerConnectionClass, "networkManager");
-            NETWORK_MANAGER_CHANNEL_FIELD = new ReflectField<>(networkManagerClass, "channel");
+
         }
         CRAFT_PLAYER_GET_HANDLE_METHOD = new ReflectMethod(craftPlayerClass, "getHandle");
         if (Version.afterOrEqual(Version.v1_20_R2)) {
@@ -108,7 +80,7 @@ public abstract class NMS {
     }
 
     public void sendPacket(Player player, Object packet) {
-        if (packet == null || !PACKET_CLASS.isAssignableFrom(packet.getClass())) return;
+        if (PACKET_CLASS != null && (packet == null || !PACKET_CLASS.isAssignableFrom(packet.getClass()))) return;
         Object playerConnection = getPlayerConnection(player);
         PLAYER_CONNECTION_SEND_PACKET_METHOD.invoke(playerConnection, packet);
     }

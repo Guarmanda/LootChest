@@ -308,16 +308,14 @@ public class NMS_1_17 extends NMS {
         PACKET_DATA_SERIALIZER_WRITE_INT_METHOD.invoke(packetDataSerializer, entityId);
         PACKET_DATA_SERIALIZER_WRITE_UUID_METHOD.invoke(packetDataSerializer, MATH_HELPER_A_METHOD.<UUID>invokeStatic(ThreadLocalRandom.current()));
         PACKET_DATA_SERIALIZER_WRITE_INT_METHOD.invoke(packetDataSerializer, entityTypeId);
-        PACKET_DATA_SERIALIZER_WRITE_DOUBLE_METHOD.invoke(packetDataSerializer, location.getX());
-        PACKET_DATA_SERIALIZER_WRITE_DOUBLE_METHOD.invoke(packetDataSerializer, location.getY());
-        PACKET_DATA_SERIALIZER_WRITE_DOUBLE_METHOD.invoke(packetDataSerializer, location.getZ());
-        PACKET_DATA_SERIALIZER_WRITE_BYTE_METHOD.invoke(packetDataSerializer, (byte) ((int) (location.getYaw() * 256.0F / 360.0F)));
-        PACKET_DATA_SERIALIZER_WRITE_BYTE_METHOD.invoke(packetDataSerializer, (byte) ((int) (location.getPitch() * 256.0F / 360.0F)));
+        initDataPacker(location, packetDataSerializer);
         PACKET_DATA_SERIALIZER_WRITE_BYTE_METHOD.invoke(packetDataSerializer, (byte) ((int) (location.getYaw() * 256.0F / 360.0F)));
         PACKET_DATA_SERIALIZER_WRITE_SHORT_METHOD.invoke(packetDataSerializer, 0);
         PACKET_DATA_SERIALIZER_WRITE_SHORT_METHOD.invoke(packetDataSerializer, 0);
         PACKET_DATA_SERIALIZER_WRITE_SHORT_METHOD.invoke(packetDataSerializer, 0);
-        sendPacket(player, PACKET_SPAWN_ENTITY_LIVING_CONSTRUCTOR.newInstance(packetDataSerializer));
+        if (PACKET_SPAWN_ENTITY_LIVING_CONSTRUCTOR != null) {
+            sendPacket(player, PACKET_SPAWN_ENTITY_LIVING_CONSTRUCTOR.newInstance(packetDataSerializer));
+        }
     }
 
     private static final Class<?> REGISTRY_FRIENDLY_BYTE_BUF_CLASS;
@@ -361,9 +359,13 @@ public class NMS_1_17 extends NMS {
             CODEC_CLASS = ReflectionUtil.getNMClass("network.codec.StreamCodec");
             DWS_GET_CODEC_METHOD = new ReflectMethod(DWS_CLASS, "codec");
             CODEC_ENCODE_METHOD = new ReflectMethod(CODEC_CLASS, "encode", Object.class, Object.class);
-            ITEM_REGISTRY = ReflectionUtil.getFieldValue(BUILTINREGISTRIES_CLASS, "h");
-            DATA_COMPONENT_TYPE_REGISTRY = ReflectionUtil.getFieldValue(BUILTINREGISTRIES_CLASS, "as");
-
+            if (BUILTINREGISTRIES_CLASS != null) {
+                ITEM_REGISTRY = ReflectionUtil.getFieldValue(BUILTINREGISTRIES_CLASS, "h");
+                DATA_COMPONENT_TYPE_REGISTRY = ReflectionUtil.getFieldValue(BUILTINREGISTRIES_CLASS, "as");
+            }else{
+                ITEM_REGISTRY = null;
+                DATA_COMPONENT_TYPE_REGISTRY = null;
+            }
             DWS_SERIALIZE_METHOD = null;
             PACKET_ENTITY_METADATA_CONSTRUCTOR = new ReflectConstructor(metadataPacketClass, REGISTRY_FRIENDLY_BYTE_BUF_CLASS);
         } else {
@@ -388,16 +390,21 @@ public class NMS_1_17 extends NMS {
         Validate.notNull(player);
         Validate.notNull(items);
 
-        Object packetDataSerializer;
+        Object packetDataSerializer = null;
         if (Version.afterOrEqual(Version.v1_20_R4)) {
-            Object c = IREGISTRYCUSTOM_C_CONSTRUCTOR.newInstance(Arrays.asList(ITEM_REGISTRY, DATA_COMPONENT_TYPE_REGISTRY));
-            packetDataSerializer = REGISTRY_FRIENDLY_BYTE_BUF_CONSTRUCTOR.newInstance(Unpooled.buffer(), c);
+            Object c = null;
+            if (IREGISTRYCUSTOM_C_CONSTRUCTOR != null) {
+                c = IREGISTRYCUSTOM_C_CONSTRUCTOR.newInstance(Arrays.asList(ITEM_REGISTRY, DATA_COMPONENT_TYPE_REGISTRY));
+            }
+            if (REGISTRY_FRIENDLY_BYTE_BUF_CONSTRUCTOR != null) {
+                packetDataSerializer = REGISTRY_FRIENDLY_BYTE_BUF_CONSTRUCTOR.newInstance(Unpooled.buffer(), c);
+            }
         } else {
             packetDataSerializer = PACKET_DATA_SERIALIZER_CONSTRUCTOR.newInstance(Unpooled.buffer());
         }
         PACKET_DATA_SERIALIZER_WRITE_INT_METHOD.invoke(packetDataSerializer, entityId);
         for (Object item : items) {
-            if (!item.getClass().isAssignableFrom(DWI_CLASS)) {
+            if (DWI_CLASS != null && !item.getClass().isAssignableFrom(DWI_CLASS)) {
                 continue;
             }
 
@@ -411,10 +418,16 @@ public class NMS_1_17 extends NMS {
             PACKET_DATA_SERIALIZER_WRITE_INT_METHOD.invoke(packetDataSerializer, serializerTypeId);
 
             if (Version.afterOrEqual(Version.v1_20_R4)) {
-                Object codec = DWS_GET_CODEC_METHOD.invoke(serializer);
-                CODEC_ENCODE_METHOD.invoke(codec, packetDataSerializer, value);
-            } else {
-                DWS_SERIALIZE_METHOD.invoke(serializer, packetDataSerializer, value);
+                Object codec = null;
+                if (DWS_GET_CODEC_METHOD != null) {
+                    codec = DWS_GET_CODEC_METHOD.invoke(serializer);
+                }
+                if (CODEC_ENCODE_METHOD != null) {
+                    CODEC_ENCODE_METHOD.invoke(codec, packetDataSerializer, value);
+                }
+            } else if (DWS_SERIALIZE_METHOD != null) {
+                    DWS_SERIALIZE_METHOD.invoke(serializer, packetDataSerializer, value);
+
             }
         }
         PACKET_DATA_SERIALIZER_WRITE_BYTE_METHOD.invoke(packetDataSerializer, 0xFF);
@@ -440,6 +453,7 @@ public class NMS_1_17 extends NMS {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void updateFakeEntityCustomName(Player player, String name, int entityId) {
         Validate.notNull(player);
         Validate.notNull(name);
@@ -465,17 +479,20 @@ public class NMS_1_17 extends NMS {
         } else {
             Object packetDataSerializer = PACKET_DATA_SERIALIZER_CONSTRUCTOR.newInstance(Unpooled.buffer());
             PACKET_DATA_SERIALIZER_WRITE_INT_METHOD.invoke(packetDataSerializer, entityId);
-            PACKET_DATA_SERIALIZER_WRITE_DOUBLE_METHOD.invoke(packetDataSerializer, location.getX());
-            PACKET_DATA_SERIALIZER_WRITE_DOUBLE_METHOD.invoke(packetDataSerializer, location.getY());
-            PACKET_DATA_SERIALIZER_WRITE_DOUBLE_METHOD.invoke(packetDataSerializer, location.getZ());
-            PACKET_DATA_SERIALIZER_WRITE_BYTE_METHOD.invoke(packetDataSerializer, (byte) ((int) (location.getYaw() * 256.0F / 360.0F)));
-            PACKET_DATA_SERIALIZER_WRITE_BYTE_METHOD.invoke(packetDataSerializer, (byte) ((int) (location.getPitch() * 256.0F / 360.0F)));
+            initDataPacker(location, packetDataSerializer);
             PACKET_DATA_SERIALIZER_WRITE_BOOLEAN_METHOD.invoke(packetDataSerializer, false);
             entityTeleportPacket = PACKET_ENTITY_TELEPORT_CONSTRUCTOR.newInstance(packetDataSerializer);
         }
         sendPacket(player, entityTeleportPacket);
     }
 
+    private void initDataPacker(Location location, Object packetDataSerializer) {
+        PACKET_DATA_SERIALIZER_WRITE_DOUBLE_METHOD.invoke(packetDataSerializer, location.getX());
+        PACKET_DATA_SERIALIZER_WRITE_DOUBLE_METHOD.invoke(packetDataSerializer, location.getY());
+        PACKET_DATA_SERIALIZER_WRITE_DOUBLE_METHOD.invoke(packetDataSerializer, location.getZ());
+        PACKET_DATA_SERIALIZER_WRITE_BYTE_METHOD.invoke(packetDataSerializer, (byte) ((int) (location.getYaw() * 256.0F / 360.0F)));
+        PACKET_DATA_SERIALIZER_WRITE_BYTE_METHOD.invoke(packetDataSerializer, (byte) ((int) (location.getPitch() * 256.0F / 360.0F)));
+    }
 
 
     @SuppressWarnings("RedundantCast")

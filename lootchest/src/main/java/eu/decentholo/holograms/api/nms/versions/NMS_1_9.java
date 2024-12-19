@@ -196,6 +196,7 @@ public class NMS_1_9 extends NMS {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void updateFakeEntityCustomName(Player player, String name, int entityId) {
         Validate.notNull(player);
         Validate.notNull(name);
