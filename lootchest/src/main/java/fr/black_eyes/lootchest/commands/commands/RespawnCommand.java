@@ -15,7 +15,7 @@ import fr.black_eyes.lootchest.commands.ArgType;
 import fr.black_eyes.lootchest.commands.SubCommand;
 import fr.black_eyes.simpleJavaPlugin.Utils;
 
-public class RespawnCommand extends SubCommand {
+public class  RespawnCommand extends SubCommand {
 	
 	public RespawnCommand() {
 		super("respawn", Collections.singletonList(ArgType.LOOTCHEST));
@@ -25,7 +25,10 @@ public class RespawnCommand extends SubCommand {
 	protected void onCommand(CommandSender sender, String[] args) {
 		String chestName = args[1];
 		Lootchest lc = Main.getInstance().getLootChest().get(chestName);
-		lc.spawn(true);
+		if(!lc.spawn(true)){
+			sender.sendMessage("Chest not respawned, maybe because it didn't find a valid location");
+			return;
+		}
 		Utils.msg(sender, "succesfulyRespawnedChest", Constants.CHEST_PLACEHOLDER, chestName);
 		if (lc.isRespawnCmdMsgEnabled()) {
 			Block block = lc.getActualLocation().getBlock();

@@ -10,7 +10,6 @@ import fr.black_eyes.lootchest.Constants;
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.simpleJavaPlugin.Utils;
 import fr.black_eyes.lootchest.LootChestUtils;
-import org.bukkit.generator.WorldInfo;
 
 public enum ArgType {
     INTEGER, PLAYER, LOOTCHEST, STRING, WORLD;
@@ -55,7 +54,7 @@ public enum ArgType {
                 }
                 break;
             case WORLD:
-                if(!Bukkit.getWorlds().stream().map(WorldInfo::getName).collect(LinkedList::new, LinkedList::add, LinkedList::addAll).contains(arg)){
+                if(!Bukkit.getWorlds().stream().map(LootChestUtils::getWorldName).collect(LinkedList::new, LinkedList::add, LinkedList::addAll).contains(arg)){
                     Utils.msg(sender, "worldDoesntExist", "[World]", arg);
                     return false;
                 }

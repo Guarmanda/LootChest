@@ -25,7 +25,7 @@ public final int defaultResetTime,
 		defaultMaxFilledSlots;
 
 public final boolean saveDataFileDuringReload,
-		usePlayersLocationsForRandomspawn,
+		usePlayersLocationsForRandomSpawn,
 		saveChestLocationsAtEverySpawn,
 		removeEmptyChests,
 		checkForUpdates,
@@ -107,7 +107,7 @@ public Config(FileConfiguration config) {
 
 	saveDataFileDuringReload = config.getBoolean("SaveDataFileDuringReload");
 	allowSpawningOnWater = config.getBoolean("allow_spawning_on_water");
-	usePlayersLocationsForRandomspawn = config.getBoolean("use_players_locations_for_randomspawn");
+	usePlayersLocationsForRandomSpawn = config.getBoolean("use_players_locations_for_randomspawn");
 	saveChestLocationsAtEverySpawn = config.getBoolean("save_Chest_Locations_At_Every_Spawn");
 	usehologram = config.getBoolean("UseHologram") && !Bukkit.getVersion().contains("1.7");
 	removeEmptyChests = config.getBoolean("RemoveEmptyChests");

@@ -72,7 +72,7 @@ public class Fallv_1_15_1 implements IFallPacket {
      * One packet for the spawn of the armorstand
      * One packet for the equipment of the armorstand
      * One packet for the movement of the armorstand
-     * One packet for its datas (invisible, etc)
+     * One packet for its datas (invisible, etc.)
      * @param loc The location where the armorstand will spawn
      * @param headItem The material used for the head of the armorstand, the main reason for all of this
      * @param height The height of the fall, in blocks

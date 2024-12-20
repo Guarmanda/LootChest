@@ -20,7 +20,7 @@ public abstract class PagedChestUi extends ChestUi {
 	
 	private final List<Map.Entry<ItemStack, Consumer<Player>>> contents;
 	
-	protected PagedChestUi(int rows, String title) {
+	protected PagedChestUi(int   rows, String title) {
 		super(rows, title);
 		this.contents = new ArrayList<>();
 	}

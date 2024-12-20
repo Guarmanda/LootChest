@@ -17,7 +17,7 @@ public class CopyCommand extends SubCommand {
 		super("copy", Arrays.asList(ArgType.LOOTCHEST, ArgType.LOOTCHEST));
 	}
 	
-	//worth the override to make a better explaination
+	//worth the override to make a better explanation
 	@Override
 	public String getUsage() {
 		return "/lc copy <from chest> <to chest>";

@@ -91,7 +91,11 @@ public class LootChestUtils  {
 		boolean checkWorldBorder = Main.configs.worldborderCheckForSpawn;
 		boolean checkWater = !Main.configs.allowSpawningOnWater;
 		Location spawnLoc = getRandomLocation(startingLoc, radius );
-		while(counter<50 && ((checkProtectedBlock &&ProtectedRegions.isProtected(spawnLoc)) || (checkWater && spawnLoc.getBlock().isLiquid()) || checkWorldBorder && (isOutsideOfBorder(spawnLoc) ))) {
+		while(counter<50 && (
+			(checkProtectedBlock && ProtectedRegions.isProtected(spawnLoc))
+			|| (checkWater &&  spawnLoc.getBlock().getRelative(0, -1, 0).isLiquid())
+			|| checkWorldBorder && (isOutsideOfBorder(spawnLoc) ))
+		) {
 			spawnLoc = getRandomLocation(startingLoc, radius );
 			counter++;
 		}
@@ -448,8 +452,18 @@ public class LootChestUtils  {
         } while (iter.hasNext());
 		return lastBlock;
 	}
-	
 
+	/**
+	 * Get the name of a world from a World object
+	 * This method is necessary for compatibility issues:
+	 * wolrd.getName() does not work the same in all versions if we put it in a lambda (references WoldInfo)
+	 * @param world the World object
+	 * @return the name of the world
+	 */
+	public static String getWorldName(World world) {
+		String name =  world.toString().replace("CraftWorld{name=", "");
+		return name.substring(0, name.length() - 1);
+	}
 	
 
 	

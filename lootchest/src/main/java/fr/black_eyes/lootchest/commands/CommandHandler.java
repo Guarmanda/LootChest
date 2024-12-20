@@ -38,7 +38,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 	@Override
 	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
 		if (args.length < 1) {
-			displayhelp(sender);
+			displayHelp(sender);
 			return true;
 		}
 		String subCmdName = args[0];
@@ -51,7 +51,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 				return true;
 			}
 		}
-		displayhelp(sender);
+		displayHelp(sender);
 		return true;
 	}
 	
@@ -86,7 +86,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 		return new ArrayList<>();
 	}
 	
-	public void displayhelp(CommandSender p) {
+	public void displayHelp(CommandSender p) {
 		List<String> help = Main.getInstance().getConfigFiles().getLang().getStringList("help");
         for (String s : help) {
             p.sendMessage(Utils.color(s));

@@ -32,7 +32,7 @@ public class ReloadCommand extends SubCommand {
 			configFiles.reloadData();
 		}
 		configFiles.reloadConfig();
-		Main.configs = Config.getInstance(configFiles.getConfig());
+		Main.setConfigs(Config.getInstance(configFiles.getConfig()));
 		main.getPart().clear();
 		if (!Bukkit.getVersion().contains("1.7")) {
 			Main.getInstance().getLootChest().values().forEach(chest -> chest.getHologram().remove());

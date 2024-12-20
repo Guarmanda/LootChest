@@ -79,7 +79,7 @@ public final class FallingPackageEntity {
             armorstandFall.sendPacketToAll();
 		}
         if(fireworks) {
-            this.summonSpawnFireworks();
+            this.summonUpdateFireworks(FireworkEffect.Type.BALL_LARGE);
         }
         this.tick();
     }
@@ -101,36 +101,30 @@ public final class FallingPackageEntity {
             ((Entity) blocky).setVelocity(v);
         }
         Location locPackage = null;
-        if (this.blocky != null) {
-            locPackage = (!this.armorstand)? ((Entity) this.blocky).getLocation() : armorstandFall.getLocation();
-        }
+        locPackage = (!this.armorstand && this.blocky != null)? ((Entity) this.blocky).getLocation() : armorstandFall.getLocation();
 
-        if (this.world.getBlockAt(LocationUtils.offset(locPackage, 0.0, -1.0, 0.0)).getType() == Material.AIR) {
+        if (locPackage != null && this.world.getBlockAt(LocationUtils.offset(locPackage, 0.0, -1.0, 0.0)).getType() == Material.AIR) {
             ++this.counter;
-            if(Main.getCompleteVersion() >= 1206 && Main.getInstance().getParticles().get("SMOKE") != null)
-                Main.getInstance().getParticles().get("SMOKE").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation());
+            if (Main.getCompleteVersion() >= 1206 && Main.getInstance().getParticles().get("SMOKE") != null)
+                Main.getInstance().getParticles().get("SMOKE").display((float) 0.1, (float) 0.1, (float) 0.1, (float) 0.1, 1, goodLocation());
             else if (Main.getInstance().getParticles().get("SMOKE_NORMAL") != null)
-			    Main.getInstance().getParticles().get("SMOKE_NORMAL").display((float)0.1, (float)0.1, (float)0.1, (float)0.1, 1,  goodLocation());
-            if(!this.armorstand && ((Entity) this.blocky).isDead()) {
+                Main.getInstance().getParticles().get("SMOKE_NORMAL").display((float) 0.1, (float) 0.1, (float) 0.1, (float) 0.1, 1, goodLocation());
+            if (!this.armorstand && ((Entity) this.blocky).isDead()) {
                 final Vector oldVelocity = ((Entity) this.blocky).getVelocity().setY(-(speed));
-                this.blocky = this.world.spawnFallingBlock(locPackage, this.material, (byte)0);
+                this.blocky = this.world.spawnFallingBlock(locPackage, this.material, (byte) 0);
                 ((Entity) (this.blocky)).setVelocity(oldVelocity);
             }
 
-            if (this.counter % 5 == 0 && (   (locPackage.getY() - target.getY()) >3 || counter > 100) && fireworks ) {
-                this.summonUpdateFireworks();
+            if (this.counter % 5 == 0 && ((locPackage.getY() - target.getY()) > 3 || counter > 100) && fireworks) {
+                this.summonUpdateFireworks(FireworkEffect.Type.BALL);
             }
-            if((locPackage.getY() - target.getY()) <1) {
-            	this.remove();
+            if ((locPackage.getY() - target.getY()) < 1) {
+                this.remove();
+            } else if (counter < 100) {
+                this.retick();
+            } else {
+                this.remove();
             }
-            else if(counter < 100){
-            	this.retick();
-            }else {
-            	this.remove();
-            }
-        }
-        else {
-        	 this.remove();
         }
     }
     
@@ -140,7 +134,7 @@ public final class FallingPackageEntity {
         }
     }
     
-    private void summonUpdateFireworks() {
+    private void summonUpdateFireworks(FireworkEffect.Type type) {
             final Firework fw; 
             if(Main.getCompleteVersion() < 1206) {
                 fw = (Firework)this.world.spawnEntity(goodLocation(), EntityType.valueOf("FIREWORK"));
@@ -148,21 +142,7 @@ public final class FallingPackageEntity {
                 fw = (Firework)this.world.spawnEntity(goodLocation(), EntityType.valueOf("FIREWORK_ROCKET"));
             }
             final FireworkMeta fwm = fw.getFireworkMeta();
-            fwm.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL).withColor(Color.RED).withColor(Color.WHITE).build());
-            fwm.setPower(1);
-            fw.setFireworkMeta(fwm);
-            Main.getInstance().getServer().getScheduler().runTaskLater(Main.getInstance(), fw::detonate, 1L);
-    }
-    
-    private void summonSpawnFireworks() {
-            final Firework fw; 
-            if(Main.getCompleteVersion() < 1206) {
-                fw = (Firework)this.world.spawnEntity(goodLocation(), EntityType.valueOf("FIREWORK"));
-            }else {
-                fw = (Firework)this.world.spawnEntity(goodLocation(), EntityType.valueOf("FIREWORK_ROCKET"));
-            }
-            final FireworkMeta fwm = fw.getFireworkMeta();
-            fwm.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE).withColor(Color.RED).withColor(Color.WHITE).build());
+            fwm.addEffect(FireworkEffect.builder().with(type).withColor(Color.RED).withColor(Color.WHITE).build());
             fwm.setPower(1);
             fw.setFireworkMeta(fwm);
             Main.getInstance().getServer().getScheduler().runTaskLater(Main.getInstance(), fw::detonate, 1L);

@@ -225,13 +225,10 @@ public class DeleteListener implements Listener  {
     @EventHandler
     public void hopperPlacing(BlockPlaceEvent e) {
     	Block block = e.getBlock();
-    	Block[] blocksabove = {block.getWorld().getBlockAt(block.getX(), block.getY()+1, block.getZ()), block.getWorld().getBlockAt(block.getX()+1, block.getY()+1, block.getZ()), block.getWorld().getBlockAt(block.getX()-1, block.getY()+1, block.getZ()), block.getWorld().getBlockAt(block.getX(), block.getY()+1, block.getZ()+1), block.getWorld().getBlockAt(block.getX(), block.getY()+1, block.getZ()-1)};
-
     	if(block.getType() == Material.HOPPER) {
-    		for(Block blockabove : blocksabove) {
-	    		if(LootChestUtils.isLootChest(blockabove.getLocation()) != null && Main.configs.preventHopperPlacingUnderLootChest) {
+    		for(Block blockAround : getBlocksInRadius(e.getBlock(), 1)) {
+	    		if(LootChestUtils.isLootChest(blockAround.getLocation()) != null && Main.configs.preventHopperPlacingUnderLootChest) {
 	    				e.setCancelled(true);
-	    			
 	    		}
     		}
     	}

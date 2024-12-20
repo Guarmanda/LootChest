@@ -38,8 +38,8 @@ public class ChestUi {
 
 	/**
 	 * Sets the item in the specified slot and assigns actions to be executed when the item is clicked.
-	 * @param leftClickAction the action to be executed when the item is left clicked
-	 * @param rightClickAction the action to be executed when the item is right clicked
+	 * @param leftClickAction the action to be executed when the item is left-clicked
+	 * @param rightClickAction the action to be executed when the item is right-clicked
 	 */
 	public void setItem(int slot, ItemStack item, Consumer<Player> leftClickAction, Consumer<Player> rightClickAction) {
 		if (slot < 0 || slot >= rows * 9) {

@@ -84,7 +84,7 @@ Timer_on_hologram:
   Format: '%Hours%Hsep%Minutes%Msep%Seconds%Ssep left for %Hologram to respawn'
 #you can edit or disable all these messages
 respawn_notify:
-      #If you haven't bungeecord, the message will still be sent correctly, and if you have it it should send bungee message everywhare
+      #If you haven't bungeecord, the message will still be sent correctly, and if you have it, it should send bungee message everywhare
   bungee_broadcast: false
       #should the message only appear in the world the chest is in?
   per_world_message: false

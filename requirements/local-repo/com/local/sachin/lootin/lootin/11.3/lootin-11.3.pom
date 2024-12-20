@@ -249,7 +249,7 @@
 
         </dependency>
         
-        <!-- Oh the dungeons you all go -->
+        <!-- Oh, the dungeons you all go -->
         <dependency>
             <groupId>OhTheDungeon</groupId>
             <artifactId>ohthedungeon</artifactId>

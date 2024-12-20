@@ -15,7 +15,6 @@ import fr.black_eyes.lootchest.LootChestUtils;
 import fr.black_eyes.lootchest.Main;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.generator.WorldInfo;
 
 /**
  * Abstract class for implementing logic for a sub command
@@ -102,7 +101,7 @@ public abstract class SubCommand {
 			case PLAYER:
 				return LootChestUtils.getPlayersOnline().stream().map(Player::getName).collect(LinkedList::new, LinkedList::add, LinkedList::addAll);
 			case WORLD:
-				return Bukkit.getWorlds().stream().map(WorldInfo::getName).collect(LinkedList::new, LinkedList::add, LinkedList::addAll);
+				return Bukkit.getWorlds().stream().map(LootChestUtils::getWorldName).collect(LinkedList::new, LinkedList::add, LinkedList::addAll);
 			case INTEGER:
 			case STRING:
 			default:

@@ -280,7 +280,7 @@ public class Lootchest {
 		lastReset =  new Timestamp(System.currentTimeMillis()).getTime();
 	   	particle =  Particle.valueOf(Main.configs.partDefaultParticle);
 	   	radius = 0;
-	   	world = chest.getWorld().getName();
+	   	world = LootChestUtils.getWorldName(chest.getWorld());
 		((InventoryHolder) chest.getLocation().getBlock().getState()).getInventory().clear();
 		chest.getLocation().getBlock().setType(Material.AIR);
 		protectionTime = Main.configs.defaultRespawnProtection;
@@ -472,7 +472,7 @@ public class Lootchest {
 
 	/**
 	 * Spawns the chest, with its hologram and particles, checking if it's time to respawn, 
-	 * if there's enough players, if the world is loaded, finding a good location, etc.
+	 * if there's enough players, if the world is loaded, finding a good location, etc..
 	 * 
 	 * @param forceSpawn Forces the chest to respawn, even if it's not time to respawn
 	 * @param forceDespawn Forces the chest to despawn, even if it's not time to respawn
@@ -506,7 +506,7 @@ public class Lootchest {
 		//if randomSpawn is enabled, we get a random location in the radius
 		if(getRadius() !=0){
 			//if this option is true, we take the location of one of online players randomly.
-			if(Main.configs.usePlayersLocationsForRandomspawn) {
+			if(Main.configs.usePlayersLocationsForRandomSpawn) {
 				globalLocation = LootChestUtils.chooseRandomPlayer(getWorld());
 				globalLocation = globalLocation!=null?globalLocation:spawnLoc.clone();
 			}

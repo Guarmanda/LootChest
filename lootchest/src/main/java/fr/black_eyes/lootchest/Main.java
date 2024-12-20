@@ -103,7 +103,7 @@ public class Main extends SimpleJavaPlugin {
 
 	/**
 	 * Get the version a different way:
-	 * 1.8.4 = 184, 1.20.6 = 1206, etc
+	 * 1.8.4 = 184, 1.20.6 = 1206, etc.
 	 * @return the version number
 	 */
 	public static int getCompleteVersion(){

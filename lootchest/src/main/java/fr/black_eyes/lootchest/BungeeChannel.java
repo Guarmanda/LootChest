@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Black_Eyes
- * Broadcasts lootchest messages through bungeecord. Should works on 1.7+
+ * Broadcasts lootchest messages through bungeecord. Should work on 1.7+
  */
 public class BungeeChannel implements PluginMessageListener {
 	

@@ -21,43 +21,36 @@ public class RespawnAllCommand extends SubCommand {
 	}
 	
 	@Override
+	@SuppressWarnings("deprecation")
 	protected void onCommand(CommandSender sender, String[] args) {
+		String worldName = null;
 		if (args.length ==2) {
-
-			String worldName = args[1];
-			for (final Lootchest l : Main.getInstance().getLootChest().values()) {
-				if (!l.getWorld().equals(worldName)) {
-					continue;
-				}
-				Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () ->
-						Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () ->
-								l.spawn(true), 0L), 5L);
+			worldName = args[1];
+		}
+		for (final Lootchest l : Main.getInstance().getLootChest().values()) {
+			if (worldName != null && !l.getWorld().equals(worldName)) {
+				continue;
 			}
-			if (Main.configs.noteAllcmdWorldE) {
-				if (Main.configs.noteBungeeBroadcast) {
-					BungeeChannel.bungeeBroadcast(Utils.color(Main.configs.noteAllcmdMsgWorld));
-				} else {
-					for (Player p : Bukkit.getOnlinePlayers()) {
-						Utils.sendMultilineMessage(Main.configs.noteAllcmdMsgWorld.replace("[World]", worldName), p);
-					}
+			Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () ->
+					Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () ->
+							l.spawn(true), 0L), 5L);
+		}
+		String message = null;
+		if (Main.configs.noteAllcmdWorldE && worldName != null) {
+			message = Main.configs.noteAllcmdMsgWorld.replace("[World]", worldName);
+		}else if(Main.configs.noteAllcmdE && worldName == null) {
+			message = Main.configs.noteAllcmdMsg;
+			if (Main.configs.noteBungeeBroadcast) {
+				BungeeChannel.bungeeBroadcast(message);
+			} else {
+				for (Player p : Bukkit.getOnlinePlayers()) {
+					Utils.sendMultilineMessage(message, p);
 				}
 			}
+		}
+		if(worldName != null) {
 			Utils.msg(sender, "AllChestsReloadedInWorld", "[World]", args[1]);
-		} else if (args.length == 1) {
-			for (final Lootchest l : Main.getInstance().getLootChest().values()) {
-				Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () ->
-						Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () ->
-								l.spawn(true), 0L), 5L);
-			}
-			if (Main.configs.noteAllcmdE) {
-				if (Main.configs.noteBungeeBroadcast) {
-					BungeeChannel.bungeeBroadcast(Utils.color(Main.configs.noteAllcmdMsg));
-				} else {
-					for (Player p : Bukkit.getOnlinePlayers()) {
-						Utils.sendMultilineMessage(Main.configs.noteAllcmdMsg, p);
-					}
-				}
-			}
+		} else {
 			Utils.msg(sender, "AllChestsReloaded", " ", " ");
 		}
 	}
