@@ -15,7 +15,7 @@ Particles:
       #10 of these particles spawn at the same time
   number: 10
       #They respawn all 5 ticks by default
-  respawn_ticks: 5
+  respawn_ticks: 20
       #The radius of spawning
   radius: 0.3
       #The speed of particles. A low speed is more smooth and good-looking. A speed of 1 is just insane.

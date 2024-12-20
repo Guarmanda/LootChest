@@ -49,7 +49,7 @@ public class ChancesMenu extends ChestUi {
 			if (chestInv.getItem(i) == null || Objects.requireNonNull(chestInv.getItem(i)).getType() == Material.AIR) {
 				continue;
 			}
-			ItemStack item = chestInv.getItem(i).clone();
+			ItemStack item = Objects.requireNonNull(chestInv.getItem(i)).clone();
 			renameItem(item, item.getItemMeta().getDisplayName(), lore + "||" + chest.getChances()[i] + "%");
 			setItem(i, item, null);
 		}
@@ -90,8 +90,10 @@ public class ChancesMenu extends ChestUi {
 		//updates the item's chance and the item in the UI
 		chance = Math.max(1, Math.min(100, chance));
 		List<String> lore = meta.getLore();
-		lore.set(lore.size() - 1, chance + "%");
-		meta.setLore(lore);
+        if (lore != null) {
+            lore.set(lore.size() - 1, chance + "%");
+        }
+        meta.setLore(lore);
 		item.setItemMeta(meta);
 		chest.setChance(slot, chance);
 		return true;

@@ -86,14 +86,14 @@ public class ChestUi {
 	 */
 	public boolean onClickSlot(Player player, int slot, ClickType type) {
 		//execute right click action if explicitly listed
-		if (rightClickActions.containsKey(slot)) {
+		if (rightClickActions.containsKey(slot) && rightClickActions.get(slot) != null) {
 			if (type == ClickType.RIGHT) {
 				rightClickActions.get(slot).accept(player);
 			} else if (type == ClickType.LEFT) {
 				clickActions.get(slot).accept(player);
 			}
 			//otherwise do action with any mouse click
-		} else if (clickActions.containsKey(slot)) {
+		} else if (clickActions.containsKey(slot) && clickActions.get(slot) != null) {
 			clickActions.get(slot).accept(player);
 		}
 		return true;

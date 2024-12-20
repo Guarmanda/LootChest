@@ -50,7 +50,7 @@ import static fr.black_eyes.lootchest.Constants.DATA_CHEST_PATH;
 public class Main extends SimpleJavaPlugin {
 	public static final String MENU_MAIN_TYPE = "Menu.main.type";
 	public static final String MENU_CHANCES_LORE = "Menu.chances.lore";
-	@Getter private Particle[] supportedParticles;
+	@Getter private Particle[] supportedParticles = {};
 	@Getter private final HashMap<Location, Long> protection = new HashMap<>();
 	@Getter private final HashMap<String, Particle> particles = new HashMap<>();
 	@Getter private final HashMap<Location, Particle> part = new HashMap<>();
@@ -352,6 +352,9 @@ public class Main extends SimpleJavaPlugin {
             lore = lore.replace("%", "");
         }
         configFiles.getLang().set(MENU_CHANCES_LORE, lore);
+	}
+	if(configFiles.getConfig().getInt("Particles.respawn_ticks") == 5){
+		configFiles.getConfig().set("Particles.respawn_ticks", 20);
 	}
 	  configFiles.setConfig("Max_Filled_Slots_By_Default", 0);
 	  configFiles.setConfig("SaveDataFileDuringReload", true);

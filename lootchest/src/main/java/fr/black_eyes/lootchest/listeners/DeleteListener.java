@@ -135,7 +135,7 @@ public class DeleteListener implements Listener  {
     
     @EventHandler
     public void onChestBreak(BlockBreakEvent e) {
-		 Block block = e.getBlock();
+		Block block = e.getBlock();
     	if(Mat.isALootChestBlock(block)) {
 			Lootchest key = LootChestUtils.isLootChest(block.getLocation());
 	    	if(e.isCancelled() || key == null) {
@@ -191,34 +191,23 @@ public class DeleteListener implements Listener  {
     	for(Block chest : e.blockList()) {
     		if(Mat.isALootChestBlock(chest)) {
     			Lootchest key = LootChestUtils.isLootChest(chest.getLocation());
-        		if(key != null) {
-					e.setCancelled(true);
-        			if(Main.configs.protectFromExplosions) {
-        				/*BlockState state = chest.getState();
-        				ItemStack[] content = ((InventoryHolder)state).getInventory().getContents();
-        				((InventoryHolder)state).getInventory().clear();
-        				chest.setType(Material.AIR); //stop item drops
-        		        
-        	            int delay = 2; 
-        	            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.getInstance(), () -> {
-                            state.update(true, false);
-                            ((InventoryHolder)state).getInventory().setContents(content);
-                        }, delay);*/
-        				return;
-        			}
-
-					if(Main.configs.destroyNaturallyInsteadOfRemovingChest) {
+				if(key != null) {
+					e.blockList().remove(chest);
+					if (Main.configs.protectFromExplosions) {
+						return;
+					}
+					if (Main.configs.destroyNaturallyInsteadOfRemovingChest) {
 						chest.getLocation().getWorld().dropItemNaturally(chest.getLocation(), new ItemStack(key.getType()));
 					}
 					key.despawn();
-					key.spawn( false);
-        			
-        			return;
-        		}
-    		}
-    	}
+					key.spawn(false);
+				}
+				return;
+			}
+		}
+	}
 
-    }
+
     
 
     
