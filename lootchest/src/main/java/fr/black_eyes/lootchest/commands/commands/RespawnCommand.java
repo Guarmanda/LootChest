@@ -29,6 +29,10 @@ public class  RespawnCommand extends SubCommand {
 			sender.sendMessage("Chest not respawned, maybe because it didn't find a valid location");
 			return;
 		}
+		if(!Lootchest.checkIfEnoughPlayersCommand()){
+			Utils.msg(sender, "NotEnoughPlayers", "[Number]" , ""+Main.configs.minimumNumberOfPlayersForCommandSpawning);
+			return;
+		}
 		Utils.msg(sender, "succesfulyRespawnedChest", Constants.CHEST_PLACEHOLDER, chestName);
 		if (lc.isRespawnCmdMsgEnabled()) {
 			Block block = lc.getActualLocation().getBlock();

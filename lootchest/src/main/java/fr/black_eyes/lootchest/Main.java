@@ -364,6 +364,7 @@ public class Main extends SimpleJavaPlugin {
 	  configFiles.setConfig("respawn_notify.respawn_all_with_command_in_world.enabled", true);
 	  configFiles.setConfig("respawn_notify.respawn_all_with_command_in_world.message", "&6All chests where forced to respawn in world [World]!\n&6Get them guys!");
       configFiles.setConfig("Minimum_Number_Of_Players_For_Natural_Spawning", 0);
+	  configFiles.setConfig("respawn_notify.Minimum_Number_Of_Players_For_Natural_Spawning", 0);
       configFiles.setConfig("use_players_locations_for_randomspawn", false);
       configFiles.setConfig("Cooldown_Before_Plugin_Start", 0);
       configFiles.setConfig("Prevent_Chest_Spawn_In_Protected_Places", false);
@@ -392,7 +393,7 @@ public class Main extends SimpleJavaPlugin {
 	  configFiles.setLang("blockIsAlreadyLootchest", "&cThis block is already a LootChest!");
 	  configFiles.setLang("editedMaxFilledSlots", "&aYou edited the max filled slots of chest &b[Chest]");
 	  configFiles.setLang("copiedChest", "&6You copied the chest &b[Chest1] &6into the chest &b[Chest2]");
-
+	  configFiles.setLang("NotEnoughPlayers", "&cThe server needs at least [Number] players to spawn chests");
       if (configFiles.getLang().isSet("help.line1")) {
           final List<String> tab = new ArrayList<>();
           for (int i = 1; i <= 17; ++i) {

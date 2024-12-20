@@ -35,6 +35,7 @@ editedMaxFilledSlots: '&aYou edited the max filled slots of chest &b[Chest]'
 worldDoesntExist: '&cThe world [World] doesn''t exist!'
 AllChestsDespawned: '&aAll chests were despawned!'
 AllChestsDespawnedInWorld: '&aAll chests were respawned in world [World]!'
+NotEnoughPlayers: '&cThe server needs at least [Number] players to spawn chests'
 locate_command:
   main_message: "&6Location of loot chests:"
   chest_list: "- &b[Chest]&6: [x], [y], [z] in world [world]"

@@ -27,6 +27,10 @@ public class RespawnAllCommand extends SubCommand {
 		if (args.length ==2) {
 			worldName = args[1];
 		}
+		if(!Lootchest.checkIfEnoughPlayersCommand()){
+			Utils.msg(sender, "NotEnoughPlayers", "[Number]" , ""+Main.configs.minimumNumberOfPlayersForCommandSpawning);
+			return;
+		}
 		for (final Lootchest l : Main.getInstance().getLootChest().values()) {
 			if (worldName != null && !l.getWorld().equals(worldName)) {
 				continue;

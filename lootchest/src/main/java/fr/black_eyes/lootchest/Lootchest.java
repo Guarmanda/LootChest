@@ -394,6 +394,15 @@ public class Lootchest {
 		return (players >= num); 
 	}
 
+	/**
+	 * @return whever config option Minimum_Number_Of_Players_For_Command_Spawning is respected
+	 */
+	public static boolean checkIfEnoughPlayersCommand(){
+		int num = Main.configs.minimumNumberOfPlayersForCommandSpawning;
+		int players = LootChestUtils.getPlayerCount();
+		return (players >= num);
+	}
+
 	private boolean checkIfTimeToRespawn(){
 		long tempsactuel = (new Timestamp(System.currentTimeMillis())).getTime();
 		long minutes = getTime()*60*1000;

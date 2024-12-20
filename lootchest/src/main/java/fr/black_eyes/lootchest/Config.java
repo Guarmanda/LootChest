@@ -22,7 +22,8 @@ public final int defaultResetTime,
 		radiusWithoutMonstersForOpeningChest,
 		partRespawnTicks,
 		defaultRespawnProtection,
-		defaultMaxFilledSlots;
+		defaultMaxFilledSlots,
+		minimumNumberOfPlayersForCommandSpawning;
 
 public final boolean saveDataFileDuringReload,
 		usePlayersLocationsForRandomSpawn,
@@ -104,6 +105,7 @@ public Config(FileConfiguration config) {
 	partRespawnTicks = config.getInt("Particles.respawn_ticks");
 	radiusWithoutMonstersForOpeningChest = config.getInt("Radius_Without_Monsters_For_Opening_Chest");
 	defaultMaxFilledSlots = config.getInt("Max_Filled_Slots_By_Default");
+	minimumNumberOfPlayersForCommandSpawning = config.getInt("Minimum_Number_Of_Players_For_Command_Spawning");
 
 	saveDataFileDuringReload = config.getBoolean("SaveDataFileDuringReload");
 	allowSpawningOnWater = config.getBoolean("allow_spawning_on_water");

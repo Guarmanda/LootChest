@@ -50,6 +50,8 @@ Hologram_distance_to_chest: 1
 PreventHopperPlacingUnderLootChest: true
     #Someone asked for this^^
 Minimum_Number_Of_Players_For_Natural_Spawning: 0
+    #Someone else asked for this^^
+Minimum_Number_Of_Players_For_Command_Spawning: 0
     #Should we check for the chests to spawn inside the world border?
 WorldBorder_Check_For_Spawn: true
     #If put to false, lootchests won't drop when broken/looted
