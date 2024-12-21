@@ -1,4 +1,4 @@
-name: ${project.name}
+name: ${project.parent.name}
 main: ${project.groupId}.Main
 version: ${project.version}
 author: Black_Eyes

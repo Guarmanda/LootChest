@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
 
-import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -414,7 +413,8 @@ public class Main extends SimpleJavaPlugin {
               Utils.logInfo("Error while updating lang.yml");
           }
       }
-      configFiles.setConfig("Fall_Effect.Optionnal_Color_If_Block_Is_Wool", null);
+	  if(configFiles.getConfig().isSet("Fall_Effect.Optionnal_Color_If_Block_Is_Wool"))
+      	configFiles.setConfig("Fall_Effect.Optionnal_Color_If_Block_Is_Wool", null);
       configFiles.setConfig("Fall_Effect.Block",  configFiles.getConfig().getString("Fall_Effect_Block"));
       configFiles.setConfig("Fall_Effect.Height",  configFiles.getConfig().getInt("Fall_Effect_Height"));
       configFiles.setConfig("Fall_Effect.Enabled",  configFiles.getConfig().getBoolean("Enable_fall_effect"));
