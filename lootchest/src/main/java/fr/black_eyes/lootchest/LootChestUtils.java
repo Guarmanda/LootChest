@@ -95,6 +95,7 @@ public class LootChestUtils  {
 			(checkProtectedBlock && ProtectedRegions.isProtected(spawnLoc))
 			|| (checkWater &&  spawnLoc.getBlock().getRelative(0, -1, 0).isLiquid())
 			|| checkWorldBorder && (isOutsideOfBorder(spawnLoc) ))
+			|| spawnLoc.getY() > Main.configs.maxHeightForRandomSpawn
 		) {
 			spawnLoc = getRandomLocation(startingLoc, radius );
 			counter++;

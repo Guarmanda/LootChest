@@ -30,6 +30,8 @@ default_reset_time: 10
 default_item_chance: 100
     #when you activate randomspawn for a chest, it will spawn around location where the chest was created, unless you set the below option to true
 use_players_locations_for_randomspawn: false
+    #asked by someone, useful for the custom worlds/buildings with a top roof
+Max_Height_For_Random_Spawn: 200
     #if you save data file at each respawn, it can prevent bugged chests when server crashes. 
     #If you think your server never crashes, set it to false
 save_Chest_Locations_At_Every_Spawn: false

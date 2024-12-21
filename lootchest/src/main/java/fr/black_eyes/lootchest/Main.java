@@ -356,6 +356,7 @@ public class Main extends SimpleJavaPlugin {
 	if(configFiles.getConfig().getInt("Particles.respawn_ticks") == 5){
 		configFiles.getConfig().set("Particles.respawn_ticks", 20);
 	}
+	  configFiles.setConfig("Max_Height_For_Random_Spawn", 200);
 	  configFiles.setConfig("Max_Filled_Slots_By_Default", 0);
 	  configFiles.setConfig("SaveDataFileDuringReload", true);
 	  configFiles.setConfig("respawn_protection_time_in_second_by_default", 0);
