@@ -116,12 +116,12 @@ public class DeleteListener implements Listener  {
     	Player p = (Player) e.getPlayer();
 		// if current player has openned a lootchest inv
     	if(openInvs.containsKey(p)) {
-			openInvs.remove(p);
+			Location loc = openInvs.get(p).clone();
 			// we still check if the inv is a lootchest
-    		Lootchest key = LootChestUtils.isLootChest(openInvs.get(p));
+    		Lootchest key = LootChestUtils.isLootChest(loc);
+			openInvs.remove(p);
 			if(key == null) return;
 
-			Location loc = openInvs.get(p);
 			if((Main.configs.removeEmptyChests && LootChestUtils.isEmpty(inv)) || Main.configs.removeChestAfterFirstOpening) {
 				// if we should break chest naturally, drop an item of key.getType() at the location of the chest
 				if(Main.configs.destroyNaturallyInsteadOfRemovingChest)
@@ -129,7 +129,10 @@ public class DeleteListener implements Listener  {
 				key.despawn();
 				key.spawn( false);
 			}
-			sendChestTakeMessageIfEnabled(key, p);
+			if(LootChestUtils.isEmpty(inv)) {
+				sendChestTakeMessageIfEnabled(key, p);
+			}
+
     	}
     }
     
@@ -141,19 +144,9 @@ public class DeleteListener implements Listener  {
 	    	if(e.isCancelled() || key == null) {
 	    		return;
 	    	}
-			if(Main.getInstance().getProtection().get(block.getLocation()) != null) {
-				//get current time
-				long currentTime = (new Timestamp(System.currentTimeMillis())).getTime();
-				//get time of protection
-				long time = Main.getInstance().getProtection().get(block.getLocation());
-				//if time is not over
-				if(currentTime < time) {
-					//cancel event
-					e.setCancelled(true);
-				}else{
-					//remove protection
-					Main.getInstance().getProtection().remove(block.getLocation());
-				}
+			if(isProtected(block) > 0) {
+				e.setCancelled(true);
+				return;
 			}
 			e.setCancelled(true);
 			if(Main.configs.destroyNaturallyInsteadOfRemovingChest) {
