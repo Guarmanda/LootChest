@@ -121,7 +121,6 @@ public class DeleteListener implements Listener  {
     		Lootchest key = LootChestUtils.isLootChest(loc);
 			openInvs.remove(p);
 			if(key == null) return;
-
 			if((Main.configs.removeEmptyChests && LootChestUtils.isEmpty(inv)) || Main.configs.removeChestAfterFirstOpening) {
 				// if we should break chest naturally, drop an item of key.getType() at the location of the chest
 				if(Main.configs.destroyNaturallyInsteadOfRemovingChest)

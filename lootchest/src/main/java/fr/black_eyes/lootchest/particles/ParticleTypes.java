@@ -1,5 +1,6 @@
 package fr.black_eyes.lootchest.particles;
 
+import fr.black_eyes.lootchest.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Particle;
@@ -50,7 +51,7 @@ final class ParticleTypes {
 
             return new DefaultParticleType(Particle.valueOf(name.toUpperCase(Locale.ROOT)));
         } catch (IllegalArgumentException | NullPointerException | ExceptionInInitializerError e) {
-            Bukkit.getLogger().warning("Unknown particle: " + name + " for server version " + Bukkit.getServer().getVersion());
+            Main.getInstance().getLogger().warning("Unknown particle: " + name + " for server version " + Bukkit.getServer().getVersion());
             return null;
         }
     }

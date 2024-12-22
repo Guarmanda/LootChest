@@ -1,7 +1,6 @@
 package eu.decentholo.holograms.api.holograms;
 
 import com.google.common.collect.ImmutableList;
-import eu.decentholo.holograms.api.holograms.objects.FlagHolder;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -11,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class HologramPage extends FlagHolder {
+public class HologramPage {
 
     /*
      *	Fields

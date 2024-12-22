@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import eu.decentholo.holograms.api.DecentHolograms;
 import eu.decentholo.holograms.api.DecentHologramsAPI;
 import eu.decentholo.holograms.api.Settings;
-import eu.decentholo.holograms.api.holograms.enums.EnumFlag;
 import eu.decentholo.holograms.api.holograms.objects.UpdatingHologramObject;
 import eu.decentholo.holograms.api.nms.NMS;
 import eu.decentholo.holograms.api.utils.collection.DList;
@@ -325,7 +324,7 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
 
     public void updateAll() {
         synchronized (visibilityMutex) {
-            if (isEnabled() && !hasFlag(EnumFlag.DISABLE_UPDATING)) {
+            if (isEnabled()) {
                 getViewerPlayers().forEach(this::performUpdate);
             }
         }

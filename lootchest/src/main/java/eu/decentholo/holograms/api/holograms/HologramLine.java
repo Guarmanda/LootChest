@@ -3,7 +3,6 @@ package eu.decentholo.holograms.api.holograms;
 import com.google.common.util.concurrent.AtomicDouble;
 
 import eu.decentholo.holograms.api.Settings;
-import eu.decentholo.holograms.api.holograms.enums.EnumFlag;
 import eu.decentholo.holograms.api.holograms.enums.HologramLineType;
 import eu.decentholo.holograms.api.holograms.objects.HologramObject;
 import eu.decentholo.holograms.api.nms.NMS;
@@ -103,16 +102,14 @@ public class HologramLine extends HologramObject {
 
         string = text == null ? "" : text;
         // Parse placeholders.
-        if (!hasFlag(EnumFlag.DISABLE_PLACEHOLDERS)) {
-            string = parsePlaceholders(string, player, containsPlaceholders);
-        }
+        string = parsePlaceholders(string, player, containsPlaceholders);
         // Update the cached text.
         playerTextMap.put(uuid, string);
 
 
         // Parse animations
-        if (containsAnimations && !hasFlag(EnumFlag.DISABLE_ANIMATIONS)
-            && Settings.ALLOW_PLACEHOLDERS_INSIDE_ANIMATIONS && !hasFlag(EnumFlag.DISABLE_PLACEHOLDERS)) {
+        if (containsAnimations
+            && Settings.ALLOW_PLACEHOLDERS_INSIDE_ANIMATIONS ) {
                 // This has been done to allow the use of placeholders in animation frames.
                 string = parsePlaceholders(string, player, true);
         }
@@ -195,7 +192,7 @@ public class HologramLine extends HologramObject {
      * @param players Given players.
      */
     public void update(Player... players) {
-        if (isDisabled() || hasFlag(EnumFlag.DISABLE_UPDATING)) {
+        if (isDisabled()) {
             return;
         }
 
@@ -280,14 +277,6 @@ public class HologramLine extends HologramObject {
         this.offsetY.set(offsetY);
     }
 
-    /*
-     *	Override Methods
-     */
-
-    @Override
-    public boolean hasFlag(@NonNull EnumFlag flag) {
-        return super.hasFlag(flag) || (parent != null && parent.getParent().hasFlag(flag));
-    }
 
     
 

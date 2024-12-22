@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public abstract class HologramObject extends FlagHolder {
+public abstract class HologramObject {
 
     /*
      *	Fields
