@@ -19,6 +19,12 @@ public class LootChestSpawnEvent extends Event {
         return HANDLERS;
     }
 
+    //seems like it is needed, else listening to the event throws an error? let's add it
+    @SuppressWarnings("unused")
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
+
     /**
      * the lootchest concerned by the event
      * @param lc the lootchest
