@@ -1,13 +1,12 @@
 package fr.black_eyes.lootchest;
 
-import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Timestamp;
 import java.util.*;
 
-import fr.black_eyes.lootchest.commands.commands.*;
+import fr.black_eyes.lootchest.commands.SubCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -41,13 +40,8 @@ public class Main extends SimpleJavaPlugin {
 	@Getter private boolean useArmorStands;
 	@Getter private DecentHologramsPlugin hologramPlugin;
 	@Getter private DecentHolograms hologramImpl;
+	@Getter private UiHandler uiHandler;
 	private static int version = 0;
-
-	
-	//the way holograms are working changed a lot since 2.2.4. 
-	//If user just done the update, this will be auto set to true by detecting a lacking config option
-	//that appeared precisely in 2.2.4
-	@Getter private boolean killOldHolograms = false;
 	
 
 	@Override
@@ -144,9 +138,9 @@ public class Main extends SimpleJavaPlugin {
 			//if metrics can't be loaded, it's not a big deal
 		}		
 
-		UiHandler uiHandler = new UiHandler(this);
+		uiHandler = new UiHandler(this);
 		registerEvents(uiHandler);
-		registerCommands(uiHandler);
+		registerCommands();
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         this.getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new BungeeChannel());
 
@@ -202,29 +196,19 @@ public class Main extends SimpleJavaPlugin {
 		pluginManager.registerEvents(new UiListener(uiHandler), this);
 	}
 
-	private void registerCommands(UiHandler uiHandler) {
+	private void registerCommands() {
 		CommandHandler cmdHandler = new CommandHandler(this, "lootchest");
-		cmdHandler.addSubCommand(new CopyCommand());
-		cmdHandler.addSubCommand(new CreateCommand(uiHandler));
-		cmdHandler.addSubCommand(new DespawnAllCommand());
-		cmdHandler.addSubCommand(new EditCommand(uiHandler));
-		cmdHandler.addSubCommand(new GetNameCommand());
-		cmdHandler.addSubCommand(new GiveCommand());
-		cmdHandler.addSubCommand(new ListCommand());
-		cmdHandler.addSubCommand(new LocateCommand());
-		cmdHandler.addSubCommand(new MaxFilledSlotsCommand());
-		cmdHandler.addSubCommand(new RandomSpawnCommand());
-		cmdHandler.addSubCommand(new ReloadCommand());
-		cmdHandler.addSubCommand(new RemoveCommand());
-		cmdHandler.addSubCommand(new RespawnAllCommand());
-		cmdHandler.addSubCommand(new RespawnCommand());
-		cmdHandler.addSubCommand(new SetHoloCommand());
-		cmdHandler.addSubCommand(new SetPosCommand());
-		cmdHandler.addSubCommand(new SetProtectionCommand());
-		cmdHandler.addSubCommand(new SetTimeCommand());
-		cmdHandler.addSubCommand(new ToggleFallCommand());
-		cmdHandler.addSubCommand(new TpCommand());
-		cmdHandler.addSubCommand(new DespawnCommand());
+		String commandsPackage = "fr/black_eyes/lootchest/commands/commands/";
+		// get all class names in the commands package instead of hardcoding them
+		for (String command : LootChestUtils.getClassesFromJARFile("fr/black_eyes/lootchest/commands/commands/")) {
+            try {
+                cmdHandler.addSubCommand((SubCommand) Class.forName(commandsPackage.replace("/", ".") + command).getConstructor().newInstance());
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                     NoSuchMethodException | ClassNotFoundException e) {
+                Utils.logInfo("&cError while registering command " + command);
+            }
+        }
+
 	}
 	
 	/**
@@ -345,109 +329,32 @@ public class Main extends SimpleJavaPlugin {
 	  configFiles.setConfig("Max_Height_For_Random_Spawn", 200);
 	  configFiles.setConfig("Max_Filled_Slots_By_Default", 0);
 	  configFiles.setConfig("SaveDataFileDuringReload", true);
-	  configFiles.setConfig("respawn_protection_time_in_second_by_default", 0);
-	  configFiles.setConfig("allow_spawning_on_water", false);
-	  configFiles.setConfig("Particles.enable", true);
-      configFiles.setConfig("PreventHopperPlacingUnderLootChest", true);
-      configFiles.setConfig("respawn_notify.per_world_message", true);
-      configFiles.setConfig("respawn_notify.message_on_chest_take", true);
 	  configFiles.setConfig("respawn_notify.respawn_all_with_command_in_world.enabled", true);
 	  configFiles.setConfig("respawn_notify.respawn_all_with_command_in_world.message", "&6All chests where forced to respawn in world [World]!\n&6Get them guys!");
-      configFiles.setConfig("Minimum_Number_Of_Players_For_Natural_Spawning", 0);
 	  configFiles.setConfig("respawn_notify.Minimum_Number_Of_Players_For_Natural_Spawning", 0);
-      configFiles.setConfig("use_players_locations_for_randomspawn", false);
-      configFiles.setConfig("Cooldown_Before_Plugin_Start", 0);
-      configFiles.setConfig("Prevent_Chest_Spawn_In_Protected_Places", false);
-      configFiles.setConfig("WorldBorder_Check_For_Spawn", true);
 	  configFiles.setConfig("EnableLootin", false);
 	  //deletion of now unsuported feature
 	  configFiles.getConfig().set("Fall_Effect.Let_Block_Above_Chest_After_Fall", null);
-	  configFiles.setLang("CantBreakBlockBecauseProtected", "&cYou have to wait [Time] seconds to loot that chest!");
-	  configFiles.setLang("editedProtectionTime", "&aYou edited the protection time of chest [Chest]");
-      configFiles.setLang("Menu.main.disable_fall", "&aFall effect is enabled. Click to &cDISABLE &ait");
-      configFiles.setLang("Menu.main.disable_respawn_natural", "&aNatural-respawn message is enabled. Click to &cDISABLE &ait");
-      configFiles.setLang("Menu.main.disable_respawn_cmd", "&aCommand-respawn message is enabled. Click to &cDISABLE &ait");
-      configFiles.setLang("Menu.main.disable_take_message", "&aMessage on chest take is enabled. Click to &cDISABLE &ait");
-      configFiles.setLang("Menu.main.enable_fall", "&cFall effect is disabled. Click to &aENABLE &cit");
-      configFiles.setLang("Menu.main.enable_respawn_natural", "&cNatural-respawn message is disabled. Click to &aENABLE &cit");
-      configFiles.setLang("Menu.main.enable_respawn_cmd", "&cCommand-respawn message is disabled. Click to &aENABLE &cit");
       configFiles.setLang(MENU_MAIN_TYPE, "&1Select Chest Item");
-      configFiles.setLang("Menu.type.name", "&1Select Chest Item");
 	  configFiles.setLang("notAnInteger", "&c[Number] is not an integer!");
-      configFiles.setLang("Menu.main.enable_take_message", "&cMessage on chest take is disabled. Click to &aENABLE &cit");
-      configFiles.setLang("locate_command.main_message",  "&6Location of loot chests:");
-      configFiles.setLang("editedChestType", "&aEdited type of chest &b[Chest]");
-      configFiles.setLang("locate_command.chest_list", "- &b[Chest]&6: [x], [y], [z] in world [world]");
-      configFiles.setLang("removedHolograms", "&aSuccessfully removed &b[Number] LootChest holograms.");
-      configFiles.setLang("CantOpenLootchestBecauseMonster", "&cYou can't open this chest while there is [Number] monsters nearby");
 	  configFiles.setLang("blockIsAlreadyLootchest", "&cThis block is already a LootChest!");
 	  configFiles.setLang("editedMaxFilledSlots", "&aYou edited the max filled slots of chest &b[Chest]");
 	  configFiles.setLang("copiedChest", "&6You copied the chest &b[Chest1] &6into the chest &b[Chest2]");
 	  configFiles.setLang("NotEnoughPlayers", "&cThe server needs at least [Number] players to spawn chests");
 	  configFiles.setLang("ChestDespawned", "&aChest &b[Chest] &asuccesfuly despacned!");
 	  configFiles.setLang("NoChestAtLocation", "&cThe specified lootchest was already destroyed.");
-      if (configFiles.getLang().isSet("help.line1")) {
-          final List<String> tab = new ArrayList<>();
-          for (int i = 1; i <= 17; ++i) {
-              if (configFiles.getLang().getString("help.line" + i) != null) {
-                  tab.add(configFiles.getLang().getString("help.line" + i));
-              }
-          }
-          configFiles.getLang().set("help", tab);
-          try {
-              configFiles.getLang().save(configFiles.getLangF());
-              configFiles.getLang().load(configFiles.getLangF());
-          }
-          catch (IOException | InvalidConfigurationException e) {
-              Utils.logInfo("Error while updating lang.yml");
-          }
-      }
 	  if(configFiles.getConfig().isSet("Fall_Effect.Optionnal_Color_If_Block_Is_Wool"))
       	configFiles.setConfig("Fall_Effect.Optionnal_Color_If_Block_Is_Wool", null);
-      configFiles.setConfig("Fall_Effect.Block",  configFiles.getConfig().getString("Fall_Effect_Block"));
-      configFiles.setConfig("Fall_Effect.Height",  configFiles.getConfig().getInt("Fall_Effect_Height"));
-      configFiles.setConfig("Fall_Effect.Enabled",  configFiles.getConfig().getBoolean("Enable_fall_effect"));
-      configFiles.setConfig("Fall_Effect.Enable_Fireworks",  true);
-      configFiles.setConfig("Fall_Effect.Speed", 0.9);
-      configFiles.setConfig("respawn_notify.bungee_broadcast", false);
-      configFiles.setConfig("ConsoleMessages", true);
-      configFiles.setConfig("save_Chest_Locations_At_Every_Spawn", true);
-      configFiles.setConfig("Protect_From_Explosions", false);
-      configFiles.setConfig("Radius_Without_Monsters_For_Opening_Chest", 0);
-      if(!configFiles.getConfig().isSet("Destroy_Naturally_Instead_Of_Removing_Chest")) {
-    	  killOldHolograms = true;
-      }
-      configFiles.setConfig("Destroy_Naturally_Instead_Of_Removing_Chest", true);
 	  configFiles.setLang("AllChestsDespawned", "&aAll chests were despawned!");
 	  configFiles.setLang("AllChestsDespawnedInWorld", "&aAll chests were despawned in world [World]!");
-      configFiles.setLang("Menu.time.notInfinite", "&6Reactivate respawn time");
-      configFiles.setLang("commandGetName", "&6Your'e looking the chest &b[Chest]");
 	  configFiles.setLang("worldDoesntExist", "&cThe world [World] doesn't exist!");
 	  configFiles.setLang("AllChestsReloadedInWorld", "&aAll chests reloaded in world [World]!");
-      if(!configFiles.getLang().getStringList("help").toString().contains("getname")){
-      	List<String> help = configFiles.getLang().getStringList("help");
-      	help.add("&a/lc getname &b: get the name of the targeted LootChest");
-      	configFiles.getLang().set("help", help);
-      	configFiles.saveLang();
-      }
 	  if(!configFiles.getLang().getStringList("help").toString().contains("despawnall")){
 		List<String> help = configFiles.getLang().getStringList("help");
 		help.add("&a/lc despawnall [world] &b: despawns all chests, optionally in a specific world");
 		configFiles.getLang().set("help", help);
 		configFiles.saveLang();
 	}
-      if(!configFiles.getLang().getStringList("help").toString().contains("locate")){
-      	List<String> help = configFiles.getLang().getStringList("help");
-      	help.add("&a/lc locate &b: gives locations of all chests that haves natural respawn message enabled");
-      	configFiles.getLang().set("help", help);
-      	configFiles.saveLang();        	
-      }
-	  if(!configFiles.getLang().getStringList("help").toString().contains("setprotection")){
-    	List<String> help = configFiles.getLang().getStringList("help");
-    	help.add("&a/lc setprotection <name> <time> &b: set the spawn protection time in seconds for a chest");
-    	configFiles.getLang().set("help", help);
-    	configFiles.saveLang();        	
-      }
 	  if(!configFiles.getLang().getStringList("help").toString().contains("copy")){
     	List<String> help = configFiles.getLang().getStringList("help");
     	help.add("&a/lc copy <source> <dest> &b: copy a chest into another");
@@ -476,42 +383,6 @@ public class Main extends SimpleJavaPlugin {
 		}
     	configFiles.getLang().set("help", help);
     	configFiles.saveLang();        	
-      }
-    	
-
-      if(!configFiles.getConfig().isSet("Timer_on_hologram.Show_Timer_On_Hologram")) {
-    	  boolean timeholo = configFiles.getConfig().getBoolean("Show_Timer_On_Hologram");
-    	  configFiles.getConfig().set("Show_Timer_On_Hologram", null);
-    	  configFiles.getConfig().set("Timer_on_hologram.Show_Timer_On_Hologram", timeholo);
-    	  configFiles.getConfig().set("Timer_on_hologram.Hours_Separator", " hours, ");
-    	  configFiles.getConfig().set("Timer_on_hologram.Minutes_Separator", " minutes  and ");
-    	  configFiles.getConfig().set("Timer_on_hologram.Seconds_Separator", " seconds.");
-    	  configFiles.getConfig().set("Timer_on_hologram.Format", "&3%Hours%Hsep%Minutes%Msep%Seconds%Ssep &bleft for %Hologram to respawn");
-      }
-      if(Objects.equals(configFiles.getLang().getString(MENU_CHANCES_LORE), "&aLeft click: +1; right: -1; shift+right: -10; shift+left: +10; tab+right: -50") || Objects.equals(configFiles.getLang().getString(MENU_CHANCES_LORE), "&aLeft click to up percentage, Right click to down it")) {
-      	configFiles.getLang().set(MENU_CHANCES_LORE, "&aLeft click: +1||&aright: -1||&ashift+right: -10||&ashift+left: +10||&atab+right: -50");
-      }
-      
-      if(Objects.equals(configFiles.getLang().getString("Menu.main.respawnTime"), "&1Respawn time editing")) {
-        	configFiles.getLang().set("Menu.main.respawnTime", "&1Edit Respawn Time");
-       }
-      if(Objects.equals(configFiles.getLang().getString(MENU_MAIN_TYPE), "&1Choose type (Barrel, trapped chest, chest)")) {
-      	configFiles.getLang().set(MENU_MAIN_TYPE, "&1Select Chest Item");
-      }
-      if(Objects.equals(configFiles.getLang().getString("Menu.main.content"), "&1Chest content editing")) {
-        	configFiles.getLang().set("Menu.main.content", "&1Edit Chest Contents");
-        }
-      if(Objects.equals(configFiles.getLang().getString("Menu.main.chances"), "&1Items chances editing")) {
-      	configFiles.getLang().set("Menu.main.chances", "&1Edit Item Chances");
-      }
-      if(Objects.equals(configFiles.getLang().getString("Menu.main.particles"), "&1Particle choosing")) {
-        	configFiles.getLang().set("Menu.main.particles", "&1Particle Selection");
-      }
-      if(Objects.equals(configFiles.getLang().getString("Menu.main.copychest"), "&1Copy settings from another chest")) {
-      	configFiles.getLang().set("Menu.main.copychest", "&1Copy Chest");
-      }
-      if(Objects.equals(configFiles.getLang().getString("Menu.time.name"), "&1Temps de respawn")) {
-        	configFiles.getLang().set("Menu.time.name", "&1Respawn Time");
       }
       configFiles.saveLang();
 	  configFiles.saveConfig();

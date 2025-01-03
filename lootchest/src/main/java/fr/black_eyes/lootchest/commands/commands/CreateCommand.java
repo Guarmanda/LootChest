@@ -20,11 +20,11 @@ import fr.black_eyes.simpleJavaPlugin.Utils;
 public class CreateCommand extends SubCommand {
 	
 	private final UiHandler uiHandler;
-	public CreateCommand(UiHandler uiHandler) {
+	public CreateCommand() {
 		super("create", Collections.singletonList(ArgType.STRING));
 		setPlayerRequired(true);
 
-		this.uiHandler = uiHandler;
+		this.uiHandler = Main.getInstance().getUiHandler();
 	}
 	
 	@Override

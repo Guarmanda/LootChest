@@ -14,10 +14,10 @@ public class EditCommand extends SubCommand {
 	
 	private final UiHandler uiHandler;
 
-	public EditCommand(UiHandler uiHandler) {
+	public EditCommand() {
 		super("edit", Collections.singletonList(ArgType.LOOTCHEST));
 		setPlayerRequired(true);
-		this.uiHandler = uiHandler;
+		this.uiHandler = Main.getInstance().getUiHandler();
 	}
 	
 	@Override

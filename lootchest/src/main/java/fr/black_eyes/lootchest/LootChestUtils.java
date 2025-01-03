@@ -1,10 +1,14 @@
 package fr.black_eyes.lootchest;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -464,6 +468,31 @@ public class LootChestUtils  {
 	public static String getWorldName(World world) {
 		String name =  world.toString().replace("CraftWorld{name=", "");
 		return name.substring(0, name.length() - 1);
+	}
+
+	/**
+     * Get the name of a world from a Location object
+     * @source <a href="https://stackoverflow.com/questions/346811/listing-the-files-in-a-directory-of-the-current-jar-file">StackOverFlow link</a>
+     */
+	public static List<String> getClassesFromJARFile(String packageName)
+	{
+		List<String> classes = new ArrayList<>();
+		try {
+			File jarName = new File (Lootchest.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+			ZipFile zf=new ZipFile(Objects.requireNonNull(jarName).getAbsoluteFile());
+			Enumeration<? extends ZipEntry> e=zf.entries();
+			while (e.hasMoreElements())
+			{
+				ZipEntry ze= e.nextElement();
+				if(ze.getName().startsWith(packageName) && ze.getName().endsWith(".class")){
+					String path = ze.getName();
+					String fileName = path.substring(path.lastIndexOf("/")+1).replace(".class", "");
+					classes.add(fileName);
+				}
+			}
+			zf.close();
+		} catch (Exception ignored){}
+		return classes;
 	}
 	
 
