@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
 
+import fr.black_eyes.lootchest.commands.commands.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -13,26 +14,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import eu.decentholo.holograms.DecentHologramsPlugin;
 import eu.decentholo.holograms.api.DecentHolograms;
 import fr.black_eyes.lootchest.commands.CommandHandler;
-import fr.black_eyes.lootchest.commands.commands.CopyCommand;
-import fr.black_eyes.lootchest.commands.commands.CreateCommand;
-import fr.black_eyes.lootchest.commands.commands.DespawnAllCommand;
-import fr.black_eyes.lootchest.commands.commands.EditCommand;
-import fr.black_eyes.lootchest.commands.commands.GetNameCommand;
-import fr.black_eyes.lootchest.commands.commands.GiveCommand;
-import fr.black_eyes.lootchest.commands.commands.ListCommand;
-import fr.black_eyes.lootchest.commands.commands.LocateCommand;
-import fr.black_eyes.lootchest.commands.commands.MaxFilledSlotsCommand;
-import fr.black_eyes.lootchest.commands.commands.RandomSpawnCommand;
-import fr.black_eyes.lootchest.commands.commands.ReloadCommand;
-import fr.black_eyes.lootchest.commands.commands.RemoveCommand;
-import fr.black_eyes.lootchest.commands.commands.RespawnAllCommand;
-import fr.black_eyes.lootchest.commands.commands.RespawnCommand;
-import fr.black_eyes.lootchest.commands.commands.SetHoloCommand;
-import fr.black_eyes.lootchest.commands.commands.SetPosCommand;
-import fr.black_eyes.lootchest.commands.commands.SetProtectionCommand;
-import fr.black_eyes.lootchest.commands.commands.SetTimeCommand;
-import fr.black_eyes.lootchest.commands.commands.ToggleFallCommand;
-import fr.black_eyes.lootchest.commands.commands.TpCommand;
 import fr.black_eyes.lootchest.listeners.DeleteListener;
 import fr.black_eyes.lootchest.listeners.UiListener;
 import fr.black_eyes.lootchest.particles.Particle;
@@ -243,6 +224,7 @@ public class Main extends SimpleJavaPlugin {
 		cmdHandler.addSubCommand(new SetTimeCommand());
 		cmdHandler.addSubCommand(new ToggleFallCommand());
 		cmdHandler.addSubCommand(new TpCommand());
+		cmdHandler.addSubCommand(new DespawnCommand());
 	}
 	
 	/**
@@ -402,6 +384,8 @@ public class Main extends SimpleJavaPlugin {
 	  configFiles.setLang("editedMaxFilledSlots", "&aYou edited the max filled slots of chest &b[Chest]");
 	  configFiles.setLang("copiedChest", "&6You copied the chest &b[Chest1] &6into the chest &b[Chest2]");
 	  configFiles.setLang("NotEnoughPlayers", "&cThe server needs at least [Number] players to spawn chests");
+	  configFiles.setLang("ChestDespawned", "&aChest &b[Chest] &asuccesfuly despacned!");
+	  configFiles.setLang("NoChestAtLocation", "&cThe specified lootchest was already destroyed.");
       if (configFiles.getLang().isSet("help.line1")) {
           final List<String> tab = new ArrayList<>();
           for (int i = 1; i <= 17; ++i) {
@@ -476,6 +460,12 @@ public class Main extends SimpleJavaPlugin {
     	configFiles.getLang().set("help", help);
     	configFiles.saveLang();        	
       }
+	  if(!configFiles.getLang().getStringList("help").toString().contains("despawn ")){
+		  List<String> help = configFiles.getLang().getStringList("help");
+		  help.add("&a/lc despawn <name> &b: despawns a chest");
+		  configFiles.getLang().set("help", help);
+		  configFiles.saveLang();
+	  }
 	  //remove useless command
 	  if(configFiles.getLang().getStringList("help").toString().contains("removeAllHolo")){
     	List<String> help = configFiles.getLang().getStringList("help");
@@ -498,29 +488,29 @@ public class Main extends SimpleJavaPlugin {
     	  configFiles.getConfig().set("Timer_on_hologram.Seconds_Separator", " seconds.");
     	  configFiles.getConfig().set("Timer_on_hologram.Format", "&3%Hours%Hsep%Minutes%Msep%Seconds%Ssep &bleft for %Hologram to respawn");
       }
-      if(configFiles.getLang().getString(MENU_CHANCES_LORE).equals("&aLeft click: +1; right: -1; shift+right: -10; shift+left: +10; tab+right: -50") || configFiles.getLang().getString(MENU_CHANCES_LORE).equals("&aLeft click to up percentage, Right click to down it")) {
+      if(Objects.equals(configFiles.getLang().getString(MENU_CHANCES_LORE), "&aLeft click: +1; right: -1; shift+right: -10; shift+left: +10; tab+right: -50") || Objects.equals(configFiles.getLang().getString(MENU_CHANCES_LORE), "&aLeft click to up percentage, Right click to down it")) {
       	configFiles.getLang().set(MENU_CHANCES_LORE, "&aLeft click: +1||&aright: -1||&ashift+right: -10||&ashift+left: +10||&atab+right: -50");
       }
       
-      if(configFiles.getLang().getString("Menu.main.respawnTime").equals("&1Respawn time editing")) {
+      if(Objects.equals(configFiles.getLang().getString("Menu.main.respawnTime"), "&1Respawn time editing")) {
         	configFiles.getLang().set("Menu.main.respawnTime", "&1Edit Respawn Time");
        }
-      if(configFiles.getLang().getString(MENU_MAIN_TYPE).equals("&1Choose type (Barrel, trapped chest, chest)")) {
+      if(Objects.equals(configFiles.getLang().getString(MENU_MAIN_TYPE), "&1Choose type (Barrel, trapped chest, chest)")) {
       	configFiles.getLang().set(MENU_MAIN_TYPE, "&1Select Chest Item");
       }
-      if(configFiles.getLang().getString("Menu.main.content").equals("&1Chest content editing")) {
+      if(Objects.equals(configFiles.getLang().getString("Menu.main.content"), "&1Chest content editing")) {
         	configFiles.getLang().set("Menu.main.content", "&1Edit Chest Contents");
         }
-      if(configFiles.getLang().getString("Menu.main.chances").equals("&1Items chances editing")) {
+      if(Objects.equals(configFiles.getLang().getString("Menu.main.chances"), "&1Items chances editing")) {
       	configFiles.getLang().set("Menu.main.chances", "&1Edit Item Chances");
       }
-      if(configFiles.getLang().getString("Menu.main.particles").equals("&1Particle choosing")) {
+      if(Objects.equals(configFiles.getLang().getString("Menu.main.particles"), "&1Particle choosing")) {
         	configFiles.getLang().set("Menu.main.particles", "&1Particle Selection");
       }
-      if(configFiles.getLang().getString("Menu.main.copychest").equals("&1Copy settings from another chest")) {
+      if(Objects.equals(configFiles.getLang().getString("Menu.main.copychest"), "&1Copy settings from another chest")) {
       	configFiles.getLang().set("Menu.main.copychest", "&1Copy Chest");
       }
-      if(configFiles.getLang().getString("Menu.time.name").equals("&1Temps de respawn")) {
+      if(Objects.equals(configFiles.getLang().getString("Menu.time.name"), "&1Temps de respawn")) {
         	configFiles.getLang().set("Menu.time.name", "&1Respawn Time");
       }
       configFiles.saveLang();

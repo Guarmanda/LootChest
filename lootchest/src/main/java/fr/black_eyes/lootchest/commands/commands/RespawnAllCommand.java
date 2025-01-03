@@ -1,6 +1,5 @@
 package fr.black_eyes.lootchest.commands.commands;
 
-import java.util.ArrayList;
 import java.util.Collections;
 
 import org.bukkit.Bukkit;
@@ -17,7 +16,7 @@ import fr.black_eyes.simpleJavaPlugin.Utils;
 public class RespawnAllCommand extends SubCommand {
 	
 	public RespawnAllCommand() {
-		super("respawnall", new ArrayList<>(), Collections.singletonList(ArgType.WORLD));
+		super("respawnall", Collections.emptyList(), Collections.singletonList(ArgType.WORLD));
 	}
 	
 	@Override

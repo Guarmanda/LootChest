@@ -422,20 +422,23 @@ public class Lootchest {
 		LootChestUtils.fillInventory(this, inventory, true, null);
 
 		// set the direction of the chest
-		if(Main.getCompleteVersion()>=1140) {
-			org.bukkit.block.data.BlockData data;
-			data = block.getBlockData();
-			((org.bukkit.block.data.Directional)data).setFacing(BlockFace.valueOf(direction));
-			BlockState state = block.getState();
-			state.setBlockData(data);
-			state.update();
-		}
-		else {
-			MaterialData data = block.getState().getData();
-			((DirectionalContainer)data).setFacingDirection(BlockFace.valueOf(direction));
-			BlockState state = block.getState();
-			state.setData(data);
-			state.update();
+		try {
+			if (Main.getCompleteVersion() >= 1140) {
+				org.bukkit.block.data.BlockData data;
+				data = block.getBlockData();
+				((org.bukkit.block.data.Directional) data).setFacing(BlockFace.valueOf(direction));
+				BlockState state = block.getState();
+				state.setBlockData(data);
+				state.update();
+			} else {
+				MaterialData data = block.getState().getData();
+				((DirectionalContainer) data).setFacingDirection(BlockFace.valueOf(direction));
+				BlockState state = block.getState();
+				state.setData(data);
+				state.update();
+			}
+		}catch(Exception e){
+			Utils.logInfo("&eError while setting the direction of the chest " + getName() + "; This will not prevent the plugin to work, but if you manage to reproduce it, tell me, so I can fix it.");
 		}
 
 		// check if lootin is installed
