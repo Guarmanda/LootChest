@@ -124,6 +124,10 @@ public class Fallv_1_11 implements IFallPacket {
         MinecraftServer server = MinecraftServer.getServer();
         Stream<EntityPlayer> players = server.getPlayerList().players.stream();
         players.forEach(p -> {
+            // check if player is in the same world as the armorstand
+            if (!p.getWorld().worldData.getName().equals(startLocation.getWorld().getName())) {
+                return;
+            }
             // get player from uuid
             Player bukkitPlayer = Bukkit.getPlayer(p.getUniqueID());
             

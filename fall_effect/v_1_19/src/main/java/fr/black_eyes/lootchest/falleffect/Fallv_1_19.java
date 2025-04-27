@@ -3,10 +3,7 @@ package fr.black_eyes.lootchest.falleffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -132,6 +129,10 @@ public class Fallv_1_19 implements IFallPacket {
         MinecraftServer server = MinecraftServer.getServer();
         Stream<ServerPlayer> players = server.getPlayerList().getPlayers().stream();
         players.forEach(p -> {
+            // check if player is in the same world as the armorstand
+            if (!p.getBukkitEntity().getWorld().getName().equals(Objects.requireNonNull(startLocation.getWorld()).getName())) {
+                return;
+            }
             // check distance between player and armorstand
             if (p.distanceTo(armorstand) > 100) {
                 return;
@@ -172,20 +173,20 @@ public class Fallv_1_19 implements IFallPacket {
       private ItemStack getNmsItemStackFromMaterial(Material material) {
         String itemKey = "item."+material.getKey().toString().replace(":",".");
         String blockKey = "block."+material.getKey().toString().replace(":",".");
-        if(headItem != null && (headItem.getItem().getDescriptionId().equals(itemKey) || headItem.getItem().getDescriptionId().equals(blockKey))) {
+        if(headItem != null && (Objects.equals(headItem.getItem().getDescriptionId(), itemKey) || Objects.equals(headItem.getItem().getDescriptionId(), blockKey))) {
             return headItem;
         }
         for(Item item : Arrays.stream(Items.class.getFields()).map(field -> {
             try {
                 return (Item) field.get(null);
-            } catch (IllegalArgumentException | IllegalAccessException e) {
+            } catch (IllegalArgumentException | IllegalAccessException ignored) {
             }
             return null;
         }).toArray(Item[]::new)) {
             if (item == null) {
                 continue;
             }
-            if (item.getDescriptionId().equals(itemKey) || item.getDescriptionId().equals(blockKey)) {
+            if (Objects.requireNonNull(item.getDescriptionId()).equals(itemKey) || item.getDescriptionId().equals(blockKey)) {
                 headItem = new ItemStack(item);
                 return headItem;
             }

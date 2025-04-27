@@ -122,6 +122,10 @@ public class Fallv_1_8_3 implements IFallPacket {
         MinecraftServer server = MinecraftServer.getServer();
         Stream<EntityPlayer> players = server.getPlayerList().players.stream();
         players.forEach(p -> {
+            // check if player is in the same world as the armorstand
+            if (!p.getWorld().worldData.getName().equals(startLocation.getWorld().getName())) {
+                return;
+            }
             // get player from uuid
             Player bukkitPlayer = Bukkit.getPlayer(p.getUniqueID());
             
@@ -172,7 +176,7 @@ public class Fallv_1_8_3 implements IFallPacket {
         for(Item item : Arrays.stream(Blocks.class.getFields()).map(field -> {
             try {
                 return Item.getItemOf((Block)field.get(null));
-            } catch (IllegalArgumentException | IllegalAccessException e) {
+            } catch (IllegalArgumentException | IllegalAccessException ignored) {
             }
             return null;
         }).toArray(Item[]::new)) {
@@ -188,7 +192,7 @@ public class Fallv_1_8_3 implements IFallPacket {
         for(Item item : Arrays.stream(Items.class.getFields()).map(field -> {
             try {
                 return (Item) field.get(null);
-            } catch (IllegalArgumentException | IllegalAccessException e) {
+            } catch (IllegalArgumentException | IllegalAccessException ignored) {
             }
             return null;
         }).toArray(Item[]::new)) {

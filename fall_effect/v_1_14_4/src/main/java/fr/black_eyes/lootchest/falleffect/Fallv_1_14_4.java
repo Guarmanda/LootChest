@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -132,6 +133,10 @@ public class Fallv_1_14_4 implements IFallPacket {
         MinecraftServer server = MinecraftServer.getServer();
         Stream<EntityPlayer> players = server.getPlayerList().getPlayers().stream();
         players.forEach(p -> {
+            // check if player is in the same world as the armorstand
+            if (!p.getWorld().worldData.getName().equals(Objects.requireNonNull(startLocation.getWorld()).getName())) {
+                return;
+            }
             // get player from uuid
             Player bukkitPlayer = Bukkit.getPlayer(p.getUniqueID());
             

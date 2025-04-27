@@ -5,6 +5,7 @@ import org.bukkit.Material;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -129,6 +130,10 @@ public final class Fallv_1_20 implements IFallPacket {
         MinecraftServer server = MinecraftServer.getServer();
         Stream<ServerPlayer> players = server.getPlayerList().getPlayers().stream();
         players.forEach(p -> {
+            // check if player is in the same world as the armorstand
+            if (!p.getBukkitEntity().getWorld().getName().equals(Objects.requireNonNull(startLocation.getWorld()).getName())) {
+                return;
+            }
             // check distance between player and armorstand
             if (p.distanceTo(armorstand) > 100) {
                 return;
