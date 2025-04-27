@@ -34,7 +34,7 @@ import net.minecraft.world.item.ItemStack;
  * 1.17+ class to make an invisible armorstand fall from the sky with packets and a block on its head
  */
 @SuppressWarnings("unused")
-public final class Fallv_1_21_4 implements IFallPacket {
+public final class Fallv_1_21_5 implements IFallPacket {
     private final ClientboundAddEntityPacket spawnPacket;
     private final net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket dataPacket;
     private final ClientboundSetEquipmentPacket equipmentPacket;
@@ -75,7 +75,7 @@ public final class Fallv_1_21_4 implements IFallPacket {
      * @param height The height of the fall, in blocks
      * @param speed The speed of the fall, does not have a clear meaning
      */
-    public Fallv_1_21_4(Location loc, Material headItem, int height, double speed, JavaPlugin plugin) {
+    public Fallv_1_21_5(Location loc, Material headItem, int height, double speed, JavaPlugin plugin) {
         this.instance = plugin;
         this.speed = speed;
         this.height = height;
