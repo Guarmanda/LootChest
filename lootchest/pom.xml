@@ -8,7 +8,9 @@
           <artifactId>LootChest</artifactId>
           <version>${revision}</version>
     </parent>
-
+    <properties>
+        <local.repo.path>${project.parent.basedir}/requirements/local-repo</local.repo.path>
+    </properties>
 
     <artifactId>lootchest</artifactId>
     <version>${revision}</version>
@@ -87,7 +89,7 @@
         </repository>
         <repository>
             <id>local-repo</id>
-            <url>file://${project.parent.basedir}/requirements/local-repo</url>
+            <url>LOCAL_PATH</url>
         </repository>
         <repository>
             <id>dmulloy2-repo</id>
@@ -242,6 +244,7 @@
         <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_21_1</artifactId><version>${revision}</version></dependency>
         <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_21_3</artifactId><version>${revision}</version></dependency>
         <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_21_4</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_21_5</artifactId><version>${revision}</version></dependency>
 
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>

@@ -103,6 +103,12 @@ public class LootChestUtils  {
 		) {
 			spawnLoc = getRandomLocation(startingLoc, radius );
 			counter++;
+			//wait 10ms to avoid lag
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				Utils.logInfo("&cError while waiting for finding good spawn location: " + e.getMessage());
+			}
 		}
 		if(counter == 50) {
 
