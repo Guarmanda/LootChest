@@ -232,14 +232,29 @@ public class LootChestUtils  {
 	 * @return a random Location around the startLocation
 	 */
 	public static Location getRandomLocation(Location startLocation, int radius) {
+		World world = startLocation.getWorld();
 		Location center = startLocation.clone();
-		center.setX(randomInt(radius)+center.getX());
-		center.setZ(randomInt(radius)+center.getZ());
-		center.setY(center.getWorld().getHighestBlockYAt(center));
-		if (Main.getCompleteVersion()>=1150) {
-			center.setY(center.getWorld().getHighestBlockYAt(center)+(double)1);
+
+		for (int attempts = 0; attempts < 10; attempts++) {
+			double randomX = center.getX() + (Math.random() * radius * 2) - radius;
+			double randomZ = center.getZ() + (Math.random() * radius * 2) - radius;
+
+			int chunkX = (int) randomX >> 4;
+			int chunkZ = (int) randomZ >> 4;
+
+			if (!world.isChunkLoaded(chunkX, chunkZ)) {
+				continue;
+			}
+
+			int y = world.getHighestBlockYAt((int) randomX, (int) randomZ);
+			if (Main.getCompleteVersion() >= 1150) {
+				y += 1;
+			}
+
+			return new Location(world, randomX, y, randomZ);
 		}
-		return center;
+
+		return null;
 	}
 	
 	/**
