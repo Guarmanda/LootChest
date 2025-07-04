@@ -115,7 +115,7 @@ public class LootChestUtils  {
 		if(counter == 50) {
 			return null;
 		}else{
-			if(Main.configs.minHeightForRandomSpawn < spawnLoc.getY()) {
+			if(Main.configs.minHeightForRandomSpawn > spawnLoc.getY()) {
 				spawnLoc.setY(Main.configs.minHeightForRandomSpawn);
 			}
 			return spawnLoc;
@@ -221,16 +221,7 @@ public class LootChestUtils  {
 		}
 		return menuName;
 	}
-	
-	/**
-	 * Get a random integer between 0 and max
-	 * @param max the maximum and minimum value at once (inclusive)
-	 * @return a random integer between 0 and max
-	 */
-	private static int randomInt(int max) {
-		return ThreadLocalRandom.current().nextInt(-max, max+1);
-	}
-	
+
 	/**
 	 * Get a random location around a location with a radius
 	 * @param startLocation the location to start from

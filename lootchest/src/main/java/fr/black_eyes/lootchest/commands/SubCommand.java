@@ -66,8 +66,6 @@ public abstract class SubCommand {
 			sender.sendMessage(ChatColor.RED + "Please, run this command in-game");
 			return;
 		}
-		System.out.println("args.length: " + args.length);
-		System.out.println("requiredArgs.size(): " + requiredArgs.size());
 		// -1 because first arg is the command name
 		if (args.length -1 < requiredArgs.size()) {
 			sender.sendMessage(ChatColor.RED + getUsage());
