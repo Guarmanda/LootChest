@@ -38,6 +38,7 @@ public class RandomSpawnCommand extends SubCommand {
 			lc.setRandomLoc(null);
 			Utils.msg(sender, "disabledChestRadius", Constants.CHEST_PLACEHOLDER, chestName);
 		}
+		lc.despawn();
 		lc.spawn(true);
 		lc.updateData();
 	}

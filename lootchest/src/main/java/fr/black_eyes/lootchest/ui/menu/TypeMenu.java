@@ -34,6 +34,7 @@ public class TypeMenu extends ChestUi {
 	void changeChestType(Player player, Material type) {
 		chest.setType(type);
 		chest.updateData();
+		chest.despawn();
 		chest.spawn(true);
 		Utils.msg(player, "editedChestType", "[Chest]", chest.getName());
 	}
