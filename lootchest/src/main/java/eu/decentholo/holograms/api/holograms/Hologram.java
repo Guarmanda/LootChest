@@ -14,16 +14,11 @@ import eu.decentholo.holograms.api.DecentHologramsAPI;
 import eu.decentholo.holograms.api.Settings;
 import eu.decentholo.holograms.api.holograms.objects.UpdatingHologramObject;
 import eu.decentholo.holograms.api.nms.NMS;
-import eu.decentholo.holograms.api.utils.collection.DList;
 import eu.decentholo.holograms.api.utils.reflect.Version;
 import eu.decentholo.holograms.api.utils.scheduler.S;
 import eu.decentholo.holograms.api.utils.tick.ITicked;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
@@ -98,7 +93,7 @@ public class Hologram extends UpdatingHologramObject implements ITicked {
     protected final @NonNull Set<UUID> hidePlayers = ConcurrentHashMap.newKeySet();
     protected final @NonNull Set<UUID> showPlayers = ConcurrentHashMap.newKeySet();
     protected boolean defaultVisibleState = true;
-    protected final @NonNull DList<HologramPage> pages = new DList<>();
+    protected final List<HologramPage> pages = new ArrayList<>();
     protected boolean downOrigin = Settings.DEFAULT_DOWN_ORIGIN;
     protected boolean alwaysFacePlayer = false;
     private final @NonNull AtomicInteger tickCounter;

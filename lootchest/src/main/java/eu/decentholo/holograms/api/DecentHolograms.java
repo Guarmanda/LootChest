@@ -10,8 +10,6 @@ import eu.decentholo.holograms.api.holograms.HologramManager;
 import eu.decentholo.holograms.api.listeners.PlayerListener;
 import eu.decentholo.holograms.api.listeners.WorldListener;
 import eu.decentholo.holograms.api.nms.NMS;
-import eu.decentholo.holograms.api.utils.BungeeUtils;
-import eu.decentholo.holograms.api.utils.DExecutor;
 import eu.decentholo.holograms.api.utils.reflect.Version;
 import eu.decentholo.holograms.api.utils.tick.Ticker;
 import fr.black_eyes.lootchest.Main;
@@ -57,8 +55,6 @@ public final class DecentHolograms {
     void enable() {
         NMS.init();
 
-        DExecutor.init(3);
-
         this.ticker = new Ticker();
         this.hologramManager = new HologramManager();
 
@@ -66,8 +62,6 @@ public final class DecentHolograms {
         PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents(new PlayerListener(this), this.plugin);
         pm.registerEvents(new WorldListener(this), this.plugin);
-
-        BungeeUtils.init();
     }
 
     void disable() {
@@ -77,9 +71,6 @@ public final class DecentHolograms {
         for (Hologram hologram : Hologram.getCachedHolograms()) {
             hologram.destroy();
         }
-
-        BungeeUtils.destroy();
-        DExecutor.shutdownNow();
     }
 
 

@@ -24,7 +24,8 @@ public final int defaultResetTime,
 		defaultRespawnProtection,
 		defaultMaxFilledSlots,
 		minimumNumberOfPlayersForCommandSpawning,
-		maxHeightForRandomSpawn;
+		maxHeightForRandomSpawn,
+		minHeightForRandomSpawn;
 
 public final boolean saveDataFileDuringReload,
 		usePlayersLocationsForRandomSpawn,
@@ -49,7 +50,8 @@ public final boolean saveDataFileDuringReload,
 		timerShowTimer,
 		allowSpawningOnWater,
 		noteAllcmdWorldE,
-		lootin;
+		lootin,
+		spawnOnNonSolidBlocks;
 public boolean worldborderCheckForSpawn, usehologram;
 
 
@@ -108,6 +110,7 @@ public Config(FileConfiguration config) {
 	defaultMaxFilledSlots = config.getInt("Max_Filled_Slots_By_Default");
 	minimumNumberOfPlayersForCommandSpawning = config.getInt("Minimum_Number_Of_Players_For_Command_Spawning");
 	maxHeightForRandomSpawn = config.getInt("Max_Height_For_Random_Spawn");
+	minHeightForRandomSpawn = config.getInt("Minimum_Height_For_Random_Spawn");
 
 	saveDataFileDuringReload = config.getBoolean("SaveDataFileDuringReload");
 	allowSpawningOnWater = config.getBoolean("allow_spawning_on_water");
@@ -135,7 +138,7 @@ public Config(FileConfiguration config) {
 	destroyNaturallyInsteadOfRemovingChest = config.getBoolean("Destroy_Naturally_Instead_Of_Removing_Chest");
 	timerShowTimer = config.getBoolean("Timer_on_hologram.Show_Timer_On_Hologram");
 	lootin = config.getBoolean("EnableLootin");
-
+	spawnOnNonSolidBlocks = config.getBoolean("spawn_on_non_solid_blocks");
 	
 	partDefaultParticle = config.getString("Particles.default_particle");
 	fallBlock = config.getString("Fall_Effect.Block");

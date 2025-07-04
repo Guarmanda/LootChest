@@ -49,7 +49,7 @@
                             <executable>${script.launcher}</executable>
                             <arguments>
                                 <argument>${script.argument}</argument>
-                                <argument>${basedir}\scripts\replace_local_path.${script.extension}</argument>
+                                <argument>${basedir}/scripts/replace_local_path.${script.extension}</argument>
                                 <argument>${basedir}</argument> <!-- si ton script attend un argument -->
                             </arguments>
                         </configuration>
@@ -108,7 +108,7 @@
             </activation>
             <properties>
                 <script.launcher>bash</script.launcher>
-                <script.argument/>
+                <script.argument>--debug</script.argument>
                 <script.extension>sh</script.extension>
             </properties>
         </profile>

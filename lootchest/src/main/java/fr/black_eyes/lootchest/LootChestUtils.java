@@ -94,12 +94,14 @@ public class LootChestUtils  {
 		boolean checkProtectedBlock = Main.configs.preventChestSpawnInProtectedPlaces;
 		boolean checkWorldBorder = Main.configs.worldborderCheckForSpawn;
 		boolean checkWater = !Main.configs.allowSpawningOnWater;
+		boolean checkNonSolidBlocks = !Main.configs.spawnOnNonSolidBlocks;
 		Location spawnLoc = getRandomLocation(startingLoc, radius );
-		while(counter<50 && (
+		while(counter<50 && (spawnLoc == null || (
 			(checkProtectedBlock && ProtectedRegions.isProtected(spawnLoc))
-			|| (checkWater &&  spawnLoc.getBlock().getRelative(0, -1, 0).isLiquid())
+			|| (checkWater &&  (spawnLoc.getBlock().getRelative(0, -1, 0).isLiquid() || spawnLoc.getBlock().getRelative(0, -2, 0).isLiquid()))
 			|| checkWorldBorder && (isOutsideOfBorder(spawnLoc) ))
-			|| spawnLoc.getY() > Main.configs.maxHeightForRandomSpawn
+			|| checkNonSolidBlocks && spawnLoc.getBlock().getType() != Material.AIR
+			|| spawnLoc.getY() > Main.configs.maxHeightForRandomSpawn)
 		) {
 			spawnLoc = getRandomLocation(startingLoc, radius );
 			counter++;
@@ -111,9 +113,13 @@ public class LootChestUtils  {
 			}
 		}
 		if(counter == 50) {
-
 			return null;
-		}else return spawnLoc;
+		}else{
+			if(Main.configs.minHeightForRandomSpawn < spawnLoc.getY()) {
+				spawnLoc.setY(Main.configs.minHeightForRandomSpawn);
+			}
+			return spawnLoc;
+		}
 	}
 	
 	/**
@@ -232,14 +238,29 @@ public class LootChestUtils  {
 	 * @return a random Location around the startLocation
 	 */
 	public static Location getRandomLocation(Location startLocation, int radius) {
+		World world = startLocation.getWorld();
 		Location center = startLocation.clone();
-		center.setX(randomInt(radius)+center.getX());
-		center.setZ(randomInt(radius)+center.getZ());
-		center.setY(center.getWorld().getHighestBlockYAt(center));
-		if (Main.getCompleteVersion()>=1150) {
-			center.setY(center.getWorld().getHighestBlockYAt(center)+(double)1);
+
+		for (int attempts = 0; attempts < 10; attempts++) {
+			double randomX = center.getX() + (Math.random() * radius * 2) - radius;
+			double randomZ = center.getZ() + (Math.random() * radius * 2) - radius;
+
+			int chunkX = (int) randomX >> 4;
+			int chunkZ = (int) randomZ >> 4;
+
+			if (!world.isChunkLoaded(chunkX, chunkZ)) {
+				continue;
+			}
+
+			int y = world.getHighestBlockYAt((int) randomX, (int) randomZ);
+			if (Main.getCompleteVersion() >= 1150) {
+				y += 1;
+			}
+
+			return new Location(world, randomX, y, randomZ).getBlock().getLocation();
 		}
-		return center;
+
+		return null;
 	}
 	
 	/**

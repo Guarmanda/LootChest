@@ -80,7 +80,7 @@ public class LootChestHologram {
 				if(runnable == null) {
 					startShowTime();
 				}
-				if(Main.getCompleteVersion()>=1090 && runnable.isCancelled()) {
+				if(Main.getCompleteVersion()>=1094 && runnable.isCancelled()) {
 					try {
 						runnable.runTaskTimer(Main.getInstance(), 0, 20);
 					}catch(IllegalStateException e) {

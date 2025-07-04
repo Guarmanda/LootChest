@@ -32,6 +32,8 @@ default_item_chance: 100
 use_players_locations_for_randomspawn: false
     #asked by someone, useful for the custom worlds/buildings with a top roof
 Max_Height_For_Random_Spawn: 200
+    #asked by someone, useful for the custom worlds/buildings with no bottom (skygrid)
+Minimum_Height_For_Random_Spawn: 0
     #if you save data file at each respawn, it can prevent bugged chests when server crashes. 
     #If you think your server never crashes, set it to false
 save_Chest_Locations_At_Every_Spawn: false
@@ -78,6 +80,9 @@ Fall_Effect:
   Speed: 0.8
     # keep this to false if you want to edit data file by hand (not recommended) then do a /lc reload
 SaveDataFileDuringReload: false
+
+# For randomspawn, should we keep grass and other things?
+spawn_on_non_solid_blocks: false
 
 #Do you want seconds being shown on chest hologram? It can be bugged in unloaded chunks.
 Timer_on_hologram:

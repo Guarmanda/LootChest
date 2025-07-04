@@ -304,90 +304,92 @@ public class Main extends SimpleJavaPlugin {
 	}
 	
 	
-  /**
-   * In many versions, I add some text a config option.
-   * These lines are done to update config and language files without erasing options that are already set
-   */
-  private void updateOldConfig() {
-	// hotfix
-	// in chances.lore, replace all % by nothing
-	if(Objects.requireNonNull(configFiles.getLang().getString(MENU_CHANCES_LORE)).contains("%")) {
-		String lore = configFiles.getLang().getString(MENU_CHANCES_LORE);
-        if (lore != null) {
-            lore = lore.replace("%", "");
-        }
-        configFiles.getLang().set(MENU_CHANCES_LORE, lore);
-	}
-	if(configFiles.getConfig().getInt("Particles.respawn_ticks") == 5){
-		configFiles.getConfig().set("Particles.respawn_ticks", 20);
-	}
-	if(configFiles.getConfig().isSet("RemoveChestAfterFirstOpenning")){
-		boolean remove = configFiles.getConfig().getBoolean("RemoveChestAfterFirstOpenning");
-		configFiles.getConfig().set("RemoveChestAfterFirstOpenning", null);
-		configFiles.getConfig().set("RemoveChestAfterFirstOpening", remove);
-	}
-	  configFiles.setConfig("Max_Height_For_Random_Spawn", 200);
-	  configFiles.setConfig("Max_Filled_Slots_By_Default", 0);
-	  configFiles.setConfig("SaveDataFileDuringReload", true);
-	  configFiles.setConfig("respawn_notify.respawn_all_with_command_in_world.enabled", true);
-	  configFiles.setConfig("respawn_notify.respawn_all_with_command_in_world.message", "&6All chests where forced to respawn in world [World]!\n&6Get them guys!");
-	  configFiles.setConfig("respawn_notify.Minimum_Number_Of_Players_For_Natural_Spawning", 0);
-	  configFiles.setConfig("EnableLootin", false);
-	  //deletion of now unsuported feature
-	  configFiles.getConfig().set("Fall_Effect.Let_Block_Above_Chest_After_Fall", null);
-      configFiles.setLang(MENU_MAIN_TYPE, "&1Select Chest Item");
-	  configFiles.setLang("notAnInteger", "&c[Number] is not an integer!");
-	  configFiles.setLang("blockIsAlreadyLootchest", "&cThis block is already a LootChest!");
-	  configFiles.setLang("editedMaxFilledSlots", "&aYou edited the max filled slots of chest &b[Chest]");
-	  configFiles.setLang("copiedChest", "&6You copied the chest &b[Chest1] &6into the chest &b[Chest2]");
-	  configFiles.setLang("NotEnoughPlayers", "&cThe server needs at least [Number] players to spawn chests");
-	  configFiles.setLang("ChestDespawned", "&aChest &b[Chest] &asuccesfuly despacned!");
-	  configFiles.setLang("NoChestAtLocation", "&cThe specified lootchest was already destroyed.");
-	  if(configFiles.getConfig().isSet("Fall_Effect.Optionnal_Color_If_Block_Is_Wool"))
-      	configFiles.setConfig("Fall_Effect.Optionnal_Color_If_Block_Is_Wool", null);
-	  configFiles.setLang("AllChestsDespawned", "&aAll chests were despawned!");
-	  configFiles.setLang("AllChestsDespawnedInWorld", "&aAll chests were despawned in world [World]!");
-	  configFiles.setLang("worldDoesntExist", "&cThe world [World] doesn't exist!");
-	  configFiles.setLang("AllChestsReloadedInWorld", "&aAll chests reloaded in world [World]!");
-	  if(!configFiles.getLang().getStringList("help").toString().contains("despawnall")){
-		List<String> help = configFiles.getLang().getStringList("help");
-		help.add("&a/lc despawnall [world] &b: despawns all chests, optionally in a specific world");
-		configFiles.getLang().set("help", help);
-		configFiles.saveLang();
-	}
-	  if(!configFiles.getLang().getStringList("help").toString().contains("copy")){
-    	List<String> help = configFiles.getLang().getStringList("help");
-    	help.add("&a/lc copy <source> <dest> &b: copy a chest into another");
-    	configFiles.getLang().set("help", help);
-    	configFiles.saveLang();        	
-      }
-	  if(!configFiles.getLang().getStringList("help").toString().contains("maxfilledslots")){
-    	List<String> help = configFiles.getLang().getStringList("help");
-    	help.add("&a/lc maxfilledslots <name> <number> &b: set the max filled slots of a chest");
-    	configFiles.getLang().set("help", help);
-    	configFiles.saveLang();        	
-      }
-	  if(!configFiles.getLang().getStringList("help").toString().contains("despawn ")){
-		  List<String> help = configFiles.getLang().getStringList("help");
-		  help.add("&a/lc despawn <name> &b: despawns a chest");
-		  configFiles.getLang().set("help", help);
-		  configFiles.saveLang();
-	  }
-	  //remove useless command
-	  if(configFiles.getLang().getStringList("help").toString().contains("removeAllHolo")){
-    	List<String> help = configFiles.getLang().getStringList("help");
-    	//get line and remove it
-		int index = help.stream().filter(s -> s.contains("removeAllHolo")).findFirst().map(help::indexOf).orElse(-1);
-		if(index!=-1) {
-			help.remove(index);
+	/**
+	* In many versions, I add some text a config option.
+	* These lines are done to update config and language files without erasing options that are already set
+	*/
+	private void updateOldConfig() {
+		// hotfix
+		// in chances.lore, replace all % by nothing
+		if(Objects.requireNonNull(configFiles.getLang().getString(MENU_CHANCES_LORE)).contains("%")) {
+			String lore = configFiles.getLang().getString(MENU_CHANCES_LORE);
+			if (lore != null) {
+				lore = lore.replace("%", "");
+			}
+			configFiles.getLang().set(MENU_CHANCES_LORE, lore);
 		}
-    	configFiles.getLang().set("help", help);
-    	configFiles.saveLang();        	
-      }
-      configFiles.saveLang();
-	  configFiles.saveConfig();
-      
-  }
+		if(configFiles.getConfig().getInt("Particles.respawn_ticks") == 5){
+			configFiles.getConfig().set("Particles.respawn_ticks", 20);
+		}
+		if(configFiles.getConfig().isSet("RemoveChestAfterFirstOpenning")){
+			boolean remove = configFiles.getConfig().getBoolean("RemoveChestAfterFirstOpenning");
+			configFiles.getConfig().set("RemoveChestAfterFirstOpenning", null);
+			configFiles.getConfig().set("RemoveChestAfterFirstOpening", remove);
+		}
+		configFiles.setConfig("spawn_on_non_solid_blocks", false);
+		configFiles.setConfig("Minimum_Height_For_Random_Spawn", 0);
+		configFiles.setConfig("Max_Height_For_Random_Spawn", 200);
+		configFiles.setConfig("Max_Filled_Slots_By_Default", 0);
+		configFiles.setConfig("SaveDataFileDuringReload", true);
+		configFiles.setConfig("respawn_notify.respawn_all_with_command_in_world.enabled", true);
+		configFiles.setConfig("respawn_notify.respawn_all_with_command_in_world.message", "&6All chests where forced to respawn in world [World]!\n&6Get them guys!");
+		configFiles.setConfig("respawn_notify.Minimum_Number_Of_Players_For_Natural_Spawning", 0);
+		configFiles.setConfig("EnableLootin", false);
+		//deletion of now unsuported feature
+		configFiles.getConfig().set("Fall_Effect.Let_Block_Above_Chest_After_Fall", null);
+		configFiles.setLang(MENU_MAIN_TYPE, "&1Select Chest Item");
+		configFiles.setLang("notAnInteger", "&c[Number] is not an integer!");
+		configFiles.setLang("blockIsAlreadyLootchest", "&cThis block is already a LootChest!");
+		configFiles.setLang("editedMaxFilledSlots", "&aYou edited the max filled slots of chest &b[Chest]");
+		configFiles.setLang("copiedChest", "&6You copied the chest &b[Chest1] &6into the chest &b[Chest2]");
+		configFiles.setLang("NotEnoughPlayers", "&cThe server needs at least [Number] players to spawn chests");
+		configFiles.setLang("ChestDespawned", "&aChest &b[Chest] &asuccesfuly despacned!");
+		configFiles.setLang("NoChestAtLocation", "&cThe specified lootchest was already destroyed.");
+		if(configFiles.getConfig().isSet("Fall_Effect.Optionnal_Color_If_Block_Is_Wool"))
+			configFiles.setConfig("Fall_Effect.Optionnal_Color_If_Block_Is_Wool", null);
+		configFiles.setLang("AllChestsDespawned", "&aAll chests were despawned!");
+		configFiles.setLang("AllChestsDespawnedInWorld", "&aAll chests were despawned in world [World]!");
+		configFiles.setLang("worldDoesntExist", "&cThe world [World] doesn't exist!");
+		configFiles.setLang("AllChestsReloadedInWorld", "&aAll chests reloaded in world [World]!");
+		if(!configFiles.getLang().getStringList("help").toString().contains("despawnall")){
+			List<String> help = configFiles.getLang().getStringList("help");
+			help.add("&a/lc despawnall [world] &b: despawns all chests, optionally in a specific world");
+			configFiles.getLang().set("help", help);
+			configFiles.saveLang();
+		}
+		if(!configFiles.getLang().getStringList("help").toString().contains("copy")){
+			List<String> help = configFiles.getLang().getStringList("help");
+			help.add("&a/lc copy <source> <dest> &b: copy a chest into another");
+			configFiles.getLang().set("help", help);
+			configFiles.saveLang();
+		}
+		if(!configFiles.getLang().getStringList("help").toString().contains("maxfilledslots")){
+			List<String> help = configFiles.getLang().getStringList("help");
+			help.add("&a/lc maxfilledslots <name> <number> &b: set the max filled slots of a chest");
+			configFiles.getLang().set("help", help);
+			configFiles.saveLang();
+		}
+		if(!configFiles.getLang().getStringList("help").toString().contains("despawn ")){
+			  List<String> help = configFiles.getLang().getStringList("help");
+			  help.add("&a/lc despawn <name> &b: despawns a chest");
+			  configFiles.getLang().set("help", help);
+			  configFiles.saveLang();
+		}
+		//remove useless command
+		if(configFiles.getLang().getStringList("help").toString().contains("removeAllHolo")){
+			List<String> help = configFiles.getLang().getStringList("help");
+			//get line and remove it
+			int index = help.stream().filter(s -> s.contains("removeAllHolo")).findFirst().map(help::indexOf).orElse(-1);
+			if(index!=-1) {
+				help.remove(index);
+			}
+			configFiles.getLang().set("help", help);
+			configFiles.saveLang();
+		}
+		configFiles.saveLang();
+		configFiles.saveConfig();
+
+	}
 	
 
 	

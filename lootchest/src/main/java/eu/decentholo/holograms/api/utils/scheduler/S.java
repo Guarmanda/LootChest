@@ -1,13 +1,15 @@
 package eu.decentholo.holograms.api.utils.scheduler;
 
+import lombok.experimental.UtilityClass;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.scheduler.BukkitTask;
 
 import eu.decentholo.holograms.api.DecentHolograms;
 import eu.decentholo.holograms.api.DecentHologramsAPI;
-import eu.decentholo.holograms.api.utils.DExecutor;
 
+import java.util.concurrent.CompletableFuture;
+@UtilityClass
 public class S {
 
     private static final DecentHolograms DECENT_HOLOGRAMS = DecentHologramsAPI.get();
@@ -24,16 +26,12 @@ public class S {
         try {
             Bukkit.getScheduler().runTaskAsynchronously(DECENT_HOLOGRAMS.getPlugin(), runnable);
         } catch (IllegalPluginAccessException e) {
-            DExecutor.execute(runnable);
+            CompletableFuture.runAsync(runnable);
         }
     }
 
     public static BukkitTask asyncTask(Runnable runnable, long interval, long delay) {
         return Bukkit.getScheduler().runTaskTimerAsynchronously(DECENT_HOLOGRAMS.getPlugin(), runnable, delay, interval);
-    }
-
-    private S() {
-        throw new UnsupportedOperationException("This class cannot be instantiated");
     }
 
 }
