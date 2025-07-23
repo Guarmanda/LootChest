@@ -7,12 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import eu.decentsoftware.holograms.api.DHAPI;
+import eu.decentsoftware.holograms.api.holograms.Hologram;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import eu.decentholo.holograms.api.DHAPI;
-import eu.decentholo.holograms.api.holograms.Hologram;
 import fr.black_eyes.simpleJavaPlugin.Utils;
 import lombok.Getter;
 
@@ -139,7 +141,8 @@ public class LootChestHologram {
 		}
 		else{
 			hologram.getPage(0).getLine(0).setContent(text);
-			hologram.getPage(0).getLine(0).updateWithTextForAllViewers(text);
+			List<Player> players = new ArrayList<>(Bukkit.getServer().getOnlinePlayers());
+			hologram.getPage(0).getLine(0).update(true, players.toArray(new Player[0]));
 		}
 	}
 

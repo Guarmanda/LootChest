@@ -34,20 +34,29 @@
         </resources>
         <plugins>
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>eu.decentsoftware.holograms</pattern>
+                                    <shadedPattern>fr.black_eyes.holograms</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>fr.black_eyes.simpleJavaPlugin</pattern>
+                                    <shadedPattern>fr.black_eyes.lootchest.simpleJavaPlugin</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -58,7 +67,7 @@
                         <phase>install</phase>
                         <configuration>
                             <target>
-                    <copy file="${project.build.directory}/lootchest-jar-with-dependencies.jar"
+                    <copy file="${project.build.directory}/lootchest.jar"
                           tofile="${basedir}/../target/Lootchest-${project.version}.jar" />
                             </target>
                         </configuration>
@@ -226,6 +235,11 @@
             <artifactId>SimpleJavaPlugin</artifactId>
             <version>0.7</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.guarmanda</groupId>
+            <artifactId>DecentHolograms</artifactId>
+            <version>2.9.5-4</version>
+        </dependency>
         <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_8_3</artifactId><version>${revision}</version></dependency>
         <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_8_8</artifactId><version>${revision}</version></dependency>
         <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_9_2</artifactId><version>${revision}</version></dependency>
@@ -267,6 +281,7 @@
         <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_21_5</artifactId><version>${revision}</version></dependency>
         <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_21_6</artifactId><version>${revision}</version></dependency>
         <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_21_7</artifactId><version>${revision}</version></dependency>
+        <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_21_8</artifactId><version>${revision}</version></dependency>
 
         <dependency>
             <groupId>fr.black_eyes.lootchest</groupId>

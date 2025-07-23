@@ -4,14 +4,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.Timestamp;
 import java.util.*;
 
+import eu.decentsoftware.holograms.api.DecentHolograms;
+import eu.decentsoftware.holograms.plugin.DecentHologramsPlugin;
 import fr.black_eyes.lootchest.commands.SubCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import eu.decentholo.holograms.DecentHologramsPlugin;
-import eu.decentholo.holograms.api.DecentHolograms;
 import fr.black_eyes.lootchest.commands.CommandHandler;
 import fr.black_eyes.lootchest.listeners.DeleteListener;
 import fr.black_eyes.lootchest.listeners.UiListener;
@@ -107,8 +107,7 @@ public class Main extends SimpleJavaPlugin {
 			hologramPlugin = new DecentHologramsPlugin();
 		}
 		if (getCompleteVersion() >= 1080){
-			hologramPlugin.onLoad(this);
-			hologramImpl = hologramPlugin.onEnable();
+			hologramImpl = hologramPlugin.onEnable(this);
 		}
 
 		lootChest = new HashMap<>();
