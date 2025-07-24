@@ -67,7 +67,7 @@ public abstract class SubCommand {
 			return;
 		}
 		// -1 because first arg is the command name
-		if (args.length -1 < requiredArgs.size()) {
+		if (args.length -1 < requiredArgs.size() || args.length -1 > getArgCount()) {
 			sender.sendMessage(ChatColor.RED + getUsage());
 			return;
 		}

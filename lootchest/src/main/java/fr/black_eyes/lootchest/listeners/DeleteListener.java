@@ -9,6 +9,7 @@ import java.util.Objects;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Container;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -148,6 +149,13 @@ public class DeleteListener implements Listener  {
 				return;
 			}
 			e.setCancelled(true);
+			Container container = (Container) block.getState();
+			// drop all items on the ground
+			for(ItemStack item : container.getInventory().getContents()) {
+				if(item != null && item.getType() != Material.AIR) {
+					block.getLocation().getWorld().dropItemNaturally(block.getLocation(), item);
+				}
+			}
 			if(Main.configs.destroyNaturallyInsteadOfRemovingChest) {
 				block.getLocation().getWorld().dropItemNaturally(block.getLocation(), new ItemStack(key.getType()));
 			}
