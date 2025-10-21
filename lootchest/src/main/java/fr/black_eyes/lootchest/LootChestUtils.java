@@ -95,7 +95,7 @@ public class LootChestUtils  {
 		boolean checkWorldBorder = Main.configs.worldborderCheckForSpawn;
 		boolean checkWater = !Main.configs.allowSpawningOnWater;
 		boolean checkNonSolidBlocks = !Main.configs.spawnOnNonSolidBlocks;
-		Location spawnLoc = getRandomLocation(startingLoc, radius );
+		Location spawnLoc = getRandomLocation(startingLoc, radius, 0 );
 		while(counter<100 && (spawnLoc == null || (
 			(checkProtectedBlock && ProtectedRegions.isProtected(spawnLoc))
 			|| (checkWater &&  (spawnLoc.getBlock().getRelative(0, -1, 0).isLiquid() || spawnLoc.getBlock().getRelative(0, -2, 0).isLiquid()))
@@ -103,7 +103,7 @@ public class LootChestUtils  {
 			|| checkNonSolidBlocks && spawnLoc.getBlock().getType() != Material.AIR
 			|| spawnLoc.getY() > Main.configs.maxHeightForRandomSpawn)
 		) {
-			spawnLoc = getRandomLocation(startingLoc, radius );
+			spawnLoc = getRandomLocation(startingLoc, radius, counter );
 			counter++;
 			//wait 10ms to avoid lag
 			try {
@@ -228,10 +228,9 @@ public class LootChestUtils  {
 	 * @param radius the radius
 	 * @return a random Location around the startLocation
 	 */
-	public static Location getRandomLocation(Location startLocation, int radius) {
+	public static Location getRandomLocation(Location startLocation, int radius, int attempt) {
 		World world = startLocation.getWorld();
 		Location center = startLocation.clone();
-
 
         double randomX = center.getX() + (Math.random() * radius * 2) - radius;
         double randomZ = center.getZ() + (Math.random() * radius * 2) - radius;
@@ -239,7 +238,7 @@ public class LootChestUtils  {
         int chunkX = (int) randomX >> 4;
         int chunkZ = (int) randomZ >> 4;
 
-        if (!world.isChunkLoaded(chunkX, chunkZ)) {
+        if (!world.isChunkLoaded(chunkX, chunkZ) && attempt < 50) {
             return null;
         }
 
