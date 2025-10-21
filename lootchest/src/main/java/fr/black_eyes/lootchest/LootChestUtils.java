@@ -96,7 +96,7 @@ public class LootChestUtils  {
 		boolean checkWater = !Main.configs.allowSpawningOnWater;
 		boolean checkNonSolidBlocks = !Main.configs.spawnOnNonSolidBlocks;
 		Location spawnLoc = getRandomLocation(startingLoc, radius );
-		while(counter<50 && (spawnLoc == null || (
+		while(counter<100 && (spawnLoc == null || (
 			(checkProtectedBlock && ProtectedRegions.isProtected(spawnLoc))
 			|| (checkWater &&  (spawnLoc.getBlock().getRelative(0, -1, 0).isLiquid() || spawnLoc.getBlock().getRelative(0, -2, 0).isLiquid()))
 			|| checkWorldBorder && (isOutsideOfBorder(spawnLoc) ))
@@ -112,7 +112,7 @@ public class LootChestUtils  {
 				Utils.logInfo("&cError while waiting for finding good spawn location: " + e.getMessage());
 			}
 		}
-		if(counter == 50) {
+		if(spawnLoc == null) {
 			return null;
 		}else{
 			if(Main.configs.minHeightForRandomSpawn > spawnLoc.getY()) {
@@ -232,26 +232,24 @@ public class LootChestUtils  {
 		World world = startLocation.getWorld();
 		Location center = startLocation.clone();
 
-		for (int attempts = 0; attempts < 10; attempts++) {
-			double randomX = center.getX() + (Math.random() * radius * 2) - radius;
-			double randomZ = center.getZ() + (Math.random() * radius * 2) - radius;
 
-			int chunkX = (int) randomX >> 4;
-			int chunkZ = (int) randomZ >> 4;
+        double randomX = center.getX() + (Math.random() * radius * 2) - radius;
+        double randomZ = center.getZ() + (Math.random() * radius * 2) - radius;
 
-			if (!world.isChunkLoaded(chunkX, chunkZ)) {
-				continue;
-			}
+        int chunkX = (int) randomX >> 4;
+        int chunkZ = (int) randomZ >> 4;
 
-			int y = world.getHighestBlockYAt((int) randomX, (int) randomZ);
-			if (Main.getCompleteVersion() >= 1150) {
-				y += 1;
-			}
+        if (!world.isChunkLoaded(chunkX, chunkZ)) {
+            return null;
+        }
 
-			return new Location(world, randomX, y, randomZ).getBlock().getLocation();
-		}
+        int y = world.getHighestBlockYAt((int) randomX, (int) randomZ);
+        if (Main.getCompleteVersion() >= 1150) {
+            y += 1;
+        }
+        Location loc = new Location(world, randomX, y, randomZ);
+        return (loc.getBlock().getType() == Material.AIR)? loc.getBlock().getLocation():loc.getBlock().getRelative(0,1,0).getLocation();
 
-		return null;
 	}
 	
 	/**

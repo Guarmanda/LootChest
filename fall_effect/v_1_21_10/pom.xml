@@ -7,11 +7,11 @@
     </parent>
 
 
-    <artifactId>v_1_21_8</artifactId>
+    <artifactId>v_1_21_10</artifactId>
     <version>${revision}</version>
 
     <properties>
-        <MCVersionPacket>1.21.8</MCVersionPacket>
+        <MCVersionPacket>1.21.10</MCVersionPacket>
         <maven.compiler.release>14</maven.compiler.release>
     </properties>
     <build>
