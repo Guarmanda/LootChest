@@ -14,7 +14,9 @@
 
     <properties>
         <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
-        <maven.compiler.release>8</maven.compiler.release>
+        <release>8</release>
+        <source>8</source>
+        <target>8</target>
         <revision>2.5.7</revision>
         <paperVersion>1.21.7</paperVersion>
     </properties>
