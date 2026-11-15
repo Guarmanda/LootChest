@@ -489,8 +489,7 @@ public class LootChestUtils  {
 	 * @return the name of the world
 	 */
 	public static String getWorldName(World world) {
-		String name =  world.toString().replace("CraftWorld{name=", "");
-		return name.substring(0, name.length() - 1);
+		return world.getName();
 	}
 
 	/**

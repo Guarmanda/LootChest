@@ -248,7 +248,7 @@
         <dependency>
             <groupId>com.github.CommunityCraftMC</groupId>
             <artifactId>DecentHolograms</artifactId>
-            <version>93c46267d61dd58ef39211c561e25817adbd614c</version>
+            <version>baee82adc80a067e50524ad313b8c7f19c51fa50</version>
         </dependency>
         <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_8_3</artifactId><version>${revision}</version></dependency>
         <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_8_8</artifactId><version>${revision}</version></dependency>

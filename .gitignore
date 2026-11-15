@@ -4,4 +4,5 @@ target/
 
 *.iml
 .flattened-pom.xml
+dependency-reduced-pom.xml
 /docs/
