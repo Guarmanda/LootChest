@@ -3,6 +3,7 @@ package fr.black_eyes.lootchest.particles;
 
 import fr.black_eyes.lootchest.Main;
 import fr.black_eyes.lootchest.Mat;
+import fr.black_eyes.lootchest.ServerVersion;
 import lombok.Getter;
 
 import org.bukkit.Bukkit;
@@ -186,7 +187,7 @@ public enum Particle {
 	 */
 	public static int getVersion() {
 		if(version == 0) {
-			String completeVer = Bukkit.getBukkitVersion().split("-")[0];
+			String completeVer = ServerVersion.minecraftVersion(Bukkit.getBukkitVersion());
             // there is now an exception: version can now be just "26.1". Let's add a "1." before it if there's no "1"
             if(!completeVer.startsWith("1"))
                 completeVer = "1." + completeVer;

@@ -12,6 +12,7 @@ import org.bukkit.entity.Firework;
 import org.bukkit.util.Vector;
 
 import fr.black_eyes.lootchest.Main;
+import fr.black_eyes.lootchest.ServerVersion;
 
 import org.bukkit.Material;
 import org.bukkit.Location;
@@ -58,7 +59,7 @@ public final class FallingPackageEntity {
 
 	public void summon() {
         if(Main.getCompleteVersion() < 1083) this.armorstand = false;
-        String version = Bukkit.getBukkitVersion().split("-")[0].replace(".", "_");
+        String version = ServerVersion.minecraftVersion(Bukkit.getBukkitVersion()).replace(".", "_");
         try {
             Class.forName("fr.black_eyes.lootchest.falleffect.Fallv_" + version);
         }  catch (ClassNotFoundException e) {
