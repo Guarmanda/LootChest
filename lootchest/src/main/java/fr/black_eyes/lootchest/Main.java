@@ -68,7 +68,7 @@ public class Main extends SimpleJavaPlugin {
 	 */
 	public static int getVersion() {
 		if(version == 0) {
-			String completeVer = Bukkit.getBukkitVersion().split("-")[0];
+			String completeVer = ServerVersion.minecraftVersion(Bukkit.getBukkitVersion());
             // there is now an exception: version can now be just "26.1". Let's add a "1." before it if there's no "1"
             if(!completeVer.startsWith("1"))
                 completeVer = "1." + completeVer;
@@ -84,22 +84,7 @@ public class Main extends SimpleJavaPlugin {
 	 * @return the version number
 	 */
 	public static int getCompleteVersion(){
-		String completeVer = Bukkit.getBukkitVersion().split("-")[0];
-		String sversion = completeVer.replace(".", "");
-		if(sversion.startsWith("18") || sversion.startsWith("19") || sversion.startsWith("17")){
-			//add a 0 between the first and second digit
-			sversion = sversion.charAt(0) + "0" + sversion.substring(1);
-			if(sversion.endsWith("10")) {
-				//remove the 0 at the end
-				sversion = sversion.substring(0, sversion.length()-1);
-			}
-		}
-		if(sversion.length() == 3) {
-			//add a 0 at the end
-			sversion = sversion + "0";
-		}
-		// we just have to remove the dots and parse string as integer
-		return Integer.parseInt(sversion);
+		return ServerVersion.completeVersion(Bukkit.getBukkitVersion());
 	}
     
 	@Override
@@ -127,7 +112,7 @@ public class Main extends SimpleJavaPlugin {
 			return;
 		}
 		Utils.logInfo("config files loaded");
-		Utils.logInfo("Server version: 1." + getVersion() );
+		Utils.logInfo("Server version: " + ServerVersion.minecraftVersion(Bukkit.getBukkitVersion()));
 		updateOldConfig();
 		configFiles.reloadConfig();
 		utils = new LootChestUtils();

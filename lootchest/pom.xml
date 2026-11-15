@@ -124,6 +124,12 @@
     </repositories>
     <dependencies>
         <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.github.placeholderapi</groupId>
             <artifactId>placeholderapi</artifactId>
             <version>2.11.5</version>
@@ -240,9 +246,9 @@
             <version>0.7</version>
         </dependency>
         <dependency>
-            <groupId>com.github.Guarmanda</groupId>
+            <groupId>com.github.CommunityCraftMC</groupId>
             <artifactId>DecentHolograms</artifactId>
-            <version>2.9.10</version>
+            <version>baee82adc80a067e50524ad313b8c7f19c51fa50</version>
         </dependency>
         <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_8_3</artifactId><version>${revision}</version></dependency>
         <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_8_8</artifactId><version>${revision}</version></dependency>
