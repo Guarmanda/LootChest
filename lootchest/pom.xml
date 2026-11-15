@@ -246,9 +246,9 @@
             <version>0.7</version>
         </dependency>
         <dependency>
-            <groupId>com.github.Guarmanda</groupId>
+            <groupId>com.github.CommunityCraftMC</groupId>
             <artifactId>DecentHolograms</artifactId>
-            <version>2.9.10</version>
+            <version>93c46267d61dd58ef39211c561e25817adbd614c</version>
         </dependency>
         <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_8_3</artifactId><version>${revision}</version></dependency>
         <dependency><groupId>fr.black_eyes.lootchest</groupId><artifactId>v_1_8_8</artifactId><version>${revision}</version></dependency>
